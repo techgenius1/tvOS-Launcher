@@ -1,0 +1,16 @@
+tvOS Launcher
+Copyright 2026 techgenius
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Credits and acknowledgements:
+- Hume Launcher (https://github.com/petrobot-admin/hume-launcher)
+- Couch TV (https://github.com/Seagey/couch-tv)
+- CleanYourTV (https://github.com/Gathin23/cleanyourtv)
+
+This product includes third-party components under their own licences:
+
+- Inter typeface — Copyright the Inter Project Authors — SIL Open Font License 1.1
+  (assets/fonts/Inter-LICENSE.txt)
+- QR Code generator library (Java) — Copyright (c) Project Nayuki — MIT License
+  (src/io/nayuki/qrcodegen)

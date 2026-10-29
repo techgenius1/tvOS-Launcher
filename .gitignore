@@ -1,0 +1,12 @@
+build/
+signing.keystore
+debug.keystore
+*.jks
+keystore-password.txt
+.DS_Store
+Thumbs.db
+tg.md
+x.md
+techolay.md
+xda.md
+

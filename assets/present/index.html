@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Presentation · tvOS Launcher</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <!-- Pairing -->
+  <section id="pairView" class="pair hidden" aria-labelledby="pairTitle">
+    <div class="pair-card">
+      <img class="pair-icon" src="/icon.svg" alt="" width="76" height="76">
+      <h1 id="pairTitle">Pair with your TV</h1>
+      <p class="secondary">Enter the 6-digit code shown on the TV.</p>
+      <form id="pairForm" autocomplete="off">
+        <div id="pinBoxes" class="pin-boxes" role="group" aria-label="Pairing code">
+          <input inputmode="numeric" maxlength="1" aria-label="Digit 1"><input inputmode="numeric" maxlength="1" aria-label="Digit 2"><input inputmode="numeric" maxlength="1" aria-label="Digit 3">
+          <span class="pin-gap"></span>
+          <input inputmode="numeric" maxlength="1" aria-label="Digit 4"><input inputmode="numeric" maxlength="1" aria-label="Digit 5"><input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+        </div>
+        <button id="pairBtn" class="btn primary wide" type="submit" disabled>Pair</button>
+      </form>
+      <p id="pairError" class="error" role="alert"></p>
+      <p id="pairHint" class="tertiary small">Can’t see the code? On the TV, open Presentation and press ▲ on the remote.</p>
+    </div>
+  </section>
+
+  <!-- App -->
+  <div id="appView" class="hidden">
+    <header class="nav">
+      <div class="nav-inner">
+        <div class="brand">
+          <img class="brand-icon" src="/icon.svg" alt="" width="32" height="32">
+          <div>
+            <div class="brand-title">Presentation</div>
+            <div id="deviceName" class="brand-sub">tvOS Launcher</div>
+          </div>
+        </div>
+        <div class="segmented" role="tablist" aria-label="Sections">
+          <button id="tabLibrary" role="tab" aria-selected="true" data-tab="library">Library</button>
+          <button id="tabPlaylist" role="tab" aria-selected="false" data-tab="playlist">Playlist</button>
+        </div>
+        <button id="unpairBtn" class="btn plain small" type="button" title="Forget this browser">Unpair</button>
+      </div>
+    </header>
+
+    <!-- Now Playing -->
+    <section class="now" aria-label="Now playing on TV">
+      <div class="now-info">
+        <span id="nowDot" class="status-dot" aria-hidden="true"></span>
+        <div>
+          <div id="nowTitle" class="now-title">Connecting…</div>
+          <div id="nowSub" class="now-sub secondary"></div>
+        </div>
+      </div>
+      <div class="now-controls">
+        <button class="icon-btn" data-cmd="previous" title="Previous slide" aria-label="Previous slide"><svg viewBox="0 0 24 24"><path d="M7 6v12M18 6l-8 6 8 6z"/></svg></button>
+        <button id="playPause" class="icon-btn big" data-cmd="pause" title="Pause" aria-label="Pause"><svg viewBox="0 0 24 24"><path id="ppIcon" d="M8 5v14M16 5v14"/></svg></button>
+        <button class="icon-btn" data-cmd="next" title="Next slide" aria-label="Next slide"><svg viewBox="0 0 24 24"><path d="M17 6v12M6 6l8 6-8 6z"/></svg></button>
+        <button class="icon-btn" data-cmd="restart" title="Start over" aria-label="Start over"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg></button>
+        <button class="btn tinted small" data-cmd="showConnectionInfo" title="Show the address and code on the TV">Show code on TV</button>
+      </div>
+    </section>
+
+    <main class="content">
+      <!-- Library -->
+      <section id="libraryView" aria-label="Library">
+        <label id="dropZone" class="drop" tabindex="0">
+          <input id="fileInput" type="file" accept="image/*,video/*" multiple hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          <div class="drop-title">Drop images or videos here</div>
+          <div class="secondary small">or <span class="link">choose files</span> · uploads go straight to the TV</div>
+        </label>
+        <div id="uploads" class="uploads"></div>
+
+        <div class="section-head">
+          <h2>Library <span id="mediaCount" class="count"></span></h2>
+          <div class="segmented small" role="group" aria-label="Filter">
+            <button data-filter="all" aria-pressed="true">All</button>
+            <button data-filter="image" aria-pressed="false">Images</button>
+            <button data-filter="video" aria-pressed="false">Videos</button>
+          </div>
+        </div>
+        <div id="mediaGrid" class="grid"></div>
+      </section>
+
+      <!-- Playlist: slide navigator, preview, inspector (Keynote-style) -->
+      <section id="playlistView" class="hidden" aria-label="Playlist">
+        <div class="section-head">
+          <h2>Playlist <span id="slideCount" class="count"></span></h2>
+          <div class="head-actions">
+            <span id="loopTime" class="pill"></span>
+            <div class="menu-wrap">
+              <button id="addBtn" class="btn primary small with-icon" type="button" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add Slide</button>
+              <div id="addMenu" class="menu hidden" role="menu">
+                <button type="button" role="menuitem" data-add="library"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>From Library…</button>
+                <button type="button" role="menuitem" data-add="webpage"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Webpage…</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="editor" class="editor">
+          <aside class="navigator" aria-label="Slides">
+            <ol id="slides" class="nav-list"></ol>
+            <p class="nav-hint tertiary small">Drag to reorder</p>
+          </aside>
+          <div class="stage">
+            <div id="preview" class="preview"></div>
+            <div class="caption">
+              <div id="capTitle" class="cap-title"></div>
+              <div id="capSub" class="cap-sub secondary"></div>
+            </div>
+          </div>
+          <div id="inspector" class="inspector" aria-label="Slide settings"></div>
+        </div>
+
+        <div id="slidesEmpty" class="empty-state hidden">
+          <img class="empty-icon" src="/icon.svg" alt="">
+          <h3>No slides yet</h3>
+          <p class="secondary">Add images or videos from your Library, or a webpage. Slides play in order and loop.</p>
+          <div class="empty-actions">
+            <button class="btn tinted" type="button" data-add="webpage">Add Webpage</button>
+            <button class="btn primary" type="button" data-add="library">Add from Library</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Save bar -->
+    <div id="saveBar" class="savebar" aria-live="polite">
+      <div>
+        <div class="savebar-title">Unsaved changes</div>
+        <div id="saveError" class="error small"></div>
+      </div>
+      <div class="savebar-actions">
+        <button id="revertBtn" class="btn plain" type="button">Revert</button>
+        <button id="saveBtn" class="btn primary" type="button">Save to TV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheets -->
+  <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-card">
+      <div class="sheet-head">
+        <h3 id="sheetTitle"></h3>
+        <button id="sheetClose" class="btn plain small" type="button">Done</button>
+      </div>
+      <div id="sheetBody" class="sheet-body"></div>
+    </div>
+  </div>
+  <div id="confirm" class="sheet hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="alert">
+      <h3 id="confirmTitle"></h3>
+      <p id="confirmText" class="secondary"></p>
+      <div class="alert-actions">
+        <button id="confirmCancel" class="btn plain" type="button">Cancel</button>
+        <button id="confirmOk" class="btn destructive" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
