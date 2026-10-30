@@ -17,7 +17,7 @@ final class Clicks {
     }
 
     static boolean enabled(Context c) {
-        return c.getSharedPreferences("sounds", Context.MODE_PRIVATE).getBoolean("nav_sounds", true);
+        return c.getSharedPreferences("sounds", Context.MODE_PRIVATE).getBoolean("nav_sounds", false);
     }
 
     static void setEnabled(Context c, boolean on) {

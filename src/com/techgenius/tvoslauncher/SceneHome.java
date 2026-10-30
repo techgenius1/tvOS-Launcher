@@ -77,6 +77,8 @@ final class SceneHome {
     int focusedDockIdx = 0;
     int focusedShelfIdx = 0;
     int moveDockIdx = -1;
+    int currentDockCols = 12;
+    int currentMaxSingleRowApps = 10;
     ObjectAnimator moveWiggle;
     FrameLayout sheetLayer;
     View sheetReturnFocus;
@@ -794,51 +796,80 @@ final class SceneHome {
         dockTiles.clear();
         dockEntries.clear();
 
-        // Collect installed apps to display in the Night scenes dock (max 10 in normal mode)
-        List<MainActivity.AppEntry> pool = new ArrayList<>();
+        float scale = Scenes.getDockScaleFactor(host);
+        int tileSize = Math.max(dp(26), Math.round(dp(54) * scale));
+        int tileGap = Math.max(dp(4), Math.round(dp(10) * scale));
+        int padH = Math.max(dp(8), Math.round(dp(13) * scale));
+        int padV = Math.max(dp(6), Math.round(dp(10) * scale));
+        dockBox.setPadding(padH, padV, padH, padV);
+
+        int maxDockInnerW = Math.max(tileSize * 4, host.screenW - dp(72) - 2 * padH);
+        int maxColsFit = Math.max(4, (maxDockInnerW + tileGap) / (tileSize + tileGap));
+        int cols = Math.min(12, maxColsFit);
+        currentDockCols = cols;
+
+        // Collect installed apps for Home and Other Apps
+        List<MainActivity.AppEntry> homePool = new ArrayList<>();
         Set<String> seenPkgs = new HashSet<>();
         for (MainActivity.AppEntry e : host.apps) {
             if (MainActivity.SETTINGS_KEY.equals(e.key) || MainActivity.TV_SETTINGS.equals(e.pkg)) {
                 continue; // Settings has its own dedicated Gear tile in the dock
             }
-            pool.add(e);
+            homePool.add(e);
             if (e.pkg != null) seenPkgs.add(e.pkg);
         }
 
-        if (moreExpanded) {
-            for (MainActivity.AppEntry o : host.otherApps) {
-                if (MainActivity.SETTINGS_KEY.equals(o.key) || MainActivity.TV_SETTINGS.equals(o.pkg)) {
-                    continue;
-                }
-                if (o.pkg == null || !seenPkgs.contains(o.pkg)) {
-                    pool.add(o);
-                    if (o.pkg != null) seenPkgs.add(o.pkg);
-                }
+        List<MainActivity.AppEntry> otherPool = new ArrayList<>();
+        for (MainActivity.AppEntry o : host.otherApps) {
+            if (MainActivity.SETTINGS_KEY.equals(o.key) || MainActivity.TV_SETTINGS.equals(o.pkg)) {
+                continue;
+            }
+            if (o.pkg == null || !seenPkgs.contains(o.pkg)) {
+                otherPool.add(o);
+                if (o.pkg != null) seenPkgs.add(o.pkg);
             }
         }
 
-        List<MainActivity.AppEntry> visibleApps = moreExpanded
-                ? pool
-                : pool.subList(0, Math.min(10, pool.size()));
+        // Determine if Other Apps (...) button is needed:
+        // Hidden when otherPool is empty AND all homePool apps + Gear fit in a single row (cols).
+        boolean hasAnyOtherOrOverflow = !otherPool.isEmpty() || (homePool.size() + 1 > cols);
+        if (!hasAnyOtherOrOverflow && moreExpanded) {
+            moreExpanded = false;
+            if (shelfBox != null) {
+                shelfBox.setVisibility(!host.cwEnabled() ? View.GONE : View.VISIBLE);
+            }
+        }
+
+        int maxFirstRowApps = hasAnyOtherOrOverflow ? Math.max(1, cols - 2) : Math.max(1, cols - 1);
+        currentMaxSingleRowApps = maxFirstRowApps;
+
+        List<MainActivity.AppEntry> visibleApps;
+        if (moreExpanded) {
+            visibleApps = new ArrayList<>(homePool.size() + otherPool.size());
+            visibleApps.addAll(homePool);
+            visibleApps.addAll(otherPool);
+        } else {
+            visibleApps = homePool.subList(0, Math.min(maxFirstRowApps, homePool.size()));
+        }
 
         dockEntries.addAll(visibleApps);
 
-        // Add Gear tile and More (...) tile at the end
+        // Add Gear tile
         MainActivity.AppEntry gearEntry = new MainActivity.AppEntry();
         gearEntry.key = GEAR_KEY;
         gearEntry.label = I18n.s(host, "Settings", "Ayarlar");
         dockEntries.add(gearEntry);
 
-        MainActivity.AppEntry moreEntry = new MainActivity.AppEntry();
-        moreEntry.key = MORE_KEY;
-        moreEntry.label = moreExpanded
-                ? I18n.s(host, "Fewer apps", "Daha az uygulama")
-                : I18n.s(host, "Other apps", "Diğer uygulamalar");
-        dockEntries.add(moreEntry);
+        // Only show Other Apps (...) tile if there are apps in Other Apps or overflow apps from the dock
+        if (hasAnyOtherOrOverflow) {
+            MainActivity.AppEntry moreEntry = new MainActivity.AppEntry();
+            moreEntry.key = MORE_KEY;
+            moreEntry.label = moreExpanded
+                    ? I18n.s(host, "Fewer apps", "Daha az uygulama")
+                    : I18n.s(host, "Other apps", "Diğer uygulamalar");
+            dockEntries.add(moreEntry);
+        }
 
-        int cols = 12;
-        int tileSize = dp(54);
-        int tileGap = dp(10);
         LinearLayout row = null;
         for (int i = 0; i < dockEntries.size(); i++) {
             if (i % cols == 0) {
@@ -852,7 +883,7 @@ final class SceneHome {
                 if (i > 0) rlp.topMargin = tileGap;
                 dockBox.addView(row, rlp);
             }
-            View tile = buildDockTile(dockEntries.get(i), i, tileSize);
+            View tile = buildDockTile(dockEntries.get(i), i, tileSize, scale);
             LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(tileSize, tileSize);
             if (i % cols != 0) tlp.leftMargin = tileGap;
             row.addView(tile, tlp);
@@ -867,14 +898,14 @@ final class SceneHome {
         }
     }
 
-    private View buildDockTile(MainActivity.AppEntry a, int index, int size) {
+    private View buildDockTile(MainActivity.AppEntry a, int index, int size, float scale) {
         FrameLayout tile = new FrameLayout(host);
         tile.setFocusable(true);
         tile.setClickable(true);
         tile.setLongClickable(true);
         tile.setPivotX(size / 2f);
         tile.setPivotY(size / 2f);
-        float rad = dp(13);
+        float rad = Math.max(dp(6), Math.round(dp(13) * scale));
 
         boolean isGear = GEAR_KEY.equals(a.key);
         boolean isMore = MORE_KEY.equals(a.key);
@@ -895,14 +926,15 @@ final class SceneHome {
         // Zero elevation on dock tiles avoids Android's dark inner/outer shadow artifact bleeding through translucent Gear/More tiles
         tile.setElevation(0f);
 
+        int glyphSize = Math.max(dp(14), Math.round(dp(26) * scale));
         ImageView iv = new ImageView(host);
         if (isGear) {
             iv.setScaleType(ImageView.ScaleType.CENTER);
-            iv.setImageBitmap(Glyphs.get("gear", dp(26), 0xEBF4F4F6));
+            iv.setImageBitmap(Glyphs.get("gear", glyphSize, 0xEBF4F4F6));
             tile.addView(iv, host.match());
         } else if (isMore) {
             iv.setScaleType(ImageView.ScaleType.CENTER);
-            iv.setImageBitmap(Glyphs.get("more", dp(26), 0xEBF4F4F6));
+            iv.setImageBitmap(Glyphs.get("more", glyphSize, 0xEBF4F4F6));
             tile.addView(iv, host.match());
         } else {
             boolean hasCustom = CustomMedia.hasCustomAppIcon(host, a.key, a.pkg);
@@ -1058,7 +1090,7 @@ final class SceneHome {
             focusDock(targetIdx);
         }));
 
-        boolean inOtherApps = host.otherApps.contains(a) || (moreExpanded && index >= 10);
+        boolean inOtherApps = host.otherApps.contains(a) || (moreExpanded && index >= currentMaxSingleRowApps);
         if (!host.isSettings(a)) {
             if (inOtherApps) {
                 labels.add(I18n.s(host, "Show on Home Screen", "Ana Ekranda Göster"));
@@ -1746,12 +1778,19 @@ final class SceneHome {
         }
 
         if (moveDockIdx >= 0) {
+            int cols = Math.max(1, currentDockCols);
             switch (k) {
                 case KeyEvent.KEYCODE_DPAD_LEFT:
                     if (down) moveDockBy(-1);
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
                     if (down) moveDockBy(1);
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if (down) moveDockBy(-cols);
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (down) moveDockBy(cols);
                     return true;
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                 case KeyEvent.KEYCODE_ENTER:
@@ -1841,7 +1880,7 @@ final class SceneHome {
         // Bottom Dock navigation
         int dIdx = dockTiles.indexOf(f);
         if (dIdx >= 0) {
-            int cols = 12;
+            int cols = Math.max(1, currentDockCols);
             if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
                 if (down && dIdx > 0) focusDock(dIdx - 1);
                 return true;
@@ -1864,8 +1903,12 @@ final class SceneHome {
                 return true;
             }
             if (k == KeyEvent.KEYCODE_DPAD_DOWN) {
-                if (down && dIdx + cols < dockTiles.size()) {
-                    focusDock(dIdx + cols);
+                if (down) {
+                    int curRow = dIdx / cols;
+                    int totalRows = (dockTiles.size() + cols - 1) / cols;
+                    if (curRow + 1 < totalRows) {
+                        focusDock(Math.min(dIdx + cols, dockTiles.size() - 1));
+                    }
                 }
                 return true;
             }

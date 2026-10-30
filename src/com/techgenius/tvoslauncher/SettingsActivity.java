@@ -106,11 +106,69 @@ public class SettingsActivity extends Activity {
     private boolean rebuilding = false;
     private String liftedSceneId = null;
     private boolean showingHiddenApps = false;
+    private String activeSubMenu = null;
+    private final List<String> subMenuStack = new ArrayList<>();
+    private final List<Integer> subMenuParentFocusIdx = new ArrayList<>();
+
+    // Cached state for async right-side CleanYourTV sub-menus
+    private static final int CYT_PAGE_SIZE = 40;
+    private Bitmap cachedCheckWhite = null;
+    private Bitmap cachedCheckDark = null;
+    private boolean cytAutoContinueToDebloat = false;
+    private String cytModelFilterQuery = "";
+    private int cytAllModelsPage = 0;
+    private List<CleanYourTv.ModelMatch> cytScannedMatches = null;
+    private int cytScannedCount = 0;
+    private boolean cytScanningApps = false;
+    private List<CleanYourTv.DebloatItem> cytChecklistItems = null;
+    private String cytChecklistSlug = "";
+    private boolean cytChecklistLoading = false;
+    private boolean cytChecklistIsGoogleTv = false;
+    private boolean cytChecklistWifiOwnedBySetupwraith = false;
+    private Set<String> cytCachedInstalledPkgs = new HashSet<>();
+    private Set<String> cytCachedEnabledPkgs = new HashSet<>();
+    private boolean cytLaunchersSyncedAdb = false;
+    private List<CleanYourTv.DebloatItem> cytManualItems = null;
+    private boolean cytManualLoading = false;
+    private String cytManualFilterQuery = "";
+    private int cytManualPage = 0;
+
+    private String resolvePageExtra(String pg) {
+        if (pg == null || pg.isEmpty()) return LOOK_SCENES;
+        if (INPUTS.equals(pg) || "cp".equalsIgnoreCase(pg) || "control_panel".equalsIgnoreCase(pg)) {
+            return CONTROL_PANEL;
+        } else if (LOCATION.equals(pg) || WEATHER.equals(pg) || "weather".equalsIgnoreCase(pg)) {
+            return WEATHER;
+        } else if (SHELF.equals(pg) || PRESENT.equals(pg) || WATCHING.equals(pg) || HOME.equals(pg) || PERMS.equals(pg) || "quick".equalsIgnoreCase(pg)) {
+            return QUICK;
+        } else if ("look".equalsIgnoreCase(pg) || "scenes".equalsIgnoreCase(pg)) {
+            return LOOK_SCENES;
+        } else if ("bm".equalsIgnoreCase(pg) || "button_mapper".equalsIgnoreCase(pg)) {
+            return BUTTON_MAPPER;
+        } else if ("advanced".equalsIgnoreCase(pg)) {
+            return ADVANCED;
+        } else if ("updates".equalsIgnoreCase(pg)) {
+            return UPDATES;
+        } else if ("about".equalsIgnoreCase(pg)) {
+            return ABOUT;
+        } else if ("apps".equalsIgnoreCase(pg)) {
+            return APPS;
+        } else if ("profiles".equalsIgnoreCase(pg) || "people".equalsIgnoreCase(pg)) {
+            return PROFILES;
+        } else if ("language".equalsIgnoreCase(pg)) {
+            return LANGUAGE;
+        }
+        return pg;
+    }
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         Clicks.init(this);
+        String lang = getIntent().getStringExtra("lang");
+        if (lang != null && !lang.isEmpty()) {
+            I18n.setLang(this, lang);
+        }
         String token = getIntent().getStringExtra("tmdb_token");
         if (token != null && !token.trim().isEmpty()) {
             Suggestions.prefs(this).edit().putString(Suggestions.K_TOKEN, token.trim()).apply();
@@ -119,18 +177,44 @@ public class SettingsActivity extends Activity {
         }
         String pg = getIntent().getStringExtra("page");
         if (pg != null && !pg.isEmpty()) {
-            if (INPUTS.equals(pg)) {
-                currentSection = CONTROL_PANEL;
-            } else if (LOCATION.equals(pg) || WEATHER.equals(pg)) {
-                currentSection = WEATHER;
-            } else if (SHELF.equals(pg) || PRESENT.equals(pg) || WATCHING.equals(pg) || HOME.equals(pg) || PERMS.equals(pg)) {
-                currentSection = QUICK;
-            } else {
-                currentSection = pg;
-            }
+            currentSection = resolvePageExtra(pg);
         }
         buildUi();
         selectSection(currentSection, false, 0);
+        String sub = getIntent().getStringExtra("submenu");
+        if (sub != null && !sub.isEmpty()) {
+            openSubMenu(sub);
+        }
+        int scrollY = getIntent().getIntExtra("scroll_y", 0);
+        if (scrollY > 0 && scroller != null) {
+            scroller.postDelayed(() -> scroller.scrollTo(0, u(scrollY)), 200);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        String lang = intent.getStringExtra("lang");
+        if (lang != null && !lang.isEmpty()) {
+            I18n.setLang(this, lang);
+            updateSidebarTranslations();
+        }
+        String pg = intent.getStringExtra("page");
+        if (pg != null && !pg.isEmpty()) {
+            activeSubMenu = null;
+            subMenuStack.clear();
+            subMenuParentFocusIdx.clear();
+            selectSection(resolvePageExtra(pg), false, 0);
+        }
+        String sub = intent.getStringExtra("submenu");
+        if (sub != null && !sub.isEmpty()) {
+            openSubMenu(sub);
+        }
+        int scrollY = intent.getIntExtra("scroll_y", 0);
+        if (scrollY > 0 && scroller != null) {
+            scroller.postDelayed(() -> scroller.scrollTo(0, u(scrollY)), 200);
+        }
     }
 
     private String tr(String en, String trStr) {
@@ -150,7 +234,7 @@ public class SettingsActivity extends Activity {
             case PROFILES: return tr("People", "Kişiler");
             case CONTROL_PANEL: return tr("Control Panel", "Denetim Paneli");
             case BUTTON_MAPPER: return tr("Button mapper", "Düğme eşleyici");
-            case QUICK: return tr("Quick buttons", "Hızlı düğmeler");
+            case QUICK: return tr("Quick settings", "Hızlı ayarlar");
             case LANGUAGE: return tr("Language", "Dil");
             case ADVANCED: return tr("Advanced", "Gelişmiş");
             case UPDATES: return tr("Updates", "Güncellemeler");
@@ -383,8 +467,11 @@ public class SettingsActivity extends Activity {
                 if (has) {
                     inRows = false;
                     liftedSceneId = null;
-                    if (!secKey.equals(currentSection) || showingHiddenApps) {
+                    if (!secKey.equals(currentSection) || showingHiddenApps || activeSubMenu != null) {
                         showingHiddenApps = false;
+                        activeSubMenu = null;
+                        subMenuStack.clear();
+                        subMenuParentFocusIdx.clear();
                         currentSection = secKey;
                         rebuildMainRows();
                     }
@@ -533,6 +620,53 @@ public class SettingsActivity extends Activity {
         return 0;
     }
 
+    public void openSubMenu(String id) {
+        if (id == null || id.isEmpty()) return;
+        subMenuStack.add(activeSubMenu != null ? activeSubMenu : "");
+        subMenuParentFocusIdx.add(getFocusedRowIndex());
+        activeSubMenu = id;
+        inRows = true;
+        rebuildMainRows();
+        focusFirstRow();
+    }
+
+    public boolean closeSubMenu() {
+        if (showingHiddenApps) {
+            showingHiddenApps = false;
+            rebuildMainRows();
+            focusFirstRow();
+            return true;
+        }
+        if (activeSubMenu != null) {
+            String prev = "";
+            int parentIdx = 0;
+            if (!subMenuStack.isEmpty()) {
+                prev = subMenuStack.remove(subMenuStack.size() - 1);
+            }
+            if (!subMenuParentFocusIdx.isEmpty()) {
+                parentIdx = subMenuParentFocusIdx.remove(subMenuParentFocusIdx.size() - 1);
+            }
+            activeSubMenu = (prev == null || prev.isEmpty()) ? null : prev;
+            inRows = true;
+            rebuildMainRows();
+            focusRowAtIndex(parentIdx);
+            return true;
+        }
+        return false;
+    }
+
+    public void openDefaultHomeSubMenu() {
+        openSubMenu("default_home");
+    }
+
+    public void openSystemLaunchersSubMenu() {
+        openSubMenu("cyt_launchers");
+    }
+
+    public void openButtonKeySubMenu(int keyCode) {
+        openSubMenu("bm_key:" + keyCode);
+    }
+
     private void rebuildMainRows() {
         boolean wasInRows = inRows;
         int prevFocusIdx = getFocusedRowIndex();
@@ -547,42 +681,46 @@ public class SettingsActivity extends Activity {
         mainHeadView.setText(sectionTitle(currentSection));
 
         try {
-            switch (currentSection) {
-                case LANGUAGE:
-                    pageLanguage();
-                    break;
-                case LOCATION:
-                case WEATHER:
-                    pageWeather();
-                    break;
-                case LOOK_SCENES:
-                    pageLookAndScenes();
-                    break;
-                case APPS:
-                    pageApps();
-                    break;
-                case PROFILES:
-                    pageProfiles();
-                    break;
-                case CONTROL_PANEL:
-                    pageControlPanel();
-                    break;
-                case BUTTON_MAPPER:
-                    pageButtonMapper();
-                    break;
-                case QUICK:
-                    pageQuickAndHome();
-                    break;
-                case ADVANCED:
-                    pageAdvanced();
-                    break;
-                case UPDATES:
-                    pageUpdates();
-                    break;
-                case ABOUT:
-                default:
-                    pageAbout();
-                    break;
+            if (activeSubMenu != null) {
+                renderSubMenu(activeSubMenu);
+            } else {
+                switch (currentSection) {
+                    case LANGUAGE:
+                        pageLanguage();
+                        break;
+                    case LOCATION:
+                    case WEATHER:
+                        pageWeather();
+                        break;
+                    case LOOK_SCENES:
+                        pageLookAndScenes();
+                        break;
+                    case APPS:
+                        pageApps();
+                        break;
+                    case PROFILES:
+                        pageProfiles();
+                        break;
+                    case CONTROL_PANEL:
+                        pageControlPanel();
+                        break;
+                    case BUTTON_MAPPER:
+                        pageButtonMapper();
+                        break;
+                    case QUICK:
+                        pageQuickAndHome();
+                        break;
+                    case ADVANCED:
+                        pageAdvanced();
+                        break;
+                    case UPDATES:
+                        pageUpdates();
+                        break;
+                    case ABOUT:
+                    default:
+                        pageAbout();
+                        break;
+                }
             }
         } catch (Throwable t) {
             android.util.Log.w("tvOSLauncher", "Settings section build error (" + currentSection + "): " + t);
@@ -597,7 +735,7 @@ public class SettingsActivity extends Activity {
         } else {
             scroller.scrollTo(0, 0);
         }
-        updateHintText(LOOK_SCENES.equals(currentSection));
+        updateHintText(activeSubMenu == null && LOOK_SCENES.equals(currentSection));
     }
 
     // ================================================================ Section Pages
@@ -649,17 +787,7 @@ public class SettingsActivity extends Activity {
                 });
         row(tr("Weather source", "Hava durumu kaynağı"),
                 () -> Weather.sourceName(Weather.source(this)),
-                () -> {
-                    String[] keys = Weather.SOURCES;
-                    String[] names = {"Open-Meteo", "MET Norway (Yr)", "wttr.in  (3 days)"};
-                    int sel = Arrays.asList(keys).indexOf(Weather.source(this));
-                    dialog(tr("Weather source", "Hava durumu kaynağı")).setSingleChoiceItems(names, Math.max(0, sel), (d, w) -> {
-                        Weather.prefs(this).edit().putString(Weather.K_SOURCE, keys[w]).apply();
-                        Weather.changed(this);
-                        refreshAll();
-                        d.dismiss();
-                    }).show();
-                });
+                () -> openSubMenu("weather_source"));
         infoRow(tr("Weather from", "Hava durumu sağlayıcısı"),
                 "Open-Meteo",
                 tr("Free forecast service, no account needed", "Ücretsiz hava tahmini servisi, hesap gerekmez"));
@@ -690,6 +818,7 @@ public class SettingsActivity extends Activity {
 
     /**
      * Exact Couch-TV "Look and scenes" layout (matching docs/screens/home-settings.jpg):
+     * - DOCK: Dock resize option (-50% to +50%, default 100%)
      * - LOOK: Night scenes vs Classic
      * - SCENES: Night, Golden hour, Waterline, Fog, Rainforest dawn (with 16:9 thumbnails & green circular checkmarks)
      * - Each scene stays: 20 seconds
@@ -697,15 +826,22 @@ public class SettingsActivity extends Activity {
      * - CLASSIC BACKGROUND: Couch-TV photos & ambient themes
      */
     void pageLookAndScenes() {
-        section(tr("LOOK", "GÖRÜNÜM"));
         boolean scenesLook = Scenes.isScenesLook(this);
+        if (scenesLook) {
+            section(tr("DOCK", "DOCK"));
+            row(tr("Dock size", "Dock boyutu"),
+                    () -> Scenes.dockScaleLabel(this),
+                    () -> openSubMenu("dock_size"));
+        }
+
+        section(tr("LOOK", "GÖRÜNÜM"));
         choiceRow(
                 tr("Night scenes", "Gece sahneleri"),
                 tr("A big glass clock, scenes taking turns", "Büyük cam saat, sırayla değişen sahneler"),
                 scenesLook,
                 () -> {
                     Scenes.setLook(this, Scenes.LOOK_SCENES);
-                    selectSection(LOOK_SCENES, true, 0);
+                    selectSection(LOOK_SCENES, true, 1);
                 });
         choiceRow(
                 tr("Classic", "Klasik"),
@@ -777,17 +913,7 @@ public class SettingsActivity extends Activity {
             String k = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
             int idx = Arrays.asList(MainActivity.WALL_KEYS).indexOf(k);
             return MainActivity.wallName(this, Math.max(0, idx));
-        }, () -> {
-            String k = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
-            int cur = Math.max(0, Arrays.asList(MainActivity.WALL_KEYS).indexOf(k));
-            String[] names = new String[MainActivity.WALL_KEYS.length];
-            for (int i = 0; i < names.length; i++) names[i] = MainActivity.wallName(this, i);
-            dialog(tr("Classic background", "Klasik arka plan")).setSingleChoiceItems(names, cur, (d, w) -> {
-                Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.WALL_KEYS[w]).apply();
-                d.dismiss();
-                rebuildMainRows();
-            }).show();
-        });
+        }, () -> openSubMenu("ambient_themes"));
         customClassicPhotoRow("custom".equals(curWall));
     }
 
@@ -829,21 +955,7 @@ public class SettingsActivity extends Activity {
                 case Suggestions.SHELF_NONE: return tr("Off", "Kapalı");
                 default: return tr("Recommendations & News", "Öneriler ve Haberler");
             }
-        }, () -> {
-            String[] keys = {Suggestions.SHELF_NONE, Suggestions.SHELF_BOTH, Suggestions.SHELF_RECS, Suggestions.SHELF_NEWS};
-            String[] names = {
-                tr("Off", "Kapalı"),
-                tr("Recommendations & News", "Öneriler ve Haberler"),
-                tr("Recommendations", "Öneriler"),
-                tr("News", "Haberler")
-            };
-            int sel = Math.max(0, Arrays.asList(keys).indexOf(Suggestions.shelf(this)));
-            dialog(tr("Classic Top Shelf", "Klasik Üst Raf")).setSingleChoiceItems(names, sel, (d, w) -> {
-                Suggestions.setShelf(this, keys[w]);
-                d.dismiss();
-                refreshAll();
-            }).show();
-        });
+        }, () -> openSubMenu("top_shelf"));
         row(tr("Clear Continue Watching history", "İzlemeye Devam Et geçmişini temizle"),
                 () -> "",
                 () -> {
@@ -1055,14 +1167,13 @@ public class SettingsActivity extends Activity {
         String curId = Profiles.current(this).id;
         for (int i = 0; i < ps.size(); i++) {
             final Profiles.Profile p = ps.get(i);
-            final int idx = i;
             boolean isActive = p.id.equals(curId);
             choiceRow(
                     I18n.profileName(this, p.name),
                     isActive ? tr("Watching now · OK to switch or rename", "Şu an izliyor · Değiştirmek veya yeniden adlandırmak için OK")
                              : tr("OK to switch or edit", "Geçiş yapmak veya düzenlemek için OK"),
                     isActive,
-                    () -> showProfileActionsDialog(p, idx));
+                    () -> openSubMenu("profile_actions:" + p.id));
         }
         if (Profiles.canAdd(this)) {
             row(tr("Add a person…", "Kişi ekle…"), () -> "›", this::promptAddPerson);
@@ -1073,26 +1184,6 @@ public class SettingsActivity extends Activity {
                 () -> Profiles.setAskOnWake(this, !Profiles.askOnWake(this)));
         infoNote(tr("Each person keeps their own Keep Watching row and app order.",
                 "Her kişi kendi İzlemeye Devam Et satırını ve uygulama düzenini korur."));
-    }
-
-    private void showProfileActionsDialog(Profiles.Profile p, int rowIdx) {
-        List<String> opts = new ArrayList<>();
-        opts.add(tr("Switch to " + I18n.profileName(this, p.name), I18n.profileName(this, p.name) + " profiline geç"));
-        opts.add(tr("Rename…", "Yeniden adlandır…"));
-        if (Profiles.list(this).size() > 1) {
-            opts.add(tr("Remove person", "Kişiyi kaldır"));
-        }
-        dialog(I18n.profileName(this, p.name)).setItems(opts.toArray(new String[0]), (d, w) -> {
-            if (w == 0) {
-                Profiles.setCurrent(this, p.id);
-                selectSection(PROFILES, true, rowIdx);
-            } else if (w == 1) {
-                promptRenamePerson(p, rowIdx);
-            } else if (w == 2) {
-                Profiles.delete(this, p.id);
-                selectSection(PROFILES, true, 0);
-            }
-        }).show();
     }
 
     private void promptRenamePerson(Profiles.Profile p, int rowIdx) {
@@ -1111,7 +1202,7 @@ public class SettingsActivity extends Activity {
                     if (!n.isEmpty()) {
                         p.name = n;
                         Profiles.update(this, p);
-                        selectSection(PROFILES, true, rowIdx);
+                        rebuildMainRows();
                     }
                 })
                 .setNegativeButton(tr("Cancel", "İptal"), null)
@@ -1147,24 +1238,16 @@ public class SettingsActivity extends Activity {
         section(tr("UNIVERSAL SHORTCUT ACTIONS", "EVRENSEL KISAYOL EYLEMLERİ"));
         row(tr("Wi-Fi", "Wi-Fi"),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_WIFI),
-                () -> showControlPanelAppChooser(
-                        ControlPanelOverlay.ACTION_WIFI,
-                        tr("Wi-Fi", "Wi-Fi")));
+                () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_WIFI));
         row(tr("Bluetooth", "Bluetooth"),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_BLUETOOTH),
-                () -> showControlPanelAppChooser(
-                        ControlPanelOverlay.ACTION_BLUETOOTH,
-                        tr("Bluetooth", "Bluetooth")));
+                () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_BLUETOOTH));
         row(tr("Sound", "Ses"),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_SOUND),
-                () -> showControlPanelAppChooser(
-                        ControlPanelOverlay.ACTION_SOUND,
-                        tr("Sound", "Ses")));
+                () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_SOUND));
         row(tr("Inputs (Control Panel & Dock)", "Girişler (Denetim Paneli ve Dock)"),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_INPUTS),
-                () -> showControlPanelAppChooser(
-                        ControlPanelOverlay.ACTION_INPUTS,
-                        tr("Inputs", "Girişler")));
+                () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_INPUTS));
 
         section(tr("INPUTS APP ON DOCK", "DOCK ÜZERİNDEKİ GİRİŞLER UYGULAMASI"));
         row(tr("Show Inputs app on Dock", "Dock'ta Girişler uygulamasını göster"),
@@ -1189,168 +1272,6 @@ public class SettingsActivity extends Activity {
                 "Her TV markası Wi-Fi, Bluetooth, Ses ve Girişler için farklı paket ve etkinlik adları kullanır. Bir uygulama seçin ve ardından Denetim Panelinden (ve dock'taki Girişler uygulamasından) başlatılacak etkinliği belirleyin."));
     }
 
-    private void showControlPanelAppChooser(String actionKey, String actionTitle) {
-        PackageManager pm = getPackageManager();
-        List<PackageInfo> rawPkgs;
-        try {
-            rawPkgs = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
-        } catch (Throwable t) {
-            rawPkgs = Collections.emptyList();
-        }
-
-        class AppEntry {
-            final String pkg;
-            final String label;
-            final int actCount;
-
-            AppEntry(String pkg, String label, int actCount) {
-                this.pkg = pkg;
-                this.label = label;
-                this.actCount = actCount;
-            }
-        }
-
-        List<AppEntry> entries = new ArrayList<>();
-        for (PackageInfo pi : rawPkgs) {
-            if (pi == null || pi.packageName == null) continue;
-            int count = (pi.activities != null) ? pi.activities.length : 0;
-            if (count == 0) {
-                // Fallback check via queryIntentActivities in case GET_ACTIVITIES truncated
-                Intent q = new Intent().setPackage(pi.packageName);
-                List<ResolveInfo> ris = pm.queryIntentActivities(q, 0);
-                count = (ris != null) ? ris.size() : 0;
-            }
-            if (count == 0) continue;
-            String label = pi.packageName;
-            if (pi.applicationInfo != null) {
-                CharSequence cs = pi.applicationInfo.loadLabel(pm);
-                if (cs != null && cs.length() > 0) {
-                    label = cs.toString().trim();
-                }
-            }
-            entries.add(new AppEntry(pi.packageName, label, count));
-        }
-
-        Collections.sort(entries, (a, b) -> {
-            int cmp = a.label.compareToIgnoreCase(b.label);
-            return cmp != 0 ? cmp : a.pkg.compareToIgnoreCase(b.pkg);
-        });
-
-        String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
-        String[] labels = new String[entries.size() + 1];
-        labels[0] = "↺  " + tr("Default (Automatic)", "Varsayılan (Otomatik)");
-        int checkedIdx = 0;
-        for (int i = 0; i < entries.size(); i++) {
-            AppEntry e = entries.get(i);
-            labels[i + 1] = e.label + "  (" + e.pkg + ")";
-            if (!curPkg.isEmpty() && curPkg.equals(e.pkg)) {
-                checkedIdx = i + 1;
-            }
-        }
-
-        dialog(actionTitle + " — " + tr("Choose App", "Uygulama Seçin"))
-                .setSingleChoiceItems(labels, checkedIdx, (d, which) -> {
-                    d.dismiss();
-                    if (which == 0) {
-                        ControlPanelOverlay.clearCustomAction(this, actionKey);
-                        refreshAll();
-                        showStatusMsg(actionTitle + ": " + tr("Default (Automatic)", "Varsayılan (Otomatik)"));
-                    } else {
-                        AppEntry chosen = entries.get(which - 1);
-                        showControlPanelActivityChooser(actionKey, actionTitle, chosen.pkg, chosen.label);
-                    }
-                })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
-                .show();
-    }
-
-    private void showControlPanelActivityChooser(String actionKey, String actionTitle, String pkg, String appLabel) {
-        PackageManager pm = getPackageManager();
-        List<ActivityInfo> actList = new ArrayList<>();
-        Set<String> seenNames = new HashSet<>();
-
-        try {
-            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_ACTIVITIES);
-            if (pi != null && pi.activities != null) {
-                for (ActivityInfo ai : pi.activities) {
-                    if (ai != null && ai.name != null && seenNames.add(ai.name)) {
-                        actList.add(ai);
-                    }
-                }
-            }
-        } catch (Throwable ignored) {
-        }
-
-        try {
-            Intent q = new Intent().setPackage(pkg);
-            List<ResolveInfo> ris = pm.queryIntentActivities(q, 0);
-            if (ris != null) {
-                for (ResolveInfo ri : ris) {
-                    if (ri.activityInfo != null && ri.activityInfo.name != null
-                            && seenNames.add(ri.activityInfo.name)) {
-                        actList.add(ri.activityInfo);
-                    }
-                }
-            }
-        } catch (Throwable ignored) {
-        }
-
-        String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
-        String curCls = ControlPanelOverlay.getCustomCls(this, actionKey);
-
-        final List<String> clsValues = new ArrayList<>();
-        final List<String> summaryValues = new ArrayList<>();
-        final List<String> displayLabels = new ArrayList<>();
-
-        // Option 0: Launch app's default main activity
-        clsValues.add("");
-        summaryValues.add(appLabel);
-        displayLabels.add("★  " + tr("Default App Launch (Main Activity)", "Uygulamayı Normal Başlat (Ana Etkinlik)")
-                + "\n    " + pkg);
-
-        int checkedIdx = 0;
-        for (int i = 0; i < actList.size(); i++) {
-            ActivityInfo ai = actList.get(i);
-            String fullCls = ai.name;
-            String shortCls = fullCls.startsWith(pkg + ".")
-                    ? fullCls.substring(pkg.length())
-                    : fullCls;
-            CharSequence actCs = ai.loadLabel(pm);
-            String actTitle = (actCs != null && actCs.length() > 0) ? actCs.toString().trim() : "";
-            String rowText;
-            if (!actTitle.isEmpty() && !actTitle.equalsIgnoreCase(appLabel) && !actTitle.equals(fullCls)) {
-                rowText = actTitle + "  (" + shortCls + ")";
-            } else {
-                rowText = shortCls + "  (" + fullCls + ")";
-            }
-            clsValues.add(fullCls);
-            summaryValues.add(appLabel + " · " + shortCls);
-            displayLabels.add(rowText);
-            if (pkg.equals(curPkg) && fullCls.equals(curCls)) {
-                checkedIdx = i + 1;
-            }
-        }
-
-        dialog(appLabel + " — " + tr("Choose Activity", "Etkinlik Seçin"))
-                .setSingleChoiceItems(displayLabels.toArray(new String[0]), checkedIdx, (d, which) -> {
-                    d.dismiss();
-                    String chosenCls = clsValues.get(which);
-                    String summary = summaryValues.get(which);
-                    ControlPanelOverlay.setCustomAction(this, actionKey, pkg, chosenCls, summary);
-                    if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) {
-                        // Ensure the Inputs app on the dock is visible when user configures Inputs
-                        Inputs.prefs(this).edit().putBoolean(Inputs.K_CARD, true).apply();
-                    }
-                    refreshAll();
-                    showStatusMsg(actionTitle + " → " + summary);
-                })
-                .setNeutralButton(tr("← Back to Apps", "← Uygulamalara Dön"), (d, w) -> {
-                    showControlPanelAppChooser(actionKey, actionTitle);
-                })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
-                .show();
-    }
-
     void pageButtonMapper() {
         section(tr("ACCESSIBILITY SERVICE", "ERİŞİLEBİLİRLİK SERVİSİ"));
         row(tr("Button Mapper accessibility service", "Düğme Eşleyici erişilebilirlik servisi"),
@@ -1370,6 +1291,23 @@ public class SettingsActivity extends Activity {
                             .setNeutralButton(tr("TV Settings", "TV Ayarları"), (d, w) -> Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS)))
                             .setNegativeButton(tr("Cancel", "İptal"), null)
                             .show();
+                });
+        row(tr("Fix Home button (Launch tvOS Launcher)", "Ana Ekran tuşu düzeltmesi (tvOS Launcher'ı aç)"),
+                () -> ButtonMapper.isHomeFixEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    boolean next = !ButtonMapper.isHomeFixEnabled(this);
+                    ButtonMapper.setHomeFixEnabled(this, next);
+                    refreshAll();
+                    if (next && !ButtonMapper.isServiceEnabled(this)) {
+                        showStatusMsg(tr("Home button fix enabled — please also enable Accessibility service above so Home key can be intercepted.",
+                                "Ana Ekran tuşu düzeltmesi açıldı — çalışması için yukarıdan Erişilebilirlik servisini de etkinleştirin."));
+                    } else {
+                        showStatusMsg(next
+                                ? tr("Home button fix enabled — pressing Home will launch tvOS Launcher.",
+                                     "Ana Ekran tuşu düzeltmesi etkinleştirildi — Ana Ekran tuşu tvOS Launcher'ı açacak.")
+                                : tr("Home button fix disabled.",
+                                     "Ana Ekran tuşu düzeltmesi kapatıldı."));
+                    }
                 });
         row(tr("Long-press volume button fix", "Uzun basış ses tuşu düzeltmesi"),
                 () -> ButtonMapper.isVolumeHoldFixEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
@@ -1395,7 +1333,7 @@ public class SettingsActivity extends Activity {
             for (final int keyCode : mappedKeys) {
                 twoLineRow(ButtonMapper.keyLabel(this, keyCode),
                         () -> ButtonMapper.keySummaryLabel(this, keyCode),
-                        () -> ButtonMapper.showConfigureKeyDialog(this, keyCode, this::rebuildMainRows));
+                        () -> openButtonKeySubMenu(keyCode));
             }
             row(tr("Clear all remapped buttons", "Tüm eşlenmiş düğmeleri temizle"),
                     () -> "",
@@ -1446,21 +1384,7 @@ public class SettingsActivity extends Activity {
                 case Suggestions.SHELF_NONE: return tr("Off", "Kapalı");
                 default: return tr("Recommendations & News", "Öneriler ve Haberler");
             }
-        }, () -> {
-            String[] keys = {Suggestions.SHELF_BOTH, Suggestions.SHELF_RECS, Suggestions.SHELF_NEWS, Suggestions.SHELF_NONE};
-            String[] names = {
-                tr("Recommendations & News", "Öneriler ve Haberler"),
-                tr("Recommendations", "Öneriler"),
-                tr("News", "Haberler"),
-                tr("Off", "Kapalı")
-            };
-            int sel = Math.max(0, Arrays.asList(keys).indexOf(Suggestions.shelf(this)));
-            dialog(tr("Classic Top Shelf", "Klasik Üst Raf")).setSingleChoiceItems(names, sel, (d, w) -> {
-                Suggestions.setShelf(this, keys[w]);
-                d.dismiss();
-                refreshAll();
-            }).show();
-        });
+        }, () -> openSubMenu("top_shelf"));
         row(tr("Run first-time setup again…", "İlk kurulumu tekrar çalıştır…"),
                 () -> "›",
                 () -> {
@@ -1482,9 +1406,24 @@ public class SettingsActivity extends Activity {
                 this::pairOrRepairAdb);
         row(tr("Check permissions", "İzinleri kontrol et"),
                 this::permissionsSummaryCount,
-                this::showCheckPermissionsDialog);
+                () -> openSubMenu("check_permissions"));
+        row(tr("Remove / revoke all permissions", "Tüm izinleri kaldır / geri al"),
+                () -> tr("Revoke ›", "Kaldır ›"),
+                this::confirmRevokeAllPermissions);
 
-        section(tr("KEEP ALIVE", "KEEP ALIVE (OTOMATİK ONARIM)"));
+        section(tr("STARTUP & KEEP ALIVE", "BAŞLANGIÇ VE KEEP ALIVE"));
+        row(tr("Launch automatically on system boot", "Sistem açılışında otomatik başlat"),
+                () -> com.techgenius.tvoslauncher.present.BootReceiver.isLaunchOnBootEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    boolean next = !com.techgenius.tvoslauncher.present.BootReceiver.isLaunchOnBootEnabled(this);
+                    com.techgenius.tvoslauncher.present.BootReceiver.setLaunchOnBootEnabled(this, next);
+                    refreshAll();
+                    showStatusMsg(next
+                            ? tr("tvOS Launcher will launch automatically after system boot.",
+                                 "tvOS Launcher sistem açılışından hemen sonra otomatik başlatılacak.")
+                            : tr("Automatic launch on boot disabled.",
+                                 "Sistem açılışında otomatik başlatma kapatıldı."));
+                });
         row(tr("Keep Alive (Auto-repair permissions)", "Keep Alive (İzinleri otomatik onar)"),
                 () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
                 () -> {
@@ -1506,25 +1445,42 @@ public class SettingsActivity extends Activity {
         section(tr("CLEANYOURTV (BETA)", "CLEANYOURTV (BETA)"));
         twoLineRow(tr("Choose TV model", "TV modelini seçin"),
                 () -> CleanYourTv.getSelectedModelSummary(this),
-                () -> CleanYourTv.showChooseModelFlow(this, this::refreshAll));
+                () -> {
+                    cytAutoContinueToDebloat = false;
+                    openSubMenu("cyt_models");
+                });
         row(tr("Debloat status", "Debloat durumu"),
                 () -> CleanYourTv.getDebloatStatusSummary(this),
-                () -> CleanYourTv.showSavedDisabledAppsDialog(this, this::refreshAll));
+                () -> openSubMenu("cyt_saved"));
         row(tr("Debloat TV…", "TV Debloat Başlat…"),
                 () -> tr("Start ›", "Başlat ›"),
-                () -> CleanYourTv.startDebloatFlow(this, this::refreshAll));
+                () -> {
+                    if (CleanYourTv.getSelectedModelSlug(this).isEmpty()) {
+                        cytAutoContinueToDebloat = true;
+                        openSubMenu("cyt_models");
+                    } else {
+                        cytChecklistItems = null;
+                        openSubMenu("cyt_debloat");
+                    }
+                });
+        row(tr("Disable system launchers…", "Sistem başlatıcılarını devre dışı bırak…"),
+                () -> CleanYourTv.getSystemLaunchersSummary(this),
+                () -> openSubMenu("cyt_launchers"));
+        row(tr("Manual debloat (All system apps)…", "Manuel debloat (Tüm sistem uygulamaları)…"),
+                () -> tr("Advanced ›", "Gelişmiş ›"),
+                this::promptManualDebloatWarning);
         row(tr("Disabled apps backup", "Devre dışı bırakılan uygulamalar kaydı"),
                 () -> CleanYourTv.getSavedDisabledSummary(this),
-                () -> CleanYourTv.showSavedDisabledAppsDialog(this, this::refreshAll));
+                () -> openSubMenu("cyt_saved"));
         row(tr("Restore debloated apps…", "Debloat edilen uygulamaları geri yükle…"),
                 () -> tr("Restore ›", "Geri Yükle ›"),
-                () -> CleanYourTv.startRestoreFlow(this, this::refreshAll));
+                () -> openSubMenu("cyt_restore"));
         row(tr("Ad-blocking Private DNS (AdGuard)", "Reklam engelleyici Özel DNS (AdGuard)"),
                 () -> CleanYourTv.isAdguardDnsActive(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
                 () -> CleanYourTv.toggleAdguardDns(this, this::refreshAll));
 
-        infoNote(tr("CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), pick which bloatware and telemetry apps to disable, and restore them anytime with one tap.",
-                "CleanYourTV (Beta), bilgisayara ihtiyaç duymadan CleanYourTV debloat profillerini Yerel ADB üzerinden doğrudan TV'nizde çalıştırır. TV modelinizi seçin (veya yüklü sistem uygulaması paketlerine göre tarayın), devre dışı bırakılacak gereksiz ve telemetri uygulamalarını belirleyin ve istediğiniz zaman tek dokunuşla geri yükleyin."));
+        infoNote(tr("CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), disable stock launchers or bloatware, and restore them anytime with one tap.",
+                "CleanYourTV (Beta), bilgisayara ihtiyaç duymadan CleanYourTV debloat profillerini Yerel ADB üzerinden doğrudan TV'nizde çalıştırır. TV modelinizi seçin (veya yüklü sistem uygulaması paketlerine göre tarayın), stok başlatıcıları veya gereksiz uygulamaları devre dışı bırakın ve istediğiniz zaman tek dokunuşla geri yükleyin."));
 
         LocalAdb.probePortAsync(this, () -> runOnUiThread(this::refreshAll));
     }
@@ -1689,53 +1645,1242 @@ public class SettingsActivity extends Activity {
         }));
     }
 
-    private void showCheckPermissionsDialog() {
-        boolean pHome = Perms.isDefaultHome(this);
-        boolean pAcc = ButtonMapper.isServiceEnabled(this);
-        boolean pAdmin = Perms.hasAdmin(this);
-        boolean pNotif = Perms.hasListener(this);
-        boolean pLoc = Perms.hasLocation(this);
+    private void confirmRevokeAllPermissions() {
+        dialog(tr("Remove / Revoke All Permissions", "Tüm İzinleri Kaldır / Geri Al"))
+                .setMessage(tr(
+                        "This will disable Keep Alive and remove Device Admin, Accessibility Service, Notification Access, Default Home Role, and runtime permissions (both locally and via ADB).\n\nUse this if your TV does not have a Device Admin settings screen and you want to uninstall tvOS Launcher.",
+                        "Bu işlem Keep Alive'ı kapatır ve Cihaz Yöneticisi, Erişilebilirlik Servisi, Bildirim Erişimi, Varsayılan Ana Ekran ve tüm çalışma zamanı izinlerini (hem yerel olarak hem ADB üzerinden) kaldırır.\n\nTV'nizde Cihaz Yöneticisi ayar ekranı yoksa ve uygulamayı kaldırmak istiyorsanız bu seçeneği kullanın."))
+                .setPositiveButton(tr("Revoke All Permissions", "Tüm İzinleri Kaldır"), (d, w) -> {
+                    AlertDialog progress = dialog(tr("Revoking Permissions…", "İzinler Kaldırılıyor…"))
+                            .setMessage(tr("Removing Device Admin and revoking all permissions…",
+                                    "Cihaz Yöneticisi ve tüm izinler kaldırılıyor…"))
+                            .setCancelable(false)
+                            .create();
+                    progress.show();
+                    LocalAdb.revokeAllPermissions(this, (success, msg) -> runOnUiThread(() -> {
+                        if (isFinishing()) return;
+                        try {
+                            progress.dismiss();
+                        } catch (Throwable ignored) {
+                        }
+                        refreshAll();
+                        showStatusMsg(msg);
+                    }));
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+    }
 
-        String[] items = {
-            (pHome ? "✓  " : "✗  ") + tr("Default Home Screen", "Varsayılan Ana Ekran")
-                    + "  —  " + (pHome ? tr("Active", "Etkin") : tr("Not set", "Ayarlanmadı")),
-            (pAcc ? "✓  " : "✗  ") + tr("Button Mapper & Control Panel (Accessibility)", "Düğme Eşleyici ve Denetim Paneli (Erişilebilirlik)")
-                    + "  —  " + (pAcc ? tr("Active", "Etkin") : tr("Disabled", "Kapalı")),
-            (pAdmin ? "✓  " : "✗  ") + tr("Power Off & Sleep Timer (Device Admin)", "Kapatma ve Uyku Zamanlayıcısı (Cihaz Yöneticisi)")
-                    + "  —  " + (pAdmin ? tr("Allowed", "İzin verildi") : tr("Not allowed", "İzin verilmedi")),
-            (pNotif ? "✓  " : "✗  ") + tr("Continue Watching & DND (Notification Access)", "İzlemeye Devam Et ve Rahatsız Etmeyin")
-                    + "  —  " + (pNotif ? tr("Allowed", "İzin verildi") : tr("Not allowed", "İzin verilmedi")),
-            (pLoc ? "✓  " : "✗  ") + tr("Wi-Fi Name (Location)", "Wi-Fi Adı (Konum)")
-                    + "  —  " + (pLoc ? tr("Allowed", "İzin verildi") : tr("Not allowed", "İzin verilmedi"))
+    private void promptManualDebloatWarning() {
+        dialog(tr("⚠️ Manual Debloat Warning", "⚠️ Manuel Debloat Uyarısı"))
+                .setMessage(tr(
+                        "WARNING: Manual Debloat lists ALL system apps installed on your TV.\n\n"
+                        + "• Only disable packages if you know exactly what you are doing.\n"
+                        + "• Disabling core Android system services, TV input/tuner services, or Settings packages can break HDMI inputs, Wi-Fi, remote control, or cause a bootloop.\n\n"
+                        + "Proceed at your own risk?",
+                        "UYARI: Manuel Debloat, TV'nizde yüklü olan TÜM sistem uygulamalarını listeler.\n\n"
+                        + "• Yalnızca ne yaptığınızı tam olarak biliyorsanız paketleri devre dışı bırakın.\n"
+                        + "• Temel Android sistem servislerini, TV giriş/tuner servislerini veya Ayarlar paketlerini devre dışı bırakmak HDMI girişlerini, Wi-Fi'yi, kumandayı bozabilir veya cihazın açılmamasına neden olabilir.\n\n"
+                        + "Sorumluluk size ait olmak üzere devam edilsin mi?"))
+                .setPositiveButton(tr("I Understand — Open Manual Debloat", "Anladım — Manuel Debloat'u Aç"), (d, w) -> {
+                    cytManualItems = null;
+                    cytManualFilterQuery = "";
+                    openSubMenu("cyt_manual");
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+    }
+
+    // ================================================================ Native Right-Side Sub-Menus
+
+    private void backSubMenuRow() {
+        row("←  " + tr("Back", "Geri"), () -> "", this::closeSubMenu);
+    }
+
+    private void renderSubMenu(String subId) {
+        if (subId == null) return;
+        if ("dock_size".equals(subId)) {
+            subMenuDockSize();
+        } else if ("ambient_themes".equals(subId)) {
+            subMenuAmbientThemes();
+        } else if ("weather_source".equals(subId)) {
+            subMenuWeatherSource();
+        } else if ("top_shelf".equals(subId)) {
+            subMenuTopShelf();
+        } else if (subId.startsWith("profile_actions:")) {
+            subMenuProfileActions(subId.substring("profile_actions:".length()));
+        } else if (subId.startsWith("cp_app:")) {
+            subMenuControlPanelApps(subId.substring("cp_app:".length()));
+        } else if (subId.startsWith("cp_act:")) {
+            String rest = subId.substring("cp_act:".length());
+            int colon = rest.indexOf(':');
+            if (colon > 0) {
+                subMenuControlPanelActivities(rest.substring(0, colon), rest.substring(colon + 1));
+            }
+        } else if (subId.startsWith("bm_key:")) {
+            try {
+                int code = Integer.parseInt(subId.substring("bm_key:".length()));
+                subMenuButtonKey(code);
+            } catch (NumberFormatException ignored) {
+                closeSubMenu();
+            }
+        } else if (subId.startsWith("bm_tap:")) {
+            String rest = subId.substring("bm_tap:".length());
+            int colon = rest.indexOf(':');
+            if (colon > 0) {
+                try {
+                    int code = Integer.parseInt(rest.substring(0, colon));
+                    int tap = Integer.parseInt(rest.substring(colon + 1));
+                    subMenuButtonTapTarget(code, tap);
+                } catch (NumberFormatException ignored) {
+                    closeSubMenu();
+                }
+            }
+        } else if ("default_home".equals(subId)) {
+            subMenuDefaultHome();
+        } else if ("check_permissions".equals(subId)) {
+            subMenuCheckPermissions();
+        } else if ("cyt_models".equals(subId)) {
+            subMenuCytModels();
+        } else if ("cyt_models_all".equals(subId)) {
+            subMenuCytAllModels();
+        } else if ("cyt_models_scan".equals(subId)) {
+            subMenuCytScannedModels();
+        } else if ("cyt_debloat".equals(subId)) {
+            subMenuCytDebloat();
+        } else if ("cyt_launchers".equals(subId)) {
+            subMenuCytSystemLaunchers();
+        } else if ("cyt_manual".equals(subId)) {
+            subMenuCytManualDebloat();
+        } else if ("cyt_saved".equals(subId)) {
+            subMenuCytSavedDisabled();
+        } else if ("cyt_restore".equals(subId)) {
+            subMenuCytRestore();
+        }
+    }
+
+    private void subMenuDockSize() {
+        mainHeadView.setText(tr("Dock size", "Dock boyutu"));
+        backSubMenuRow();
+        section(tr("DOCK SCALE (-50% TO +50%)", "DOCK BOYUTU (-%50 İLE +%50 ARASI)"));
+        int curPct = Scenes.getDockScalePercent(this);
+        int[] steps = {50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150};
+        for (int i = 0; i < steps.length; i++) {
+            final int pct = steps[i];
+            int diff = pct - 100;
+            String label;
+            if (diff == 0) {
+                label = "100% (" + tr("Default", "Varsayılan") + ")";
+            } else if (diff > 0) {
+                label = pct + "% (+" + diff + "%)";
+            } else {
+                label = pct + "% (" + diff + "%)";
+            }
+            String sub = diff > 0
+                    ? tr("Larger dock — extra apps automatically move to Other apps if needed",
+                         "Daha büyük dock — ekrana sığmayan fazla uygulamalar otomatik olarak Diğer uygulamalar'a taşınır")
+                    : (diff < 0 ? tr("Smaller, more compact dock", "Daha küçük, kompakt dock")
+                                : tr("Standard Apple tvOS dock size", "Standart Apple tvOS dock boyutu"));
+            choiceRow(label, sub, curPct == pct, () -> {
+                Scenes.setDockScalePercent(this, pct);
+                rebuildMainRows();
+                showStatusMsg(tr("Dock size set to " + pct + "%.", "Dock boyutu %" + pct + " olarak ayarlandı."));
+            });
+        }
+    }
+
+    private void subMenuAmbientThemes() {
+        mainHeadView.setText(tr("Ambient colour themes", "Ortam renk temaları"));
+        backSubMenuRow();
+        section(tr("AMBIENT THEMES", "ORTAM TEMALARI"));
+        String cur = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
+        for (int i = 0; i < MainActivity.WALL_KEYS.length; i++) {
+            final String key = MainActivity.WALL_KEYS[i];
+            final String name = MainActivity.wallName(this, i);
+            choiceRow(name, null, key.equals(cur), () -> {
+                Profiles.homePrefs(this).edit().putString("wallpaper", key).apply();
+                rebuildMainRows();
+            });
+        }
+    }
+
+    private void subMenuWeatherSource() {
+        mainHeadView.setText(tr("Weather source", "Hava durumu kaynağı"));
+        backSubMenuRow();
+        section(tr("FORECAST PROVIDER", "HAVA TAHMİNİ SAĞLAYICISI"));
+        String cur = Weather.source(this);
+        String[] keys = Weather.SOURCES;
+        String[] names = {"Open-Meteo", "MET Norway (Yr)", "wttr.in  (3 days)"};
+        for (int i = 0; i < keys.length; i++) {
+            final String k = keys[i];
+            final String n = names[i];
+            choiceRow(n, null, k.equals(cur), () -> {
+                Weather.prefs(this).edit().putString(Weather.K_SOURCE, k).apply();
+                Weather.changed(this);
+                rebuildMainRows();
+            });
+        }
+    }
+
+    private void subMenuTopShelf() {
+        mainHeadView.setText(tr("Classic Top Shelf", "Klasik Üst Raf"));
+        backSubMenuRow();
+        section(tr("TOP SHELF CONTENT", "ÜST RAF İÇERİĞİ"));
+        String cur = Suggestions.shelf(this);
+        String[][] opts = {
+            {Suggestions.SHELF_BOTH, tr("Recommendations & News", "Öneriler ve Haberler")},
+            {Suggestions.SHELF_RECS, tr("Recommendations", "Öneriler")},
+            {Suggestions.SHELF_NEWS, tr("News", "Haberler")},
+            {Suggestions.SHELF_NONE, tr("Off", "Kapalı")}
         };
+        for (String[] pair : opts) {
+            final String k = pair[0];
+            final String n = pair[1];
+            choiceRow(n, null, k.equals(cur), () -> {
+                Suggestions.setShelf(this, k);
+                rebuildMainRows();
+            });
+        }
+    }
 
-        dialog(tr("Check Permissions", "İzinleri Kontrol Et"))
-                .setItems(items, (d, which) -> {
-                    switch (which) {
-                        case 0:
-                            Perms.requestDefaultHome(this);
-                            break;
-                        case 1: {
-                            Intent acc = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                            if (!Suggestions.start(this, acc)) {
-                                Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS));
+    private void subMenuProfileActions(String profileId) {
+        Profiles.Profile found = null;
+        int idx = 0;
+        List<Profiles.Profile> all = Profiles.list(this);
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).id.equals(profileId)) {
+                found = all.get(i);
+                idx = i;
+                break;
+            }
+        }
+        if (found == null) {
+            closeSubMenu();
+            return;
+        }
+        final Profiles.Profile p = found;
+        final int rowIdx = idx;
+        String dispName = I18n.profileName(this, p.name);
+        mainHeadView.setText(dispName);
+        backSubMenuRow();
+        section(dispName);
+        row(tr("Switch to " + dispName, dispName + " profiline geç"),
+                () -> Profiles.current(this).id.equals(p.id) ? tr("Active", "Etkin") : "›",
+                () -> {
+                    Profiles.setCurrent(this, p.id);
+                    closeSubMenu();
+                });
+        row(tr("Rename…", "Yeniden adlandır…"),
+                () -> "›",
+                () -> promptRenamePerson(p, rowIdx));
+        if (all.size() > 1) {
+            row(tr("Remove person", "Kişiyi kaldır"),
+                    () -> "",
+                    () -> {
+                        Profiles.delete(this, p.id);
+                        closeSubMenu();
+                    });
+        }
+    }
+
+    private String controlPanelActionTitle(String actionKey) {
+        if (ControlPanelOverlay.ACTION_WIFI.equals(actionKey)) return tr("Wi-Fi", "Wi-Fi");
+        if (ControlPanelOverlay.ACTION_BLUETOOTH.equals(actionKey)) return tr("Bluetooth", "Bluetooth");
+        if (ControlPanelOverlay.ACTION_SOUND.equals(actionKey)) return tr("Sound", "Ses");
+        if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) return tr("Inputs", "Girişler");
+        return actionKey;
+    }
+
+    private void subMenuControlPanelApps(String actionKey) {
+        String actionTitle = controlPanelActionTitle(actionKey);
+        mainHeadView.setText(actionTitle + " — " + tr("Choose App", "Uygulama Seçin"));
+        backSubMenuRow();
+        section(tr("TARGET APPLICATION", "HEDEF UYGULAMA"));
+
+        String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
+        choiceRow("↺  " + tr("Default (Automatic)", "Varsayılan (Otomatik)"),
+                tr("Use built-in Android TV shortcut", "Yerleşik Android TV kısayolunu kullan"),
+                curPkg.isEmpty(),
+                () -> {
+                    ControlPanelOverlay.clearCustomAction(this, actionKey);
+                    closeSubMenu();
+                    showStatusMsg(actionTitle + ": " + tr("Default (Automatic)", "Varsayılan (Otomatik)"));
+                });
+
+        PackageManager pm = getPackageManager();
+        List<PackageInfo> rawPkgs;
+        try {
+            rawPkgs = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
+        } catch (Throwable t) {
+            rawPkgs = Collections.emptyList();
+        }
+
+        List<String[]> entries = new ArrayList<>();
+        for (PackageInfo pi : rawPkgs) {
+            if (pi == null || pi.packageName == null) continue;
+            int count = (pi.activities != null) ? pi.activities.length : 0;
+            if (count == 0) {
+                Intent q = new Intent().setPackage(pi.packageName);
+                List<ResolveInfo> ris = pm.queryIntentActivities(q, 0);
+                count = (ris != null) ? ris.size() : 0;
+            }
+            if (count == 0) continue;
+            String label = pi.packageName;
+            if (pi.applicationInfo != null) {
+                CharSequence cs = pi.applicationInfo.loadLabel(pm);
+                if (cs != null && cs.length() > 0) label = cs.toString().trim();
+            }
+            entries.add(new String[]{pi.packageName, label});
+        }
+        Collections.sort(entries, (a, b) -> {
+            int cmp = a[1].compareToIgnoreCase(b[1]);
+            return cmp != 0 ? cmp : a[0].compareToIgnoreCase(b[0]);
+        });
+
+        for (String[] entry : entries) {
+            final String pkg = entry[0];
+            final String label = entry[1];
+            choiceRow(label, pkg, pkg.equals(curPkg), () -> openSubMenu("cp_act:" + actionKey + ":" + pkg));
+        }
+    }
+
+    private void subMenuControlPanelActivities(String actionKey, String pkg) {
+        String actionTitle = controlPanelActionTitle(actionKey);
+        String appLabel = CleanYourTv.resolvePackageLabel(this, pkg);
+        mainHeadView.setText(appLabel + " — " + tr("Choose Activity", "Etkinlik Seçin"));
+        backSubMenuRow();
+        section(tr("ACTIVITIES IN ", "ETKİNLİKLER: ") + appLabel);
+
+        PackageManager pm = getPackageManager();
+        List<ActivityInfo> actList = new ArrayList<>();
+        Set<String> seenNames = new HashSet<>();
+        try {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_ACTIVITIES);
+            if (pi != null && pi.activities != null) {
+                for (ActivityInfo ai : pi.activities) {
+                    if (ai != null && ai.name != null && seenNames.add(ai.name)) actList.add(ai);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            Intent q = new Intent().setPackage(pkg);
+            List<ResolveInfo> ris = pm.queryIntentActivities(q, 0);
+            if (ris != null) {
+                for (ResolveInfo ri : ris) {
+                    if (ri.activityInfo != null && ri.activityInfo.name != null && seenNames.add(ri.activityInfo.name)) {
+                        actList.add(ri.activityInfo);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
+        String curCls = ControlPanelOverlay.getCustomCls(this, actionKey);
+
+        choiceRow("★  " + tr("Default App Launch (Main Activity)", "Uygulamayı Normal Başlat (Ana Etkinlik)"),
+                pkg,
+                pkg.equals(curPkg) && curCls.isEmpty(),
+                () -> {
+                    ControlPanelOverlay.setCustomAction(this, actionKey, pkg, "", appLabel);
+                    if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) {
+                        Inputs.prefs(this).edit().putBoolean(Inputs.K_CARD, true).apply();
+                    }
+                    closeSubMenu();
+                    closeSubMenu();
+                    showStatusMsg(actionTitle + " → " + appLabel);
+                });
+
+        for (ActivityInfo ai : actList) {
+            final String fullCls = ai.name;
+            final String shortCls = fullCls.startsWith(pkg + ".") ? fullCls.substring(pkg.length()) : fullCls;
+            CharSequence actCs = ai.loadLabel(pm);
+            String actTitle = (actCs != null && actCs.length() > 0) ? actCs.toString().trim() : "";
+            final String title = (!actTitle.isEmpty() && !actTitle.equalsIgnoreCase(appLabel) && !actTitle.equals(fullCls))
+                    ? actTitle : shortCls;
+            final String summary = appLabel + " · " + shortCls;
+            choiceRow(title, fullCls, pkg.equals(curPkg) && fullCls.equals(curCls), () -> {
+                ControlPanelOverlay.setCustomAction(this, actionKey, pkg, fullCls, summary);
+                if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) {
+                    Inputs.prefs(this).edit().putBoolean(Inputs.K_CARD, true).apply();
+                }
+                closeSubMenu();
+                closeSubMenu();
+                showStatusMsg(actionTitle + " → " + summary);
+            });
+        }
+    }
+
+    private void subMenuButtonKey(int keyCode) {
+        String keyName = ButtonMapper.keyLabel(this, keyCode);
+        mainHeadView.setText(keyName);
+        backSubMenuRow();
+        section(keyName + " — " + tr("TAP ACTIONS", "BASIŞ EYLEMLERİ"));
+
+        int[] taps = {ButtonMapper.TAP_SINGLE, ButtonMapper.TAP_DOUBLE, ButtonMapper.TAP_TRIPLE};
+        for (int tap : taps) {
+            final int t = tap;
+            row(ButtonMapper.tapTypeLabel(this, t),
+                    () -> ButtonMapper.targetLabel(this, ButtonMapper.getTarget(this, keyCode, t)),
+                    () -> openSubMenu("bm_tap:" + keyCode + ":" + t));
+        }
+
+        if (ButtonMapper.hasAnyMapping(this, keyCode)) {
+            section(tr("REMOVE", "KALDIR"));
+            row("🗑  " + tr("Remove button remap", "Düğme eşlemesini kaldır"),
+                    () -> "",
+                    () -> {
+                        ButtonMapper.removeMapping(this, keyCode);
+                        closeSubMenu();
+                        showStatusMsg(tr("Removed remap for " + keyName + ".", keyName + " eşlemesi kaldırıldı."));
+                    });
+        }
+    }
+
+    private void subMenuButtonTapTarget(int keyCode, int tapCount) {
+        String keyName = ButtonMapper.keyLabel(this, keyCode);
+        String tapName = ButtonMapper.tapTypeLabel(this, tapCount);
+        String current = ButtonMapper.getTarget(this, keyCode, tapCount);
+        mainHeadView.setText(keyName + " · " + tapName);
+        backSubMenuRow();
+
+        section(tr("BUILT-IN ACTIONS", "YERLEŞİK EYLEMLER"));
+        choiceRow("🚫  " + tr("None (No action)", "Yok (Eylem yok)"),
+                null,
+                current.isEmpty(),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, "");
+                    closeSubMenu();
+                });
+        choiceRow("🎛  " + tr("Control Panel (Overlay)", "Denetim Paneli (Ekran Üstü)"),
+                null,
+                ButtonMapper.TARGET_CONTROL_PANEL.equals(current),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_CONTROL_PANEL);
+                    closeSubMenu();
+                });
+        choiceRow("🗂  " + tr("Recent Apps Switcher (Overlay)", "Son Uygulamalar Değiştiricisi (Ekran Üstü)"),
+                null,
+                ButtonMapper.TARGET_RECENT_APPS.equals(current),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_RECENT_APPS);
+                    closeSubMenu();
+                });
+        choiceRow("🌙  " + tr("Ambient Mode / StandBy", "Ortam Modu / StandBy"),
+                null,
+                ButtonMapper.TARGET_AMBIENT.equals(current),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_AMBIENT);
+                    closeSubMenu();
+                });
+        choiceRow("⏻  " + tr("Power Off (Screen Off)", "Kapat (Ekranı Kapat)"),
+                null,
+                ButtonMapper.TARGET_POWER_OFF.equals(current),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_POWER_OFF);
+                    closeSubMenu();
+                });
+
+        section(tr("INSTALLED APPS", "YÜKLÜ UYGULAMALAR"));
+        PackageManager pm = getPackageManager();
+        Set<String> seenPkgs = new HashSet<>();
+        List<String[]> appPairs = new ArrayList<>();
+        String[] cats = {Intent.CATEGORY_LEANBACK_LAUNCHER, Intent.CATEGORY_LAUNCHER};
+        for (String cat : cats) {
+            Intent q = new Intent(Intent.ACTION_MAIN).addCategory(cat);
+            for (ResolveInfo ri : pm.queryIntentActivities(q, 0)) {
+                if (ri.activityInfo == null) continue;
+                String pkg = ri.activityInfo.packageName;
+                if (pkg.equals(getPackageName()) || seenPkgs.contains(pkg)) continue;
+                seenPkgs.add(pkg);
+                String appLabel = ri.loadLabel(pm).toString();
+                appPairs.add(new String[]{appLabel, ButtonMapper.TARGET_APP_PREFIX + pkg, pkg});
+            }
+        }
+        Collections.sort(appPairs, (x, y) -> x[0].compareToIgnoreCase(y[0]));
+        for (String[] pair : appPairs) {
+            final String appLabel = pair[0];
+            final String targetVal = pair[1];
+            final String pkg = pair[2];
+            choiceRow(appLabel, pkg, targetVal.equals(current), () -> {
+                ButtonMapper.setTarget(this, keyCode, tapCount, targetVal);
+                closeSubMenu();
+            });
+        }
+    }
+
+    private void subMenuDefaultHome() {
+        mainHeadView.setText(tr("Default home screen", "Varsayılan ana ekran"));
+        backSubMenuRow();
+        section(tr("DEFAULT LAUNCHER SETUP (TCL / PHILIPS / GOOGLE TV)", "VARSAYILAN BAŞLATICI KURULUMU (TCL / PHILIPS / GOOGLE TV)"));
+
+        twoLineRow(tr("1. Set tvOS Launcher as Default via Local ADB", "1. Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"),
+                () -> Perms.isDefaultHome(this) ? tr("Active", "Etkin") : tr("Run ROLE_HOME & set-home-activity ›", "ROLE_HOME ve set-home-activity çalıştır ›"),
+                () -> {
+                    AlertDialog progress = dialog(tr("Setting Default Launcher…", "Varsayılan Başlatıcı Ayarlanıyor…"))
+                            .setMessage(tr("Setting ROLE_HOME and default home activity over Local ADB…",
+                                    "Yerel ADB üzerinden ROLE_HOME ve varsayılan ana ekran etkinliği ayarlanıyor…"))
+                            .setCancelable(false)
+                            .create();
+                    progress.show();
+                    LocalAdb.setDefaultLauncherViaAdb(this, (success, msg) -> runOnUiThread(() -> {
+                        if (isFinishing()) return;
+                        try {
+                            progress.dismiss();
+                        } catch (Throwable ignored) {
+                        }
+                        refreshAll();
+                        showStatusMsg(msg);
+                    }));
+                });
+
+        twoLineRow(tr("2. Disable System Launchers (Google TV / Android TV / OEM)", "2. Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"),
+                () -> CleanYourTv.getSystemLaunchersSummary(this),
+                () -> openSubMenu("cyt_launchers"));
+
+        twoLineRow(tr("3. Fix Home Button via Accessibility (Button Mapper)", "3. Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"),
+                () -> ButtonMapper.isHomeFixEnabled(this)
+                        ? tr("On — Pressing Home launches tvOS Launcher", "Açık — Ana Ekran tuşu tvOS Launcher'ı açar")
+                        : tr("Off — Tap to enable Home button remap", "Kapalı — Ana Ekran tuşu yönlendirmesini açmak için dokunun"),
+                () -> {
+                    boolean next = !ButtonMapper.isHomeFixEnabled(this);
+                    ButtonMapper.setHomeFixEnabled(this, next);
+                    rebuildMainRows();
+                    showStatusMsg(next
+                            ? tr("Home button fix enabled.", "Ana Ekran tuşu düzeltmesi etkinleştirildi.")
+                            : tr("Home button fix disabled.", "Ana Ekran tuşu düzeltmesi kapatıldı."));
+                });
+
+        twoLineRow(tr("4. Open Android System Home Settings", "4. Android Sistem Ana Ekran Ayarlarını Aç"),
+                () -> tr("Open system selector (if supported by TV) ›", "Sistem seçicisini aç (TV destekliyorsa) ›"),
+                () -> Perms.openSystemHomeSettingsUi(this));
+
+        infoNote(tr("On TCL and Philips Android 11/12 TVs, the OEM firmware often hides the Android Default Home UI and forces the stock launcher when pressing Home. Disabling the stock launcher (Option 2) or enabling the Home Button Fix (Option 3) guarantees pressing Home always opens tvOS Launcher.",
+                "TCL ve Philips Android 11/12 TV'lerde üretici yazılımı genellikle Android Varsayılan Ana Ekran seçicisini gizler ve Home tuşuna basıldığında stok başlatıcıyı zorlar. Stok başlatıcıyı devre dışı bırakmak (2. Seçenek) veya Ana Ekran Tuşu Düzeltmesini açmak (3. Seçenek) Home tuşunun her zaman tvOS Launcher'ı açmasını sağlar."));
+    }
+
+    private void subMenuCheckPermissions() {
+        mainHeadView.setText(tr("Check permissions", "İzinleri kontrol et"));
+        backSubMenuRow();
+        section(tr("PERMISSION STATUS", "İZİN DURUMU"));
+
+        row(tr("Grant All Permissions via Local ADB", "Tüm İzinleri Yerel ADB ile Ver"),
+                () -> tr("Grant All ›", "Tümünü Ver ›"),
+                this::pairOrRepairAdb);
+
+        row(tr("Default Home Screen", "Varsayılan Ana Ekran"),
+                () -> Perms.isDefaultHome(this) ? "✓  " + tr("Active", "Etkin") : "✗  " + tr("Not set", "Ayarlanmadı"),
+                () -> openSubMenu("default_home"));
+
+        row(tr("Button Mapper & Control Panel (Accessibility)", "Düğme Eşleyici ve Denetim Paneli (Erişilebilirlik)"),
+                () -> ButtonMapper.isServiceEnabled(this) ? "✓  " + tr("Active", "Etkin") : "✗  " + tr("Disabled", "Kapalı"),
+                () -> {
+                    Intent acc = Perms.accessibilityScreen(this);
+                    if (acc == null || !Suggestions.start(this, acc)) {
+                        pairOrRepairAdb();
+                    }
+                });
+
+        row(tr("Power Off & Sleep Timer (Device Admin)", "Kapatma ve Uyku Zamanlayıcısı (Cihaz Yöneticisi)"),
+                () -> Perms.hasAdmin(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
+                () -> Perms.requestAdmin(this));
+
+        row(tr("Continue Watching & DND (Notification Access)", "İzlemeye Devam Et ve Rahatsız Etmeyin"),
+                () -> Perms.hasListener(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
+                () -> Perms.requestListener(this));
+
+        row(tr("Wi-Fi Name (Location)", "Wi-Fi Adı (Konum)"),
+                () -> Perms.hasLocation(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
+                () -> Perms.requestLocation(this));
+    }
+
+    // ---------------- CleanYourTV Native Right-Side Sub-Menus ----------------
+
+    private void subMenuCytModels() {
+        CleanYourTv.HardwareMatchResult hw = CleanYourTv.findHardwareMatches(this);
+        mainHeadView.setText(tr("Choose TV model", "TV modelini seçin"));
+        backSubMenuRow();
+
+        section(tr("ACTIONS", "İŞLEMLER"));
+        twoLineRow(tr("🔍 Scan Installed System Apps via ADB", "🔍 ADB ile Yüklü Sistem Uygulamalarını Tara"),
+                () -> tr("Pull full app list from ADB and match models by OEM/system packages",
+                         "ADB'den tam uygulama listesini çek ve sistem/üretici paketlerine göre eşleştir"),
+                () -> {
+                    cytScannedMatches = null;
+                    openSubMenu("cyt_models_scan");
+                });
+        twoLineRow(tr("📋 Browse / Search All 341 TV Models", "📋 Tüm 341 TV Modeline Göz At / Ara"),
+                () -> tr("View or filter the complete list of supported TV models",
+                         "Desteklenen tüm TV modellerinin tam listesini görüntüle veya filtrele"),
+                () -> {
+                    cytModelFilterQuery = "";
+                    openSubMenu("cyt_models_all");
+                });
+
+        String currentSlug = CleanYourTv.getSelectedModelSlug(this);
+        section(tr("MATCHING MODELS FOR ", "EŞLEŞEN MODELLER: ") + hw.deviceDescription);
+        if (hw.candidates.isEmpty()) {
+            infoNote(tr("No direct model name match for " + hw.deviceDescription + ". Use Scan Installed System Apps via ADB above to find the closest TV profile.",
+                    hw.deviceDescription + " için doğrudan model adı eşleşmesi bulunamadı. En yakın TV profilini bulmak için yukarıdaki ADB ile Yüklü Sistem Uygulamalarını Tara seçeneğini kullanın."));
+        } else {
+            for (CleanYourTv.ModelMatch m : hw.candidates) {
+                final CleanYourTv.ModelEntry entry = m.entry;
+                boolean isCurrent = entry.slug.equalsIgnoreCase(currentSlug);
+                choiceRow(entry.title,
+                        "[" + entry.slug + "]  •  " + m.reason,
+                        isCurrent,
+                        () -> selectCytModelAndProceed(entry));
+            }
+        }
+    }
+
+    private void selectCytModelAndProceed(CleanYourTv.ModelEntry entry) {
+        CleanYourTv.setSelectedModel(this, entry);
+        cytChecklistItems = null;
+        showStatusMsg(tr("Selected model: " + entry.title, "Seçilen model: " + entry.title));
+        if (cytAutoContinueToDebloat) {
+            cytAutoContinueToDebloat = false;
+            activeSubMenu = "cyt_debloat";
+            rebuildMainRows();
+            focusFirstRow();
+        } else {
+            rebuildMainRows();
+        }
+    }
+
+    private void subMenuCytScannedModels() {
+        mainHeadView.setText(tr("Models by System App Similarity", "Sistem Uygulaması Benzerliğine Göre Modeller"));
+        backSubMenuRow();
+
+        if (cytScannedMatches == null) {
+            if (!cytScanningApps) {
+                cytScanningApps = true;
+                new Thread(() -> {
+                    Set<String> installed = CleanYourTv.fetchInstalledPackages(this, null, null);
+                    List<CleanYourTv.ModelMatch> matches = CleanYourTv.findPackageSimilarityMatches(this, installed);
+                    runOnUiThread(() -> {
+                        cytScanningApps = false;
+                        cytScannedCount = installed.size();
+                        cytScannedMatches = matches;
+                        if (!isFinishing() && "cyt_models_scan".equals(activeSubMenu)) {
+                            rebuildMainRows();
+                        }
+                    });
+                }, "cyt-submenu-scan").start();
+            }
+            infoNote(tr("Scanning installed system packages over ADB and comparing across 341 TV models…",
+                    "ADB üzerinden yüklü sistem paketleri taranıyor ve 341 TV modeliyle karşılaştırılıyor…"));
+            return;
+        }
+
+        section(tr("CLOSEST MATCHES (" + cytScannedCount + " APPS SCANNED)",
+                "EN YAKIN EŞLEŞMELER (" + cytScannedCount + " UYGULAMA TARANDI)"));
+        String currentSlug = CleanYourTv.getSelectedModelSlug(this);
+        for (CleanYourTv.ModelMatch m : cytScannedMatches) {
+            final CleanYourTv.ModelEntry entry = m.entry;
+            boolean isCurrent = entry.slug.equalsIgnoreCase(currentSlug);
+            choiceRow(entry.title,
+                    "[" + entry.slug + "]  •  " + m.reason,
+                    isCurrent,
+                    () -> selectCytModelAndProceed(entry));
+        }
+    }
+
+    private void subMenuCytAllModels() {
+        mainHeadView.setText(tr("All 341 TV Models", "Tüm 341 TV Modeli"));
+        backSubMenuRow();
+
+        row(tr("🔍 Search / Filter by brand or model…", "🔍 Marka veya modele göre ara / filtrele…"),
+                () -> cytModelFilterQuery.isEmpty() ? tr("All (341)", "Tümü (341)") : "\"" + cytModelFilterQuery + "\"",
+                this::promptCytModelFilter);
+        if (!cytModelFilterQuery.isEmpty()) {
+            row(tr("Clear filter (Show all)", "Filtreyi temizle (Tümünü göster)"),
+                    () -> "",
+                    () -> {
+                        cytModelFilterQuery = "";
+                        cytAllModelsPage = 0;
+                        rebuildMainRows();
+                    });
+        } else {
+            section(tr("QUICK BRAND FILTERS", "HIZLI MARKA FİLTRELERİ"));
+            String[][] brands = {
+                {"TCL / FFALCON / Thomson", "tcl"},
+                {"Philips / TPVision", "philips"},
+                {"Sony Bravia", "sony"},
+                {"Xiaomi / Mi TV / Redmi", "xiaomi"},
+                {"Hisense / Toshiba", "hisense"},
+                {"Skyworth / Coocaa / Strong", "skyworth"}
+            };
+            for (String[] b : brands) {
+                final String bLabel = b[0];
+                final String bQuery = b[1];
+                row("🏷  " + bLabel, () -> tr("Filter ›", "Filtrele ›"), () -> {
+                    cytModelFilterQuery = bQuery;
+                    cytAllModelsPage = 0;
+                    rebuildMainRows();
+                    focusFirstRow();
+                });
+            }
+        }
+
+        List<CleanYourTv.ModelEntry> all = CleanYourTv.loadIndex(this);
+        String q = cytModelFilterQuery.trim().toLowerCase(java.util.Locale.US);
+        List<CleanYourTv.ModelEntry> filtered = new ArrayList<>();
+        for (CleanYourTv.ModelEntry m : all) {
+            if (q.isEmpty()
+                    || m.slug.toLowerCase(java.util.Locale.US).contains(q)
+                    || m.title.toLowerCase(java.util.Locale.US).contains(q)
+                    || m.headerMeta.toLowerCase(java.util.Locale.US).contains(q)) {
+                filtered.add(m);
+            }
+        }
+
+        int total = filtered.size();
+        int totalPages = Math.max(1, (total + CYT_PAGE_SIZE - 1) / CYT_PAGE_SIZE);
+        if (cytAllModelsPage >= totalPages) cytAllModelsPage = totalPages - 1;
+        if (cytAllModelsPage < 0) cytAllModelsPage = 0;
+        int start = cytAllModelsPage * CYT_PAGE_SIZE;
+        int end = Math.min(total, start + CYT_PAGE_SIZE);
+
+        if (totalPages > 1) {
+            section(tr("PAGE " + (cytAllModelsPage + 1) + " OF " + totalPages + " (" + (start + 1) + "–" + end + " OF " + total + ")",
+                    "SAYFA " + (cytAllModelsPage + 1) + " / " + totalPages + " (" + (start + 1) + "–" + end + " / " + total + ")"));
+            if (cytAllModelsPage > 0) {
+                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
+                        () -> (cytAllModelsPage) + " / " + totalPages,
+                        () -> {
+                            cytAllModelsPage--;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+            if (cytAllModelsPage + 1 < totalPages) {
+                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
+                        () -> (cytAllModelsPage + 2) + " / " + totalPages,
+                        () -> {
+                            cytAllModelsPage++;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+        }
+
+        String currentSlug = CleanYourTv.getSelectedModelSlug(this);
+        section(tr("MODELS (" + total + ")", "MODELLER (" + total + ")"));
+        for (int i = start; i < end; i++) {
+            final CleanYourTv.ModelEntry entry = filtered.get(i);
+            boolean isCurrent = entry.slug.equalsIgnoreCase(currentSlug);
+            choiceRow(entry.title,
+                    "[" + entry.slug + "]  •  " + entry.packages.size() + " " + tr("packages", "paket"),
+                    isCurrent,
+                    () -> selectCytModelAndProceed(entry));
+        }
+
+        if (totalPages > 1) {
+            section(tr("PAGE NAVIGATION", "SAYFA GEÇİŞİ"));
+            if (cytAllModelsPage + 1 < totalPages) {
+                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
+                        () -> tr("Page " + (cytAllModelsPage + 2) + " of " + totalPages,
+                                "Sayfa " + (cytAllModelsPage + 2) + " / " + totalPages),
+                        () -> {
+                            cytAllModelsPage++;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+            if (cytAllModelsPage > 0) {
+                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
+                        () -> tr("Page " + cytAllModelsPage + " of " + totalPages,
+                                "Sayfa " + cytAllModelsPage + " / " + totalPages),
+                        () -> {
+                            cytAllModelsPage--;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+        }
+    }
+
+    private void promptCytModelFilter() {
+        android.widget.EditText in = new android.widget.EditText(this);
+        in.setSingleLine(true);
+        in.setHint(tr("e.g. tcl, philips, sony, hisense, xiaomi…", "örn. tcl, philips, sony, hisense, xiaomi…"));
+        in.setText(cytModelFilterQuery);
+        in.setSelection(in.getText().length());
+        int pad = u(14);
+        FrameLayout box = new FrameLayout(this);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(in);
+        AlertDialog dlg = dialog(tr("Filter TV Models", "TV Modellerini Filtrele"))
+                .setView(box)
+                .setPositiveButton(tr("Filter", "Filtrele"), (d, w) -> {
+                    cytModelFilterQuery = in.getText().toString().trim();
+                    cytAllModelsPage = 0;
+                    rebuildMainRows();
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+        Ui.setupDialogEditText(in, dlg);
+        in.requestFocus();
+    }
+
+    private void subMenuCytDebloat() {
+        String slug = CleanYourTv.getSelectedModelSlug(this);
+        final CleanYourTv.ModelEntry model = CleanYourTv.findModelBySlug(this, slug);
+        if (model == null) {
+            cytAutoContinueToDebloat = true;
+            activeSubMenu = "cyt_models";
+            subMenuCytModels();
+            return;
+        }
+
+        mainHeadView.setText(tr("Debloat TV — ", "TV Debloat — ") + model.title);
+        backSubMenuRow();
+
+        if (cytChecklistItems == null || !slug.equals(cytChecklistSlug)) {
+            if (!cytChecklistLoading) {
+                cytChecklistLoading = true;
+                new Thread(() -> {
+                    Set<String> enabled = new HashSet<>();
+                    Set<String> disabled = new HashSet<>();
+                    Set<String> installed = CleanYourTv.fetchInstalledPackages(this, enabled, disabled);
+                    boolean hasSetupwraith = installed.contains("com.google.android.tungsten.setupwraith");
+                    boolean isGoogleTv = hasSetupwraith || installed.contains("com.google.android.apps.tv.launcherx");
+                    boolean wifiOwned = false;
+                    if (isGoogleTv) {
+                        try {
+                            String wifiDump = LocalAdb.execShellOutput(this, "dumpsys wifi | grep -o 'cname=[^ ]*'");
+                            if (wifiDump != null && wifiDump.contains("com.google.android.tungsten.setupwraith")) {
+                                wifiOwned = true;
                             }
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                    List<CleanYourTv.DebloatItem> built = CleanYourTv.buildChecklistForModel(this, slug, installed, false);
+                    final boolean fGoogle = isGoogleTv;
+                    final boolean fWifi = wifiOwned;
+                    runOnUiThread(() -> {
+                        cytChecklistLoading = false;
+                        cytChecklistSlug = slug;
+                        cytCachedEnabledPkgs = enabled;
+                        cytChecklistIsGoogleTv = fGoogle;
+                        cytChecklistWifiOwnedBySetupwraith = fWifi;
+                        cytChecklistItems = built;
+                        if (!isFinishing() && "cyt_debloat".equals(activeSubMenu)) {
+                            rebuildMainRows();
+                        }
+                    });
+                }, "cyt-submenu-debloat").start();
+            }
+            infoNote(tr("Checking installed packages over ADB for " + model.title + "…",
+                    model.title + " için ADB üzerinden yüklü paketler kontrol ediliyor…"));
+            return;
+        }
+
+        if (cytChecklistItems.isEmpty()) {
+            infoNote(tr("None of the packages listed in " + model.title + " are installed on this TV.",
+                    model.title + " profilindeki paketlerin hiçbiri bu TV'de yüklü değil."));
+            row(tr("🔍 Scan Installed System Apps to Find Matching Model", "🔍 Eşleşen Modeli Bulmak İçin Yüklü Uygulamaları Tara"),
+                    () -> "›",
+                    () -> {
+                        cytScannedMatches = null;
+                        openSubMenu("cyt_models_scan");
+                    });
+            return;
+        }
+
+        if (cytChecklistIsGoogleTv) {
+            section(tr("GOOGLE TV WI-FI NOTICE", "GOOGLE TV WI-FI UYARISI"));
+            infoNote(cytChecklistWifiOwnedBySetupwraith
+                    ? tr("⚠️ Your Wi-Fi network is currently owned by setupwraith. Before disabling setupwraith, open Wi-Fi Settings, Forget your Wi-Fi network, and re-connect so Wi-Fi stays saved.",
+                         "⚠️ Mevcut Wi-Fi ağınız setupwraith tarafından kaydedilmiş. setupwraith'i devre dışı bırakmadan önce Wi-Fi Ayarları'ndan ağınızı unutup yeniden bağlanın.")
+                    : tr("On Google TV, if you disable setupwraith, make sure your Wi-Fi network was re-added in Wi-Fi Settings.",
+                         "Google TV'de setupwraith'i devre dışı bırakacaksanız Wi-Fi ağınızı Wi-Fi Ayarları'ndan yeniden eklediğinizden emin olun."));
+            row(tr("📶 Open Wi-Fi Settings…", "📶 Wi-Fi Ayarlarını Aç…"),
+                    () -> "›",
+                    () -> {
+                        Intent wifi = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                        if (!Suggestions.start(this, wifi)) {
+                            Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS));
+                        }
+                    });
+        }
+
+        int selectedCount = 0;
+        for (CleanYourTv.DebloatItem it : cytChecklistItems) {
+            if (it.checked) selectedCount++;
+        }
+        final int finalSelectedCount = selectedCount;
+
+        section(tr("ACTIONS", "İŞLEMLER"));
+        row(tr("✅ Disable Selected Packages (" + finalSelectedCount + ")", "✅ Seçilen Paketleri Devre Dışı Bırak (" + finalSelectedCount + ")"),
+                () -> tr("Run via ADB ›", "ADB ile Çalıştır ›"),
+                () -> {
+                    List<String> toDisable = new ArrayList<>();
+                    for (CleanYourTv.DebloatItem it : cytChecklistItems) {
+                        if (it.checked) toDisable.add(it.pkg);
+                    }
+                    if (toDisable.isEmpty()) {
+                        showStatusMsg(tr("Select at least one package first.", "Önce en az bir paket seçin."));
+                        return;
+                    }
+                    CleanYourTv.executeDebloatPackages(this, model.title, toDisable, () -> {
+                        cytChecklistItems = null;
+                        rebuildMainRows();
+                    });
+                });
+        row(tr("Select All / Select None", "Tümünü Seç / Seçimi Kaldır"),
+                () -> finalSelectedCount + " / " + cytChecklistItems.size(),
+                () -> {
+                    boolean anyUnchecked = false;
+                    for (CleanYourTv.DebloatItem it : cytChecklistItems) {
+                        if (!it.checked) {
+                            anyUnchecked = true;
                             break;
                         }
-                        case 2:
-                            Perms.requestAdmin(this);
-                            break;
-                        case 3:
-                            Perms.requestListener(this);
-                            break;
-                        case 4:
-                            Perms.requestLocation(this);
-                            break;
                     }
+                    for (CleanYourTv.DebloatItem it : cytChecklistItems) {
+                        it.checked = anyUnchecked;
+                    }
+                    rebuildMainRows();
+                });
+
+        section(tr("PACKAGES ON THIS TV (" + cytChecklistItems.size() + ")", "BU TV'DEKİ PAKETLER (" + cytChecklistItems.size() + ")"));
+        for (CleanYourTv.DebloatItem it : cytChecklistItems) {
+            final CleanYourTv.DebloatItem item = it;
+            boolean alreadyDisabled = !cytCachedEnabledPkgs.isEmpty() && !cytCachedEnabledPkgs.contains(item.pkg);
+            String tag = alreadyDisabled
+                    ? tr(" [Already disabled]", " [Zaten devre dışı]")
+                    : (item.optionalChoice ? tr(" [Optional]", " [İsteğe bağlı]") : "");
+            String sub = item.pkg + (item.description.isEmpty() ? "" : "  •  " + item.description);
+            choiceRow(item.appLabel + tag, sub, item.checked, () -> {
+                item.checked = !item.checked;
+                rebuildMainRows();
+            });
+        }
+    }
+
+    private void subMenuCytSystemLaunchers() {
+        mainHeadView.setText(tr("Disable system launchers", "Sistem başlatıcılarını devre dışı bırak"));
+        backSubMenuRow();
+
+        if (!cytLaunchersSyncedAdb) {
+            cytLaunchersSyncedAdb = true;
+            new Thread(() -> {
+                Set<String> enabled = new HashSet<>();
+                Set<String> disabled = new HashSet<>();
+                Set<String> installed = CleanYourTv.fetchInstalledPackages(this, enabled, disabled);
+                runOnUiThread(() -> {
+                    cytCachedInstalledPkgs = installed;
+                    cytCachedEnabledPkgs = enabled;
+                    if (!isFinishing() && "cyt_launchers".equals(activeSubMenu)) {
+                        rebuildMainRows();
+                    }
+                });
+            }, "cyt-sync-launchers").start();
+        }
+
+        List<CleanYourTv.DebloatItem> launchers = CleanYourTv.getInstalledSystemLaunchers(
+                this,
+                cytCachedInstalledPkgs.isEmpty() ? null : cytCachedInstalledPkgs,
+                cytCachedEnabledPkgs.isEmpty() ? null : cytCachedEnabledPkgs);
+        if (launchers.isEmpty()) {
+            infoNote(tr("No stock Android TV / Google TV / OEM launcher packages were detected on this TV.",
+                    "Bu TV'de stok Android TV / Google TV / üretici başlatıcı paketi tespit edilmedi."));
+            return;
+        }
+
+        section(tr("ONE-TAP ACTIONS", "TEK DOKUNUŞ İŞLEMLERİ"));
+        twoLineRow(tr("Disable All Stock Launchers & Set tvOS Launcher as Home", "Tüm Stok Başlatıcıları Devre Dışı Bırak ve tvOS'u Ana Ekran Yap"),
+                () -> tr("Disable all ›", "Tümünü kapat ›"),
+                () -> {
+                    List<String> toDisable = new ArrayList<>();
+                    for (CleanYourTv.DebloatItem it : launchers) {
+                        toDisable.add(it.pkg);
+                    }
+                    CleanYourTv.executeDebloatPackages(this, tr("System Launchers", "Sistem Başlatıcıları"), toDisable, () -> {
+                        cytLaunchersSyncedAdb = false;
+                        rebuildMainRows();
+                    });
+                });
+        twoLineRow(tr("Re-enable All Stock Launchers", "Tüm Stok Başlatıcıları Yeniden Etkinleştir"),
+                () -> tr("Enable all ›", "Tümünü aç ›"),
+                () -> {
+                    List<String> toEnable = new ArrayList<>();
+                    for (CleanYourTv.DebloatItem it : launchers) {
+                        toEnable.add(it.pkg);
+                    }
+                    CleanYourTv.enablePackagesList(this, toEnable, false, () -> {
+                        cytLaunchersSyncedAdb = false;
+                        rebuildMainRows();
+                    });
+                });
+
+        section(tr("INSTALLED SYSTEM LAUNCHERS ON THIS TV (" + launchers.size() + ")",
+                "BU TV'DE YÜKLÜ SİSTEM BAŞLATICILARI (" + launchers.size() + ")"));
+        for (CleanYourTv.DebloatItem it : launchers) {
+            final CleanYourTv.DebloatItem item = it;
+            boolean isEnabled = item.checked;
+            String badge = isEnabled
+                    ? tr(" [Enabled — Tap to Disable]", " [Etkin — Devre Dışı Bırakmak İçin OK]")
+                    : tr(" [Disabled — Tap to Enable]", " [Devre Dışı — Etkinleştirmek İçin OK]");
+            choiceRow(item.appLabel + badge,
+                    item.pkg + "  •  " + item.description,
+                    !isEnabled,
+                    () -> CleanYourTv.toggleSinglePackage(this, item.pkg, isEnabled, false, () -> {
+                        cytLaunchersSyncedAdb = false;
+                        rebuildMainRows();
+                    }));
+        }
+
+        infoNote(tr("Checked items are currently DISABLED. Disabling the stock system launcher (e.g. Google TV Home / LauncherX + setupwraith, Android TV Home, or TCL/Philips OEM Home) forces Android to use tvOS Launcher when pressing the Home key.",
+                "İşaretli öğeler şu anda DEVRE DIŞI bırakılmıştır. Stok sistem başlatıcısını devre dışı bırakmak, Home tuşuna basıldığında Android'in her zaman tvOS Launcher'ı kullanmasını sağlar."));
+    }
+
+    private void subMenuCytManualDebloat() {
+        mainHeadView.setText(tr("Manual debloat (All system apps)", "Manuel debloat (Tüm sistem uygulamaları)"));
+        backSubMenuRow();
+
+        // Populate immediately from PackageManager (instant with QUERY_ALL_PACKAGES + cached labels)
+        if (cytManualItems == null) {
+            cytManualItems = CleanYourTv.getAllSystemAppsForManualDebloat(
+                    this,
+                    cytCachedInstalledPkgs.isEmpty() ? null : cytCachedInstalledPkgs,
+                    cytCachedEnabledPkgs.isEmpty() ? null : cytCachedEnabledPkgs);
+            if (!cytManualLoading) {
+                cytManualLoading = true;
+                new Thread(() -> {
+                    Set<String> enabled = new HashSet<>();
+                    Set<String> disabled = new HashSet<>();
+                    Set<String> installed = CleanYourTv.fetchInstalledPackages(this, enabled, disabled);
+                    List<CleanYourTv.DebloatItem> allSys = CleanYourTv.getAllSystemAppsForManualDebloat(this, installed, enabled);
+                    runOnUiThread(() -> {
+                        cytManualLoading = false;
+                        cytCachedInstalledPkgs = installed;
+                        cytCachedEnabledPkgs = enabled;
+                        cytManualItems = allSys;
+                        if (!isFinishing() && "cyt_manual".equals(activeSubMenu)) {
+                            rebuildMainRows();
+                        }
+                    });
+                }, "cyt-submenu-manual").start();
+            }
+        }
+
+        row(tr("🔍 Filter system apps…", "🔍 Sistem uygulamalarını filtrele…"),
+                () -> cytManualFilterQuery.isEmpty() ? tr("All (" + cytManualItems.size() + ")", "Tümü (" + cytManualItems.size() + ")") : "\"" + cytManualFilterQuery + "\"",
+                this::promptCytManualFilter);
+        if (!cytManualFilterQuery.isEmpty()) {
+            row(tr("Clear filter", "Filtreyi temizle"),
+                    () -> "",
+                    () -> {
+                        cytManualFilterQuery = "";
+                        cytManualPage = 0;
+                        rebuildMainRows();
+                    });
+        }
+
+        row(tr("↻ Refresh system app list", "↻ Sistem uygulama listesini yenile"),
+                () -> "",
+                () -> {
+                    cytManualItems = null;
+                    cytManualPage = 0;
+                    rebuildMainRows();
+                });
+
+        String q = cytManualFilterQuery.trim().toLowerCase(java.util.Locale.US);
+        List<CleanYourTv.DebloatItem> filtered = new ArrayList<>();
+        for (CleanYourTv.DebloatItem it : cytManualItems) {
+            if (q.isEmpty()
+                    || it.appLabel.toLowerCase(java.util.Locale.US).contains(q)
+                    || it.pkg.toLowerCase(java.util.Locale.US).contains(q)) {
+                filtered.add(it);
+            }
+        }
+
+        int total = filtered.size();
+        int totalPages = Math.max(1, (total + CYT_PAGE_SIZE - 1) / CYT_PAGE_SIZE);
+        if (cytManualPage >= totalPages) cytManualPage = totalPages - 1;
+        if (cytManualPage < 0) cytManualPage = 0;
+        int start = cytManualPage * CYT_PAGE_SIZE;
+        int end = Math.min(total, start + CYT_PAGE_SIZE);
+
+        if (totalPages > 1) {
+            section(tr("PAGE " + (cytManualPage + 1) + " OF " + totalPages + " (" + (start + 1) + "–" + end + " OF " + total + ")",
+                    "SAYFA " + (cytManualPage + 1) + " / " + totalPages + " (" + (start + 1) + "–" + end + " / " + total + ")"));
+            if (cytManualPage > 0) {
+                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
+                        () -> (cytManualPage) + " / " + totalPages,
+                        () -> {
+                            cytManualPage--;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+            if (cytManualPage + 1 < totalPages) {
+                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
+                        () -> (cytManualPage + 2) + " / " + totalPages,
+                        () -> {
+                            cytManualPage++;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+        }
+
+        section(tr("ALL SYSTEM APPS (" + total + " — TAP TO DISABLE / ENABLE)", "TÜM SİSTEM UYGULAMALARI (" + total + " — DEVRE DIŞI BIRAK / ETKİNLEŞTİR)"));
+        for (int i = start; i < end; i++) {
+            final CleanYourTv.DebloatItem item = filtered.get(i);
+            final boolean isCurrentlyEnabled = item.checked;
+            String statusTag = isCurrentlyEnabled
+                    ? tr(" [Enabled]", " [Etkin]")
+                    : tr(" [Disabled]", " [Devre Dışı]");
+            String sub = item.pkg + "  •  " + item.description;
+            choiceRow(item.appLabel + statusTag, sub, !isCurrentlyEnabled, () -> {
+                if (isCurrentlyEnabled && item.optionalChoice) {
+                    dialog(tr("⚠️ Core System Package", "⚠️ Temel Sistem Paketi"))
+                            .setMessage(tr(
+                                    item.appLabel + " (" + item.pkg + ") is a core system package.\n\nDisabling it may break system settings, TV inputs, or cause instability. Disable anyway?",
+                                    item.appLabel + " (" + item.pkg + ") temel bir sistem paketidir.\n\nDevre dışı bırakmak sistem ayarlarını veya TV girişlerini bozabilir. Yine de devre dışı bırakılsın mı?"))
+                            .setPositiveButton(tr("Disable Anyway", "Yine de Devre Dışı Bırak"), (d, w) -> {
+                                CleanYourTv.toggleSinglePackage(this, item.pkg, true, true, () -> {
+                                    item.checked = false;
+                                    cytCachedEnabledPkgs.remove(item.pkg);
+                                    rebuildMainRows();
+                                });
+                            })
+                            .setNegativeButton(tr("Cancel", "İptal"), null)
+                            .show();
+                } else {
+                    CleanYourTv.toggleSinglePackage(this, item.pkg, isCurrentlyEnabled, true, () -> {
+                        item.checked = !isCurrentlyEnabled;
+                        if (item.checked) {
+                            cytCachedEnabledPkgs.add(item.pkg);
+                        } else {
+                            cytCachedEnabledPkgs.remove(item.pkg);
+                        }
+                        rebuildMainRows();
+                    });
+                }
+            });
+        }
+
+        if (totalPages > 1) {
+            section(tr("PAGE NAVIGATION", "SAYFA GEÇİŞİ"));
+            if (cytManualPage + 1 < totalPages) {
+                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
+                        () -> tr("Page " + (cytManualPage + 2) + " of " + totalPages,
+                                "Sayfa " + (cytManualPage + 2) + " / " + totalPages),
+                        () -> {
+                            cytManualPage++;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+            if (cytManualPage > 0) {
+                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
+                        () -> tr("Page " + cytManualPage + " of " + totalPages,
+                                "Sayfa " + cytManualPage + " / " + totalPages),
+                        () -> {
+                            cytManualPage--;
+                            rebuildMainRows();
+                            focusFirstRow();
+                        });
+            }
+        }
+    }
+
+    private void promptCytManualFilter() {
+        android.widget.EditText in = new android.widget.EditText(this);
+        in.setSingleLine(true);
+        in.setHint(tr("App name or package name…", "Uygulama adı veya paket adı…"));
+        in.setText(cytManualFilterQuery);
+        in.setSelection(in.getText().length());
+        int pad = u(14);
+        FrameLayout box = new FrameLayout(this);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(in);
+        AlertDialog dlg = dialog(tr("Filter System Apps", "Sistem Uygulamalarını Filtrele"))
+                .setView(box)
+                .setPositiveButton(tr("Filter", "Filtrele"), (d, w) -> {
+                    cytManualFilterQuery = in.getText().toString().trim();
+                    cytManualPage = 0;
+                    rebuildMainRows();
                 })
-                .setPositiveButton(tr("Grant All via ADB", "Tümünü ADB ile Ver"), (d, w) -> pairOrRepairAdb())
-                .setNegativeButton(tr("Close", "Kapat"), null)
+                .setNegativeButton(tr("Cancel", "İptal"), null)
                 .show();
+        Ui.setupDialogEditText(in, dlg);
+        in.requestFocus();
+    }
+
+    private void subMenuCytSavedDisabled() {
+        mainHeadView.setText(tr("Disabled apps backup", "Devre dışı bırakılan uygulamalar kaydı"));
+        backSubMenuRow();
+
+        List<String> saved = CleanYourTv.getSavedDisabledPackages(this);
+        if (saved.isEmpty()) {
+            infoNote(tr("No disabled packages have been recorded by CleanYourTV yet.",
+                    "CleanYourTV tarafından henüz kaydedilmiş devre dışı paket yok."));
+            return;
+        }
+
+        section(tr("ACTIONS", "İŞLEMLER"));
+        row(tr("Restore All Saved Packages (" + saved.size() + ")", "Kaydedilen Tüm Paketleri Geri Yükle (" + saved.size() + ")"),
+                () -> tr("Restore all ›", "Tümünü yükle ›"),
+                () -> CleanYourTv.enablePackagesList(this, saved, true, this::rebuildMainRows));
+
+        section(tr("SAVED DISABLED PACKAGES (TAP TO RE-ENABLE)", "KAYITLI DEVRE DIŞI PAKETLER (ETKİNLEŞTİRMEK İÇİN OK)"));
+        PackageManager pm = getPackageManager();
+        for (String pkg : saved) {
+            final String p = pkg;
+            String label = CleanYourTv.resolvePackageLabel(this, p);
+            boolean enabledNow = false;
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(p, 0);
+                enabledNow = (ai != null && ai.enabled);
+            } catch (Throwable ignored) {
+            }
+            String st = enabledNow ? tr(" [Enabled]", " [Etkin]") : tr(" [Disabled — Tap to Enable]", " [Devre Dışı — Etkinleştir]");
+            choiceRow(label + st, p, !enabledNow, () -> {
+                CleanYourTv.enablePackagesList(this, Collections.singletonList(p), false, this::rebuildMainRows);
+            });
+        }
+    }
+
+    private void subMenuCytRestore() {
+        mainHeadView.setText(tr("Restore debloated apps", "Debloat edilen uygulamaları geri yükle"));
+        backSubMenuRow();
+
+        List<String> saved = CleanYourTv.getSavedDisabledPackages(this);
+        String slug = CleanYourTv.getSelectedModelSlug(this);
+        CleanYourTv.ModelEntry model = CleanYourTv.findModelBySlug(this, slug);
+
+        section(tr("RESTORE OPTIONS", "GERİ YÜKLEME SEÇENEKLERİ"));
+        if (!saved.isEmpty()) {
+            twoLineRow(tr("Restore Saved Disabled Apps (" + saved.size() + " packages)",
+                          "Kaydedilen Devre Dışı Uygulamaları Geri Yükle (" + saved.size() + " paket)"),
+                    () -> tr("Re-enable all packages disabled by CleanYourTV over ADB",
+                             "CleanYourTV ile devre dışı bırakılan tüm paketleri ADB üzerinden yeniden etkinleştir"),
+                    () -> CleanYourTv.enablePackagesList(this, saved, true, this::rebuildMainRows));
+        }
+        if (model != null && !model.packages.isEmpty()) {
+            twoLineRow(tr("Restore Selected Model Profile (" + model.title + " — " + model.packages.size() + " packages)",
+                          "Seçili Model Profilini Geri Yükle (" + model.title + " — " + model.packages.size() + " paket)"),
+                    () -> tr("Re-enable all packages in " + model.slug,
+                             model.slug + " profilindeki tüm paketleri yeniden etkinleştir"),
+                    () -> CleanYourTv.enablePackagesList(this, model.packages, true, this::rebuildMainRows));
+        }
+        if (saved.isEmpty() && model == null) {
+            infoNote(tr("No saved disabled-app backup was found, and no TV model is selected yet. Choose a TV model first if you want to restore by model profile.",
+                    "Kaydedilmiş devre dışı uygulama yedeği bulunamadı ve henüz bir TV modeli seçilmedi."));
+            row(tr("Choose TV model…", "TV modelini seçin…"),
+                    () -> "›",
+                    () -> {
+                        cytAutoContinueToDebloat = false;
+                        openSubMenu("cyt_models");
+                    });
+        }
     }
 
     // ================================================================ Row Builders (.shead, .srow)
@@ -1808,9 +2953,15 @@ public class SettingsActivity extends Activity {
         r.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         int cs = u(17);
+        if (cachedCheckWhite == null) {
+            cachedCheckWhite = Glyphs.get("check", cs, Color.WHITE);
+        }
+        if (cachedCheckDark == null) {
+            cachedCheckDark = Glyphs.get("check", cs, 0xFF111114);
+        }
         ImageView mark = new ImageView(this);
         if (checked) {
-            mark.setImageBitmap(Glyphs.get("check", cs, Color.WHITE));
+            mark.setImageBitmap(cachedCheckWhite);
         }
         r.addView(mark, new LinearLayout.LayoutParams(cs, cs));
 
@@ -1825,7 +2976,7 @@ public class SettingsActivity extends Activity {
             t.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             if (sRef != null) sRef.setTextColor(has ? 0x99000000 : 0x99FFFFFF);
             if (checked) {
-                mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
+                mark.setImageBitmap(has ? cachedCheckDark : cachedCheckWhite);
             }
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
                     .translationZ(has ? u(8) : 0f).setDuration(180).start();
@@ -2346,6 +3497,7 @@ public class SettingsActivity extends Activity {
         l.setTypeface(Ui.font(this, "semibold"));
         Ui.textSize(l, 14.5f);
         l.setSingleLine(true);
+        l.setEllipsize(TextUtils.TruncateAt.END);
         r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView v = new TextView(this);
@@ -2353,7 +3505,10 @@ public class SettingsActivity extends Activity {
         v.setTypeface(Ui.font(this, "medium"));
         Ui.textSize(v, 14f);
         v.setSingleLine(true);
-        r.addView(v);
+        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        vlp.leftMargin = u(10);
+        r.addView(v, vlp);
 
         Runnable refresh = () -> {
             try {
@@ -2621,11 +3776,7 @@ public class SettingsActivity extends Activity {
             }
             if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
                 if (down) {
-                    if (APPS.equals(currentSection) && showingHiddenApps) {
-                        showingHiddenApps = false;
-                        rebuildMainRows();
-                        focusFirstRow();
-                    } else {
+                    if (!closeSubMenu()) {
                         View sideRow = sideRowViews.get(currentSection);
                         if (sideRow != null) sideRow.requestFocus();
                     }
@@ -2634,11 +3785,7 @@ public class SettingsActivity extends Activity {
             }
             if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_ESCAPE) {
                 if (!down) {
-                    if (APPS.equals(currentSection) && showingHiddenApps) {
-                        showingHiddenApps = false;
-                        rebuildMainRows();
-                        focusFirstRow();
-                    } else {
+                    if (!closeSubMenu()) {
                         View sideRow = sideRowViews.get(currentSection);
                         if (sideRow != null) sideRow.requestFocus();
                     }
@@ -2769,7 +3916,7 @@ public class SettingsActivity extends Activity {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception e) {
-            return "2.0.3";
+            return "2.0.5";
         }
     }
 

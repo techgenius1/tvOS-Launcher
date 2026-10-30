@@ -134,12 +134,25 @@ public class PowerService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(android.view.KeyEvent event) {
-        if (event != null) {
-            if (event.getAction() == android.view.KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0
-                    && LocalAdb.hasConflictingAccessibilityService(this)) {
-                LocalAdb.checkAndRepairPermissionsIfNeeded(this, true);
+        try {
+            if (event == null) {
+                return false;
             }
             int code = event.getKeyCode();
+            // Never consume core navigation, selection, or back keys in AccessibilityService
+            switch (code) {
+                case android.view.KeyEvent.KEYCODE_DPAD_UP:
+                case android.view.KeyEvent.KEYCODE_DPAD_DOWN:
+                case android.view.KeyEvent.KEYCODE_DPAD_LEFT:
+                case android.view.KeyEvent.KEYCODE_DPAD_RIGHT:
+                case android.view.KeyEvent.KEYCODE_DPAD_CENTER:
+                case android.view.KeyEvent.KEYCODE_ENTER:
+                case android.view.KeyEvent.KEYCODE_NUMPAD_ENTER:
+                case android.view.KeyEvent.KEYCODE_BACK:
+                case android.view.KeyEvent.KEYCODE_ESCAPE:
+                    ButtonMapper.handleKeyEvent(this, event);
+                    return false;
+            }
             if (code == android.view.KeyEvent.KEYCODE_VOLUME_UP
                     || code == android.view.KeyEvent.KEYCODE_VOLUME_DOWN) {
                 if (!volWatchConnected && ButtonMapper.isVolumeHoldFixEnabled(this)) {
@@ -156,24 +169,25 @@ public class PowerService extends AccessibilityService {
             if (code == android.view.KeyEvent.KEYCODE_VOLUME_MUTE) {
                 return false;
             }
+            if (ButtonMapper.handleKeyEvent(this, event)) {
+                return true;
+            }
+            return false;
+        } catch (Throwable t) {
+            return false;
         }
-        if (ButtonMapper.handleKeyEvent(this, event)) {
-            return true;
-        }
-        return super.onKeyEvent(event);
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent e) {
-        if (e != null && e.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            if (LocalAdb.hasConflictingAccessibilityService(this)) {
-                LocalAdb.checkAndRepairPermissionsIfNeeded(this, true);
+        try {
+            if (e != null && e.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                CharSequence pkgCs = e.getPackageName();
+                if (pkgCs != null && pkgCs.length() > 0) {
+                    RecentAppsOverlay.recordAppUsed(this, pkgCs.toString());
+                }
             }
-            CharSequence pkgCs = e.getPackageName();
-            if (pkgCs != null && pkgCs.length() > 0) {
-                RecentAppsOverlay.recordAppUsed(this, pkgCs.toString());
-            }
-        }
+        } catch (Throwable ignored) { }
     }
 
     @Override

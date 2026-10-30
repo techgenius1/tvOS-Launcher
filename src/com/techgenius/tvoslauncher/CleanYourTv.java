@@ -164,6 +164,10 @@ public final class CleanYourTv {
     }
 
     private static List<ModelEntry> cachedModels;
+    private static final java.util.concurrent.ConcurrentHashMap<String, String> APP_LABEL_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<String, Boolean> SAFE_DISABLE_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     private CleanYourTv() {}
 
@@ -390,8 +394,15 @@ public final class CleanYourTv {
      */
     public static boolean isSafeToDisable(Context c, String pkg) {
         if (pkg == null || pkg.isEmpty()) return false;
-        if (NEVER_DISABLE_EXACT.contains(pkg)) return false;
+        if ("android".equals(pkg)) return false;
+        Boolean cached = SAFE_DISABLE_CACHE.get(pkg);
+        if (cached != null) return cached;
+        if (NEVER_DISABLE_EXACT.contains(pkg)) {
+            SAFE_DISABLE_CACHE.put(pkg, false);
+            return false;
+        }
         if (CORE_RE.matcher(pkg).matches() && !CORE_OK.matcher(pkg).matches()) {
+            SAFE_DISABLE_CACHE.put(pkg, false);
             return false;
         }
         // Protect TV input hardware services (HDMI / tuner inputs)
@@ -399,11 +410,132 @@ public final class CleanYourTv {
             PackageManager pm = c.getPackageManager();
             if (pm.checkPermission("android.permission.TV_INPUT_HARDWARE", pkg)
                     == PackageManager.PERMISSION_GRANTED) {
+                SAFE_DISABLE_CACHE.put(pkg, false);
                 return false;
             }
         } catch (Throwable ignored) {
         }
+        SAFE_DISABLE_CACHE.put(pkg, true);
         return true;
+    }
+
+    /**
+     * Returns true if {@code pkg} is a generic Android / Google system package or common third-party
+     * streaming app that appears across many TV brands (and therefore is NOT an OEM-identifying package).
+     */
+    private static boolean isGenericOrStreamingPackage(String pkg) {
+        if (pkg == null || pkg.isEmpty()) return true;
+        if (GENERIC_GOOGLE_PKGS.contains(pkg)) return true;
+        String low = pkg.toLowerCase(Locale.US);
+        if (low.startsWith("com.android.")
+                || low.startsWith("com.google.")
+                || low.startsWith("android.")
+                || low.startsWith("fusion.android.")
+                || low.equals("android")) {
+            return true;
+        }
+        String[] genericPrefixes = {
+            "com.netflix.", "com.amazon.amazonvideo", "com.amazon.avod", "com.disney.",
+            "com.spotify.", "com.apple.atve", "tv.pluto.", "com.tubitv", "com.wbd.",
+            "com.hbo.", "com.peacock", "com.fubo", "com.hulu.", "in.startv.",
+            "com.tencent.", "com.iqiyi.", "com.facebook.", "com.rakuten.",
+            "com.plexapp.", "com.deezer.", "com.dazn", "com.crunchyroll.",
+            "air.com.vudu.", "com.cbs.", "com.espn.", "com.mlb.", "org.videolan.",
+            "org.smarttube.", "com.teamst.vanced", "com.kodi.", "org.xbmc."
+        };
+        for (String pref : genericPrefixes) {
+            if (low.startsWith(pref)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Maps a package name to its OEM/vendor family (e.g. "tcl", "philips", "sony", "xiaomi",
+     * "hisense", "skyworth", "haier", "changhong", "vestel", "cvte", "zeasn", "sdmc", "realtek", "amlogic", "mediatek").
+     */
+    private static String detectOemFamilyFromPackage(String pkg) {
+        if (pkg == null || pkg.isEmpty()) return "";
+        String low = pkg.toLowerCase(Locale.US);
+        if (low.startsWith("com.tcl.") || low.startsWith("cn.tcl.") || low.startsWith("com.falcon.")
+                || low.startsWith("com.ffalcon.") || low.startsWith("com.tcltv.") || low.contains(".tcl.")) {
+            return "tcl";
+        }
+        if (low.startsWith("org.droidtv.") || low.startsWith("com.tpvision.") || low.startsWith("com.philips.")
+                || low.contains(".droidtv.") || low.contains(".tpvision.")) {
+            return "philips";
+        }
+        if (low.startsWith("com.sony.") || low.contains(".bravia.") || low.contains(".sonydtv.")) {
+            return "sony";
+        }
+        if (low.startsWith("com.xiaomi.") || low.startsWith("com.mitv.") || low.startsWith("com.miui.")
+                || low.startsWith("com.mi.tv.") || low.startsWith("com.duokan.")) {
+            return "xiaomi";
+        }
+        if (low.startsWith("com.hisense.") || low.startsWith("com.jamdeo.") || low.contains(".hisense.")) {
+            return "hisense";
+        }
+        if (low.startsWith("com.skyworth.") || low.startsWith("com.coocaa.") || low.startsWith("com.tianci.")
+                || low.startsWith("com.sdt.")) {
+            return "skyworth";
+        }
+        if (low.startsWith("com.haier.") || low.startsWith("com.haierubic.") || low.startsWith("com.homwee.")) {
+            return "haier";
+        }
+        if (low.startsWith("com.changhong.") || low.startsWith("com.gdch.") || low.startsWith("cn.changhong.")) {
+            return "changhong";
+        }
+        if (low.startsWith("com.vestel.") || low.startsWith("com. Cabot.") || low.startsWith("com.beko.")
+                || low.startsWith("com.arcelik.")) {
+            return "vestel";
+        }
+        if (low.startsWith("com.cvte.") || low.startsWith("cn.cvte.") || low.startsWith("com.cultraview.")) {
+            return "cvte";
+        }
+        if (low.startsWith("com.zeasn.") || low.startsWith("cn.zeasn.") || low.startsWith("com.whaleos.")) {
+            return "zeasn";
+        }
+        if (low.startsWith("com.sdmc.") || low.startsWith("com.nes.") || low.startsWith("com.sei.")) {
+            return "sdmc";
+        }
+        if (low.startsWith("com.apps.") || low.startsWith("com.mk.tv.") || low.startsWith("com.oceanwing.")
+                || low.startsWith("com.zhixin.")) {
+            return "scbc";
+        }
+        if (low.startsWith("com.amazon.tv.") || low.startsWith("com.amazon.fireos") || low.startsWith("com.amazon.device.")) {
+            return "amazon";
+        }
+        if (low.startsWith("com.realtek.") || low.startsWith("com.rtk.")) {
+            return "realtek";
+        }
+        if (low.startsWith("com.droidlogic.") || low.startsWith("com.amlogic.") || low.startsWith("com.meson.")) {
+            return "amlogic";
+        }
+        if (low.startsWith("com.mediatek.") || low.startsWith("com.mstar.") || low.startsWith("com.mtk.")) {
+            return "mediatek";
+        }
+        return "";
+    }
+
+    private static Set<String> detectOemFamiliesForModel(ModelEntry entry) {
+        Set<String> families = new HashSet<>();
+        String text = (entry.slug + " " + entry.title + " " + entry.headerMeta).toLowerCase(Locale.US);
+        if (text.contains("tcl") || text.contains("ffalcon") || text.contains("thomson") || text.contains("ifalcon")) families.add("tcl");
+        if (text.contains("philips") || text.contains("tpvision") || text.contains("droidtv") || text.contains("pus") || text.contains("pml") || text.contains("oled")) {
+            if (text.contains("philips") || text.contains("tpvision") || text.contains("droidtv")) families.add("philips");
+        }
+        if (text.contains("sony") || text.contains("bravia")) families.add("sony");
+        if (text.contains("xiaomi") || text.contains("mitv") || text.contains("mi-tv") || text.contains("mi-box") || text.contains("redmi")) families.add("xiaomi");
+        if (text.contains("hisense") || text.contains("toshiba") || text.contains("jamdeo")) families.add("hisense");
+        if (text.contains("skyworth") || text.contains("coocaa") || text.contains("strong") || text.contains("metz")) families.add("skyworth");
+        if (text.contains("haier") || text.contains("homwee")) families.add("haier");
+        if (text.contains("changhong") || text.contains("chiq")) families.add("changhong");
+        if (text.contains("vestel") || text.contains("beko") || text.contains("grundig") || text.contains("arcelik") || text.contains("jvc") || text.contains("hitachi") || text.contains("telefunken")) families.add("vestel");
+        if (text.contains("sharp") || text.contains("onn") || text.contains("walmart")) families.add("sdmc");
+        for (String pkg : entry.packages) {
+            String f = detectOemFamilyFromPackage(pkg);
+            if (!f.isEmpty()) families.add(f);
+        }
+        return families;
     }
 
     // ================================================================ Model Matching (Hardware + ADB Package Similarity)
@@ -573,35 +705,121 @@ public final class CleanYourTv {
 
     /**
      * Pulls the full package list from ADB (`pm list packages --user 0`, falling back to PackageManager)
-     * and ranks all 341 CleanYourTV models by system/OEM package overlap.
+     * and ranks all 341 CleanYourTV models primarily by OEM/vendor-specific package overlap
+     * (e.g. TCL `com.tcl.*`/`com.falcon.*`, Philips `org.droidtv.*`/`com.tpvision.*`, Sony `com.sony.*`,
+     * Xiaomi `com.mitv.*`/`com.xiaomi.*`, Hisense `com.hisense.*`/`com.jamdeo.*`, Skyworth/Coocaa, Haier,
+     * Vestel/Beko, CVTE, Zeasn, SDMC, Realtek, Amlogic, MediaTek) plus hardware/board/brand metadata.
      */
     public static List<ModelMatch> findPackageSimilarityMatches(Context c, Set<String> installedPkgs) {
+        // 1. Identify all OEM/vendor-specific packages installed on this TV and detect the TV's OEM families
+        Set<String> tvOemFamilies = new HashSet<>();
+        Set<String> tvOemPackages = new HashSet<>();
+        for (String pkg : installedPkgs) {
+            if (!isGenericOrStreamingPackage(pkg)) {
+                tvOemPackages.add(pkg);
+                String fam = detectOemFamilyFromPackage(pkg);
+                if (!fam.isEmpty()) tvOemFamilies.add(fam);
+            }
+        }
+        String hwText = ((Build.BRAND != null ? Build.BRAND : "") + " "
+                + (Build.MANUFACTURER != null ? Build.MANUFACTURER : "") + " "
+                + (Build.MODEL != null ? Build.MODEL : "") + " "
+                + (Build.DEVICE != null ? Build.DEVICE : "") + " "
+                + (Build.PRODUCT != null ? Build.PRODUCT : "")).toLowerCase(Locale.US);
+        if (hwText.contains("tcl") || hwText.contains("ffalcon") || hwText.contains("thomson")) tvOemFamilies.add("tcl");
+        if (hwText.contains("philips") || hwText.contains("tpv") || hwText.contains("droidtv")) tvOemFamilies.add("philips");
+        if (hwText.contains("sony") || hwText.contains("bravia")) tvOemFamilies.add("sony");
+        if (hwText.contains("xiaomi") || hwText.contains("mitv") || hwText.contains("mibox") || hwText.contains("redmi")) tvOemFamilies.add("xiaomi");
+        if (hwText.contains("hisense") || hwText.contains("toshiba") || hwText.contains("jamdeo")) tvOemFamilies.add("hisense");
+        if (hwText.contains("skyworth") || hwText.contains("coocaa") || hwText.contains("strong") || hwText.contains("metz")) tvOemFamilies.add("skyworth");
+        if (hwText.contains("haier") || hwText.contains("homwee")) tvOemFamilies.add("haier");
+        if (hwText.contains("changhong") || hwText.contains("chiq")) tvOemFamilies.add("changhong");
+        if (hwText.contains("vestel") || hwText.contains("beko") || hwText.contains("grundig") || hwText.contains("arcelik")) tvOemFamilies.add("vestel");
+
+        String deviceLow = Build.DEVICE != null ? Build.DEVICE.trim().toLowerCase(Locale.US) : "";
+        String productLow = Build.PRODUCT != null ? Build.PRODUCT.trim().toLowerCase(Locale.US) : "";
+        String modelLow = Build.MODEL != null ? Build.MODEL.trim().toLowerCase(Locale.US) : "";
+
         List<ModelMatch> matches = new ArrayList<>();
         for (ModelEntry entry : loadIndex(c)) {
             if (entry.packages.isEmpty()) continue;
             int totalMatched = 0;
             int oemMatched = 0;
+            int modelOemCount = 0;
+            int foreignOemCount = 0;
             List<String> sampleOem = new ArrayList<>();
+
             for (String pkg : entry.packages) {
+                boolean isGeneric = isGenericOrStreamingPackage(pkg);
+                if (!isGeneric) {
+                    modelOemCount++;
+                }
                 if (installedPkgs.contains(pkg)) {
                     totalMatched++;
-                    if (!GENERIC_GOOGLE_PKGS.contains(pkg)) {
+                    if (!isGeneric) {
                         oemMatched++;
-                        if (sampleOem.size() < 2) {
+                        if (sampleOem.size() < 3) {
                             sampleOem.add(shortPkgName(pkg));
                         }
                     }
+                } else if (!isGeneric) {
+                    foreignOemCount++;
                 }
             }
             if (totalMatched == 0) continue;
-            // Weight OEM/vendor-specific packages 5x higher than generic Google TV packages
-            int pct = (totalMatched * 100) / Math.max(1, entry.packages.size());
-            int score = (oemMatched * 25) + (totalMatched * 4) + (pct / 4);
+
+            Set<String> modelFamilies = detectOemFamiliesForModel(entry);
+            boolean familyMatched = false;
+            String matchedFamilyName = "";
+            for (String f : tvOemFamilies) {
+                if (modelFamilies.contains(f)) {
+                    familyMatched = true;
+                    matchedFamilyName = f.toUpperCase(Locale.US);
+                    break;
+                }
+            }
+
+            // If this TV has known OEM families (e.g. TCL, Philips, Sony, Xiaomi) and this model belongs to a
+            // completely different OEM brand with zero OEM package overlap, skip or heavily penalize it!
+            boolean conflictingOem = !tvOemFamilies.isEmpty() && !modelFamilies.isEmpty() && !familyMatched && oemMatched == 0;
+            if (conflictingOem) continue;
+
+            int oemCoveragePct = modelOemCount > 0 ? (oemMatched * 100) / modelOemCount : 0;
+            int totalCoveragePct = (totalMatched * 100) / Math.max(1, entry.packages.size());
+
+            // Score heavily by true OEM package overlap and OEM family match, not generic Google/Android count
+            int score = (oemMatched * 85)
+                    + (oemCoveragePct * 2)
+                    + (familyMatched ? 140 : 0)
+                    + (totalCoveragePct / 2)
+                    + Math.min(totalMatched, 12) * 2
+                    - (foreignOemCount * 12);
+
+            String metaLow = (entry.slug + " " + entry.title + " " + entry.headerMeta).toLowerCase(Locale.US);
+            if (!modelLow.isEmpty() && modelLow.length() >= 3 && metaLow.contains(modelLow)) {
+                score += 180;
+            }
+            if (!deviceLow.isEmpty() && deviceLow.length() >= 3 && metaLow.contains(deviceLow)) {
+                score += 110;
+            }
+            if (!productLow.isEmpty() && productLow.length() >= 3 && metaLow.contains(productLow)) {
+                score += 90;
+            }
+
+            String oemDetail;
+            if (oemMatched > 0) {
+                oemDetail = tr(c,
+                        oemMatched + "/" + modelOemCount + " OEM pkgs: " + TextUtils.join(", ", sampleOem),
+                        oemMatched + "/" + modelOemCount + " üretici paketi: " + TextUtils.join(", ", sampleOem));
+            } else if (familyMatched) {
+                oemDetail = tr(c, "OEM family: " + matchedFamilyName, "Üretici ailesi: " + matchedFamilyName);
+            } else {
+                oemDetail = tr(c, "Generic Android TV / Google TV profile", "Genel Android TV / Google TV profili");
+            }
+
             String reason = tr(c,
-                    totalMatched + "/" + entry.packages.size() + " matching apps"
-                            + (oemMatched > 0 ? " (" + oemMatched + " OEM/system: " + TextUtils.join(", ", sampleOem) + ")" : ""),
-                    totalMatched + "/" + entry.packages.size() + " eşleşen uygulama"
-                            + (oemMatched > 0 ? " (" + oemMatched + " sistem/üretici: " + TextUtils.join(", ", sampleOem) + ")" : ""));
+                    totalMatched + "/" + entry.packages.size() + " apps (" + oemDetail + ")",
+                    totalMatched + "/" + entry.packages.size() + " uygulama (" + oemDetail + ")");
             matches.add(new ModelMatch(entry, score, reason));
         }
         Collections.sort(matches, (a, b) -> Integer.compare(b.score, a.score));
@@ -620,33 +838,34 @@ public final class CleanYourTv {
     }
 
     /**
-     * Fetches the full installed package set from ADB (`pm list packages --user 0`) plus PackageManager.
+     * Fetches the full installed package set from PackageManager (instant with QUERY_ALL_PACKAGES)
+     * plus a single combined ADB `pm list packages` query.
      */
     public static Set<String> fetchInstalledPackages(Context c, Set<String> outEnabled, Set<String> outDisabled) {
         Set<String> all = new HashSet<>();
+        boolean gotAdbLists = false;
         try {
-            String enabledOut = LocalAdb.execShellOutput(c, "pm list packages -e --user 0");
-            if (enabledOut != null && !enabledOut.isEmpty()) {
-                for (String line : enabledOut.split("\\r?\\n")) {
+            String combinedOut = LocalAdb.execShellOutput(c,
+                    "pm list packages -e --user 0; echo '__CYT_DISABLED__'; pm list packages -d --user 0");
+            if (combinedOut != null && !combinedOut.isEmpty()) {
+                boolean inDisabledSection = false;
+                for (String line : combinedOut.split("\\r?\\n")) {
                     String s = line.trim();
-                    if (s.startsWith("package:")) {
-                        String pkg = s.substring("package:".length()).trim();
-                        if (!pkg.isEmpty()) {
-                            all.add(pkg);
-                            if (outEnabled != null) outEnabled.add(pkg);
-                        }
+                    if ("__CYT_DISABLED__".equals(s)) {
+                        inDisabledSection = true;
+                        continue;
                     }
-                }
-            }
-            String disabledOut = LocalAdb.execShellOutput(c, "pm list packages -d --user 0");
-            if (disabledOut != null && !disabledOut.isEmpty()) {
-                for (String line : disabledOut.split("\\r?\\n")) {
-                    String s = line.trim();
                     if (s.startsWith("package:")) {
                         String pkg = s.substring("package:".length()).trim();
                         if (!pkg.isEmpty()) {
+                            gotAdbLists = true;
                             all.add(pkg);
-                            if (outDisabled != null) outDisabled.add(pkg);
+                            if (inDisabledSection) {
+                                if (outDisabled != null) outDisabled.add(pkg);
+                                if (outEnabled != null) outEnabled.remove(pkg);
+                            } else {
+                                if (outEnabled != null) outEnabled.add(pkg);
+                            }
                         }
                     }
                 }
@@ -654,21 +873,22 @@ public final class CleanYourTv {
         } catch (Throwable ignored) {
         }
 
-        // Also merge PackageManager view as fallback / supplement
+        // Also merge PackageManager view (including disabled/uninstalled-for-user packages)
         try {
             PackageManager pm = c.getPackageManager();
-            List<PackageInfo> pis = pm.getInstalledPackages(0);
+            int flags = PackageManager.MATCH_UNINSTALLED_PACKAGES | PackageManager.MATCH_DISABLED_COMPONENTS;
+            List<PackageInfo> pis = pm.getInstalledPackages(flags);
             if (pis != null) {
                 for (PackageInfo pi : pis) {
                     if (pi == null || pi.packageName == null) continue;
-                    all.add(pi.packageName);
-                    if (pi.applicationInfo != null) {
-                        if (pi.applicationInfo.enabled) {
-                            if (outEnabled != null && (outDisabled == null || !outDisabled.contains(pi.packageName))) {
-                                outEnabled.add(pi.packageName);
-                            }
+                    String pkg = pi.packageName;
+                    all.add(pkg);
+                    if (!gotAdbLists && pi.applicationInfo != null) {
+                        boolean enabled = isPackageCurrentlyEnabled(pm, pkg, pi.applicationInfo);
+                        if (enabled) {
+                            if (outEnabled != null) outEnabled.add(pkg);
                         } else {
-                            if (outDisabled != null) outDisabled.add(pi.packageName);
+                            if (outDisabled != null) outDisabled.add(pkg);
                         }
                     }
                 }
@@ -676,6 +896,22 @@ public final class CleanYourTv {
         } catch (Throwable ignored) {
         }
         return all;
+    }
+
+    public static boolean isPackageCurrentlyEnabled(PackageManager pm, String pkg, ApplicationInfo ai) {
+        try {
+            int state = pm.getApplicationEnabledSetting(pkg);
+            if (state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                    || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+                    || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                return false;
+            }
+            if (state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return ai == null || ai.enabled;
     }
 
     // ================================================================ UI Flows: Choose TV Model
@@ -1213,20 +1449,365 @@ public final class CleanYourTv {
     }
 
     private static String resolveAppLabel(PackageManager pm, String pkg) {
+        if (pkg == null || pkg.isEmpty()) return "";
+        String cached = APP_LABEL_CACHE.get(pkg);
+        if (cached != null) return cached;
+        String resolved = null;
         try {
-            ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+            ApplicationInfo ai = pm.getApplicationInfo(pkg,
+                    PackageManager.MATCH_UNINSTALLED_PACKAGES | PackageManager.MATCH_DISABLED_COMPONENTS);
             if (ai != null) {
                 CharSequence cs = ai.loadLabel(pm);
                 if (cs != null && cs.length() > 0) {
                     String s = cs.toString().trim();
                     if (!s.isEmpty() && !s.equals(pkg)) {
-                        return s;
+                        resolved = s;
                     }
                 }
             }
         } catch (Throwable ignored) {
         }
-        return friendlyFallbackName(pkg);
+        if (resolved == null || resolved.isEmpty()) {
+            resolved = friendlyFallbackName(pkg);
+        }
+        APP_LABEL_CACHE.put(pkg, resolved);
+        return resolved;
+    }
+
+    public static String resolvePackageLabel(Context c, String pkg) {
+        return resolveAppLabel(c.getPackageManager(), pkg);
+    }
+
+    private static final String[][] KNOWN_SYSTEM_LAUNCHERS = {
+        {"com.google.android.apps.tv.launcherx", "Google TV Home (LauncherX)", "Stock Google TV Home screen & banner ads"},
+        {"com.google.android.tungsten.setupwraith", "Google TV Setup / Watchdog (setupwraith)", "Google TV launcher watchdog (disable together with LauncherX)"},
+        {"com.google.android.tvlauncher", "Android TV Home (tvlauncher)", "Stock Android TV Home screen"},
+        {"com.google.android.leanbacklauncher", "Android TV Home (Leanback)", "Stock Android TV Leanback launcher"},
+        {"com.google.android.leanbacklauncher.recommendations", "Android TV Recommendations", "Stock Android TV recommendations row"},
+        {"com.google.android.tvrecommendations", "Android TV Home Recommendations", "Stock Android TV recommendations service"},
+        {"org.droidtv.playtv", "Philips TV Home Wrapper (org.droidtv.playtv)", "Philips Android TV Home wrapper"},
+        {"org.droidtv.ui.home", "Philips TV Home UI (org.droidtv.ui.home)", "Philips OEM Home launcher"},
+        {"org.droidtv.home", "Philips Home (org.droidtv.home)", "Philips OEM Home screen"},
+        {"com.tpvision.home", "Philips / TPVision Home (com.tpvision.home)", "Philips OEM Home screen"},
+        {"com.tcl.cyberui", "TCL CyberUI Home (com.tcl.cyberui)", "TCL OEM Home screen"},
+        {"com.tcl.tv.launcher", "TCL TV Launcher (com.tcl.tv.launcher)", "TCL OEM TV Home launcher"},
+        {"com.tcl.launcher", "TCL Home Launcher (com.tcl.launcher)", "TCL OEM Home launcher"},
+        {"com.falcon.launcher", "TCL / Falcon Launcher", "TCL / iFFALCON OEM Home launcher"},
+        {"com.ffalcon.launcher", "FFALCON Home Launcher", "FFALCON OEM Home launcher"},
+        {"com.hisense.tv.launcher", "Hisense TV Launcher", "Hisense OEM TV Home screen"},
+        {"com.mi.tv.launcher", "Xiaomi PatchWall / Mi TV Launcher", "Xiaomi OEM TV Home screen"},
+        {"com.mitv.tvhome", "Mi TV Home", "Xiaomi OEM TV Home screen"},
+        {"com.sony.dtv.homemenu", "Sony Bravia Home Menu", "Sony OEM TV Home menu"},
+        {"com.skyworth.tvos.launcher", "Skyworth TV Launcher", "Skyworth OEM TV Home screen"},
+        {"com.coocaa.tv.launcher", "Coocaa TV Launcher", "Coocaa OEM TV Home screen"},
+        {"com.haier.tv.launcher", "Haier TV Launcher", "Haier OEM TV Home screen"},
+        {"com.homwee.launcher", "Haier / Homwee TV Launcher", "Haier OEM TV Home screen"},
+        {"com.zeasn.whaleos.launcher", "WhaleOS / Zeasn TV Launcher", "Zeasn OEM TV Home screen"},
+        {"com.sdmc.launcher", "SDMC TV Launcher", "SDMC OEM TV Home screen"},
+        {"com.amazon.tv.launcher", "Fire TV Home Launcher", "Amazon OEM TV Home screen"}
+    };
+
+    /**
+     * Core system/framework/settings packages that may declare a FallbackHome or ResolverActivity
+     * for CATEGORY_HOME, but are NOT actual home launchers and must NEVER be shown in the launcher list.
+     */
+    private static boolean isExcludedFromLauncherList(String pkg, String activityName) {
+        if (pkg == null || pkg.isEmpty()) return true;
+        String lowPkg = pkg.toLowerCase(Locale.US);
+        if ("android".equals(lowPkg)
+                || lowPkg.startsWith("com.android.internal")
+                || lowPkg.equals("com.android.settings")
+                || lowPkg.equals("com.android.tv.settings")
+                || lowPkg.equals("com.android.systemui")
+                || lowPkg.equals("com.android.provision")
+                || lowPkg.equals("com.android.managedprovisioning")
+                || lowPkg.equals("com.android.shell")
+                || lowPkg.equals("com.android.nfc")
+                || lowPkg.equals("com.android.bluetooth")
+                || lowPkg.equals("com.android.vending")
+                || lowPkg.equals("com.google.android.gms")
+                || lowPkg.equals("com.google.android.gsf")
+                || lowPkg.equals("com.google.android.onetimeinitializer")
+                || lowPkg.startsWith("com.android.cts.")) {
+            return true;
+        }
+        if (activityName != null) {
+            String lowAct = activityName.toLowerCase(Locale.US);
+            if (lowAct.contains("resolveractivity")
+                    || lowAct.contains("fallbackhome")
+                    || lowAct.contains("cryptkeeper")
+                    || lowAct.contains("provision")
+                    || lowAct.contains(" uninstaller")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Searches installed packages on the current TV to find all stock/OEM system launchers
+     * (Google TV Home, Android TV Home, TCL/Philips/Sony/Xiaomi/Hisense launchers, plus any
+     * other installed system CATEGORY_HOME package).
+     * For each returned DebloatItem, {@code checked} is true when the package is currently ENABLED.
+     */
+    public static List<DebloatItem> getInstalledSystemLaunchers(Context c, Set<String> installedPkgs, Set<String> enabledPkgs) {
+        PackageManager pm = c.getPackageManager();
+        Set<String> savedDisabled = new HashSet<>(getSavedDisabledPackages(c));
+        Map<String, DebloatItem> found = new LinkedHashMap<>();
+
+        for (String[] row : KNOWN_SYSTEM_LAUNCHERS) {
+            String pkg = row[0];
+            String fallbackTitle = row[1];
+            String desc = row[2];
+            boolean isInstalled = (installedPkgs != null && installedPkgs.contains(pkg)) || savedDisabled.contains(pkg);
+            Boolean pmEnabled = null;
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(pkg,
+                        PackageManager.MATCH_UNINSTALLED_PACKAGES | PackageManager.MATCH_DISABLED_COMPONENTS);
+                if (ai != null) {
+                    isInstalled = true;
+                    pmEnabled = isPackageCurrentlyEnabled(pm, pkg, ai);
+                }
+            } catch (Throwable ignored) {
+            }
+            if (!isInstalled) continue;
+
+            boolean isEnabled;
+            if (enabledPkgs != null && !enabledPkgs.isEmpty()) {
+                isEnabled = enabledPkgs.contains(pkg);
+            } else if (pmEnabled != null) {
+                isEnabled = pmEnabled && !savedDisabled.contains(pkg);
+            } else {
+                isEnabled = !savedDisabled.contains(pkg);
+            }
+
+            String label = resolveAppLabel(pm, pkg);
+            if (label.equals(pkg) || label.equals(friendlyFallbackName(pkg))) {
+                label = fallbackTitle;
+            }
+            found.put(pkg, new DebloatItem(pkg, label, desc, false, isEnabled));
+        }
+
+        // Also scan all installed CATEGORY_HOME system packages dynamically (excluding core Android/Settings/Resolver)
+        try {
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+            int flags = PackageManager.MATCH_DISABLED_COMPONENTS | PackageManager.MATCH_UNINSTALLED_PACKAGES;
+            List<android.content.pm.ResolveInfo> ris = pm.queryIntentActivities(homeIntent, flags);
+            if (ris != null) {
+                for (android.content.pm.ResolveInfo ri : ris) {
+                    if (ri == null || ri.activityInfo == null || ri.activityInfo.packageName == null) continue;
+                    String pkg = ri.activityInfo.packageName;
+                    String actName = ri.activityInfo.name;
+                    if (pkg.equals(c.getPackageName())) continue;
+                    if (found.containsKey(pkg)) continue;
+                    if (isExcludedFromLauncherList(pkg, actName)) continue;
+                    if (!isSafeToDisable(c, pkg)) continue;
+                    ApplicationInfo ai = ri.activityInfo.applicationInfo;
+                    boolean isSystem = ai != null && ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0);
+                    if (!isSystem) continue;
+                    boolean isEnabled;
+                    if (enabledPkgs != null && !enabledPkgs.isEmpty()) {
+                        isEnabled = enabledPkgs.contains(pkg);
+                    } else {
+                        isEnabled = isPackageCurrentlyEnabled(pm, pkg, ai) && !savedDisabled.contains(pkg);
+                    }
+                    String label = resolveAppLabel(pm, pkg);
+                    String desc = tr(c, "System home launcher detected on this TV", "Bu TV'de tespit edilen sistem ana ekran başlatıcısı");
+                    found.put(pkg, new DebloatItem(pkg, label, desc, false, isEnabled));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        return new ArrayList<>(found.values());
+    }
+
+    public static String getSystemLaunchersSummary(Context c) {
+        List<DebloatItem> items = getInstalledSystemLaunchers(c, null, null);
+        if (items.isEmpty()) {
+            return tr(c, "None found", "Bulunamadı");
+        }
+        int active = 0;
+        for (DebloatItem it : items) {
+            if (it.checked) active++;
+        }
+        if (active == 0) {
+            return tr(c, "All disabled (" + items.size() + ")", "Tümü devre dışı (" + items.size() + ")");
+        }
+        return tr(c, active + " active / " + items.size() + " found ›", active + " etkin / " + items.size() + " bulundu ›");
+    }
+
+    /**
+     * Returns all system apps installed on the TV for the Manual Debloat menu.
+     * In the returned list, {@code checked} is true when the package is currently ENABLED.
+     */
+    public static List<DebloatItem> getAllSystemAppsForManualDebloat(Context c, Set<String> installedPkgs, Set<String> enabledPkgs) {
+        PackageManager pm = c.getPackageManager();
+        Set<String> savedDisabled = new HashSet<>(getSavedDisabledPackages(c));
+        Map<String, DebloatItem> map = new LinkedHashMap<>();
+
+        try {
+            int flags = PackageManager.MATCH_UNINSTALLED_PACKAGES | PackageManager.MATCH_DISABLED_COMPONENTS;
+            List<PackageInfo> pis = pm.getInstalledPackages(flags);
+            if (pis != null) {
+                for (PackageInfo pi : pis) {
+                    if (pi == null || pi.packageName == null) continue;
+                    String pkg = pi.packageName;
+                    if (pkg.equals(c.getPackageName()) || "android".equals(pkg)) continue;
+                    ApplicationInfo ai = pi.applicationInfo;
+                    if (ai == null) continue;
+                    boolean isSystem = (ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0;
+                    if (!isSystem) continue;
+                    boolean isEnabled = (enabledPkgs != null && !enabledPkgs.isEmpty())
+                            ? enabledPkgs.contains(pkg)
+                            : (isPackageCurrentlyEnabled(pm, pkg, ai) && !savedDisabled.contains(pkg));
+                    String label = resolveAppLabel(pm, pkg);
+                    boolean coreWarning = !isSafeToDisable(c, pkg);
+                    String desc = coreWarning
+                            ? tr(c, "⚠️ Core system package — disabling may affect system stability", "⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir")
+                            : defaultDescriptionForPackage(c, pkg);
+                    map.put(pkg, new DebloatItem(pkg, label, desc, coreWarning, isEnabled));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        if (installedPkgs != null) {
+            for (String pkg : installedPkgs) {
+                if (pkg == null || pkg.isEmpty() || pkg.equals(c.getPackageName()) || "android".equals(pkg) || map.containsKey(pkg)) continue;
+                try {
+                    ApplicationInfo ai = pm.getApplicationInfo(pkg,
+                            PackageManager.MATCH_UNINSTALLED_PACKAGES | PackageManager.MATCH_DISABLED_COMPONENTS);
+                    if (ai != null && (ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) == 0) {
+                        continue;
+                    }
+                } catch (Throwable ignored) {
+                }
+                boolean isEnabled = (enabledPkgs != null && !enabledPkgs.isEmpty())
+                        ? enabledPkgs.contains(pkg)
+                        : !savedDisabled.contains(pkg);
+                String label = resolveAppLabel(pm, pkg);
+                boolean coreWarning = !isSafeToDisable(c, pkg);
+                String desc = coreWarning
+                        ? tr(c, "⚠️ Core system package — disabling may affect system stability", "⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir")
+                        : defaultDescriptionForPackage(c, pkg);
+                map.put(pkg, new DebloatItem(pkg, label, desc, coreWarning, isEnabled));
+            }
+        }
+
+        List<DebloatItem> out = new ArrayList<>(map.values());
+        Collections.sort(out, (a, b) -> {
+            int cmp = a.appLabel.compareToIgnoreCase(b.appLabel);
+            return cmp != 0 ? cmp : a.pkg.compareToIgnoreCase(b.pkg);
+        });
+        return out;
+    }
+
+    /**
+     * Enables or disables a single package via ADB (used by Manual Debloat and Disable System Launchers).
+     * When {@code allowAnySystemApp} is true (Manual Debloat), allows disabling any package except tvOS Launcher itself.
+     */
+    public static void toggleSinglePackage(Activity activity, String pkg, boolean disable,
+                                           boolean allowAnySystemApp, Runnable onDone) {
+        if (pkg == null || pkg.isEmpty() || pkg.equals(activity.getPackageName())) return;
+        if (disable && !allowAnySystemApp && !isSafeToDisable(activity, pkg)) {
+            dialog(activity, tr(activity, "Protected Core Package", "Korunan Temel Paket"))
+                    .setMessage(tr(activity,
+                            pkg + " is a protected core system package and cannot be disabled automatically.",
+                            pkg + " korunan bir temel sistem paketidir."))
+                    .setPositiveButton(tr(activity, "OK", "Tamam"), null)
+                    .show();
+            return;
+        }
+
+        AlertDialog progress = dialog(activity, disable
+                ? tr(activity, "Disabling Package…", "Paket Devre Dışı Bırakılıyor…")
+                : tr(activity, "Enabling Package…", "Paket Etkinleştiriliyor…"))
+                .setMessage(pkg)
+                .setCancelable(false)
+                .create();
+        progress.show();
+
+        new Thread(() -> {
+            List<String> cmds = new ArrayList<>();
+            if (disable) {
+                cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME com.techgenius.tvoslauncher");
+                cmds.add("cmd package set-home-activity --user 0 com.techgenius.tvoslauncher/.MainActivity");
+                cmds.add("pm disable-user --user 0 " + pkg);
+            } else {
+                cmds.add("pm enable --user 0 " + pkg);
+            }
+            cmds.add("sync");
+
+            boolean connected = LocalAdb.execShellSequential(activity, cmds, null);
+            if (connected) {
+                if (disable) {
+                    String slug = getSelectedModelSlug(activity);
+                    saveDisabledPackages(activity, slug.isEmpty() ? "manual" : slug, Collections.singletonList(pkg));
+                } else {
+                    List<String> remaining = new ArrayList<>(getSavedDisabledPackages(activity));
+                    remaining.remove(pkg);
+                    prefs(activity).edit().putString(KEY_DISABLED_PKGS, TextUtils.join(",", remaining)).apply();
+                }
+            }
+
+            activity.runOnUiThread(() -> {
+                if (activity.isFinishing()) return;
+                try {
+                    progress.dismiss();
+                } catch (Throwable ignored) {
+                }
+                if (!connected) {
+                    dialog(activity, tr(activity, "ADB Connection Required", "ADB Bağlantısı Gerekli"))
+                            .setMessage(tr(activity,
+                                    "Could not connect to local ADB on port 5555.\nPlease enable USB / Network Debugging in Developer Options and tap Pair / Repair ADB first.",
+                                    "Port 5555 üzerinden yerel ADB'ye bağlanılamadı.\nLütfen Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın ve önce ADB Eşleştir / Onar'a basın."))
+                            .setPositiveButton(tr(activity, "OK", "Tamam"), null)
+                            .show();
+                }
+                if (onDone != null) onDone.run();
+            });
+        }, "cleanyourtv-single-toggle").start();
+    }
+
+    public static void showDisableSystemLaunchersDialog(Activity activity, Runnable onChanged) {
+        if (activity instanceof SettingsActivity) {
+            ((SettingsActivity) activity).openSystemLaunchersSubMenu();
+            return;
+        }
+        List<DebloatItem> launchers = getInstalledSystemLaunchers(activity, null, null);
+        if (launchers.isEmpty()) {
+            dialog(activity, tr(activity, "System Launchers", "Sistem Başlatıcıları"))
+                    .setMessage(tr(activity,
+                            "No stock Android TV / Google TV launcher packages were detected on this TV.",
+                            "Bu TV'de stok Android TV / Google TV başlatıcı paketi tespit edilmedi."))
+                    .setPositiveButton(tr(activity, "OK", "Tamam"), null)
+                    .show();
+            return;
+        }
+        String[] labels = new String[launchers.size()];
+        for (int i = 0; i < launchers.size(); i++) {
+            DebloatItem it = launchers.get(i);
+            String state = it.checked ? tr(activity, " [Enabled — Tap to Disable]", " [Etkin — Devre Dışı Bırak]")
+                                      : tr(activity, " [Disabled — Tap to Enable]", " [Devre Dışı — Etkinleştir]");
+            labels[i] = it.appLabel + state + "\n" + it.pkg;
+        }
+        dialog(activity, tr(activity, "Disable System Launchers", "Sistem Başlatıcılarını Devre Dışı Bırak"))
+                .setItems(labels, (d, which) -> {
+                    DebloatItem picked = launchers.get(which);
+                    toggleSinglePackage(activity, picked.pkg, picked.checked, false, onChanged);
+                })
+                .setPositiveButton(tr(activity, "Disable All Stock Launchers", "Tüm Stok Başlatıcıları Devre Dışı Bırak"), (d, w) -> {
+                    List<String> toDisable = new ArrayList<>();
+                    for (DebloatItem it : launchers) {
+                        if (it.checked) toDisable.add(it.pkg);
+                    }
+                    if (!toDisable.isEmpty()) {
+                        executeDebloatPackages(activity, "System Launchers", toDisable, onChanged);
+                    }
+                })
+                .setNegativeButton(tr(activity, "Close", "Kapat"), null)
+                .show();
     }
 
     private static String friendlyFallbackName(String pkg) {
@@ -1565,6 +2146,25 @@ public final class CleanYourTv {
                 adapter.notifyDataSetChanged();
             });
         }
+    }
+
+    public static void executeDebloatPackages(Activity activity, String titleLabel,
+                                              List<String> packagesToDisable, Runnable onChanged) {
+        String slug = getSelectedModelSlug(activity);
+        ModelEntry entry = findModelBySlug(activity, slug);
+        if (entry == null) {
+            entry = new ModelEntry(
+                    slug.isEmpty() ? "custom" : slug,
+                    titleLabel != null && !titleLabel.isEmpty() ? titleLabel : "TV",
+                    "",
+                    packagesToDisable);
+        }
+        executeDebloatBatch(activity, entry, packagesToDisable, onChanged);
+    }
+
+    public static void enablePackagesList(Activity activity, List<String> packagesToEnable,
+                                          boolean clearRecordOnSuccess, Runnable onChanged) {
+        enablePackagesBatch(activity, packagesToEnable, clearRecordOnSuccess, onChanged);
     }
 
     /**

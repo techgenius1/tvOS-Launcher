@@ -194,6 +194,34 @@ public final class Scenes {
         prefs(c).edit().putString("look_mode", LOOK_CLASSIC.equals(look) ? LOOK_CLASSIC : LOOK_SCENES).apply();
     }
 
+    public static int getDockScalePercent(Context c) {
+        if (c == null) return 100;
+        int pct = prefs(c).getInt("dock_scale_pct", 100);
+        return Math.max(50, Math.min(150, pct));
+    }
+
+    public static void setDockScalePercent(Context c, int pct) {
+        if (c == null) return;
+        int clamped = Math.max(50, Math.min(150, pct));
+        prefs(c).edit().putInt("dock_scale_pct", clamped).apply();
+    }
+
+    public static float getDockScaleFactor(Context c) {
+        return getDockScalePercent(c) / 100f;
+    }
+
+    public static String dockScaleLabel(Context c) {
+        int pct = getDockScalePercent(c);
+        int diff = pct - 100;
+        if (diff == 0) {
+            return "100% (" + I18n.s(c, "Default", "Varsayılan") + ")";
+        } else if (diff > 0) {
+            return pct + "% (+" + diff + "%)";
+        } else {
+            return pct + "% (" + diff + "%)";
+        }
+    }
+
     public static List<String> getSceneOrder(Context c) {
         String raw = prefs(c).getString("scene_order", "night,golden,water,fog,dawn,custom,custom_2,custom_3,custom_4,custom_5");
         List<String> out = new ArrayList<>();

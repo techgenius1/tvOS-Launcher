@@ -163,6 +163,9 @@ public class MainActivity extends Activity {
     final List<AppEntry> apps = new ArrayList<>();
     /** Apps moved to "Other Apps" (not on first dock row / main grid, reachable from Other Apps button). */
     final List<AppEntry> otherApps = new ArrayList<>();
+    /** Other apps including any dock overflow when the dock is enlarged (> 100%). */
+    final List<AppEntry> effectiveOtherApps = new ArrayList<>();
+    int currentDockCols = COLS;
     /** Apps the user hid; reachable through Launcher Settings > Apps > Hidden apps. */
     final List<AppEntry> hiddenApps = new ArrayList<>();
     /** What the grid currently shows: home apps (+ folder tile) or the folder's contents. */
@@ -244,6 +247,10 @@ public class MainActivity extends Activity {
         // (this Mali-450 GPU is fill-rate bound, so every hidden full-screen layer costs frames).
         getWindow().setBackgroundDrawable(null);
         prefs = Profiles.homePrefs(this);
+        String initLang = getIntent() != null ? getIntent().getStringExtra("lang") : null;
+        if (initLang != null && !initLang.isEmpty()) {
+            I18n.setLang(this, initLang);
+        }
         focusedIndex = Math.max(0, prefs.getInt("last_classic_idx", 0));
         activeLang = I18n.getLang(this);
         activeLook = Scenes.getLook(this);
@@ -252,18 +259,19 @@ public class MainActivity extends Activity {
         screenW = size.x;
         screenH = size.y;
         unit = Ui.unit(this);
-        // Measured from Apple's tvOS 26 Home Screen (1920x1080): dock 48 px from the screen edges,
-        // 42 px inner padding, 248x148 px icons (5:3, the 800x480 HIG icon), 51 px between icons.
-        dockOuter = dp(24);
-        dockInset = dp(21);
-        side = dockOuter + dockInset;  // grid rows line up with the dock icons (>= 80 pt safe area)
-        gap = dp(25);
+        // Apple tvOS style geometry: slightly larger app cards and rounder squircle-like corners
+        // for both app icons (~16% of card width) and the frosted glass dock, with symmetrical
+        // horizontal and vertical padding so focused edge cards never crowd the dock rim.
+        dockOuter = dp(18);
+        dockInset = dp(24);
+        side = dockOuter + dockInset;
+        gap = dp(18);
         tileW = (screenW - 2 * side - (COLS - 1) * gap) / COLS;
         tileH = tileW * 3 / 5;
         labelH = dp(30);
-        radius = Math.round(tileW * 0.071f);  // Apple's tvOS 26 card corner: ~7% of card width
-        shelfH = (int) (screenH * 0.73f);    // dock top sits ~73% down the screen
-        dockPadV = dp(20);
+        radius = Math.round(tileW * 0.16f);
+        shelfH = (int) (screenH * 0.72f);
+        dockPadV = dp(19);
 
         Clicks.init(this);
         // Startup: the app list (package manager, banners, icon colours) and the wallpaper are
@@ -314,6 +322,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        if (intent.hasExtra("dock_scale")) {
+            Scenes.setDockScalePercent(this, intent.getIntExtra("dock_scale", 100));
+        }
+        String lang = intent.getStringExtra("lang");
+        if (lang != null && !lang.isEmpty()) {
+            I18n.setLang(this, lang);
+            activeLang = I18n.getLang(this);
+            recreate();
+            return;
+        }
         if (intent.getBooleanExtra("pick_profile", false)) {
             closeMenu();
             if (launchOverlay != null) finishLaunchReturn();
@@ -337,6 +355,8 @@ public class MainActivity extends Activity {
         String panel = intent.getStringExtra("panel");
         if (panel != null) {
             closeMenu();
+            RecentAppsOverlay.dismiss();
+            ControlPanelOverlay.dismiss();
             if (panel.equals("cc")) showControlCenter();
             else if (panel.equals("recents")) RecentAppsOverlay.showInActivity(this);
             else if (panel.equals("inputs")) ControlPanelOverlay.openInputs(this, () -> showInputs(ccButton));
@@ -848,11 +868,28 @@ public class MainActivity extends Activity {
     void buildGrid() {
         stopWiggle();
         shown.clear();
+        effectiveOtherApps.clear();
+
+        // Classic appearance uses fixed 100% scale (dock resizing is only for Night Scenes dock).
+        // When a tile in the dock is focused, it scales by FOCUS_SCALE (1.20x), expanding outward
+        // by (FOCUS_SCALE - 1)/2 on each side. Account for that growth so the focused first and
+        // last dock cards have symmetrical left/right and top/bottom margins inside the dock rim.
+        int focusGrowX = Math.round(tileW * (FOCUS_SCALE - 1f) / 2f);
+        int focusGrowY = Math.round(tileH * (FOCUS_SCALE - 1f) / 2f);
+        int focusedRimMargin = dp(11);
+        int dockPadH = focusGrowX + focusedRimMargin;
+        int dockPadVScaled = focusGrowY + focusedRimMargin;
+        currentDockCols = COLS;
+
+        effectiveOtherApps.addAll(otherApps);
+        if (folderMode && effectiveOtherApps.isEmpty()) {
+            folderMode = false;
+        }
         if (folderMode) {
-            shown.addAll(otherApps);
+            shown.addAll(effectiveOtherApps);
         } else {
             shown.addAll(apps);
-            if (!otherApps.isEmpty()) shown.add(folderEntry());
+            if (!effectiveOtherApps.isEmpty()) shown.add(folderEntry());
         }
         // Like tvOS, the home grid has no big title; only the folder gets a header.
         titleBox.setVisibility(folderMode ? View.VISIBLE : View.GONE);
@@ -866,36 +903,42 @@ public class MainActivity extends Activity {
         while (content.getChildCount() > 1) content.removeViewAt(1);
         tiles.clear();
         LinearLayout row = null;
+        int rowInnerW = COLS * tileW + (COLS - 1) * gap;
         for (int i = 0; i < shown.size(); i++) {
-            if (i % COLS == 0) {
+            boolean inDockRow = hasDock() && i < COLS;
+            boolean startNewRow = (i % COLS == 0);
+            if (startNewRow) {
                 row = new LinearLayout(this);
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setClipChildren(false);
                 row.setClipToPadding(false);
-                row.setPadding(side, 0, side, 0);
-                LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                rlp.bottomMargin = gap / 2;
                 if (i == 0 && hasDock()) {
-                    // tvOS 26 dock: the top row sits on one frosted glass panel, dynamically sized and centered.
-                    row.setPadding(dockInset, dockPadV, dockInset, dockPadV);
-                    rlp = new LinearLayout.LayoutParams(
+                    // tvOS dock: the top row sits on one frosted glass panel, centered with symmetrical focus margins.
+                    row.setPadding(dockPadH, dockPadVScaled, dockPadH, dockPadVScaled);
+                    LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     rlp.gravity = Gravity.CENTER_HORIZONTAL;
                     rlp.bottomMargin = dockGapBelow();
                     row.setBackground(dockBackground());
                     dockRow = row;
+                    content.addView(row, rlp);
+                } else {
+                    row.setPadding(dockPadH, 0, dockPadH, 0);
+                    LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                            rowInnerW + 2 * dockPadH, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    rlp.gravity = Gravity.CENTER_HORIZONTAL;
+                    rlp.bottomMargin = gap / 2;
+                    content.addView(row, rlp);
                 }
-                content.addView(row, rlp);
             }
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(tileW, ViewGroup.LayoutParams.WRAP_CONTENT);
-            if (i % COLS != 0) lp.leftMargin = gap;
-            row.addView(makeCell(shown.get(i), i, i < COLS && hasDock()), lp);
+            if (!startNewRow) lp.leftMargin = gap;
+            row.addView(makeCell(shown.get(i), i, inDockRow, tileW, tileH, radius, labelH), lp);
         }
         content.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
     }
 
-    View makeCell(AppEntry a, int index, boolean inDock) {
+    View makeCell(AppEntry a, int index, boolean inDock, int cardW, int cardH, float cardRadius, int cellLabelH) {
         LinearLayout cell = new LinearLayout(this);
         cell.setOrientation(LinearLayout.VERTICAL);
         cell.setClipChildren(false);
@@ -905,10 +948,10 @@ public class MainActivity extends Activity {
         tile.setClickable(true);
         tile.setLongClickable(true);
         GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(radius);
+        bg.setCornerRadius(cardRadius);
         bg.setColor(a.banner != null ? 0xFF1C1C1E : a.color);
         tile.setBackground(bg);
-        tile.setOutlineProvider(roundedOutline(new float[]{radius}));
+        tile.setOutlineProvider(roundedOutline(new float[]{cardRadius}));
         tile.setClipToOutline(true);
         tile.setElevation(dp(3));
 
@@ -920,7 +963,7 @@ public class MainActivity extends Activity {
         } else {
             iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
             iv.setImageDrawable(a.icon);
-            int s = tileH * 55 / 100;
+            int s = cardH * 55 / 100;
             tile.addView(iv, new FrameLayout.LayoutParams(s, s, Gravity.CENTER));
         }
 
@@ -929,7 +972,7 @@ public class MainActivity extends Activity {
         topSheen.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 new int[]{0x1AFFFFFF, 0x00FFFFFF}));
         topSheen.setAlpha(0f);
-        tile.addView(topSheen, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tileH / 2, Gravity.TOP));
+        tile.addView(topSheen, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, cardH / 2, Gravity.TOP));
 
         TextView label = text(15, Ui.font(this, "medium"), 0f);
         label.setText(a.label);
@@ -937,8 +980,8 @@ public class MainActivity extends Activity {
         label.setEllipsize(TextUtils.TruncateAt.END);
         label.setGravity(Gravity.CENTER);
 
-        cell.addView(tile, new LinearLayout.LayoutParams(tileW, tileH));
-        if (!inDock) cell.addView(label, new LinearLayout.LayoutParams(tileW, labelH));
+        cell.addView(tile, new LinearLayout.LayoutParams(cardW, cardH));
+        if (!inDock) cell.addView(label, new LinearLayout.LayoutParams(cardW, cellLabelH));
 
         tile.setOnFocusChangeListener((v, has) -> {
             if (has) {
@@ -949,11 +992,11 @@ public class MainActivity extends Activity {
                     v.setScaleY(FOCUS_SCALE);
                     v.setTranslationZ(dp(18));
                     label.setAlpha(1f);
-                    label.setTranslationY(tileH * (FOCUS_SCALE - 1f) / 2f);
+                    label.setTranslationY(cardH * (FOCUS_SCALE - 1f) / 2f);
                 } else {
                     v.animate().scaleX(FOCUS_SCALE).scaleY(FOCUS_SCALE).translationZ(dp(18)).setDuration(180)
                             .setInterpolator(LIFT).start();
-                    label.animate().alpha(1f).translationY(tileH * (FOCUS_SCALE - 1f) / 2f).setDuration(160).start();
+                    label.animate().alpha(1f).translationY(cardH * (FOCUS_SCALE - 1f) / 2f).setDuration(160).start();
                 }
                 topSheen.setAlpha(1f);
                 onTileFocused(index);
@@ -1313,12 +1356,12 @@ public class MainActivity extends Activity {
         return dp(20);
     }
 
-    /** Frosted glass dock (tvOS 26): big radius, dark-tinted translucent fill, sheen and rim. */
+    /** Frosted glass dock (tvOS): lush rounded corner radius, translucent fill, sheen and rim. */
     Drawable dockBackground() {
-        // Apple's dock corner is ~2x the card corner (36 px vs ~18 px at 1080p).
-        LiquidGlass g = new LiquidGlass(radius * 2f, 0x0FFFFFFF, glassSource, screenW, screenH, unit);
+        float dockRad = Math.max(dp(24), radius * 1.65f);
+        LiquidGlass g = new LiquidGlass(dockRad, 0x14FFFFFF, glassSource, screenW, screenH, unit);
         g.lens = dp(12);
-        g.rimStrength = 0.25f;  // a faint edge, not a bright outline
+        g.rimStrength = 0.28f;
         return g;
     }
 
@@ -2395,7 +2438,7 @@ public class MainActivity extends Activity {
                 case KeyEvent.KEYCODE_DPAD_UP: if (down) focusTop(); return true;
                 case KeyEvent.KEYCODE_DPAD_DOWN:
                 case KeyEvent.KEYCODE_BACK:
-                    if (down) focusIndex(Math.min(focusedIndex, COLS - 1));
+                    if (down) focusIndex(Math.min(focusedIndex, Math.max(1, currentDockCols) - 1));
                     return true;
                 default: return false;
             }
@@ -2427,7 +2470,7 @@ public class MainActivity extends Activity {
                             heroRequested = true;
                             shelfView.requestFocus();
                         } else {
-                            focusIndex(Math.min(focusedIndex, COLS - 1));
+                            focusIndex(Math.min(focusedIndex, Math.max(1, currentDockCols) - 1));
                         }
                     }
                     return true;
@@ -2470,7 +2513,7 @@ public class MainActivity extends Activity {
                             heroRequested = true;
                             shelfView.requestFocus();
                         } else {
-                            focusIndex(Math.min(focusedIndex, COLS - 1));
+                            focusIndex(Math.min(focusedIndex, Math.max(1, currentDockCols) - 1));
                         }
                     }
                     return true;
@@ -2481,20 +2524,41 @@ public class MainActivity extends Activity {
             }
         }
         int i = tiles.indexOf(f);
-        if (i >= 0 && ((k == KeyEvent.KEYCODE_DPAD_RIGHT && (i % COLS == COLS - 1 || i == tiles.size() - 1))
-                || (k == KeyEvent.KEYCODE_DPAD_LEFT && i % COLS == 0))) {
-            return true;
-        }
-        if (k == KeyEvent.KEYCODE_DPAD_UP && i >= 0 && i < COLS && (hasDock() || i < COLS)) {
-            if (down) {
-                if (heroActive) {
-                    heroRequested = true;
-                    shelfView.requestFocus();
-                } else {
-                    focusTop();
-                }
+        if (i >= 0) {
+            int cols = Math.max(1, currentDockCols);
+            if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
+                if (down && i > 0) focusIndex(i - 1);
+                return true;
             }
-            return true;
+            if (k == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (down && i + 1 < tiles.size()) focusIndex(i + 1);
+                return true;
+            }
+            if (k == KeyEvent.KEYCODE_DPAD_UP) {
+                if (down) {
+                    if (i < cols) {
+                        if (heroActive) {
+                            heroRequested = true;
+                            shelfView.requestFocus();
+                        } else {
+                            focusTop();
+                        }
+                    } else {
+                        focusIndex(i - cols);
+                    }
+                }
+                return true;
+            }
+            if (k == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (down) {
+                    int curGridRow = i / cols;
+                    int totalGridRows = (tiles.size() + cols - 1) / cols;
+                    if (curGridRow + 1 < totalGridRows) {
+                        focusIndex(Math.min(i + cols, tiles.size() - 1));
+                    }
+                }
+                return true;
+            }
         }
         return false;
     }
@@ -2874,11 +2938,15 @@ public class MainActivity extends Activity {
 
     // ---------------------------------------------------------------- focus & shelf
 
+    ObjectAnimator scrollAnim;
+
     void onTileFocused(int index) {
         focusedIndex = index;
-        boolean dock = hasDock() && index < COLS;
+        int cols = Math.max(1, currentDockCols);
+        boolean dock = hasDock() && index < cols;
         setHeroShown(dock && !heroItems.isEmpty());
-        scrollToRow(index / COLS);
+        int row = index / cols;
+        scrollToRow(row);
         handler.removeCallbacks(shelfUpdate);
         handler.postDelayed(shelfUpdate, 90);
     }
@@ -2886,14 +2954,30 @@ public class MainActivity extends Activity {
     /**
      * Row tops come from the fixed grid geometry rather than getTop(), so this also works right
      * after buildGrid() (e.g. while moving a card), before the new rows have been laid out.
+     * Uses an explicit ObjectAnimator on scrollY instead of ScrollView.smoothScrollTo because
+     * Android's ScrollView aborts smooth scroll and jumps immediately if called twice within 250ms.
      */
     void scrollToRow(int row) {
+        int focusGrowY = Math.round(tileH * (FOCUS_SCALE - 1f) / 2f);
+        int dockPadVScaled = focusGrowY + dp(11);
         int rowH = tileH + labelH + gap / 2;
         int rowTop = !hasDock() ? shelfH + row * rowH
                 : row == 0 ? shelfH
-                : shelfH + tileH + 2 * dockPadV + dockGapBelow() + (row - 1) * rowH;
-        int target = row == 0 ? 0 : rowTop - (int) (screenH * 0.30f);
-        scroll.smoothScrollTo(0, Math.max(0, target));
+                : shelfH + tileH + 2 * dockPadVScaled + dockGapBelow() + (row - 1) * rowH;
+        int target = Math.max(0, row == 0 ? 0 : rowTop - (int) (screenH * 0.30f));
+        int cur = scroll.getScrollY();
+        if (scrollAnim != null) {
+            scrollAnim.cancel();
+            scrollAnim = null;
+        }
+        if (Math.abs(cur - target) <= 2) {
+            scroll.scrollTo(0, target);
+            return;
+        }
+        scrollAnim = ObjectAnimator.ofInt(scroll, "scrollY", cur, target);
+        scrollAnim.setDuration(380);
+        scrollAnim.setInterpolator(EASE);
+        scrollAnim.start();
     }
 
     void updateShelf(AppEntry a) {
@@ -2906,8 +2990,11 @@ public class MainActivity extends Activity {
         tiles.get(i).requestFocus();
         focusedIndex = i;
         updateShelf(shown.get(i));
-        int row = i / COLS;
-        scroll.post(() -> scrollToRow(row));
+        int cols = Math.max(1, currentDockCols);
+        int row = i / cols;
+        if (content.isLayoutRequested()) {
+            scroll.post(() -> scrollToRow(row));
+        }
     }
 
     void goTop() {
@@ -2985,7 +3072,7 @@ public class MainActivity extends Activity {
     }
 
     void enterFolder() {
-        if (otherApps.isEmpty()) return;
+        if (effectiveOtherApps.isEmpty()) return;
         animateGridSwap(() -> {
             folderMode = true;
             setHeroShown(false);
@@ -3113,11 +3200,12 @@ public class MainActivity extends Activity {
         boolean down = ev.getAction() == KeyEvent.ACTION_DOWN;
 
         if (moveIndex >= 0) {
+            int cols = Math.max(1, currentDockCols);
             switch (k) {
                 case KeyEvent.KEYCODE_DPAD_LEFT:   if (down) moveTo(moveIndex - 1); return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:  if (down) moveTo(moveIndex + 1); return true;
-                case KeyEvent.KEYCODE_DPAD_UP:     if (down) moveTo(moveIndex - COLS); return true;
-                case KeyEvent.KEYCODE_DPAD_DOWN:   if (down) moveTo(moveIndex + COLS); return true;
+                case KeyEvent.KEYCODE_DPAD_UP:     if (down) moveTo(moveIndex - cols); return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN:   if (down) moveTo(moveIndex + cols); return true;
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                 case KeyEvent.KEYCODE_ENTER:
                 case KeyEvent.KEYCODE_BACK:
@@ -5104,8 +5192,9 @@ public class MainActivity extends Activity {
     }
 
     void moveTo(int to) {
+        int cols = Math.max(1, currentDockCols);
         int last = apps.size() - 1;  // the folder tile always stays at the end
-        if (to > last && moveIndex / COLS < last / COLS) to = last;
+        if (to > last && moveIndex / cols < last / cols) to = last;
         if (to < 0 || to > last || to == moveIndex) return;
         Map<String, int[]> before = tilePositions();
         AppEntry e = apps.remove(moveIndex);

@@ -141,7 +141,8 @@ final class LocalAdb {
         final Context appCtx = c.getApplicationContext();
         keepAliveAppCtx = appCtx;
         if (!isKeepAliveEnabled(appCtx)) return;
-        KEEP_ALIVE_HANDLER.postDelayed(() -> checkAndRepairPermissionsIfNeeded(appCtx, false), Math.max(500L, delayMs));
+        KEEP_ALIVE_HANDLER.removeCallbacksAndMessages(null);
+        KEEP_ALIVE_HANDLER.postDelayed(() -> checkAndRepairPermissionsIfNeeded(appCtx, false), Math.max(8_000L, delayMs));
     }
 
     /**
@@ -188,41 +189,14 @@ final class LocalAdb {
     }
 
     /**
-     * Lightweight, zero-allocation permission status check.
-     * Returns true if any core permission (such as Accessibility for Button Mapper) is missing.
+     * Lightweight, zero-allocation permission status check for background Keep Alive.
+     * Only checks if the Accessibility Service setting was turned off by the TV OS or polluted
+     * by a conflicting HDMI service. Never triggers background loops for Default Home or Notification Listener.
      */
     static boolean needsPermissionRepair(Context c) {
         if (c == null) return false;
-        // 1. Accessibility Service (most commonly disabled by TV firmwares, or polluted by conflicting HDMI service)
-        if (!ButtonMapper.isServiceEnabled(c) || PowerService.instance == null || hasConflictingAccessibilityService(c)) {
+        if (!ButtonMapper.isServiceEnabled(c) || hasConflictingAccessibilityService(c)) {
             return true;
-        }
-        // 2. Default Home Screen
-        try {
-            android.content.Intent home = new android.content.Intent(android.content.Intent.ACTION_MAIN)
-                    .addCategory(android.content.Intent.CATEGORY_HOME);
-            android.content.pm.ResolveInfo ri = c.getPackageManager().resolveActivity(
-                    home, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
-            if (ri == null || ri.activityInfo == null || !c.getPackageName().equals(ri.activityInfo.packageName)) {
-                return true;
-            }
-        } catch (Throwable ignored) {
-        }
-        // 3. Location permission (for Wi-Fi SSID & Weather)
-        try {
-            if (c.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        } catch (Throwable ignored) {
-        }
-        // 4. Notification Listener (when supported on non-low-RAM devices)
-        try {
-            android.app.ActivityManager am = c.getSystemService(android.app.ActivityManager.class);
-            if (am != null && !am.isLowRamDevice() && !MediaWatchService.granted(c)) {
-                return true;
-            }
-        } catch (Throwable ignored) {
         }
         return false;
     }
@@ -234,17 +208,53 @@ final class LocalAdb {
         if (!forceNow && !isPaired(appCtx)) return;
         if (repairInProgress) return;
         long now = android.os.SystemClock.uptimeMillis();
-        if (!forceNow && lastRepairAttemptMs > 0L && (now - lastRepairAttemptMs) < REPAIR_COOLDOWN_MS) {
+        if (lastRepairAttemptMs > 0L && (now - lastRepairAttemptMs) < REPAIR_COOLDOWN_MS) {
             return;
         }
-        if (!forceNow && !needsPermissionRepair(appCtx)) {
+        long epochNow = System.currentTimeMillis();
+        android.content.SharedPreferences sp = appCtx.getSharedPreferences("adb_state", Context.MODE_PRIVATE);
+        long lastEpoch = sp.getLong("last_repair_epoch", 0L);
+        if (!forceNow && lastEpoch > 0L && (epochNow - lastEpoch) < 120_000L) {
+            return;
+        }
+        if (!needsPermissionRepair(appCtx)) {
             return;
         }
         repairInProgress = true;
         lastRepairAttemptMs = now;
-        grantAllPermissions(appCtx, (success, msg) -> {
+        sp.edit().putLong("last_repair_epoch", epochNow).apply();
+        repairAccessibilityOnly(appCtx, (success, msg) -> {
             repairInProgress = false;
         });
+    }
+
+    private static void repairAccessibilityOnly(Context c, Callback cb) {
+        new Thread(() -> {
+            String pkg = c.getPackageName();
+            String existingAcc = "";
+            try {
+                existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
+            } catch (Exception ignored) {
+            }
+            String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
+            String script = "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
+                    + "settings put secure enabled_accessibility_services '" + newAcc + "'; "
+                    + "settings put secure accessibility_enabled 1";
+            String[] hosts = {"127.0.0.1", localLanIp()};
+            for (String h : hosts) {
+                if (h == null || h.isEmpty()) continue;
+                if (!isPortOpen(h, 5555, 600)) continue;
+                try {
+                    runShellCommand(c, h, 5555, script);
+                    portReachable = true;
+                    setPaired(c, true);
+                    if (cb != null) cb.onResult(true, null);
+                    return;
+                } catch (Exception ignored) {
+                }
+            }
+            if (cb != null) cb.onResult(false, "PORT_CLOSED");
+        }, "local-adb-acc").start();
     }
 
     static void probePortAsync(Context c, Runnable onDone) {
@@ -324,32 +334,68 @@ final class LocalAdb {
     static void grantAllPermissions(Context c, Callback cb) {
         new Thread(() -> {
             String pkg = c.getPackageName();
-            String existingAcc = "";
+            List<String> cmds = new ArrayList<>();
+
+            // 1. Runtime Location permissions (only if not already granted)
             try {
-                existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
-            } catch (Exception ignored) {
+                if (c.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    cmds.add("pm grant " + pkg + " android.permission.ACCESS_FINE_LOCATION 2>/dev/null");
+                    cmds.add("pm grant " + pkg + " android.permission.ACCESS_COARSE_LOCATION 2>/dev/null");
+                }
+            } catch (Throwable ignored) {
             }
-            String ourAcc = pkg + "/" + pkg + ".PowerService";
-            String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
 
-            String accReset = (PowerService.instance == null && existingAcc != null && existingAcc.contains(ourAcc))
-                    ? "settings put secure accessibility_enabled 0; "
-                    : "";
+            // 2. Storage permissions (only if not already granted — avoids Android 11/12 StorageManagerService killUid loop!)
+            try {
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    if (!android.os.Environment.isExternalStorageManager()) {
+                        cmds.add("appops set " + pkg + " MANAGE_EXTERNAL_STORAGE allow 2>/dev/null");
+                    }
+                } else {
+                    if (c.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        cmds.add("pm grant " + pkg + " android.permission.READ_EXTERNAL_STORAGE 2>/dev/null");
+                        cmds.add("pm grant " + pkg + " android.permission.WRITE_EXTERNAL_STORAGE 2>/dev/null");
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
 
-            String script = "pm grant " + pkg + " android.permission.ACCESS_FINE_LOCATION; "
-                    + "pm grant " + pkg + " android.permission.ACCESS_COARSE_LOCATION; "
-                    + "pm grant " + pkg + " android.permission.READ_EXTERNAL_STORAGE 2>/dev/null; "
-                    + "pm grant " + pkg + " android.permission.WRITE_EXTERNAL_STORAGE 2>/dev/null; "
-                    + "pm grant " + pkg + " android.permission.READ_MEDIA_IMAGES 2>/dev/null; "
-                    + "appops set " + pkg + " MANAGE_EXTERNAL_STORAGE allow 2>/dev/null; "
-                    + "appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null; "
-                    + "appops set " + pkg + " GET_USAGE_STATS allow; "
-                    + "cmd notification allow_listener " + pkg + "/" + pkg + ".MediaWatchService; "
-                    + "dpm set-active-admin " + pkg + "/.SleepReceiver\\$Admin; "
-                    + accReset
-                    + "settings put secure enabled_accessibility_services '" + newAcc + "'; "
-                    + "settings put secure accessibility_enabled 1; "
-                    + "cmd package set-home-activity " + pkg + "/.MainActivity";
+            cmds.add("appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null");
+            cmds.add("appops set " + pkg + " GET_USAGE_STATS allow 2>/dev/null");
+            cmds.add("appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null");
+
+            // 3. Notification Listener (only if not already granted)
+            if (!MediaWatchService.granted(c)) {
+                cmds.add("cmd notification allow_listener " + pkg + "/" + pkg + ".MediaWatchService 2>/dev/null");
+            }
+
+            // 4. Device Admin (only if not already active)
+            try {
+                android.app.admin.DevicePolicyManager dpm = c.getSystemService(android.app.admin.DevicePolicyManager.class);
+                if (dpm == null || !dpm.isAdminActive(SleepReceiver.admin(c))) {
+                    cmds.add("dpm set-active-admin " + pkg + "/.SleepReceiver\\$Admin 2>/dev/null");
+                }
+            } catch (Throwable ignored) {
+            }
+
+            // 5. Accessibility Service (never toggle accessibility_enabled 0, only update if needed)
+            if (!ButtonMapper.isServiceEnabled(c) || hasConflictingAccessibilityService(c)) {
+                String existingAcc = "";
+                try {
+                    existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
+                } catch (Exception ignored) {
+                }
+                String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
+                cmds.add("settings put secure enabled_accessibility_services '" + newAcc + "'");
+                cmds.add("settings put secure accessibility_enabled 1");
+            }
+
+            // 6. Default Home Role + Preferred Home Activity
+            cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME " + pkg + " 2>/dev/null");
+            cmds.add("cmd package set-home-activity --user 0 " + pkg + "/.MainActivity 2>/dev/null");
+            cmds.add("cmd package set-home-activity " + pkg + "/.MainActivity 2>/dev/null");
 
             String[] hosts = {"127.0.0.1", localLanIp()};
             Exception lastErr = null;
@@ -357,7 +403,7 @@ final class LocalAdb {
                 if (h == null || h.isEmpty()) continue;
                 if (!isPortOpen(h, 5555, 800)) continue;
                 try {
-                    runShellCommand(c, h, 5555, script);
+                    runShellCommandsOnHost(c, h, 5555, cmds, null);
                     portReachable = true;
                     setPaired(c, true);
                     if (cb != null) cb.onResult(true, null);
@@ -375,6 +421,114 @@ final class LocalAdb {
                 }
             }
         }, "local-adb").start();
+    }
+
+    static void setDefaultLauncherViaAdb(Context c, Callback cb) {
+        new Thread(() -> {
+            String pkg = c.getPackageName();
+            List<String> cmds = new ArrayList<>();
+            cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME " + pkg + " 2>/dev/null");
+            cmds.add("cmd package set-home-activity --user 0 " + pkg + "/.MainActivity 2>/dev/null");
+            cmds.add("cmd package set-home-activity " + pkg + "/.MainActivity 2>/dev/null");
+
+            String[] hosts = {"127.0.0.1", localLanIp()};
+            Exception lastErr = null;
+            for (String h : hosts) {
+                if (h == null || h.isEmpty()) continue;
+                if (!isPortOpen(h, 5555, 800)) continue;
+                try {
+                    runShellCommandsOnHost(c, h, 5555, cmds, null);
+                    portReachable = true;
+                    setPaired(c, true);
+                    if (cb != null) cb.onResult(true, null);
+                    return;
+                } catch (Exception e) {
+                    lastErr = e;
+                }
+            }
+            if (cb != null) {
+                cb.onResult(false, lastErr != null ? lastErr.getMessage() : "PORT_CLOSED");
+            }
+        }, "local-adb-home").start();
+    }
+
+    /**
+     * Revokes Device Admin, Accessibility, Notification Listener, Default Home, and runtime permissions
+     * so the user can cleanly uninstall the app even on TVs without a Device Admin settings screen.
+     */
+    static void revokeAllPermissions(Context c, Callback cb) {
+        if (c == null) {
+            if (cb != null) cb.onResult(false, "NO_CONTEXT");
+            return;
+        }
+        final Context appCtx = c.getApplicationContext();
+        // 1. Disable Keep Alive immediately so it does not re-grant permissions
+        setKeepAliveEnabled(appCtx, false);
+
+        // 2. Revoke Device Admin and Accessibility directly via Android APIs (works even without ADB!)
+        try {
+            SleepReceiver.setTimer(appCtx, 0);
+        } catch (Throwable ignored) { }
+        try {
+            android.app.admin.DevicePolicyManager dpm = appCtx.getSystemService(android.app.admin.DevicePolicyManager.class);
+            if (dpm != null && dpm.isAdminActive(SleepReceiver.admin(appCtx))) {
+                dpm.removeActiveAdmin(SleepReceiver.admin(appCtx));
+            }
+        } catch (Throwable ignored) { }
+        try {
+            if (PowerService.instance != null && android.os.Build.VERSION.SDK_INT >= 24) {
+                PowerService.instance.disableSelf();
+            }
+        } catch (Throwable ignored) { }
+        try {
+            appCtx.getPackageManager().clearPackagePreferredActivities(appCtx.getPackageName());
+        } catch (Throwable ignored) { }
+
+        // 3. Also run ADB revoke commands if Local ADB is reachable
+        new Thread(() -> {
+            String pkg = appCtx.getPackageName();
+            String existingAcc = "";
+            try {
+                existingAcc = Settings.Secure.getString(appCtx.getContentResolver(), "enabled_accessibility_services");
+            } catch (Exception ignored) { }
+            String ourAcc = pkg + "/" + pkg + ".PowerService";
+            String ourShort = pkg + "/.PowerService";
+            StringBuilder cleanAcc = new StringBuilder();
+            if (existingAcc != null && !existingAcc.trim().isEmpty()) {
+                for (String part : existingAcc.split(":")) {
+                    String trimmed = part == null ? "" : part.trim();
+                    if (trimmed.isEmpty() || trimmed.equals(ourAcc) || trimmed.equals(ourShort)) continue;
+                    if (cleanAcc.length() > 0) cleanAcc.append(':');
+                    cleanAcc.append(trimmed);
+                }
+            }
+
+            List<String> cmds = new ArrayList<>();
+            cmds.add("dpm remove-active-admin --user 0 " + pkg + "/.SleepReceiver\\$Admin 2>/dev/null");
+            cmds.add("dpm remove-active-admin " + pkg + "/.SleepReceiver\\$Admin 2>/dev/null");
+            cmds.add("settings put secure enabled_accessibility_services '" + cleanAcc + "'");
+            cmds.add("cmd notification disallow_listener " + pkg + "/" + pkg + ".MediaWatchService 2>/dev/null");
+            cmds.add("cmd role remove-role-holder --user 0 android.app.role.HOME " + pkg + " 2>/dev/null");
+            cmds.add("cmd package clear-package-preferred-activities " + pkg + " 2>/dev/null");
+            cmds.add("appops set " + pkg + " MANAGE_EXTERNAL_STORAGE default 2>/dev/null");
+            cmds.add("appops set " + pkg + " REQUEST_INSTALL_PACKAGES default 2>/dev/null");
+            cmds.add("appops set " + pkg + " GET_USAGE_STATS default 2>/dev/null");
+            cmds.add("pm revoke " + pkg + " android.permission.ACCESS_FINE_LOCATION 2>/dev/null");
+            cmds.add("pm revoke " + pkg + " android.permission.ACCESS_COARSE_LOCATION 2>/dev/null");
+
+            String[] hosts = {"127.0.0.1", localLanIp()};
+            boolean adbRan = false;
+            for (String h : hosts) {
+                if (h == null || h.isEmpty()) continue;
+                if (!isPortOpen(h, 5555, 600)) continue;
+                try {
+                    runShellCommandsOnHost(appCtx, h, 5555, cmds, null);
+                    adbRan = true;
+                    break;
+                } catch (Exception ignored) { }
+            }
+            if (cb != null) cb.onResult(true, adbRan ? "ADB_AND_LOCAL" : "LOCAL_ONLY");
+        }, "local-adb-revoke").start();
     }
 
     /**
@@ -710,7 +864,10 @@ final class LocalAdb {
         return le;
     }
 
+    private static volatile KeyPair cachedKeyPair;
+
     private static KeyPair getOrCreateKeyPair(Context c) throws Exception {
+        if (cachedKeyPair != null) return cachedKeyPair;
         File privFile = new File(c.getFilesDir(), "adb_rsa.priv");
         File pubFile = new File(c.getFilesDir(), "adb_rsa.pub");
         if (privFile.exists() && pubFile.exists()) {
@@ -718,9 +875,10 @@ final class LocalAdb {
                 byte[] privBytes = readAll(privFile);
                 byte[] pubBytes = readAll(pubFile);
                 KeyFactory kf = KeyFactory.getInstance("RSA");
-                return new KeyPair(
+                cachedKeyPair = new KeyPair(
                         kf.generatePublic(new X509EncodedKeySpec(pubBytes)),
                         kf.generatePrivate(new PKCS8EncodedKeySpec(privBytes)));
+                return cachedKeyPair;
             } catch (Exception ignored) {
             }
         }
@@ -733,6 +891,7 @@ final class LocalAdb {
         try (FileOutputStream fos = new FileOutputStream(pubFile)) {
             fos.write(kp.getPublic().getEncoded());
         }
+        cachedKeyPair = kp;
         return kp;
     }
 

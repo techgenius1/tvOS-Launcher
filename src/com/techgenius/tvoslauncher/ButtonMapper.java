@@ -84,6 +84,39 @@ public final class ButtonMapper {
         }
     }
 
+    private static final String KEY_HOME_FIX = "home_button_fix";
+
+    /**
+     * Home button fix (off by default): when on, tvOS Launcher's accessibility service catches the
+     * remote's HOME key and opens tvOS Launcher, for TVs whose firmware keeps sending HOME to the
+     * stock launcher even after another home app was chosen.
+     */
+    public static boolean isHomeFixEnabled(Context c) {
+        return c != null && prefs(c).getBoolean(KEY_HOME_FIX, false);
+    }
+
+    public static void setHomeFixEnabled(Context c, boolean enabled) {
+        if (c == null) return;
+        prefs(c).edit().putBoolean(KEY_HOME_FIX, enabled).apply();
+    }
+
+    /** Opens tvOS Launcher's Home screen from anywhere (used by the Home button fix). */
+    public static void launchHome(Context c) {
+        if (c == null) return;
+        try {
+            ControlPanelOverlay.dismiss();
+            RecentAppsOverlay.dismiss();
+        } catch (Throwable ignored) { }
+        try {
+            Intent home = new Intent(c, MainActivity.class)
+                    .setAction(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_HOME)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                            | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            c.startActivity(home);
+        } catch (Throwable ignored) { }
+    }
+
     public static boolean isServiceEnabled(Context c) {
         if (PowerService.instance != null) return true;
         try {
@@ -226,7 +259,22 @@ public final class ButtonMapper {
 
     public static void clearAll(Context c) {
         boolean volFix = isVolumeHoldFixEnabled(c);
-        prefs(c).edit().clear().putBoolean(KEY_VOLUME_HOLD_FIX, volFix).apply();
+        boolean homeFix = isHomeFixEnabled(c);
+        prefs(c).edit().clear()
+                .putBoolean(KEY_VOLUME_HOLD_FIX, volFix)
+                .putBoolean("volume_hold_fix_default_on", true)
+                .putBoolean(KEY_HOME_FIX, homeFix)
+                .apply();
+        cancelPendingTaps();
+    }
+
+    /** Drops any half-finished multi-tap detection so no key can stay swallowed. */
+    public static void cancelPendingTaps() {
+        try {
+            for (Runnable r : pendingTapRunnables.values()) MAIN.removeCallbacks(r);
+        } catch (Throwable ignored) { }
+        pendingTapRunnables.clear();
+        pendingTapCounts.clear();
     }
 
     private static void saveOrder(Context c, List<Integer> order) {
@@ -333,7 +381,17 @@ public final class ButtonMapper {
      * Returns true if the key event was consumed.
      */
     public static boolean handleKeyEvent(Context c, KeyEvent ev) {
-        if (ev == null) return false;
+        // Never let a bug in remapping lock the remote: any failure lets the key through untouched.
+        try {
+            return handleKeyEventInner(c, ev);
+        } catch (Throwable t) {
+            cancelPendingTaps();
+            return false;
+        }
+    }
+
+    private static boolean handleKeyEventInner(Context c, KeyEvent ev) {
+        if (ev == null || c == null) return false;
         final int code = ev.getKeyCode();
         final int action = ev.getAction();
 
@@ -351,6 +409,35 @@ public final class ButtonMapper {
         if (ControlPanelOverlay.isScreenOffShowing()) {
             long elapsed = android.os.SystemClock.uptimeMillis() - ControlPanelOverlay.getScreenOffEnterTime();
             if (elapsed <= 600L) {
+                return true;
+            }
+            return false;
+        }
+
+        // Never intercept or lock core navigation, selection, back, or volume keys under any scenario.
+        switch (code) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_NUMPAD_ENTER:
+            case KeyEvent.KEYCODE_BACK:
+            case KeyEvent.KEYCODE_ESCAPE:
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+            case KeyEvent.KEYCODE_VOLUME_MUTE:
+                return false;
+        }
+
+        // Home button fix (off by default): intercept KEYCODE_HOME via Accessibility to launch tvOS Launcher
+        if (code == KeyEvent.KEYCODE_HOME) {
+            if (isHomeFixEnabled(c)) {
+                if (action == KeyEvent.ACTION_DOWN && ev.getRepeatCount() == 0) {
+                    final Context appCtx = c.getApplicationContext();
+                    MAIN.post(() -> launchHome(appCtx));
+                }
                 return true;
             }
             return false;
@@ -484,7 +571,11 @@ public final class ButtonMapper {
                     dlgRef[0].dismiss();
                 } catch (Exception ignored) { }
             }
-            showConfigureKeyDialog(a, keyCode, onChanged);
+            if (a instanceof SettingsActivity) {
+                ((SettingsActivity) a).openButtonKeySubMenu(keyCode);
+            } else {
+                showConfigureKeyDialog(a, keyCode, onChanged);
+            }
         });
 
         AlertDialog dlg = themedDialog(a, I18n.s(a, "Add new button to remap", "Yeniden eşlemek için yeni düğme ekle"))
@@ -512,7 +603,11 @@ public final class ButtonMapper {
                 if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
                     captureListener = null;
                     d.dismiss();
-                    showConfigureKeyDialog(a, keyCode, onChanged);
+                    if (a instanceof SettingsActivity) {
+                        ((SettingsActivity) a).openButtonKeySubMenu(keyCode);
+                    } else {
+                        showConfigureKeyDialog(a, keyCode, onChanged);
+                    }
                 }
                 return true;
             }

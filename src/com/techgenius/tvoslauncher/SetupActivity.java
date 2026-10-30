@@ -122,6 +122,10 @@ public class SetupActivity extends Activity {
             finish();
             return;
         }
+        String initLang = getIntent().getStringExtra("lang");
+        if (initLang != null && !initLang.isEmpty()) {
+            I18n.setLang(this, initLang);
+        }
         int savedStep = getSharedPreferences("setup", MODE_PRIVATE).getInt("cur_step", 0);
         show(getIntent().getIntExtra("step", savedStep), 0);  // adb: --ei step N opens a page directly
     }
@@ -130,9 +134,13 @@ public class SetupActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        String lang = intent.getStringExtra("lang");
+        if (lang != null && !lang.isEmpty()) {
+            I18n.setLang(this, lang);
+        }
         int savedStep = getSharedPreferences("setup", MODE_PRIVATE).getInt("cur_step", index);
         int target = intent.getIntExtra("step", savedStep);
-        if (target != index) {
+        if (target != index || (lang != null && !lang.isEmpty())) {
             show(target, 0);
         } else if (index == 5 || index == 6) {
             show(index, 0);

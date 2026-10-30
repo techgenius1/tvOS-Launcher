@@ -62,6 +62,7 @@ public final class I18n {
         TR_MAP.put("Look and scenes", "Görünüm ve sahneler");
         TR_MAP.put("Appearance and scenes", "Görünüm ve sahneler");
         TR_MAP.put("Weather and location", "Hava durumu ve konum");
+        TR_MAP.put("Quick settings", "Hızlı ayarlar");
         TR_MAP.put("Language", "Dil");
         TR_MAP.put("LOOK", "GÖRÜNÜM");
         TR_MAP.put("Night scenes", "Gece sahneleri");
@@ -182,7 +183,8 @@ public final class I18n {
         add("People", "लोग", "Personas", "Profils", "Personen", "Persone", "Профили", "Pessoas", "الأشخاص", "プロフィール", "用户");
         add("Button Mapper", "बटन मैपर", "Asignador de botones", "Boutons télécommande", "Tastenbelegung", "Mappatura tasti", "Кнопки пульта", "Mapeador de botões", "تعيين الأزرار", "ボタン割り当て", "按键映射");
         add("Button mapper", "बटन मैपर", "Asignador de botones", "Boutons télécommande", "Tastenbelegung", "Mappatura tasti", "Кнопки пульта", "Mapeador de botões", "تعيين الأزرار", "ボタン割り当て", "按键映射");
-        add("Quick buttons", "त्वरित बटन", "Botones rápidos", "Boutons rapides", "Schnelltasten", "Pulsanti rapidi", "Быстрые кнопки", "Botões rápidos", "الأزرار السريعة", "クイックボタン", "快捷按钮");
+        add("Quick settings", "त्वरित सेटिंग्स", "Ajustes rápidos", "Réglages rapides", "Schnelleinstellungen", "Impostazioni rapide", "Быстрые настройки", "Definições rápidas", "الإعدادات السريعة", "クイック設定", "快捷设置");
+        add("Quick buttons", "त्वरित सेटिंग्स", "Ajustes rápidos", "Réglages rapides", "Schnelleinstellungen", "Impostazioni rapide", "Быстрые настройки", "Definições rápidas", "الإعدادات السريعة", "クイック設定", "快捷设置");
         add("Home & System", "होम और सिस्टम", "Inicio y sistema", "Accueil et système", "Startseite & System", "Home e sistema", "Главный экран и система", "Início e sistema", "الشاشة الرئيسية والنظام", "ホームとシステム", "主页与系统");
         add("Advanced", "उन्नत", "Avanzado", "Avancé", "Erweitert", "Avanzate", "Дополнительно", "Avançado", "متقدم", "詳細設定", "高级");
         add("About", "जानकारी", "Acerca de", "À propos", "Info", "Informazioni", "О приложении", "Sobre", "حول", "情報", "关于");
@@ -559,7 +561,8 @@ public final class I18n {
         sv("Control Panel (Overlay)", "Kontrollpanel (överlägg)");
         sv("Button Mapper", "Knappmappare");
         sv("Button mapper", "Knappmappare");
-        sv("Quick buttons", "Snabbknappar");
+        sv("Quick settings", "Snabbinställningar");
+        sv("Quick buttons", "Snabbinställningar");
         sv("Home & System", "Hem och system");
         sv("Advanced", "Avancerat");
         sv("Updates", "Uppdateringar");

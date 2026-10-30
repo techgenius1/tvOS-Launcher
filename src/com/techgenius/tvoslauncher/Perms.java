@@ -182,43 +182,188 @@ final class Perms {
 
     // ---------------------------------------------------------------- default home screen
 
+    private static final String[] STOCK_TV_HOME_PACKAGES = {
+        "com.google.android.tvlauncher",
+        "com.google.android.apps.tv.launcherx",
+        "com.google.android.leanbacklauncher",
+        "org.droidtv.playtv",
+        "org.droidtv.ui.home",
+        "org.droidtv.home",
+        "com.tpvision.home",
+        "com.tcl.cyberui",
+        "com.tcl.tv.launcher",
+        "com.tcl.launcher",
+        "com.hisense.tv.launcher",
+        "com.mi.tv.launcher",
+        "com.mitv.tvhome",
+        "com.sony.dtv.homemenu"
+    };
+
+    static boolean hasEnabledStockLauncher(android.content.Context c) {
+        if (c == null) return false;
+        PackageManager pm = c.getPackageManager();
+        for (String pkg : STOCK_TV_HOME_PACKAGES) {
+            try {
+                android.content.pm.ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                if (ai != null && ai.enabled) {
+                    int state = pm.getApplicationEnabledSetting(pkg);
+                    if (state != PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                            && state != PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER) {
+                        return true;
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return false;
+    }
+
+    private static boolean isOemLockedHomeTv(android.content.Context c) {
+        String brand = (Build.BRAND != null ? Build.BRAND : "").toLowerCase(java.util.Locale.US);
+        String manuf = (Build.MANUFACTURER != null ? Build.MANUFACTURER : "").toLowerCase(java.util.Locale.US);
+        String model = (Build.MODEL != null ? Build.MODEL : "").toLowerCase(java.util.Locale.US);
+        if (brand.contains("philips") || manuf.contains("philips")
+                || brand.contains("tpvision") || manuf.contains("tpvision")
+                || brand.contains("tpv") || manuf.contains("tpv")
+                || brand.contains("tcl") || manuf.contains("tcl") || model.contains("tcl")) {
+            return true;
+        }
+        if (c != null) {
+            PackageManager pm = c.getPackageManager();
+            String[] oemPkgs = {
+                "org.droidtv.playtv", "org.droidtv.ui.home", "org.droidtv.settings",
+                "com.tpvision.home", "com.tcl.cyberui", "com.tcl.tv.launcher"
+            };
+            for (String p : oemPkgs) {
+                try {
+                    if (pm.getApplicationInfo(p, 0) != null) return true;
+                } catch (Throwable ignored) { }
+            }
+        }
+        return false;
+    }
+
     static boolean isDefaultHome(Activity a) {
-        if (a == null) return false;
+        return isDefaultHome((android.content.Context) a);
+    }
+
+    static boolean isDefaultHome(android.content.Context c) {
+        if (c == null) return false;
         try {
+            // If Home Button Fix is enabled in Button Mapper and Accessibility is active, Home opens tvOS Launcher.
+            if (ButtonMapper.isHomeFixEnabled(c) && ButtonMapper.isServiceEnabled(c)) {
+                return true;
+            }
+            PackageManager pm = c.getPackageManager();
             Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
-            android.content.pm.ResolveInfo ri = a.getPackageManager().resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY);
-            return ri != null && ri.activityInfo != null && a.getPackageName().equals(ri.activityInfo.packageName);
+            android.content.pm.ResolveInfo ri = pm.resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY);
+            boolean resolvedToUs = ri != null && ri.activityInfo != null
+                    && c.getPackageName().equals(ri.activityInfo.packageName);
+            if (!resolvedToUs) {
+                return false;
+            }
+            // On Android 10+ (API 29+), also verify RoleManager.ROLE_HOME
+            if (Build.VERSION.SDK_INT >= 29) {
+                android.app.role.RoleManager rm = c.getSystemService(android.app.role.RoleManager.class);
+                if (rm != null && rm.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)) {
+                    if (!rm.isRoleHeld(android.app.role.RoleManager.ROLE_HOME)) {
+                        return false;
+                    }
+                }
+            }
+            // On TCL and Philips Android 11/12 TVs, the firmware intercepts HOME and launches the stock
+            // Android TV / Google TV / OEM launcher as long as that stock launcher package remains enabled.
+            if (Build.VERSION.SDK_INT >= 30 && isOemLockedHomeTv(c) && hasEnabledStockLauncher(c)) {
+                return false;
+            }
+            return true;
         } catch (Throwable t) {
             return false;
         }
     }
 
     /**
-     * Become the home screen: Android 10+'s "Set as default home app?" prompt, else the TV's Home
-     * app settings (when it is a real screen), else Android's chooser, and only then the command.
+     * Become the home screen: offers reliable methods for all Android TVs including TCL & Philips
+     * Android 11/12 TVs where standard RoleManager / Home Settings UI is stripped or ignored.
      */
     static void requestDefaultHome(Activity a) {
-        if (isDefaultHome(a)) return;
+        if (a == null) return;
+        // If inside SettingsActivity, open the native right-side Default Home setup sub-menu
+        if (a instanceof SettingsActivity) {
+            ((SettingsActivity) a).openDefaultHomeSubMenu();
+            return;
+        }
+
+        String[] items = {
+            I18n.s(a, "Set Default via Local ADB (Recommended)", "Yerel ADB ile Varsayılan Yap (Önerilen)"),
+            I18n.s(a, "Disable Stock TV Launchers (TCL / Philips / Google TV)", "Stok TV Başlatıcılarını Devre Dışı Bırak (TCL / Philips / Google TV)"),
+            I18n.s(a, "Enable Home Button Fix (Accessibility Remap)", "Ana Ekran Tuşu Düzeltmesini Aç (Erişilebilirlik)"),
+            I18n.s(a, "Open Android Default Home Settings", "Android Varsayılan Ana Ekran Ayarlarını Aç")
+        };
+
+        new AlertDialog.Builder(a, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(I18n.s(a, "Set Default Home Launcher", "Varsayılan Ana Ekran Yap"))
+                .setItems(items, (d, which) -> {
+                    switch (which) {
+                        case 0:
+                            LocalAdb.setDefaultLauncherViaAdb(a, (ok, msg) -> a.runOnUiThread(() -> {
+                                if (a.isFinishing()) return;
+                                if (ok) {
+                                    android.widget.Toast.makeText(a,
+                                            I18n.s(a, "Default home launcher set via ADB!", "Varsayılan ana ekran ADB ile ayarlandı!"),
+                                            android.widget.Toast.LENGTH_SHORT).show();
+                                    if (hasEnabledStockLauncher(a)) {
+                                        CleanYourTv.showDisableSystemLaunchersDialog(a, null);
+                                    }
+                                } else {
+                                    lastResort(a, I18n.s(a, "Home screen", "Ana ekran"),
+                                            "adb shell cmd role add-role-holder --user 0 android.app.role.HOME com.techgenius.tvoslauncher\n"
+                                            + "adb shell cmd package set-home-activity com.techgenius.tvoslauncher/.MainActivity\n"
+                                            + "adb shell pm disable-user --user 0 com.google.android.tvlauncher");
+                                }
+                            }));
+                            break;
+                        case 1:
+                            CleanYourTv.showDisableSystemLaunchersDialog(a, null);
+                            break;
+                        case 2:
+                            ButtonMapper.setHomeFixEnabled(a, true);
+                            if (!ButtonMapper.isServiceEnabled(a)) {
+                                Intent acc = accessibilityScreen(a);
+                                if (acc != null && tryStart(a, acc)) {
+                                    return;
+                                }
+                                LocalAdb.grantAllPermissions(a, null);
+                            }
+                            android.widget.Toast.makeText(a,
+                                    I18n.s(a, "Home Button Fix enabled!", "Ana Ekran Tuşu Düzeltmesi etkinleştirildi!"),
+                                    android.widget.Toast.LENGTH_SHORT).show();
+                            break;
+                        case 3:
+                            openSystemHomeSettingsUi(a);
+                            break;
+                    }
+                })
+                .setNegativeButton(I18n.s(a, "Cancel", "İptal"), null)
+                .show();
+    }
+
+    static void openSystemHomeSettingsUi(Activity a) {
+        if (a == null) return;
+        if (tryStart(a, new Intent(Settings.ACTION_HOME_SETTINGS))) return;
+        if (Build.VERSION.SDK_INT >= 24 && tryStart(a, new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))) return;
         if (Build.VERSION.SDK_INT >= 29) {
             android.app.role.RoleManager rm = a.getSystemService(android.app.role.RoleManager.class);
             if (rm != null && rm.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)) {
                 try {
                     a.startActivityForResult(rm.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME), 42);
                     return;
-                } catch (Exception ignored) {
-                    // fall through
-                }
+                } catch (Exception ignored) { }
             }
         }
-        if (tryStart(a, new Intent(Settings.ACTION_HOME_SETTINGS))) return;
-        // With no default chosen yet, asking for Home shows Android's chooser ("Always" makes it stick).
         Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
-        android.content.pm.ResolveInfo def = a.getPackageManager().resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY);
-        boolean noDefault = def == null || def.activityInfo == null || "android".equals(def.activityInfo.packageName);
-        if (noDefault && tryStart(a, home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))) return;
-        lastResort(a, I18n.s(a, "Home screen", "Ana ekran"),
-                "adb shell cmd package set-home-activity com.techgenius.tvoslauncher/.MainActivity\n"
-                        + "(on Google TV also: adb shell pm disable-user --user 0 com.google.android.tvlauncher)");
+        if (tryStart(a, Intent.createChooser(home, I18n.s(a, "Select Home App", "Ana Ekran Uygulamasını Seçin")))) return;
+        tryStart(a, new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + a.getPackageName())));
     }
 
     /** Only when the TV has no screen for it: explain plainly, with the command for whoever installs the TV. */
