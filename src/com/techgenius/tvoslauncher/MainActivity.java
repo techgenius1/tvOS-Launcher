@@ -402,14 +402,14 @@ public class MainActivity extends Activity {
         resumed = true;
         activeInstance = this;
         clearLaunchDim();
+        boolean wasReturningFromSettings = returningFromSettings;
         if (!Scenes.isScenesLook(this)) {
             String ws = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
-            if (!ws.equals(wallStyle) || wallView.getDrawable() == null) {
+            if (!ws.equals(wallStyle) || wallView.getDrawable() == null || (wasReturningFromSettings && "custom".equals(ws))) {
                 wallStyle = ws;
                 setWallpaper(ws);
             }
         }
-        boolean wasReturningFromSettings = returningFromSettings;
         if (returningFromSettings && !folderMode && launchOverlay == null && moveIndex < 0) reload(currentKey());
         returningFromSettings = false;
         updateStatusClockFormat();
@@ -464,6 +464,7 @@ public class MainActivity extends Activity {
         handler.post(weatherTick);
         LocalAdb.ensureKeepAliveWatchdog(this);
         LocalAdb.scheduleKeepAliveRepair(this, 1000L);
+        AppUpdater.checkAutoUpdateIfNeeded(this);
         if (ambientShowcase || (getIntent() != null && "ambient".equals(getIntent().getStringExtra("panel")))) {
             if (getIntent() != null) getIntent().removeExtra("panel");
             enterAmbientShowcase();
@@ -1042,7 +1043,16 @@ public class MainActivity extends Activity {
         return I18n.isTr(c) ? WALL_NAMES_TR[i] : WALL_NAMES[i];
     }
 
+    static final String CUSTOM_WALL_KEY = "custom";
+
     Bitmap makeWallpaper(String style) {
+        if (CUSTOM_WALL_KEY.equals(style)) {
+            Bitmap custom = CustomMedia.getCustomClassicWallpaper(this);
+            if (custom != null && !custom.isRecycled()) {
+                Bitmap copy = custom.copy(Bitmap.Config.ARGB_8888, true);
+                return bakeShade(copy);
+            }
+        }
         if (style != null && style.startsWith("photo:")) {
             Bitmap ph = Scenes.loadAssetBitmap(this, "backgrounds/" + style.substring(6), 1280, 720);
             if (ph != null) {
@@ -3150,6 +3160,14 @@ public class MainActivity extends Activity {
             addInputsEntry();
         }
         for (AppEntry e : all.values()) {
+            if (CustomMedia.hasCustomAppIcon(this, e.key, e.pkg)) {
+                Bitmap cIcon = CustomMedia.getCustomAppIcon(this, e.key, e.pkg);
+                if (cIcon != null && !cIcon.isRecycled()) {
+                    e.icon = new BitmapDrawable(getResources(), cIcon);
+                    e.banner = new BitmapDrawable(getResources(), CustomMedia.buildClassicBannerFromCustomIcon(cIcon, e.color));
+                    continue;
+                }
+            }
             if (e.banner == null || TVOS_CARD_PKGS.contains(e.pkg)) {
                 e.banner = new BitmapDrawable(getResources(), tvosCard(e));
             }
@@ -3515,6 +3533,41 @@ public class MainActivity extends Activity {
         in.requestFocus();
     }
 
+    void promptChangeAppIcon(AppEntry a, Runnable onDone) {
+        if (a == null) return;
+        boolean hasCustom = CustomMedia.hasCustomAppIcon(this, a.key, a.pkg);
+        String resetLabel = hasCustom
+                ? I18n.s(this, "Reset to default icon", "Varsayılan simgeye sıfırla")
+                : null;
+        Runnable onReset = hasCustom ? () -> {
+            CustomMedia.clearCustomAppIcon(this, a.key, a.pkg);
+            if (sceneHome != null) sceneHome.invalidateAppLogoCache(a);
+            toast(I18n.s(this, "App icon reset to default", "Uygulama simgesi varsayılana sıfırlandı"));
+            if (onDone != null) onDone.run();
+        } : null;
+
+        CustomMedia.showImageFilePicker(
+                this,
+                I18n.s(this, "Change app icon", "Uygulama simgesini değiştir") + " — " + a.label,
+                true,
+                512,
+                512,
+                resetLabel,
+                onReset,
+                bmp -> CustomMedia.showAppIconEditor(
+                        this,
+                        a.label,
+                        bmp,
+                        a.color,
+                        editedBmp -> {
+                            if (CustomMedia.setCustomAppIcon(this, a.key, a.pkg, editedBmp)) {
+                                if (sceneHome != null) sceneHome.invalidateAppLogoCache(a);
+                                toast(I18n.s(this, "App icon updated", "Uygulama simgesi güncellendi"));
+                                if (onDone != null) onDone.run();
+                            }
+                        }));
+    }
+
     void showOptions(int index) {
         AppEntry a = shown.get(index);
         View tile = tiles.get(index);
@@ -3525,6 +3578,8 @@ public class MainActivity extends Activity {
         if (!FOLDER_KEY.equals(a.key)) {
             labels.add(I18n.s(this, "Rename", "Yeniden Adlandır"));
             actions.add(() -> promptRenameApp(a, () -> reload(a.key)));
+            labels.add(I18n.s(this, "Change app icon", "Uygulama simgesini değiştir"));
+            actions.add(() -> promptChangeAppIcon(a, () -> reload(a.key)));
         }
         if (folderMode) {
             labels.add(I18n.s(this, "Show on Home Screen", "Ana Ekranda Göster"));
@@ -4623,6 +4678,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
+        if (CustomMedia.onActivityResult(req, res, data)) return;
         if (req == SearchPanel.REQ_VOICE && res == RESULT_OK && search != null) search.onVoice(data);
     }
 
@@ -4928,7 +4984,7 @@ public class MainActivity extends Activity {
 
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(8), dp(12), dp(8), dp(8));
+        panel.setPadding(dp(8), dp(12), dp(8), dp(10));
         // "Regular" Liquid Glass: heavier dimming so the menu text stays legible over anything.
         LiquidGlass glass = new LiquidGlass(dp(20), 0xB81A1A20, glassSource, screenW, screenH, unit);
         glass.lens = dp(8);
@@ -4952,7 +5008,9 @@ public class MainActivity extends Activity {
             row.setText(labels.get(i));
             row.setShadowLayer(0, 0, 0, 0);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(dp(12), 0, dp(12), 0);
+            row.setMinHeight(dp(34));
+            row.setPadding(dp(12), dp(6), dp(12), dp(8));
+            row.setLineSpacing(0f, 1.08f);
             row.setFocusable(true);
             row.setClickable(true);
             int base = i == destructive ? 0xFFFF6B5E : Color.WHITE;
@@ -4970,7 +5028,8 @@ public class MainActivity extends Activity {
                 closeMenu();
                 actions.get(idx).run();
             });
-            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             rlp.topMargin = dp(2);
             panel.addView(row, rlp);
             rows.add(row);
@@ -4988,7 +5047,7 @@ public class MainActivity extends Activity {
             r.setNextFocusRightId(r.getId());
         }
 
-        int w = dp(220);
+        int w = dp(236);
         int[] loc = new int[2];
         anchor.getLocationInWindow(loc);
         float aw = anchor.getWidth() * anchor.getScaleX(), ah = anchor.getHeight() * anchor.getScaleY();

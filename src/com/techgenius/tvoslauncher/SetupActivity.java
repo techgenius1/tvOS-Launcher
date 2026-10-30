@@ -368,8 +368,8 @@ public class SetupActivity extends Activity {
         hi.setAlpha(0f);
         hi.setTranslationY(u(12));
         hi.animate().alpha(1f).translationY(0).setDuration(700).start();
-        // "Welcome" in Turkish, English, Indian and world languages, fading from one to the next.
-        String[] words = {"Welcome", "Ho\u015f Geldiniz", "\u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948", "\u09b8\u09cd\u09ac\u09be\u0997\u09a4\u09ae", "\u0bb5\u0bb0\u0bb5\u0bc7\u0bb1\u0bcd\u0b95\u0bbf\u0bb1\u0bcb\u0bae\u0bcd", "\u0c38\u0c4d\u0c35\u0c3e\u0c17\u0c24\u0c02", "Bienvenue", "Bienvenido", "Willkommen", "\u3088\u3046\u3053\u305d", "Benvenuto", "Bem-vindo", "\u6b22\u8fce"};
+        // "Welcome" in Turkish, English, Swedish, Indian and world languages, fading from one to the next.
+        String[] words = {"Welcome", "Ho\u015f Geldiniz", "V\u00e4lkommen", "\u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948", "\u09b8\u09cd\u09ac\u09be\u0997\u09a4\u09ae", "\u0bb5\u0bb0\u0bb5\u0bc7\u0bb1\u0bcd\u0b95\u0bbf\u0bb1\u0bcb\u0bae\u0bcd", "\u0c38\u0c4d\u0c35\u0c3e\u0c17\u0c24\u0c02", "Bienvenue", "Bienvenido", "Willkommen", "\u3088\u3046\u3053\u305d", "Benvenuto", "Bem-vindo", "\u6b22\u8fce"};
         int[] k = {I18n.isTr(this) ? 1 : 0};
         Runnable[] cycle = new Runnable[1];
         cycle[0] = () -> {

@@ -62,6 +62,7 @@ public class SettingsActivity extends Activity {
             BUTTON_MAPPER = "Button mapper",
             QUICK = "Quick buttons",
             ADVANCED = "Advanced",
+            UPDATES = "Updates",
             ABOUT = "About",
             SHELF = "Top Shelf",
             PRESENT = "Presentation",
@@ -80,6 +81,7 @@ public class SettingsActivity extends Activity {
         {QUICK, "bolt"},
         {LANGUAGE, "globe"},
         {ADVANCED, "shield"},
+        {UPDATES, "update"},
         {ABOUT, "info"}
     };
 
@@ -151,6 +153,7 @@ public class SettingsActivity extends Activity {
             case QUICK: return tr("Quick buttons", "Hızlı düğmeler");
             case LANGUAGE: return tr("Language", "Dil");
             case ADVANCED: return tr("Advanced", "Gelişmiş");
+            case UPDATES: return tr("Updates", "Güncellemeler");
             case ABOUT: return tr("About", "Hakkında");
             default: return sec;
         }
@@ -301,7 +304,9 @@ public class SettingsActivity extends Activity {
             List<String> enabled = Scenes.getEnabledSceneIds(this);
             String sceneId = enabled.isEmpty() ? "night" : enabled.get(0);
             Scenes.Spec spec = Scenes.byId(sceneId);
-            Bitmap src = Scenes.loadAssetBitmap(this, spec.bgAsset, 480, 270);
+            Bitmap src = Scenes.CUSTOM_ID.equals(sceneId)
+                    ? CustomMedia.getCustomSceneWallpaper(this, 480, 270)
+                    : Scenes.loadAssetBitmap(this, spec.bgAsset, 480, 270);
             if (src == null) return null;
             int w = 240, h = 135;
             Bitmap base = Bitmap.createScaledBitmap(src, w, h, true);
@@ -395,7 +400,7 @@ public class SettingsActivity extends Activity {
             row.setOnClickListener(v -> focusFirstRow());
 
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, u(35));
+                    ViewGroup.LayoutParams.MATCH_PARENT, u(33));
             rlp.bottomMargin = u(2);
             sideList.addView(row, rlp);
 
@@ -571,6 +576,9 @@ public class SettingsActivity extends Activity {
                 case ADVANCED:
                     pageAdvanced();
                     break;
+                case UPDATES:
+                    pageUpdates();
+                    break;
                 case ABOUT:
                 default:
                     pageAbout();
@@ -711,9 +719,26 @@ public class SettingsActivity extends Activity {
         section(tr("SCENES", "SAHNELER"));
         List<String> order = Scenes.getSceneOrder(this);
         for (int i = 0; i < order.size(); i++) {
+            String id = order.get(i);
+            if (Scenes.isCustomId(id)) continue;
             final int sceneIdx = i;
-            Scenes.Spec spec = Scenes.byId(order.get(i));
+            Scenes.Spec spec = Scenes.byId(id);
             sceneCheckRow(spec, sceneIdx, order);
+        }
+        for (int slot = 1; slot <= Scenes.MAX_CUSTOM_SCENES; slot++) {
+            customSceneRow(slot);
+            if (!Scenes.isSceneEnabled(this, Scenes.customId(slot))) {
+                break;
+            }
+        }
+
+        if (Scenes.isAnyCustomSceneEnabled(this)) {
+            row(tr("Clock position", "Saat konumu"),
+                    () -> Scenes.customClockPosLabel(this),
+                    () -> {
+                        Scenes.cycleCustomClockPos(this);
+                        refreshAll();
+                    });
         }
 
         row(tr("Each scene stays", "Her sahne süresi"),
@@ -743,10 +768,9 @@ public class SettingsActivity extends Activity {
             final String photoFile = Scenes.CLASSIC_PHOTOS[i][0];
             final String wallKey = "photo:" + photoFile;
             final String label = I18n.s(this, Scenes.CLASSIC_PHOTOS[i][1], Scenes.CLASSIC_PHOTOS[i][2]);
-            final int focusRowIdx = 2 + order.size() + 3 + i;
             classicPhotoRow(label, "backgrounds/" + photoFile, wallKey.equals(curWall), () -> {
                 Profiles.homePrefs(this).edit().putString("wallpaper", wallKey).apply();
-                selectSection(LOOK_SCENES, true, focusRowIdx);
+                rebuildMainRows();
             });
         }
         row(tr("Ambient colour themes…", "Ortam renk temaları…"), () -> {
@@ -764,6 +788,7 @@ public class SettingsActivity extends Activity {
                 rebuildMainRows();
             }).show();
         });
+        customClassicPhotoRow("custom".equals(curWall));
     }
 
     void pageApps() {
@@ -1504,6 +1529,56 @@ public class SettingsActivity extends Activity {
         LocalAdb.probePortAsync(this, () -> runOnUiThread(this::refreshAll));
     }
 
+    private boolean checkingLatestRelease = false;
+
+    void pageUpdates() {
+        section(tr("UPDATES", "GÜNCELLEMELER"));
+        row(tr("Automatic updates", "Otomatik güncellemeler"),
+                () -> AppUpdater.isAutoUpdateEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    boolean next = !AppUpdater.isAutoUpdateEnabled(this);
+                    AppUpdater.setAutoUpdateEnabled(this, next);
+                    refreshAll();
+                    showStatusMsg(next
+                            ? tr("Automatic updates enabled.", "Otomatik güncellemeler etkinleştirildi.")
+                            : tr("Automatic updates disabled.", "Otomatik güncellemeler devre dışı bırakıldı."));
+                    if (next) {
+                        AppUpdater.checkAutoUpdateIfNeeded(this);
+                    }
+                });
+        row(tr("Check for updates", "Güncellemeleri kontrol et"),
+                () -> tr("Check now ›", "Şimdi kontrol et ›"),
+                () -> AppUpdater.manualCheckAndPrompt(this, this::refreshAll));
+
+        section(tr("VERSION INFO", "SÜRÜM BİLGİSİ"));
+        infoRow(tr("Current version", "Mevcut sürüm"), "v" + AppUpdater.getCurrentVersion(this), null);
+        infoRowDynamic(tr("GitHub release latest version", "GitHub son sürüm"),
+                () -> {
+                    String latest = AppUpdater.getCachedLatestVersion(this);
+                    if (latest != null && !latest.isEmpty()) {
+                        return "v" + latest;
+                    }
+                    return checkingLatestRelease
+                            ? tr("Checking…", "Kontrol ediliyor…")
+                            : tr("Tap Check for updates", "Güncellemeleri kontrol et'e basın");
+                },
+                null);
+
+        infoNote(tr("Checks GitHub Releases (techgenius1/tvOS-Launcher) for the latest APK and installs updates directly on your TV.",
+                "En güncel APK için GitHub Sürümlerini (techgenius1/tvOS-Launcher) kontrol eder ve güncellemeleri doğrudan TV'nize kurar."));
+
+        if (!checkingLatestRelease) {
+            checkingLatestRelease = true;
+            refreshAll();
+            AppUpdater.checkForUpdates(this, (success, latestVersion, downloadUrl, updateAvailable, errorMsg) -> {
+                checkingLatestRelease = false;
+                if (!isFinishing()) {
+                    refreshAll();
+                }
+            });
+        }
+    }
+
     void pageAbout() {
         section(tr("APPLICATION", "UYGULAMA"));
         infoRow(tr("Home screen", "Ana ekran"), "tvOS Launcher", null);
@@ -1544,7 +1619,8 @@ public class SettingsActivity extends Activity {
             "settings", "setup", "profiles", "home", "home_default",
             "app_custom_names", "button_mapper", "control_panel",
             "weather", "suggestions", "inputs", "clicks",
-            "media_watch", "cleanyourtv_prefs", "local_adb", "present"
+            "media_watch", "cleanyourtv_prefs", "local_adb", "present",
+            "custom_media", "app_updater"
         };
         for (String p : knownPrefs) {
             try {
@@ -1881,6 +1957,304 @@ public class SettingsActivity extends Activity {
         list.addView(r, lp);
     }
 
+    private Bitmap buildPlaceholderThumb(int w, int h) {
+        Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmp);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setShader(new android.graphics.LinearGradient(
+                0, 0, w, h,
+                0xFF282B3A, 0xFF151722,
+                android.graphics.Shader.TileMode.CLAMP));
+        c.drawRect(0, 0, w, h, p);
+        int gsz = Math.min(w, h) * 3 / 5;
+        Bitmap glyph = Glyphs.get("image", gsz, 0xCCFFFFFF);
+        if (glyph != null) {
+            c.drawBitmap(glyph, (w - gsz) / 2f, (h - gsz) / 2f, null);
+        }
+        return bmp;
+    }
+
+    private String customSceneTitle(int slot) {
+        if (slot <= 1) return tr("Custom", "Özel");
+        return tr("Custom " + slot, "Özel " + slot);
+    }
+
+    private void pickCustomSceneWallpaper(int slot) {
+        CustomMedia.showImageFilePicker(
+                this,
+                tr("Choose custom scene image", "Özel sahne görseli seçin") + (slot > 1 ? " (" + slot + ")" : ""),
+                false,
+                1920,
+                1080,
+                null,
+                null,
+                bmp -> {
+                    if (CustomMedia.setCustomSceneWallpaper(this, slot, bmp)) {
+                        Scenes.enableCustomScene(this, slot, true);
+                        rebuildMainRows();
+                        showStatusMsg(tr("Custom scene wallpaper updated.", "Özel sahne duvar kağıdı güncellendi."));
+                    } else {
+                        Toast.makeText(
+                                this,
+                                tr("Could not load selected image.", "Seçilen görsel yüklenemedi."),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void customSceneRow(int slot) {
+        final String cid = Scenes.customId(slot);
+        final String labelText = customSceneTitle(slot);
+
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setLongClickable(true);
+        r.setTag("scene:" + cid);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = CustomMedia.hasCustomSceneWallpaper(this, slot)
+                ? CustomMedia.getCustomSceneWallpaper(this, slot, tw * 2, th * 2)
+                : null;
+        if (tbmp == null) {
+            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        }
+        thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(labelText);
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(20);
+        ImageView check = new ImageView(this);
+        Runnable updateCheck = () -> {
+            boolean on = Scenes.isSceneEnabled(this, cid);
+            if (on) {
+                check.setImageBitmap(Glyphs.get("check_on", cs, Color.WHITE));
+            } else {
+                check.setImageBitmap(Glyphs.get(r.isFocused() ? "check_off_dark" : "check_off", cs, Color.WHITE));
+            }
+        };
+        updateCheck.run();
+        refreshers.add(updateCheck);
+        r.addView(check, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            updateCheck.run();
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!CustomMedia.hasCustomSceneWallpaper(this, slot)) {
+                pickCustomSceneWallpaper(slot);
+                return;
+            }
+            boolean enabled = Scenes.isSceneEnabled(this, cid);
+            if (!enabled) {
+                String[] opts = {
+                    tr("Turn on Custom scene", "Özel sahneyi aç"),
+                    tr("Choose image…", "Görsel seç…")
+                };
+                dialog(labelText)
+                        .setItems(opts, (d, which) -> {
+                            if (which == 0) {
+                                Scenes.enableCustomScene(this, slot, true);
+                                rebuildMainRows();
+                            } else {
+                                pickCustomSceneWallpaper(slot);
+                            }
+                        })
+                        .show();
+            } else {
+                String[] opts = {
+                    tr("Choose image…", "Görsel seç…"),
+                    tr("Turn off Custom scene", "Özel sahneyi kapat")
+                };
+                dialog(labelText)
+                        .setItems(opts, (d, which) -> {
+                            if (which == 0) {
+                                pickCustomSceneWallpaper(slot);
+                            } else {
+                                if (!Scenes.toggleScene(this, cid)) {
+                                    showStatusMsg(tr("One scene has to stay on.", "En az bir sahne açık kalmalıdır."));
+                                } else {
+                                    rebuildMainRows();
+                                }
+                            }
+                        })
+                        .show();
+            }
+        });
+
+        r.setOnLongClickListener(view -> {
+            pickCustomSceneWallpaper(slot);
+            return true;
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
+    private void pickCustomClassicWallpaper() {
+        CustomMedia.showImageFilePicker(
+                this,
+                tr("Choose custom background image", "Özel arka plan görseli seçin"),
+                false,
+                1920,
+                1080,
+                null,
+                null,
+                bmp -> {
+                    if (CustomMedia.setCustomClassicWallpaper(this, bmp)) {
+                        Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.CUSTOM_WALL_KEY).apply();
+                        rebuildMainRows();
+                        showStatusMsg(tr("Custom background updated.", "Özel arka plan güncellendi."));
+                    } else {
+                        Toast.makeText(
+                                this,
+                                tr("Could not load selected image.", "Seçilen görsel yüklenemedi."),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void customClassicPhotoRow(boolean checked) {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setLongClickable(true);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = CustomMedia.hasCustomClassicWallpaper(this)
+                ? CustomMedia.getCustomClassicWallpaper(this)
+                : null;
+        if (tbmp == null) {
+            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        }
+        thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(tr("Custom", "Özel"));
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(17);
+        ImageView mark = new ImageView(this);
+        if (checked) {
+            mark.setImageBitmap(Glyphs.get("check", cs, Color.WHITE));
+        }
+        r.addView(mark, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            if (checked) {
+                mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
+            }
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!CustomMedia.hasCustomClassicWallpaper(this)) {
+                pickCustomClassicWallpaper();
+                return;
+            }
+            if (!checked) {
+                String[] opts = {
+                    tr("Use custom background", "Özel arka planı kullan"),
+                    tr("Choose image…", "Görsel seç…")
+                };
+                dialog(tr("Custom", "Özel"))
+                        .setItems(opts, (d, which) -> {
+                            if (which == 0) {
+                                Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.CUSTOM_WALL_KEY).apply();
+                                rebuildMainRows();
+                            } else {
+                                pickCustomClassicWallpaper();
+                            }
+                        })
+                        .show();
+            } else {
+                pickCustomClassicWallpaper();
+            }
+        });
+
+        r.setOnLongClickListener(view -> {
+            pickCustomClassicWallpaper();
+            return true;
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
     private void classicPhotoRow(String label, String assetPath, boolean checked, Runnable onClick) {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -2140,6 +2514,53 @@ public class SettingsActivity extends Activity {
         list.addView(r, lp);
     }
 
+    private void infoRowDynamic(String label, Value val, String subText) {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setPadding(u(14), u(5), u(14), u(5));
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        TextView l = new TextView(this);
+        l.setText(label);
+        l.setTextColor(0xB3FFFFFF);
+        l.setTypeface(Ui.font(this, "medium"));
+        Ui.textSize(l, 12.5f);
+        texts.addView(l);
+
+        if (subText != null && !subText.isEmpty()) {
+            TextView s = new TextView(this);
+            s.setText(subText);
+            s.setTextColor(0x80FFFFFF);
+            s.setTypeface(Ui.font(this, "regular"));
+            Ui.textSize(s, 10.5f);
+            texts.addView(s);
+        }
+        r.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView v = new TextView(this);
+        v.setTextColor(0x9EFFFFFF);
+        v.setTypeface(Ui.font(this, "medium"));
+        Ui.textSize(v, 12.5f);
+        r.addView(v);
+
+        Runnable refresh = () -> {
+            try {
+                v.setText(val.get());
+            } catch (Throwable ignored) {
+                v.setText("");
+            }
+        };
+        refresh.run();
+        refreshers.add(refresh);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = u(3);
+        list.addView(r, lp);
+    }
+
     private void infoNote(String note) {
         TextView t = new TextView(this);
         t.setText(note);
@@ -2277,13 +2698,17 @@ public class SettingsActivity extends Activity {
     }
 
     private void moveLiftedScene(int delta) {
-        if (liftedSceneId == null) return;
-        List<String> order = new ArrayList<>(Scenes.getSceneOrder(this));
+        if (liftedSceneId == null || Scenes.CUSTOM_ID.equals(liftedSceneId)) return;
+        List<String> order = new ArrayList<>();
+        for (String id : Scenes.getSceneOrder(this)) {
+            if (!Scenes.CUSTOM_ID.equals(id)) order.add(id);
+        }
         int idx = order.indexOf(liftedSceneId);
         int target = idx + delta;
         if (idx < 0 || target < 0 || target >= order.size()) return;
         String moved = order.remove(idx);
         order.add(target, moved);
+        order.add(Scenes.CUSTOM_ID);
         Scenes.setSceneOrder(this, order);
         String keepLifted = liftedSceneId;
         rebuildMainRows();
@@ -2316,6 +2741,12 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        CustomMedia.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     protected void onDestroy() {
         ButtonMapper.captureListener = null;
         super.onDestroy();
@@ -2338,7 +2769,7 @@ public class SettingsActivity extends Activity {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception e) {
-            return "2.0.2";
+            return "2.0.3";
         }
     }
 

@@ -338,6 +338,11 @@ final class LocalAdb {
 
             String script = "pm grant " + pkg + " android.permission.ACCESS_FINE_LOCATION; "
                     + "pm grant " + pkg + " android.permission.ACCESS_COARSE_LOCATION; "
+                    + "pm grant " + pkg + " android.permission.READ_EXTERNAL_STORAGE 2>/dev/null; "
+                    + "pm grant " + pkg + " android.permission.WRITE_EXTERNAL_STORAGE 2>/dev/null; "
+                    + "pm grant " + pkg + " android.permission.READ_MEDIA_IMAGES 2>/dev/null; "
+                    + "appops set " + pkg + " MANAGE_EXTERNAL_STORAGE allow 2>/dev/null; "
+                    + "appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null; "
                     + "appops set " + pkg + " GET_USAGE_STATS allow; "
                     + "cmd notification allow_listener " + pkg + "/" + pkg + ".MediaWatchService; "
                     + "dpm set-active-admin " + pkg + "/.SleepReceiver\\$Admin; "

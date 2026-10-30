@@ -457,6 +457,15 @@ final class Glyphs {
                 p.setStyle(Paint.Style.FILL);
                 c.drawCircle(m, s * 0.32f, s * 0.045f, p);
                 break;
+            case "update":  // Circle with downward arrow (Updates)
+                p.setStrokeWidth(s * 0.075f);
+                c.drawCircle(m, m, s * 0.36f, p);
+                c.drawLine(m, s * 0.30f, m, s * 0.66f, p);
+                path.moveTo(s * 0.36f, s * 0.52f);
+                path.lineTo(m, s * 0.68f);
+                path.lineTo(s * 0.64f, s * 0.52f);
+                c.drawPath(path, p);
+                break;
             case "sliders":  // Horizontal sliders for Home settings popup
                 p.setStrokeWidth(s * 0.075f);
                 c.drawLine(s * 0.16f, s * 0.30f, s * 0.54f, s * 0.30f, p);

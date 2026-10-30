@@ -13,13 +13,14 @@ import java.util.Set;
 
 /**
  * Multi-language localization support for tvOS Launcher:
- * English (en), Turkish (tr), Hindi/Indian (hi), Spanish (es), French (fr),
+ * English (en), Turkish (tr), Swedish (sv), Hindi/Indian (hi), Spanish (es), French (fr),
  * German (de), Italian (it), Russian (ru), Portuguese (pt), Arabic (ar),
  * Japanese (ja), and Chinese (zh).
  */
 public final class I18n {
     public static final String LANG_EN = "en";
     public static final String LANG_TR = "tr";
+    public static final String LANG_SV = "sv";
     public static final String LANG_HI = "hi";
     public static final String LANG_ES = "es";
     public static final String LANG_FR = "fr";
@@ -34,6 +35,7 @@ public final class I18n {
     public static final String[][] LANGUAGES = {
         {LANG_EN, "English", "Use tvOS Launcher in English"},
         {LANG_TR, "Türkçe", "tvOS Launcher'ı Türkçe kullanın"},
+        {LANG_SV, "Svenska", "Använd tvOS Launcher på svenska"},
         {LANG_HI, "हिन्दी (Indian)", "tvOS Launcher का उपयोग हिन्दी में करें"},
         {LANG_ES, "Español", "Usar tvOS Launcher en español"},
         {LANG_FR, "Français", "Utiliser tvOS Launcher en français"},
@@ -47,7 +49,7 @@ public final class I18n {
     };
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
-            LANG_EN, LANG_TR, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
+            LANG_EN, LANG_TR, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
             LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH
     ));
 
@@ -72,6 +74,19 @@ public final class I18n {
         TR_MAP.put("Waterline", "Su çizgisi");
         TR_MAP.put("Fog", "Sis");
         TR_MAP.put("Rainforest dawn", "Yağmur ormanı şafağı");
+        TR_MAP.put("Custom", "Özel");
+        TR_MAP.put("Clock position", "Saat konumu");
+        TR_MAP.put("Left", "Sol");
+        TR_MAP.put("Center", "Orta");
+        TR_MAP.put("Right", "Sağ");
+        TR_MAP.put("Change app icon", "Uygulama simgesini değiştir");
+        TR_MAP.put("Reset to default icon", "Varsayılan simgeye sıfırla");
+        TR_MAP.put("Updates", "Güncellemeler");
+        TR_MAP.put("UPDATES", "GÜNCELLEMELER");
+        TR_MAP.put("Automatic updates", "Otomatik güncellemeler");
+        TR_MAP.put("Check for updates", "Güncellemeleri kontrol et");
+        TR_MAP.put("Current version", "Mevcut sürüm");
+        TR_MAP.put("GitHub release latest version", "GitHub son sürüm");
         TR_MAP.put("Each scene stays", "Her sahne süresi");
         TR_MAP.put("Clock", "Saat");
         TR_MAP.put("12 hour", "12 saat");
@@ -109,12 +124,13 @@ public final class I18n {
         TR_MAP.put("Showers", "Sağanak");
         TR_MAP.put("Thunderstorms", "Fırtına");
 
-        String[] langs = {LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH};
+        String[] langs = {LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
 
         initTranslations();
+        initSwedish();
     }
 
     private static void add(String en, String hi, String es, String fr, String de, String it, String ru, String pt, String ar, String ja, String zh) {
@@ -465,6 +481,383 @@ public final class I18n {
         add("OK to open  ·  Hold OK to restore  ·  Back to go back", "खोलने के लिए OK  ·  बहाल करने के लिए OK दबाए रखें  ·  वापस जाने के लिए Back", "OK para abrir  ·  Mantén OK para restaurar  ·  Atrás para volver", "OK pour ouvrir  ·  Maintenir OK pour restaurer  ·  Retour pour revenir", "OK zum Öffnen  ·  OK halten zum Wiederherstellen  ·  Zurück", "OK per aprire  ·  Tieni premuto OK per ripristinare  ·  Indietro", "OK — открыть  ·  Удерживайте OK — восстановить  ·  Назад — вернуться", "OK para abrir  ·  Manter OK para restaurar  ·  Voltar para sair", "موافق للفتح  ·  مطولاً للاستعادة  ·  رجوع للعودة", "OKで開く  ·  OK長押しで復元  ·  戻るで前の画面へ", "按 OK 打开  ·  长按 OK 恢复显示  ·  按返回退出");
         add("OK to open  ·  Hold OK to restore", "खोलने के लिए OK  ·  बहाल करने के लिए OK दबाए रखें", "OK para abrir  ·  Mantén OK para restaurar", "OK pour ouvrir  ·  Maintenir OK pour restaurer", "OK zum Öffnen  ·  OK halten zum Wiederherstellen", "OK per aprire  ·  Tieni premuto OK per ripristinare", "OK — открыть  ·  Удерживайте OK — восстановить", "OK para abrir  ·  Manter OK para restaurar", "موافق للفتح  ·  مطولاً للاستعادة", "OKで開く  ·  OK長押しで復元", "按 OK 打开  ·  长按 OK 恢复显示");
         add("No hidden apps. Hold OK on any app on the home screen dock and choose Hide.", "कोई छुपा हुआ ऐप नहीं है। होम स्क्रीन डॉक पर किसी भी ऐप पर OK दबाए रखें और छुपाएं चुनें।", "No hay aplicaciones ocultas. Mantén pulsado OK en cualquier app del dock y elige Ocultar.", "Aucune application masquée. Maintenez OK sur une application du dock et choisissez Masquer.", "Keine ausgeblendeten Apps. Halten Sie OK auf einer App im Dock gedrückt und wählen Sie Ausblenden.", "Nessuna app nascosta. Tieni premuto OK su un'app nel dock e scegli Nascondi.", "Нет скрытых приложений. Удерживайте OK на любом приложении в доке и выберите «Скрыть».", "Nenhuma aplicação oculta. Mantenha OK premido numa app na dock e escolha Ocultar.", "لا توجد تطبيقات مخفية. اضغط مطولاً على موافق فوق أي تطبيق في الشريط واختر إخفاء.", "非表示のアプリはありません。ホーム画面のドックでアプリをOK長押しして「非表示」を選択してください。", "暂无隐藏的应用。在主屏幕程序坞任意应用上长按 OK 并选择“隐藏”。");
+
+        // Custom Wallpaper, Clock Position, App Icon Changer & Updates
+        add("Custom", "कस्टम", "Personalizado", "Personnalisé", "Benutzerdefiniert", "Personalizzato", "Свой", "Personalizado", "مخصص", "カスタム", "自定义");
+        add("Clock position", "घड़ी की स्थिति", "Posición del reloj", "Position de l'horloge", "Uhrposition", "Posizione orologio", "Позиция часов", "Posição do relógio", "موضع الساعة", "時計の位置", "时钟位置");
+        add("Left", "बाएं", "Izquierda", "Gauche", "Links", "Sinistra", "Слеवा", "Esquerda", "يسار", "左", "居左");
+        add("Center", "बीच में", "Centro", "Centre", "Mitte", "Centro", "По центру", "Centro", "وسط", "中央", "居中");
+        add("Right", "दाएं", "Derecha", "Droite", "Rechts", "Destra", "Справа", "Direita", "يمين", "右", "居右");
+        add("Clock font", "घड़ी का फ़ॉन्ट", "Fuente del reloj", "Police de l'horloge", "Uhr-Schriftart", "Carattere orologio", "Шрифт часов", "Tipo de letra do relógio", "خط الساعة", "時計のフォント", "时钟字体");
+        add("CLASSIC BACKGROUND", "क्लासिक पृष्ठभूमि", "FONDO CLÁSICO", "ARRIÈRE-PLAN CLASSIQUE", "KLASSISCHER HINTERGRUND", "SFONDO CLASSICO", "КЛАССИЧЕСКИЙ ФОН", "FUNDO CLÁSSICO", "الخلفية الكلاسيكية", "クラシック背景", "经典背景");
+        add("Ambient colour themes…", "परिवेश रंग थीम…", "Temas de color ambiental…", "Thèmes de couleur d'ambiance…", "Umgebungsfarbthemen…", "Temi colore ambientale…", "Цветовые темы…", "Temas de cor ambiente…", "سمات الألوان المحيطة…", "アンビエントカラーテーマ…", "氛围色彩主题…");
+        add("Classic background", "क्लासिक पृष्ठभूमि", "Fondo clásico", "Arrière-plan classique", "Klassischer Hintergrund", "Sfondo classico", "Классический фон", "Fundo clássico", "الخلفية الكلاسيكية", "クラシック背景", "经典背景");
+        add("Change app icon", "ऐप आइकन बदलें", "Cambiar icono de la app", "Changer l'icône de l'application", "App-Symbol ändern", "Cambia icona app", "Изменить значок приложения", "Alterar ícone da aplicação", "تغيير أيقونة التطبيق", "アプリアイコンを変更", "更改应用图标");
+        add("Reset to default icon", "डिफ़ॉल्ट आइकन पर रीसेट करें", "Restablecer icono predeterminado", "Réinitialiser l'icône par défaut", "Auf Standardsymbol zurücksetzen", "Ripristina icona predefinita", "Сбросить значок по умолчанию", "Repor ícone predefinido", "إعادة تعيين الأيقونة الافتراضية", "デフォルトアイコンに戻す", "恢复默认图标");
+        add("Choose image…", "चित्र चुनें…", "Elegir imagen…", "Choisir une image…", "Bild auswählen…", "Scegli immagine…", "Выбрать изображение…", "Escolher imagem…", "اختر صورة…", "画像を選択…", "选择图片…");
+        add("Choose new image…", "नया चित्र चुनें…", "Elegir nueva imagen…", "Choisir une nouvelle image…", "Neues Bild auswählen…", "Scegli nuova immagine…", "Выбрать новое изображение…", "Escolher nova imagem…", "اختر صورة جديدة…", "新しい画像を選択…", "选择新图片…");
+        add("Turn on Custom scene", "कस्टम दृश्य चालू करें", "Activar escena personalizada", "Activer la scène personnalisée", "Benutzerdefinierte Szene einschalten", "Attiva scena personalizzata", "Включить свою сцену", "Ativar cena personalizada", "تشغيل المشهد المخصص", "カスタムシーンをオンにする", "开启自定义场景");
+        add("Turn off Custom scene", "कस्टम दृश्य बंद करें", "Desactivar escena personalizada", "Désactiver la scène personnalisée", "Benutzerdefinierte Szene ausschalten", "Disattiva scena personalizzata", "Выключить свою сцену", "Desativar cena personalizada", "إيقاف المشهد المخصص", "カスタムシーンをオフにする", "关闭自定义场景");
+        add("Use custom background", "कस्टम पृष्ठभूमि का उपयोग करें", "Usar fondo personalizado", "Utiliser l'arrière-plan personnalisé", "Benutzerdefinierten Hintergrund verwenden", "Usa sfondo personalizzato", "Использовать свой фон", "Usar fundo personalizado", "استخدام الخلفية المخصصة", "カスタム背景を使用", "使用自定义背景");
+        add("Updates", "अपडेट", "Actualizaciones", "Mises à jour", "Updates", "Aggiornamenti", "Обновления", "Atualizações", "التحديثات", "アップデート", "更新");
+        add("UPDATES", "अपडेट", "ACTUALIZACIONES", "MISES À JOUR", "UPDATES", "AGGIORNAMENTI", "ОБНОВЛЕНИЯ", "ATUALIZAÇÕES", "التحديثات", "アップデート", "更新");
+        add("Automatic updates", "स्वचालित अपडेट", "Actualizaciones automáticas", "Mises à jour automatiques", "Automatische Updates", "Aggiornamenti automatici", "Автоматические обновления", "Atualizações automáticas", "التحديثات التلقائية", "自動アップデート", "自动更新");
+        add("Check for updates", "अपडेट की जांच करें", "Buscar actualizaciones", "Rechercher des mises à jour", "Nach Updates suchen", "Controlla aggiornamenti", "Проверить обновления", "Procurar atualizações", "التحقق من وجود تحديثات", "アップデートを確認", "检查更新");
+        add("Check now ›", "अभी जांचें ›", "Comprobar ahora ›", "Vérifier maintenant ›", "Jetzt prüfen ›", "Controlla ora ›", "Проверить сейчас ›", "Verificar agora ›", "تحقق الآن ›", "今すぐ確認 ›", "立即检查 ›");
+        add("VERSION INFO", "संस्करण जानकारी", "INFORMACIÓN DE VERSIÓN", "INFORMATIONS DE VERSION", "VERSIONSINFO", "INFO VERSIONE", "ИНФОРМАЦИЯ О ВЕРСИИ", "INFORMAÇÃO DA VERSÃO", "معلومات الإصدار", "バージョン情報", "版本信息");
+        add("Current version", "वर्तमान संस्करण", "Versión actual", "Version actuelle", "Aktuelle Version", "Versione attuale", "Текущая версия", "Versão atual", "الإصدار الحالي", "現在のバージョン", "当前版本");
+        add("GitHub release latest version", "GitHub नवीनतम संस्करण", "Última versión en GitHub", "Dernière version GitHub", "Neueste GitHub-Version", "Ultima versione GitHub", "Последняя версия на GitHub", "Última versão no GitHub", "أحدث إصدار على GitHub", "GitHub最新リリース", "GitHub 最新版本");
+        add("Checking…", "जांच हो रही है…", "Comprobando…", "Vérification…", "Prüfe…", "Controllo in corso…", "Проверка…", "A verificar…", "جارٍ التحقق…", "確認中…", "正在检查…");
+        add("Update Available", "अपडेट उपलब्ध है", "Actualización disponible", "Mise à jour disponible", "Update verfügbar", "Aggiornamento disponibile", "Доступно обновление", "Atualização disponível", "يتوفر تحديث", "アップデートがあります", "发现新版本");
+        add("Download & Install", "डाउनलोड और इंस्टॉल करें", "Descargar e instalar", "Télécharger et installer", "Herunterladen & installieren", "Scarica e installa", "Скачать и установить", "Transferir e instalar", "تنزيل وتثبيت", "ダウンロードしてインストール", "下载并安装");
+        add("Up to Date", "अप टू डेट", "Actualizado", "À jour", "Auf dem neuesten Stand", "Aggiornato", "Установлена последняя версия", "Atualizado", "محدّث لأحدث إصدار", "最新の状態です", "已是最新版本");
+    }
+
+    private static void sv(String en, String svVal) {
+        LANG_MAPS.get(LANG_SV).put(en, svVal);
+    }
+
+    private static void initSwedish() {
+        // Greetings
+        sv("Good morning", "God morgon");
+        sv("Good afternoon", "God eftermiddag");
+        sv("Good evening", "God kväll");
+        sv("Good night", "God natt");
+        sv("Welcome", "Välkommen");
+
+        // Weather conditions
+        sv("Clear", "Klart");
+        sv("Sunny", "Soligt");
+        sv("Mostly Sunny", "Mestadels soligt");
+        sv("Mostly Clear", "Mestadels klart");
+        sv("Partly Cloudy", "Halvklart");
+        sv("Cloudy", "Molnigt");
+        sv("Foggy", "Dimmigt");
+        sv("Drizzle", "Duggregn");
+        sv("Rain", "Regn");
+        sv("Heavy Rain", "Kraftigt regn");
+        sv("Sleet", "Snöblandat regn");
+        sv("Snow", "Snö");
+        sv("Heavy Snow", "Kraftigt snöfall");
+        sv("Showers", "Regnskurar");
+        sv("Thunderstorms", "Åska");
+
+        // Sidebar & Main Sections
+        sv("Settings", "Inställningar");
+        sv("Home settings", "Heminställningar");
+        sv("Home Settings", "Heminställningar");
+        sv("Language", "Språk");
+        sv("Location", "Plats");
+        sv("Weather", "Väder");
+        sv("Weather and location", "Väder och plats");
+        sv("Look and scenes", "Utseende och scener");
+        sv("Appearance and scenes", "Utseende och scener");
+        sv("Apps", "Appar");
+        sv("People", "Personer");
+        sv("Profiles", "Profiler");
+        sv("Control Panel", "Kontrollpanel");
+        sv("Control Panel (Overlay)", "Kontrollpanel (överlägg)");
+        sv("Button Mapper", "Knappmappare");
+        sv("Button mapper", "Knappmappare");
+        sv("Quick buttons", "Snabbknappar");
+        sv("Home & System", "Hem och system");
+        sv("Advanced", "Avancerat");
+        sv("Updates", "Uppdateringar");
+        sv("UPDATES", "UPPDATERINGAR");
+        sv("About", "Om");
+
+        // Look & Scenes & Custom Wallpaper & Clock Position
+        sv("LOOK", "UTSEENDE");
+        sv("Night scenes", "Nattscener");
+        sv("A big glass clock, scenes taking turns", "En stor glasklocka med scener som turas om");
+        sv("Classic", "Klassisk");
+        sv("One photo and a grid of app banners", "Ett foto och ett rutnät med appbanderoller");
+        sv("SCENES", "SCENER");
+        sv("Night", "Natt");
+        sv("Golden hour", "Gyllene timmen");
+        sv("Waterline", "Vattenlinje");
+        sv("Fog", "Dimma");
+        sv("Rainforest dawn", "Regnskogsgryning");
+        sv("Custom", "Anpassad");
+        sv("Clock position", "Klockposition");
+        sv("Left", "Vänster");
+        sv("Center", "Mitten");
+        sv("Right", "Höger");
+        sv("Each scene stays", "Varje scen visas i");
+        sv(" seconds", " sekunder");
+        sv("Clock", "Klocka");
+        sv("Clock font", "Klocktypsnitt");
+        sv("Clock style", "Klockstil");
+        sv("Rounded", "Rundad");
+        sv("Modern", "Modern");
+        sv("Serif", "Serif");
+        sv("Stencil", "Schablon");
+        sv("12 hour", "12 timmar");
+        sv("24 hour", "24 timmar");
+        sv("One scene has to stay on.", "Minst en scen måste vara aktiverad.");
+        sv("CLASSIC BACKGROUND", "KLASSISK BAKGRUND");
+        sv("Classic background", "Klassisk bakgrund");
+        sv("Ambient colour themes…", "Stämningsfulla färgteman…");
+        sv("Turn on Custom scene", "Slå på anpassad scen");
+        sv("Turn off Custom scene", "Stäng av anpassad scen");
+        sv("Use custom background", "Använd anpassad bakgrund");
+        sv("Choose image…", "Välj bild…");
+        sv("Choose new image…", "Välj ny bild…");
+        sv("Choose custom scene image", "Välj bild för anpassad scen");
+        sv("Choose custom background image", "Välj bild för anpassad bakgrund");
+        sv("Custom scene wallpaper updated.", "Anpassad scenbakgrund uppdaterad.");
+        sv("Custom background updated.", "Anpassad bakgrund uppdaterad.");
+        sv("Could not load selected image.", "Kunde inte läsa in den valda bilden.");
+
+        // App Icon Changer & Dock Context Menu
+        sv("Change app icon", "Ändra appikon");
+        sv("Choose icon for ", "Välj ikon för ");
+        sv("Choose new icon file…", "Välj ny ikonfil…");
+        sv("Reset to default icon", "Återställ till standardikon");
+        sv("App icon updated", "Appikon uppdaterad");
+        sv("Default icon restored", "Standardikon återställd");
+        sv("Could not decode image file", "Kunde inte läsa bildfilen");
+        sv("System file picker…", "Systemets filväljare…");
+        sv("Grant storage permission", "Ge lagringsbehörighet");
+        sv("Storage folders", "Lagringsmappar");
+        sv("⬅  Back to storage folders", "⬅  Tillbaka till lagringsmappar");
+        sv("⬅  .. (Parent folder)", "⬅  .. (Överordnad mapp)");
+        sv("Open", "Öppna");
+        sv("Rename", "Byt namn");
+        sv("Rename App", "Byt namn på app");
+        sv("Move left in dock", "Flytta åt vänster i dockan");
+        sv("Move right in dock", "Flytta åt höger i dockan");
+        sv("Remove from dock", "Ta bort från dockan");
+        sv("Pin to Home", "Fäst på hemskärmen");
+        sv("Unpin from Home", "Lossa från hemskärmen");
+        sv("Move", "Flytta");
+        sv("Hide", "Dölj");
+        sv("Hide from All Apps", "Dölj från Alla appar");
+        sv("Move to Other Apps", "Flytta till Andra appar");
+        sv("App info", "Appinfo");
+        sv("Uninstall", "Avinstallera");
+
+        // Updates section
+        sv("Automatic updates", "Automatiska uppdateringar");
+        sv("Automatic updates enabled.", "Automatiska uppdateringar aktiverade.");
+        sv("Automatic updates disabled.", "Automatiska uppdateringar inaktiverade.");
+        sv("Check for updates", "Sök efter uppdateringar");
+        sv("Check now ›", "Sök nu ›");
+        sv("VERSION INFO", "VERSIONSINFORMATION");
+        sv("Current version", "Nuvarande version");
+        sv("GitHub release latest version", "Senaste GitHub-version");
+        sv("Checking…", "Söker…");
+        sv("Checking for Updates", "Söker efter uppdateringar");
+        sv("Checking GitHub releases for the latest version…", "Söker på GitHub efter den senaste versionen…");
+        sv("Tap Check for updates", "Tryck på Sök efter uppdateringar");
+        sv("Update Check Failed", "Uppdateringssökning misslyckades");
+        sv("Could not reach GitHub Releases. Please check your internet connection.", "Kunde inte nå GitHub Releases. Kontrollera din internetanslutning.");
+        sv("Update Available", "Uppdatering tillgänglig");
+        sv("Current version: v", "Nuvarande version: v");
+        sv("Latest GitHub version: v", "Senaste GitHub-version: v");
+        sv("Download & Install", "Ladda ner och installera");
+        sv("Up to Date", "Uppdaterad");
+        sv("You are running the latest version.", "Du använder den senaste versionen.");
+        sv("Updating tvOS Launcher", "Uppdaterar tvOS Launcher");
+        sv("Downloading latest APK from GitHub…", "Laddar ner senaste APK från GitHub…");
+        sv("Installing update…", "Installerar uppdatering…");
+        sv("Update Failed", "Uppdatering misslyckades");
+        sv("Checks GitHub Releases (techgenius1/tvOS-Launcher) for the latest APK and installs updates directly on your TV.", "Söker på GitHub Releases (techgenius1/tvOS-Launcher) efter den senaste APK-filen och installerar uppdateringar direkt på din TV.");
+
+        // Home screen & Quick buttons & Setup
+        sv("Keep watching", "Fortsätt titta");
+        sv("Continue Watching", "Fortsätt titta");
+        sv("More apps", "Fler appar");
+        sv("More Apps", "Fler appar");
+        sv("Fewer apps", "Färre appar");
+        sv("Other apps", "Andra appar");
+        sv("Other Apps", "Andra appar");
+        sv("Hidden apps", "Dolda appar");
+        sv("Back to Apps", "Tillbaka till Appar");
+        sv("Inputs", "Ingångar");
+        sv("Presentation", "Presentation");
+        sv("TV settings", "TV-inställningar");
+        sv("TV Settings", "TV-inställningar");
+        sv("Language, weather, scenes, apps and people", "Språk, väder, scener, appar och personer");
+        sv("Wi-Fi, picture, sound and the rest of the TV", "Wi-Fi, bild, ljud och resten av TV:n");
+        sv("Sleep timer", "Insomningstimer");
+        sv("Sleep Timer", "Insomningstimer");
+        sv("Turn the TV off after", "Stäng av TV:n efter");
+        sv("Off", "Av");
+        sv("On", "På");
+        sv("Search", "Sök");
+        sv("Refresh", "Uppdatera");
+        sv("Cancel", "Avbryt");
+        sv("Next", "Nästa");
+        sv("Continue", "Fortsätt");
+        sv("Get Started", "Kom igång");
+        sv("Skip Setup", "Hoppa över inställning");
+        sv("Select your language to begin", "Välj ditt språk för att börja");
+        sv("Let’s set up tvOS Launcher.", "Låt oss ställa in tvOS Launcher.");
+        sv("Choose a look", "Välj ett utseende");
+        sv("Choose how you want your Home Screen to look.", "Välj hur du vill att hemskärmen ska se ut.");
+        sv("Choose Your Scenes", "Välj dina scener");
+        sv("Choose which scenes take turns behind the glass clock.", "Välj vilka scener som turas om bakom glasklockan.");
+        sv("Choose a Background", "Välj en bakgrund");
+        sv("Choose a photo or ambient colour theme behind your apps.", "Välj ett foto eller ett färgtema bakom dina appar.");
+        sv("Use My Location", "Använd min plats");
+        sv("Choose a City…", "Välj en stad…");
+        sv("Search by name", "Sök efter namn");
+        sv("Don't Show Weather", "Visa inte väder");
+        sv("Finish Setting Up", "Slutför inställning");
+        sv("Automatic Setup", "Automatisk inställning");
+        sv("Choose how to grant permissions", "Välj hur behörigheter ska ges");
+        sv("Easy Setup (Automatic via ADB)", "Enkel inställning (automatiskt via ADB)");
+        sv("Grants all required permissions automatically at once", "Ger alla nödvändiga behörigheter automatiskt på en gång");
+        sv("Manual Setup", "Manuell inställning");
+        sv("Manual Permissions", "Manuella behörigheter");
+        sv("Grant permissions one by one manually", "Ge behörigheter en efter en manuellt");
+        sv("Enable ADB Debugging", "Aktivera ADB-felsökning");
+        sv("Grant Permissions Now", "Ge behörigheter nu");
+        sv("Switch to Manual Setup", "Byt till manuell inställning");
+        sv("Make tvOS Launcher the Home Screen", "Gör tvOS Launcher till hemskärm");
+        sv("Button Mapper & Control Panel", "Knappmappare och kontrollpanel");
+        sv("Active in Accessibility", "Aktiv i Tillgänglighet");
+        sv("Enable in Accessibility so remapped buttons work in all apps", "Aktivera i Tillgänglighet så att omprogrammerade knappar fungerar i alla appar");
+        sv("Setup Complete", "Inställning klar");
+        sv("You're All Set", "Allt är klart");
+        sv("Go to Home Screen", "Gå till hemskärmen");
+        sv("Save", "Spara");
+        sv("Reset", "Återställ");
+        sv("Close", "Stäng");
+        sv("Close All", "Stäng alla");
+        sv("Done", "Klar");
+
+        // Weather & Location page
+        sv("WEATHER", "VÄDER");
+        sv("LOCATION", "PLATS");
+        sv("Weather on the home screen", "Väder på hemskärmen");
+        sv("Temperature", "Temperatur");
+        sv("Update every", "Uppdatera var");
+        sv(" minutes", " minut");
+        sv("Weather source", "Väderkälla");
+        sv("Weather from", "Väder från");
+        sv("Free forecast service, no account needed", "Gratis vädertjänst, inget konto behövs");
+        sv("Current place", "Nuvarande plats");
+        sv("Automatic (from internet)", "Automatisk (från internet)");
+        sv("Set manually", "Angiven manuellt");
+        sv("Detected automatically", "Identifierad automatiskt");
+        sv("Search for a city or town…", "Sök efter en stad eller ort…");
+        sv("Use automatic location", "Använd automatisk plats");
+        sv("Used for the weather on the home screen and local headlines.", "Används för vädret på hemskärmen och lokala nyheter.");
+
+        // Control Panel & Recent Apps & Button Mapper & Advanced & About
+        sv("Connected", "Ansluten");
+        sv("Settings ›", "Inställningar ›");
+        sv("Accessories", "Tillbehör");
+        sv("Memory", "Minne");
+        sv("Clean", "Rensa");
+        sv("Cleaned · ", "Rensat · ");
+        sv(" free", " ledigt");
+        sv("Do Not Disturb", "Stör ej");
+        sv("Audio", "Ljud");
+        sv("Sound", "Ljud");
+        sv("Output", "Utgång");
+        sv("Ambient Mode", "Viloläge");
+        sv("Screensaver", "Skärmsläckare");
+        sv("Power Off", "Stäng av");
+        sv("Sleep", "Vila");
+        sv("Grant ›", "Tillåt ›");
+        sv("No recent apps", "Inga senaste appar");
+        sv("Recent Apps", "Senaste appar");
+        sv("Recent Apps Switcher", "Senaste appväxlare");
+        sv("Recent Apps Switcher (Overlay)", "Senaste appväxlare (överlägg)");
+        sv("No recent apps yet", "Inga senaste appar ännu");
+        sv("Press ▲ on an app to close it", "Tryck ▲ på en app för att stänga den");
+        sv("Up and down to move, OK when done", "Upp och ner för att flytta, OK när du är klar");
+        sv("Up and down to browse, OK to change, Back to close", "Upp och ner för att bläddra, OK för att ändra, Tillbaka för att stänga");
+        sv("OK to change, hold OK to move, Back to go back", "OK för att ändra, håll in OK för att flytta, Tillbaka för att gå tillbaka");
+        sv("OK to change, Back to go back", "OK för att ändra, Tillbaka för att gå tillbaka");
+        sv("OK to open  ·  Hold OK to restore  ·  Back to go back", "OK för att öppna  ·  Håll in OK för att återställa  ·  Tillbaka");
+        sv("Changes the words on the home screen, date, weather and settings.", "Ändrar språket på hemskärmen, datum, väder och inställningar.");
+        sv("Active", "Aktiv");
+        sv("Switch", "Byt");
+        sv("PROFILES", "PROFILER");
+        sv("+ Add a person", "+ Lägg till en person");
+        sv("Add a person", "Lägg till en person");
+        sv("Each person gets their own pinned apps and Continue Watching list.", "Varje person får sina egna fästa appar och Fortsätt titta-lista.");
+        sv("Rename…", "Byt namn…");
+        sv("Avatar color…", "Avatarfärg…");
+        sv("Delete profile", "Ta bort profil");
+        sv("None", "Ingen");
+        sv("None (Clear action)", "Ingen (rensa åtgärd)");
+        sv("Single Tap (1x)", "Enkeltryck (1x)");
+        sv("Double Tap (2x)", "Dubbeltryck (2x)");
+        sv("Triple Tap (3x)", "Trippeltryck (3x)");
+        sv("ACCESSIBILITY SERVICE", "TILLGÄNGLIGHETSTJÄNST");
+        sv("Button Mapper service", "Knappmappartjänst");
+        sv("Enable in Accessibility…", "Aktivera i Tillgänglighet…");
+        sv("REMAPPED BUTTONS", "OMPROGRAMMERADE KNAPPAR");
+        sv("+ Add new button to remap", "+ Lägg till ny knapp att mappa");
+        sv("Listen for a remote key press", "Lyssna efter ett knapptryck på fjärrkontrollen");
+        sv("REMOTE FIXES", "FJÄRRKONTROLLFIXAR");
+        sv("Long-press volume button fix", "Fix för långt tryck på volymknappen");
+        sv("Clear all button mappings", "Rensa alla knappmappningar");
+        sv("ADB & PERMISSIONS", "ADB OCH BEHÖRIGHETER");
+        sv("ADB connection status", "ADB-anslutningsstatus");
+        sv("Pair / Repair ADB connection", "Parkoppla / reparera ADB-anslutning");
+        sv("Check permissions", "Kontrollera behörigheter");
+        sv("Check Permissions", "Kontrollera behörigheter");
+        sv("Grant All via ADB", "Ge alla via ADB");
+        sv("Repair", "Reparera");
+        sv("Pair now", "Parkoppla nu");
+        sv("Paired & Ready", "Parkopplad och redo");
+        sv("Not paired (ADB off)", "Inte parkopplad (ADB av)");
+        sv("active", "aktiva");
+        sv("KEEP ALIVE", "KEEP ALIVE (AUTOMATISK REPARATION)");
+        sv("Keep Alive (Auto-repair permissions)", "Keep Alive (reparera behörigheter automatiskt)");
+        sv("CLEANYOURTV (BETA)", "CLEANYOURTV (BETA)");
+        sv("Choose TV model", "Välj TV-modell");
+        sv("Debloat status", "Debloat-status");
+        sv("Debloat TV…", "Rensa TV (Debloat)…");
+        sv("Start ›", "Starta ›");
+        sv("Disabled apps backup", "Säkerhetskopia av inaktiverade appar");
+        sv("Restore debloated apps…", "Återställ inaktiverade appar…");
+        sv("Restore ›", "Återställ ›");
+        sv("Ad-blocking Private DNS (AdGuard)", "Annonsblockerande privat DNS (AdGuard)");
+        sv("APPLICATION", "APPLIKATION");
+        sv("Home screen", "Hemskärm");
+        sv("Developer", "Utvecklare");
+        sv("Version", "Version");
+        sv("Settings kept", "Inställningar sparas");
+        sv("On this TV", "På denna TV");
+        sv("RESET", "ÅTERSTÄLL");
+        sv("Reset settings to defaults", "Återställ inställningar till standard");
+        sv("Reset settings?", "Återställa inställningar?");
+        sv("This resets look, scenes, clock and language settings back to defaults.", "Detta återställer utseende, scener, klocka och språk till standardvärden.");
+        sv("Custom 2", "Anpassad 2");
+        sv("Custom 3", "Anpassad 3");
+        sv("Custom 4", "Anpassad 4");
+        sv("Custom 5", "Anpassad 5");
+        sv("App Icon Editor", "Appikonredigerare");
+        sv("Preview", "Förhandsgranskning");
+        sv("Background color", "Bakgrundsfärg");
+        sv("Zoom", "Zoom");
+        sv("Zoom in", "Zooma in");
+        sv("Zoom out", "Zooma ut");
+        sv("Move icon", "Flytta ikon");
+        sv("Up", "Upp");
+        sv("Down", "Ner");
+        sv("Apply", "Tillämpa");
+        sv("Auto", "Auto");
+        sv("Dark", "Mörk");
+        sv("Black", "Svart");
+        sv("White", "Vit");
+        sv("Gray", "Grå");
+        sv("Red", "Röd");
+        sv("Orange", "Orange");
+        sv("Yellow", "Gul");
+        sv("Green", "Grön");
+        sv("Teal", "Turkos");
+        sv("Blue", "Blå");
+        sv("Indigo", "Indigo");
+        sv("Purple", "Lila");
+        sv("Pink", "Rosa");
     }
 
     private I18n() { }
@@ -540,6 +933,7 @@ public final class I18n {
     public static Locale locale(Context c) {
         switch (getLang(c)) {
             case LANG_TR: return Locale.forLanguageTag("tr-TR");
+            case LANG_SV: return Locale.forLanguageTag("sv-SE");
             case LANG_HI: return Locale.forLanguageTag("hi-IN");
             case LANG_ES: return Locale.forLanguageTag("es-ES");
             case LANG_FR: return Locale.forLanguageTag("fr-FR");
@@ -627,6 +1021,7 @@ public final class I18n {
                 return new SimpleDateFormat("M月d日 EEEE", loc).format(date);
             case LANG_DE:
                 return new SimpleDateFormat("EEEE, d. MMMM", loc).format(date);
+            case LANG_SV:
             case LANG_ES:
             case LANG_FR:
             case LANG_IT:

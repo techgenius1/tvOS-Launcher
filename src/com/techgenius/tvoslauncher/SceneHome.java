@@ -885,8 +885,9 @@ final class SceneHome {
             bg.setColor(0x1EFFFFFF);
             bg.setStroke(Math.max(1, dp(0.8f)), 0x24FFFFFF);
         } else {
+            boolean hasCustom = CustomMedia.hasCustomAppIcon(host, a.key, a.pkg);
             Bitmap logo = getSquareAppLogo(a.pkg);
-            bg.setColor(logo != null ? 0xFF141519 : (a.color != 0 ? a.color : 0xFF1A1C22));
+            bg.setColor((hasCustom || logo != null) ? 0xFF141519 : (a.color != 0 ? a.color : 0xFF1A1C22));
         }
         tile.setBackground(bg);
         tile.setOutlineProvider(host.roundedOutline(new float[]{rad}));
@@ -904,13 +905,16 @@ final class SceneHome {
             iv.setImageBitmap(Glyphs.get("more", dp(26), 0xEBF4F4F6));
             tile.addView(iv, host.match());
         } else {
+            boolean hasCustom = CustomMedia.hasCustomAppIcon(host, a.key, a.pkg);
             Bitmap sq = getSquareAppIcon(a);
             if (sq != null) {
                 iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 iv.setImageBitmap(sq);
-                // Zoom app icon slightly (+5% / ~1-2px per side) for full edge-to-edge infill
-                iv.setScaleX(1.05f);
-                iv.setScaleY(1.05f);
+                // Custom icons from App Icon Editor already match the exact preview bounds (1.0f);
+                // built-in app icons zoom slightly (+5%) for edge-to-edge infill
+                float z = hasCustom ? 1.0f : 1.05f;
+                iv.setScaleX(z);
+                iv.setScaleY(z);
                 tile.addView(iv, host.match());
             } else if (a.icon != null) {
                 iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -1044,6 +1048,16 @@ final class SceneHome {
             }
         }));
 
+        labels.add(I18n.s(host, "Change app icon", "Uygulama simgesini değiştir"));
+        actions.add(() -> host.promptChangeAppIcon(a, () -> {
+            invalidateAppLogoCache(a);
+            host.loadApps();
+            host.buildGrid();
+            rebuildDock();
+            int targetIdx = Math.min(index, Math.max(0, dockTiles.size() - 1));
+            focusDock(targetIdx);
+        }));
+
         boolean inOtherApps = host.otherApps.contains(a) || (moreExpanded && index >= 10);
         if (!host.isSettings(a)) {
             if (inOtherApps) {
@@ -1151,8 +1165,26 @@ final class SceneHome {
         dockTiles.get(clamped).requestFocus();
     }
 
+    void invalidateAppLogoCache(MainActivity.AppEntry a) {
+        if (a == null) {
+            logoCache.clear();
+            return;
+        }
+        if (a.key != null) logoCache.remove(a.key);
+        if (a.pkg != null) logoCache.remove(a.pkg);
+    }
+
     Bitmap getSquareAppIcon(MainActivity.AppEntry a) {
         if (a == null) return null;
+        if (CustomMedia.hasCustomAppIcon(host, a.key, a.pkg)) {
+            Bitmap custom = CustomMedia.getCustomAppIcon(host, a.key, a.pkg);
+            if (custom != null && !custom.isRecycled()) {
+                if ((custom.getPixel(0, 0) >>> 24) == 255) {
+                    return Bitmap.createScaledBitmap(custom, 256, 256, true);
+                }
+                return CustomMedia.prepareFullBleedAppIcon(custom, 256, 256);
+            }
+        }
         String cacheKey = a.key != null ? a.key : a.pkg;
         if (cacheKey != null && logoCache.containsKey(cacheKey)) {
             return logoCache.get(cacheKey);

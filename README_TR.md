@@ -1,23 +1,28 @@
-# tvOS Launcher (`v2.0.2`)
+# tvOS Launcher (`v2.0.3`)
 
 > 🇬🇧 **For English documentation and setup guide:** **[README.md (English)](README.md)**  
-> 📦 **En Son APK İndir (`v2.0.2`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **En Son APK İndir (`v2.0.3`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Afiş](screenshots_tr/Header_TR.jpg)
 
-Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlarda bile 60 FPS akıcılık sunarken; **macOS Liquid Glass Dock**, dönüşümlü **Gece Sahneleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli)**, **Evrensel Denetim Paneli**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı**, **Keep Alive otomatik izin onarımı** ve **tek tıkla Yerel ADB kurulumu** özelliklerini bir araya getirir.
+Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlarda bile 60 FPS akıcılık sunarken; **macOS Liquid Glass Dock**, dönüşümlü **Gece Sahneleri**, **Özel Duvar Kağıtları (`Özel 1..5`)**, **Uygulama Simgesi Değiştirici ve Simge Düzenleyici**, **Otomatik GitHub Uygulama Güncellemeleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli)**, **Evrensel Denetim Paneli**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı**, **Keep Alive otomatik izin onarımı** ve **tek tıkla Yerel ADB kurulumu** özelliklerini bir araya getirir.
 
 ---
 
 ## ✨ Öne Çıkan Özellikler
 
-- **Çift Görünüm Modu (`Gece Sahneleri` & `Klasik`)**
-  - **Gece Sahneleri (Night Scenes)**: Dağ ve manzara katmanlarının arkasında duran dev cam saat (*iPhone Duo*, *iPhone Rounded*, *Tall Glass*), derinlikli arka plan sahneleri (*Gece*, *Altın Saat*, *Su Çizgisi*, *Sis*, *Yağmur Ormanı Şafağı*; varsayılan 60 sn geçiş süresi), kişisel karşılama mesajı, tarih, canlı hava durumu ve dinamik boyutlanan **macOS Liquid Glass Dock**.
+- **Çift Görünüm Modu (`Gece Sahneleri` & `Klasik`) + Özel Duvar Kağıtları**
+  - **Gece Sahneleri (Night Scenes)**: Dağ ve manzara katmanlarının arkasında duran dev cam saat (*iPhone Duo*, *iPhone Rounded*, *Tall Glass*), derinlikli arka plan sahneleri (*Gece*, *Altın Saat*, *Su Çizgisi*, *Sis*, *Yağmur Ormanı Şafağı* ve **Sol / Orta / Sağ Saat Konumu** seçilebilen **5 adede kadar Özel Sahne Duvar Kağıdı**), kişisel karşılama mesajı, tarih, canlı hava durumu ve dinamik boyutlanan **macOS Liquid Glass Dock**.
+  - **Uygulama Simgesi Değiştirici & Simge Düzenleyici (`JPG / PNG / ICO`)**:
+    - Dock veya ızgara üzerindeki herhangi bir uygulamaya **OK** tuşuyla basılı tutup **Uygulama simgesini değiştir** seçeneğiyle dahili depolama veya USB bellekten `.jpg`, `.jpeg`, `.png` ya da `.ico` dosyası seçebilirsiniz.
+    - Dahili **Uygulama Simgesi Düzenleyici** ile canlı önizleme, **14 arka plan rengi** (otomatik kenar rengi algılama dahil), **Yakınlaştırma / Uzaklaştırma** ve **Sol / Sağ / Yukarı / Aşağı** hizalama ayarlarını anında yapabilirsiniz.
   - **Uygulama Yeniden Adlandırma, Diğer Uygulamalar & Gizlenen Uygulamalar Ayrımı**:
-    - Dock üzerindeki herhangi bir uygulamaya **OK** tuşuyla basılı tutarak **Yeniden Adlandır**, **Taşı**, **Diğer Uygulamalara Taşı**, **Gizle**, **Uygulama Bilgisi**, **Kaldır** veya **Düzeni Sıfırla** seçeneklerini kullanabilirsiniz.
+    - Dock üzerindeki herhangi bir uygulamaya **OK** tuşuyla basılı tutarak **Yeniden Adlandır**, **Uygulama simgesini değiştir**, **Taşı**, **Diğer Uygulamalara Taşı**, **Gizle**, **Uygulama Bilgisi**, **Kaldır** veya **Düzeni Sıfırla** seçeneklerini kullanabilirsiniz.
     - **Diğer Uygulamalara Taşı**: Uygulamayı ilk dock satırından kaldırır ancak dock'taki **`...` (Diğer uygulamalar)** butonunun içinde tek tıkla erişilebilir tutar.
     - **Gizlenen Uygulamalar (`Ayarlar → Uygulamalar → Gizlenen uygulamalar`)**: Uygulamayı hem ana dock satırından hem de Diğer Uygulamalar menüsünden tamamen gizler. **Ayarlar → Uygulamalar → Gizlenen uygulamalar** menüsünden gizlenen bir uygulamanın üzerine **OK** ile basarak doğrudan açabilir veya **OK tuşuna basılı tutarak** ana ekrana geri yükleyebilirsiniz.
-  - **Klasik (Classic)**: 6 sütunlu uygulama afiş ızgarası, ortalanmış cam dock, **Diğer Uygulamalar** klasör kutucuğu, özel fotoğraf veya ortam rengi arka planları ve isteğe bağlı Üst Raf (Top Shelf).
+  - **Klasik (Classic)**: 6 sütunlu uygulama afiş ızgarası, ortalanmış cam dock, **Diğer Uygulamalar** klasör kutucuğu, yerleşik fotoğraflar, ortam rengi temaları veya kendi **Özel Duvar Kağıdınız** ve isteğe bağlı Üst Raf (Top Shelf).
+- **Otomatik ve Manuel GitHub Güncellemeleri (`Ayarlar → Güncellemeler`)**
+  - Hakkında menüsünün hemen üzerinde yer alan **Güncellemeler** menüsü ile mevcut sürümü ve GitHub üzerindeki en son sürümü görüntüleyebilir, tek tıkla güncelleme kontrolü yapabilir veya **Otomatik güncellemeler** seçeneğini açıp kapatabilirsiniz.
 - **CleanYourTV (Beta) — Bilgisayar Gerektirmeyen Dahili Android TV Debloat Aracı (`Ayarlar → Gelişmiş`)**
   - **[CleanYourTV](https://github.com/Gathin23/cleanyourtv)** debloat profillerini **Yerel ADB (`127.0.0.1:5555`)** üzerinden doğrudan TV'nizde çalıştırır — **bilgisayar veya harici CLI gerektirmez**.
   - **341 Gömülü TV & Box Profili**: *TCL, Sony, Xiaomi, Hisense, Philips, Skyworth, OnePlus, Realme, Nvidia Shield, Motorola, Toshiba, Sharp, Onn, Chromecast with Google TV* ve daha fazlası.
@@ -38,8 +43,8 @@ Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zaman
 - **Yerel ADB ile Kolay Kurulum & Keep Alive Otomatik İzin Onarımı**
   - **Kolay Kurulum (ADB ile Otomatik)** `127.0.0.1:5555` üzerinden bağlanarak Varsayılan Ana Ekran, Erişilebilirlik Servisi, Cihaz Yöneticisi, Bildirim Erişimi ve Kullanım İzinlerini tek tıkla verir.
   - **Keep Alive (Varsayılan Açık)**: Arka planda sıfır ek CPU/RAM yüküyle izinleri kontrol eder ve TV yazılımı Erişilebilirlik iznini kapatırsa Yerel ADB üzerinden otomatik olarak onarır.
-- **12 Dil Desteği**
-  - **Türkçe, İngilizce, Almanca, Fransızca, İspanyolca, İtalyanca, Rusça, Portekizce, Arapça, Hintçe, Japonca ve Çince** dillerinde tam yerelleştirilmiş arayüz.
+- **13 Dil Desteği**
+  - **Türkçe, İngilizce, İsveççe, Almanca, Fransızca, İspanyolca, İtalyanca, Rusça, Portekizce, Arapça, Hintçe, Japonca ve Çince** dillerinde tam yerelleştirilmiş arayüz.
 - **Çoklu Kullanıcı Profilleri & Canlı Hava Durumu**
   - Her biri kendi uygulama sırasına, gizli uygulamalarına ve İzlemeye Devam Et listesine sahip 3'e kadar kullanıcı profili ve API anahtarı gerektirmeyen 5 günlük hava durumu tahmini.
 

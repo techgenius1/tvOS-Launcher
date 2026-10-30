@@ -1,23 +1,28 @@
-# tvOS Launcher (`v2.0.2`)
+# tvOS Launcher (`v2.0.3`)
 
 > 🇹🇷 **Türkçe dokümantasyon ve kurulum rehberi için:** **[README_TR.md (Türkçe)](README_TR.md)**  
-> 📦 **Download Latest APK (`v2.0.2`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **Download Latest APK (`v2.0.3`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Header](screenshots_en/Header_EN.jpg)
 
-A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Google TV — built in pure Java with zero third-party runtime dependencies (**~30 MB private RAM / ~38 MB total PSS, `0.0%` background CPU**). Designed to stay buttery-smooth even on 1 GB RAM TV boxes while bringing a **Liquid Glass Dock**, rotating **Night Scenes**, a **built-in PC-free CleanYourTV Debloater (341 TV models)**, a **Universal Control Panel overlay**, a **Recent Apps Switcher**, **multi-tap (`1x / 2x / 3x`) Remote Button Remapping**, **Keep Alive auto-permission repair**, and **one-tap Local ADB setup** to any Android TV.
+A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Google TV — built in pure Java with zero third-party runtime dependencies (**~30 MB private RAM / ~38 MB total PSS, `0.0%` background CPU**). Designed to stay buttery-smooth even on 1 GB RAM TV boxes while bringing a **Liquid Glass Dock**, rotating **Night Scenes**, **Custom Wallpapers (`Custom 1..5`)**, an **App Icon Changer & Interactive Icon Editor**, **Automatic GitHub App Updates**, a **built-in PC-free CleanYourTV Debloater (341 TV models)**, a **Universal Control Panel overlay**, a **Recent Apps Switcher**, **multi-tap (`1x / 2x / 3x`) Remote Button Remapping**, **Keep Alive auto-permission repair**, and **one-tap Local ADB setup** to any Android TV.
 
 ---
 
 ## ✨ Highlights & Features
 
-- **Dual Appearance Modes (`Night Scenes` & `Classic`)**
-  - **Night Scenes**: Layered foreground/background depth scenes (*Night*, *Golden Hour*, *Waterline*, *Fog*, *Rainforest Dawn*, 60s default rotation) with a giant glass clock (*iPhone Duo*, *iPhone Rounded*, *Tall Glass*) behind the mountain/landscape foreground, personalized greeting, date, live weather, and a macOS-inspired dynamically resizing **Liquid Glass Dock** with floating app name callouts.
+- **Dual Appearance Modes (`Night Scenes` & `Classic`) + Custom Wallpapers**
+  - **Night Scenes**: Layered foreground/background depth scenes (*Night*, *Golden Hour*, *Waterline*, *Fog*, *Rainforest Dawn*, plus up to **5 Custom Wallpapers** with configurable **Clock Position: Left / Center / Right**) with a giant glass clock (*iPhone Duo*, *iPhone Rounded*, *Tall Glass*), personalized greeting, date, live weather, and a macOS-inspired dynamically resizing **Liquid Glass Dock** with floating app name callouts.
+  - **App Icon Changer & Interactive Icon Editor (`JPG / PNG / ICO`)**:
+    - Hold **OK** on any app in the dock or grid and choose **Change app icon** to pick any `.jpg`, `.jpeg`, `.png`, or Windows `.ico` file from internal storage or USB drives.
+    - Includes a built-in **App Icon Editor** with a live rounded-square preview, **14 background color options** (including auto edge-color sampling), **Zoom In / Out**, and **Left / Right / Up / Down** positioning.
   - **Custom App Renaming, Other Apps & Hidden Apps Vault**:
-    - Hold **OK** on any app in the dock to **Rename**, **Move**, **Move to Other Apps**, **Hide**, view **App Info**, **Uninstall**, or **Reset Layout**.
+    - Hold **OK** on any app in the dock to **Rename**, **Change app icon**, **Move**, **Move to Other Apps**, **Hide**, view **App Info**, **Uninstall**, or **Reset Layout**.
     - **Move to Other Apps**: Removes the app from the first dock row while keeping it one click away inside the **Other apps (`...`)** button in the dock.
     - **Hidden Apps (`Settings → Apps → Hidden apps`)**: Completely hides the app from both the main dock and Other Apps. Inside **Settings → Apps → Hidden apps**, press **OK** on a hidden app to launch it directly, or **Hold OK** to restore it back to the Home Screen.
-  - **Classic**: Clean 6-column app banner grid with a dynamically centered glass dock, an **Other Apps** folder tile, custom photography or ambient color backdrops, and an optional Top Shelf.
+  - **Classic**: Clean 6-column app banner grid with a dynamically centered glass dock, an **Other Apps** folder tile, built-in photography, ambient color backdrops, or your own **Custom Wallpaper**, and an optional Top Shelf.
+- **Automatic & Manual GitHub Updates (`Settings → Updates`)**
+  - Built-in updater right above the About menu that checks GitHub Releases for new versions, shows current vs. latest release info, supports one-tap **Check for updates**, and includes an **Automatic updates** toggle.
 - **CleanYourTV (Beta) — Built-In PC-Free Android TV Debloater (`Settings → Advanced`)**
   - Runs **[CleanYourTV](https://github.com/Gathin23/cleanyourtv)** debloat profiles directly on your TV over Local ADB (`127.0.0.1:5555`) — **no PC or external CLI required**.
   - **341 Bundled TV & Box Profiles**: Covers *TCL, Sony, Xiaomi, Hisense, Philips, Skyworth, OnePlus, Realme, Nvidia Shield, Motorola, Toshiba, Sharp, Onn, Chromecast with Google TV*, and more.
@@ -39,8 +44,8 @@ A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Goo
 - **Easy Setup via Local ADB & Keep Alive Auto-Repair**
   - **Easy Setup (Auto via Local ADB)** connects to `127.0.0.1:5555` to automatically grant Default Home, Accessibility Service, Device Admin, Notification Listener, Usage Stats, `WRITE_SECURE_SETTINGS`, and Background Activity Launch permissions in one click.
   - **Keep Alive (On by default)**: Lightly monitors permission status in the background with zero extra RAM/CPU load and automatically restores Accessibility or other permissions via Local ADB if the TV firmware disables them.
-- **12 Supported Languages**
-  - Fully localized UI across **English, Turkish, Hindi, Spanish, French, German, Italian, Russian, Portuguese, Arabic, Japanese, and Chinese**.
+- **13 Supported Languages**
+  - Fully localized UI across **English, Turkish, Swedish, Hindi, Spanish, French, German, Italian, Russian, Portuguese, Arabic, Japanese, and Chinese**.
 - **Multi-User Profiles & Live Weather**
   - Up to 3 profiles, each with its own app order, hidden apps, and Continue Watching list.
   - Free 5-day weather forecast via Open-Meteo, MET Norway, or wttr.in (no API key required).
