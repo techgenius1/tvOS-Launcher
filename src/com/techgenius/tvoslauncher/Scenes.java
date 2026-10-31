@@ -382,6 +382,15 @@ public final class Scenes {
         return next;
     }
 
+    /** The small app-name bubble above the focused Night Scenes dock icon. On by default. */
+    public static boolean isDockNamesShown(Context c) {
+        return prefs(c).getBoolean("dock_names", true);
+    }
+
+    public static void setDockNamesShown(Context c, boolean shown) {
+        prefs(c).edit().putBoolean("dock_names", shown).apply();
+    }
+
     public static boolean isClock24h(Context c) {
         return prefs(c).getBoolean("clock_24h", false);
     }
