@@ -832,6 +832,12 @@ public class SettingsActivity extends Activity {
             row(tr("Dock size", "Dock boyutu"),
                     () -> Scenes.dockScaleLabel(this),
                     () -> openSubMenu("dock_size"));
+            row(tr("Show app names", "Uygulama adlarını göster"),
+                    () -> Scenes.isDockNamesShown(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        Scenes.setDockNamesShown(this, !Scenes.isDockNamesShown(this));
+                        refreshAll();
+                    });
         }
 
         section(tr("LOOK", "GÖRÜNÜM"));
@@ -947,6 +953,12 @@ public class SettingsActivity extends Activity {
                 () -> {
                     boolean on = !Profiles.homePrefs(this).getBoolean("cw_enabled", false);
                     Profiles.homePrefs(this).edit().putBoolean("cw_enabled", on).apply();
+                });
+        row(tr("Nuvio Continue Watching on dock", "Dock'ta Nuvio İzlemeye Devam Et"),
+                () -> NuvioPopup.isEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    NuvioPopup.setEnabled(this, !NuvioPopup.isEnabled(this));
+                    refreshAll();
                 });
         row(tr("Classic Top Shelf suggestions", "Klasik Üst Raf önerileri"), () -> {
             switch (Suggestions.shelf(this)) {
