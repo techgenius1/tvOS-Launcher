@@ -42,6 +42,9 @@ public final class Scenes {
     public static final String CUSTOM_ID = "custom";
     public static final int MAX_CUSTOM_SCENES = 5;
     public static final String[] CUSTOM_IDS = {"custom", "custom_2", "custom_3", "custom_4", "custom_5"};
+    public static final String FOLDER_SHUFFLE_ID = "folder_shuffle";
+    public static final String LOCK_CUSTOM_ID = "lock_custom";
+    public static final String LOCK_FOLDER_SHUFFLE_ID = "lock_folder_shuffle";
 
     public static final String CLOCK_POS_LEFT = "left";
     public static final String CLOCK_POS_CENTER = "center";
@@ -54,6 +57,7 @@ public final class Scenes {
     public static final String[] CLOCK_STYLES = {CLOCK_STYLE_DUO, CLOCK_STYLE_ROUNDED, CLOCK_STYLE_TALL};
 
     public static final int[] STAY_OPTIONS = {10, 15, 20, 30, 45, 60, 120};
+    public static final int[] LOCK_IDLE_OPTIONS = {0, 2, 5, 10, 15, 30, 60};
 
     public static final class Spec {
         public final String id;
@@ -142,6 +146,35 @@ public final class Scenes {
         new Spec("custom_5", "Custom 5", "Özel 5", null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false)
     };
 
+    public static final Spec FOLDER_SHUFFLE_SPEC = new Spec(
+            FOLDER_SHUFFLE_ID, "Folder Shuffle", "Klasör Karıştırma",
+            null, null, null,
+            false, false, false,
+            68f, 190f, 48f,
+            45f, 52f, false);
+
+    public static final Spec LOCK_CUSTOM_SPEC = new Spec(
+            LOCK_CUSTOM_ID, "Custom Lock Image", "Özel Kilit Görseli",
+            null, null, null,
+            false, false, false,
+            68f, 190f, 48f,
+            45f, 52f, false);
+
+    public static final Spec LOCK_FOLDER_SHUFFLE_SPEC = new Spec(
+            LOCK_FOLDER_SHUFFLE_ID, "Folder Shuffle", "Klasör Karıştırma",
+            null, null, null,
+            false, false, false,
+            68f, 190f, 48f,
+            45f, 52f, false);
+
+    public static final String[][] CLASSIC_GRADIENTS = {
+        {"grad:aurora", "Aurora", "Kuzey Işığı"},
+        {"grad:midnight", "Midnight", "Gece Yarısı"},
+        {"grad:ocean", "Ocean", "Okyanus"},
+        {"grad:sunset", "Sunset", "Gün Batımı"},
+        {"grad:graphite", "Graphite", "Grafit"}
+    };
+
     public static String customId(int slot) {
         int s = Math.max(1, Math.min(MAX_CUSTOM_SCENES, slot));
         return CUSTOM_IDS[s - 1];
@@ -156,7 +189,20 @@ public final class Scenes {
     }
 
     public static boolean isCustomId(String id) {
-        return customSlotFromId(id) > 0;
+        if (id == null) return false;
+        String base = baseSceneId(id);
+        return customSlotFromId(base) > 0
+                || FOLDER_SHUFFLE_ID.equals(base)
+                || LOCK_CUSTOM_ID.equals(base)
+                || LOCK_FOLDER_SHUFFLE_ID.equals(base)
+                || base.startsWith("photo:")
+                || base.startsWith("grad:");
+    }
+
+    public static String baseSceneId(String id) {
+        if (id == null) return "";
+        int hash = id.indexOf('#');
+        return hash >= 0 ? id.substring(0, hash) : id;
     }
 
     public static final String[][] CLASSIC_PHOTOS = {
@@ -169,13 +215,55 @@ public final class Scenes {
 
     private Scenes() { }
 
-    public static Spec byId(String id) {
+    public static Spec byId(String rawId) {
+        String id = baseSceneId(rawId);
         int cSlot = customSlotFromId(id);
         if (cSlot > 0) return CUSTOM_SPECS[cSlot - 1];
+        if (FOLDER_SHUFFLE_ID.equals(id)) return FOLDER_SHUFFLE_SPEC;
+        if (LOCK_CUSTOM_ID.equals(id)) return LOCK_CUSTOM_SPEC;
+        if (LOCK_FOLDER_SHUFFLE_ID.equals(id)) return LOCK_FOLDER_SHUFFLE_SPEC;
+        if (id.startsWith("photo:")) {
+            String file = id.substring("photo:".length());
+            for (String[] row : CLASSIC_PHOTOS) {
+                if (row[0].equals(file)) {
+                    return new Spec(id, row[1], row[2], "backgrounds/" + file, null, null,
+                            false, false, false, 68f, 190f, 48f, 45f, 52f, false);
+                }
+            }
+        }
+        if (id.startsWith("grad:")) {
+            for (String[] row : CLASSIC_GRADIENTS) {
+                if (row[0].equals(id)) {
+                    return new Spec(id, row[1], row[2], null, null, null,
+                            false, false, false, 68f, 190f, 48f, 45f, 52f, false);
+                }
+            }
+        }
         for (Spec s : ALL) {
             if (s.id.equals(id)) return s;
         }
         return ALL[0];
+    }
+
+    public static Bitmap createGradientBitmap(String gradId, int w, int h) {
+        int[] cols;
+        if ("grad:midnight".equals(gradId)) {
+            cols = new int[]{0xFF07080F, 0xFF0E1326, 0xFF06070B};
+        } else if ("grad:ocean".equals(gradId)) {
+            cols = new int[]{0xFF051824, 0xFF0B354D, 0xFF071B2B};
+        } else if ("grad:sunset".equals(gradId)) {
+            cols = new int[]{0xFF230E24, 0xFF3E1828, 0xFF150E1E};
+        } else if ("grad:graphite".equals(gradId)) {
+            cols = new int[]{0xFF141519, 0xFF22242B, 0xFF0D0E11};
+        } else {
+            cols = new int[]{0xFF0E1629, 0xFF1E1535, 0xFF0B1C28};
+        }
+        Bitmap bmp = Bitmap.createBitmap(Math.max(64, w), Math.max(64, h), Bitmap.Config.ARGB_8888);
+        Canvas cv = new Canvas(bmp);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setShader(new LinearGradient(0, 0, w, h, cols, new float[]{0f, 0.52f, 1f}, Shader.TileMode.CLAMP));
+        cv.drawRect(0, 0, w, h, p);
+        return bmp;
     }
 
     private static SharedPreferences prefs(Context c) {
@@ -223,7 +311,7 @@ public final class Scenes {
     }
 
     public static List<String> getSceneOrder(Context c) {
-        String raw = prefs(c).getString("scene_order", "night,golden,water,fog,dawn,custom,custom_2,custom_3,custom_4,custom_5");
+        String raw = prefs(c).getString("scene_order", "night,golden,water,fog,dawn,custom,custom_2,custom_3,custom_4,custom_5,folder_shuffle");
         List<String> out = new ArrayList<>();
         for (String part : raw.split(",")) {
             String p = part.trim();
@@ -236,6 +324,9 @@ public final class Scenes {
         }
         for (String cid : CUSTOM_IDS) {
             if (!out.contains(cid)) out.add(cid);
+        }
+        if (!out.contains(FOLDER_SHUFFLE_ID)) {
+            out.add(FOLDER_SHUFFLE_ID);
         }
         return out;
     }
@@ -258,6 +349,9 @@ public final class Scenes {
             if (cSlot > 0 && !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) {
                 continue;
             }
+            if (FOLDER_SHUFFLE_ID.equals(p) && !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_SCENE)) {
+                continue;
+            }
             if (!p.isEmpty() && byId(p).id.equals(p) && !enabled.contains(p)) {
                 enabled.add(p);
             }
@@ -275,6 +369,7 @@ public final class Scenes {
     public static boolean isSceneEnabled(Context c, String id) {
         int cSlot = customSlotFromId(id);
         if (cSlot > 0 && !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) return false;
+        if (FOLDER_SHUFFLE_ID.equals(id) && !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_SCENE)) return false;
         return getEnabledSceneIds(c).contains(id);
     }
 
@@ -283,7 +378,24 @@ public final class Scenes {
         for (String cid : CUSTOM_IDS) {
             if (enabled.contains(cid)) return true;
         }
-        return false;
+        return enabled.contains(FOLDER_SHUFFLE_ID);
+    }
+
+    public static void enableFolderShuffleScene(Context c, boolean enable) {
+        List<String> enabled = new ArrayList<>(getEnabledSceneIds(c));
+        if (enable) {
+            if (!enabled.contains(FOLDER_SHUFFLE_ID)) enabled.add(FOLDER_SHUFFLE_ID);
+            prefs(c).edit().putString("prefer_scene_id", FOLDER_SHUFFLE_ID).apply();
+        } else {
+            if (enabled.size() <= 1 && enabled.contains(FOLDER_SHUFFLE_ID)) return;
+            enabled.remove(FOLDER_SHUFFLE_ID);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < enabled.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(enabled.get(i));
+        }
+        prefs(c).edit().putString("scene_enabled", sb.toString()).apply();
     }
 
     public static void enableCustomScene(Context c, boolean enable) {
@@ -354,6 +466,138 @@ public final class Scenes {
         }
         prefs(c).edit().putString("scene_enabled", sb.toString()).apply();
         return true;
+    }
+
+    // ─── Lock Screen Settings (Wallpapers, Clock Position, Idle Timer) ──────
+
+    public static List<String> getAllLockSceneCandidates() {
+        List<String> all = new ArrayList<>();
+        for (Spec s : ALL) all.add(s.id);
+        for (String[] row : CLASSIC_PHOTOS) all.add("photo:" + row[0]);
+        for (String[] row : CLASSIC_GRADIENTS) all.add(row[0]);
+        for (String cid : CUSTOM_IDS) all.add(cid);
+        all.add(LOCK_CUSTOM_ID);
+        all.add(LOCK_FOLDER_SHUFFLE_ID);
+        return all;
+    }
+
+    public static List<String> getEnabledLockSceneIds(Context c) {
+        String defaultLock = "night,golden,water,fog,dawn,photo:tessellated-pavement.jpg,photo:grose-valley.jpg,photo:albury-storm.jpg,photo:aresquiers-beach.jpg,photo:vang-vieng-sunset.jpg";
+        String raw = prefs(c).getString("lock_scene_enabled", defaultLock);
+        List<String> enabled = new ArrayList<>();
+        for (String part : raw.split(",")) {
+            String p = part.trim();
+            if (p.isEmpty()) continue;
+            int cSlot = customSlotFromId(p);
+            if (cSlot > 0 && !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) continue;
+            if (LOCK_CUSTOM_ID.equals(p) && !CustomMedia.hasCustomLockWallpaper(c)) continue;
+            if (LOCK_FOLDER_SHUFFLE_ID.equals(p)
+                    && !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_LOCK)) continue;
+            if (!enabled.contains(p)) {
+                enabled.add(p);
+            }
+        }
+        if (enabled.isEmpty()) enabled.add("night");
+        return enabled;
+    }
+
+    public static boolean isLockSceneEnabled(Context c, String id) {
+        int cSlot = customSlotFromId(id);
+        if (cSlot > 0 && !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) return false;
+        if (LOCK_CUSTOM_ID.equals(id) && !CustomMedia.hasCustomLockWallpaper(c)) return false;
+        if (LOCK_FOLDER_SHUFFLE_ID.equals(id)
+                && !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_LOCK)) return false;
+        return getEnabledLockSceneIds(c).contains(id);
+    }
+
+    public static boolean toggleLockScene(Context c, String id) {
+        List<String> enabled = new ArrayList<>(getEnabledLockSceneIds(c));
+        if (enabled.contains(id)) {
+            if (enabled.size() <= 1) return false;
+            enabled.remove(id);
+        } else {
+            enabled.add(id);
+        }
+        saveLockScenes(c, enabled);
+        return true;
+    }
+
+    public static void enableLockScene(Context c, String id, boolean enable) {
+        List<String> enabled = new ArrayList<>(getEnabledLockSceneIds(c));
+        if (enable) {
+            if (!enabled.contains(id)) enabled.add(id);
+            prefs(c).edit().putString("prefer_lock_scene_id", id).apply();
+        } else {
+            if (enabled.size() <= 1 && enabled.contains(id)) return;
+            enabled.remove(id);
+        }
+        saveLockScenes(c, enabled);
+    }
+
+    private static void saveLockScenes(Context c, List<String> enabled) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < enabled.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(enabled.get(i));
+        }
+        prefs(c).edit().putString("lock_scene_enabled", sb.toString()).apply();
+    }
+
+    public static String getLockClockPos(Context c) {
+        String pos = prefs(c).getString("lock_clock_pos", CLOCK_POS_CENTER);
+        if (CLOCK_POS_LEFT.equals(pos) || CLOCK_POS_RIGHT.equals(pos)) return pos;
+        return CLOCK_POS_CENTER;
+    }
+
+    public static void setLockClockPos(Context c, String pos) {
+        prefs(c).edit().putString("lock_clock_pos", pos).apply();
+    }
+
+    public static String cycleLockClockPos(Context c) {
+        String cur = getLockClockPos(c);
+        String next = CLOCK_POS_LEFT;
+        for (int i = 0; i < CLOCK_POSITIONS.length; i++) {
+            if (CLOCK_POSITIONS[i].equals(cur)) {
+                next = CLOCK_POSITIONS[(i + 1) % CLOCK_POSITIONS.length];
+                break;
+            }
+        }
+        setLockClockPos(c, next);
+        return next;
+    }
+
+    public static String lockClockPosLabel(Context c) {
+        String pos = getLockClockPos(c);
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.s(c, "Left", "Sol");
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.s(c, "Right", "Sağ");
+        return I18n.s(c, "Center", "Orta");
+    }
+
+    public static int getLockIdleMinutes(Context c) {
+        return Math.max(0, prefs(c).getInt("lock_idle_minutes", 0));
+    }
+
+    public static void setLockIdleMinutes(Context c, int minutes) {
+        prefs(c).edit().putInt("lock_idle_minutes", Math.max(0, minutes)).apply();
+    }
+
+    public static int cycleLockIdleMinutes(Context c) {
+        int cur = getLockIdleMinutes(c);
+        int next = LOCK_IDLE_OPTIONS[0];
+        for (int i = 0; i < LOCK_IDLE_OPTIONS.length; i++) {
+            if (LOCK_IDLE_OPTIONS[i] == cur) {
+                next = LOCK_IDLE_OPTIONS[(i + 1) % LOCK_IDLE_OPTIONS.length];
+                break;
+            }
+        }
+        setLockIdleMinutes(c, next);
+        return next;
+    }
+
+    public static String lockIdleLabel(Context c) {
+        int m = getLockIdleMinutes(c);
+        if (m <= 0) return I18n.s(c, "Off", "Kapalı");
+        return m + " " + I18n.s(c, "min", "dk");
     }
 
     public static int getStaySeconds(Context c) {
@@ -470,6 +714,8 @@ public final class Scenes {
         private String weatherTemp;
         private String weatherDesc;
         private int weatherCode = -1;
+        private boolean lockScreenMode = false;
+        private int folderFlipCounter = 0;
 
         private final Paint bmpPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         private final Paint shadePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -575,26 +821,45 @@ public final class Scenes {
             if (changed) invalidate();
         }
 
+        public void setLockScreenMode(boolean lockMode) {
+            if (this.lockScreenMode != lockMode) {
+                this.lockScreenMode = lockMode;
+                this.cachedFrameKey = null;
+                syncSettings();
+            }
+        }
+
+        public boolean isLockScreenMode() {
+            return lockScreenMode;
+        }
+
         public void syncSettings() {
             Context c = getContext();
-            List<String> enabled = getEnabledSceneIds(c);
+            List<String> enabled = lockScreenMode ? getEnabledLockSceneIds(c) : getEnabledSceneIds(c);
             activeIds = enabled;
-            String prefer = prefs(c).getString("prefer_scene_id", null);
+            String preferKey = lockScreenMode ? "prefer_lock_scene_id" : "prefer_scene_id";
+            String prefer = prefs(c).getString(preferKey, null);
             if (prefer != null) {
-                prefs(c).edit().remove("prefer_scene_id").apply();
+                prefs(c).edit().remove(preferKey).apply();
                 if (activeIds.contains(prefer)) {
                     currentId = prefer;
                     prevId = null;
                     crossfade = 1f;
                 }
             }
-            if (!activeIds.contains(currentId)) {
+            String curBase = baseSceneId(currentId);
+            if (!activeIds.contains(curBase)) {
                 currentId = activeIds.get(0);
                 activeIdx = 0;
                 prevId = null;
                 crossfade = 1f;
             } else {
-                activeIdx = activeIds.indexOf(currentId);
+                activeIdx = activeIds.indexOf(curBase);
+            }
+            if (FOLDER_SHUFFLE_ID.equals(baseSceneId(currentId))
+                    || LOCK_FOLDER_SHUFFLE_ID.equals(baseSceneId(currentId))) {
+                LoadedScene old = cache.remove(currentId);
+                if (old != null) old.recycle();
             }
             ensureLoaded(currentId);
             evictUnusedScenes();
@@ -657,18 +922,35 @@ public final class Scenes {
             if (fadeAnim != null) fadeAnim.cancel();
         }
 
+        private boolean canRotate() {
+            if (activeIds.size() > 1) return true;
+            for (String id : activeIds) {
+                String b = baseSceneId(id);
+                if (FOLDER_SHUFFLE_ID.equals(b) || LOCK_FOLDER_SHUFFLE_ID.equals(b)) return true;
+            }
+            return false;
+        }
+
         private void scheduleNextRotation() {
             handler.removeCallbacks(rotateTick);
-            if (activeIds.size() > 1) {
+            if (canRotate()) {
                 handler.postDelayed(rotateTick, getStaySeconds(getContext()) * 1000L);
             }
         }
 
         private void advanceScene() {
-            if (activeIds.size() <= 1) return;
+            if (!canRotate()) return;
             prevId = currentId;
             activeIdx = (activeIdx + 1) % activeIds.size();
-            currentId = activeIds.get(activeIdx);
+            String nextBase = activeIds.get(activeIdx);
+            if (FOLDER_SHUFFLE_ID.equals(nextBase) || LOCK_FOLDER_SHUFFLE_ID.equals(nextBase)) {
+                folderFlipCounter = (folderFlipCounter + 1) % 2;
+                currentId = nextBase + "#" + folderFlipCounter;
+                LoadedScene stale = cache.remove(currentId);
+                if (stale != null) stale.recycle();
+            } else {
+                currentId = nextBase;
+            }
             ensureLoaded(currentId);
             notifySceneBackdrop();
 
@@ -691,7 +973,8 @@ public final class Scenes {
         private LoadedScene ensureLoaded(String id) {
             Context c = getContext();
             LoadedScene ls = cache.get(id);
-            int cSlot = customSlotFromId(id);
+            String base = baseSceneId(id);
+            int cSlot = customSlotFromId(base);
             if (cSlot > 0) {
                 long ts = CustomMedia.getCustomSceneTimestamp(c, cSlot);
                 if (ls != null && ls.bg != null && !ls.bg.isRecycled() && ls.customTs == ts) {
@@ -706,34 +989,83 @@ public final class Scenes {
                     ls.ownsBg = true;
                     ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
                 }
-                if (ls.bg != null) {
-                    Bitmap rawGlass = Bitmap.createScaledBitmap(ls.bg, 480, 270, true);
-                    ls.glassBaked = bakeGlassTexture(rawGlass, false, false);
-                    ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                    if (rawGlass != ls.bg) rawGlass.recycle();
+                bakeLoadedGlassFromBg(ls, false);
+                cache.put(id, ls);
+                return ls;
+            }
+            if (LOCK_CUSTOM_ID.equals(base)) {
+                long ts = CustomMedia.getCustomLockTimestamp(c);
+                if (ls != null && ls.bg != null && !ls.bg.isRecycled() && ls.customTs == ts) {
+                    return ls;
                 }
+                if (ls != null) ls.recycle();
+                ls = new LoadedScene(LOCK_CUSTOM_SPEC);
+                ls.customTs = ts;
+                ls.ownsBg = false;
+                ls.bg = CustomMedia.getCustomLockWallpaper(c, 1920, 1080);
+                if (ls.bg == null) {
+                    ls.ownsBg = true;
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                bakeLoadedGlassFromBg(ls, false);
+                cache.put(id, ls);
+                return ls;
+            }
+            if (FOLDER_SHUFFLE_ID.equals(base) || LOCK_FOLDER_SHUFFLE_ID.equals(base)) {
+                if (ls != null && ls.bg != null && !ls.bg.isRecycled()) {
+                    return ls;
+                }
+                String scope = LOCK_FOLDER_SHUFFLE_ID.equals(base)
+                        ? CustomMedia.SCOPE_LOCK
+                        : CustomMedia.SCOPE_SCENE;
+                Spec spec = LOCK_FOLDER_SHUFFLE_ID.equals(base) ? LOCK_FOLDER_SHUFFLE_SPEC : FOLDER_SHUFFLE_SPEC;
+                ls = new LoadedScene(spec);
+                ls.customTs = System.currentTimeMillis();
+                ls.ownsBg = true;
+                ls.bg = CustomMedia.getNextShuffledFolderBitmap(c, scope, 1920, 1080, true);
+                if (ls.bg == null) {
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                bakeLoadedGlassFromBg(ls, false);
                 cache.put(id, ls);
                 return ls;
             }
             if (ls != null && ls.bg != null && !ls.bg.isRecycled()) return ls;
-            Spec spec = byId(id);
+            Spec spec = byId(base);
             ls = new LoadedScene(spec);
-            ls.bg = loadAssetBitmap(c, spec.bgAsset, 1920, 1080);
+            if (base.startsWith("grad:")) {
+                ls.bg = createGradientBitmap(base, 1920, 1080);
+            } else {
+                ls.bg = loadAssetBitmap(c, spec.bgAsset, 1920, 1080);
+            }
             if (spec.fgAsset != null) {
                 ls.fg = loadAssetBitmap(c, spec.fgAsset, 1920, 1080);
             }
-            Bitmap rawGlass = loadAssetBitmap(c, spec.glassAsset, 480, 270);
-            if (rawGlass != null) {
-                ls.glassBaked = bakeGlassTexture(rawGlass, spec.darkClock, false);
-                ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                if (spec.waterSplit) {
-                    ls.glassWetBaked = bakeGlassTexture(rawGlass, false, true);
-                    ls.glassWetShader = new BitmapShader(ls.glassWetBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            if (spec.glassAsset != null) {
+                Bitmap rawGlass = loadAssetBitmap(c, spec.glassAsset, 480, 270);
+                if (rawGlass != null) {
+                    ls.glassBaked = bakeGlassTexture(rawGlass, spec.darkClock, false);
+                    ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    if (spec.waterSplit) {
+                        ls.glassWetBaked = bakeGlassTexture(rawGlass, false, true);
+                        ls.glassWetShader = new BitmapShader(ls.glassWetBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    }
+                    rawGlass.recycle();
                 }
-                rawGlass.recycle();
+            } else {
+                bakeLoadedGlassFromBg(ls, spec.darkClock);
             }
             cache.put(id, ls);
             return ls;
+        }
+
+        private static void bakeLoadedGlassFromBg(LoadedScene ls, boolean darkClock) {
+            if (ls.bg != null) {
+                Bitmap rawGlass = Bitmap.createScaledBitmap(ls.bg, 480, 270, true);
+                ls.glassBaked = bakeGlassTexture(rawGlass, darkClock, false);
+                ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                if (rawGlass != ls.bg) rawGlass.recycle();
+            }
         }
 
         private static Bitmap bakeGlassTexture(Bitmap src, boolean darkClock, boolean wetBlur) {
@@ -808,13 +1140,15 @@ public final class Scenes {
                 LoadedScene cur = ensureLoaded(currentId);
                 if (cur != null) {
                     Context ctx = getContext();
-                    int cSlot = Math.max(1, customSlotFromId(currentId));
-                    String frameKey = currentId + "|" + formatTime(ctx) + "|"
+                    int cSlot = Math.max(1, customSlotFromId(baseSceneId(currentId)));
+                    String frameKey = currentId + "|" + lockScreenMode + "|" + formatTime(ctx) + "|"
                             + I18n.formatSceneDate(ctx, new Date()) + "|"
-                            + (weatherTemp != null ? weatherTemp : "") + "|"
-                            + (weatherDesc != null ? weatherDesc : "") + "|"
-                            + weatherCode + "|" + getClockStyle(ctx) + "|"
-                            + getCustomClockPos(ctx) + "|" + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
+                            + (lockScreenMode ? "" : (weatherTemp != null ? weatherTemp : "")) + "|"
+                            + (lockScreenMode ? "" : (weatherDesc != null ? weatherDesc : "")) + "|"
+                            + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
+                            + getCustomClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
+                            + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
+                            + CustomMedia.getCustomLockTimestamp(ctx) + "|"
                             + buildGreeting(ctx) + "|" + w + "x" + h;
                     if (!frameKey.equals(cachedFrameKey) || cachedFrameBmp == null
                             || cachedFrameBmp.getWidth() != w || cachedFrameBmp.getHeight() != h) {
@@ -921,7 +1255,9 @@ public final class Scenes {
             // Line 3: Clock
             float greetPx = 12.5f * u;
             float datePx = 13.5f * u;
-            boolean isCustomRight = isCustomId(sp.id) && CLOCK_POS_RIGHT.equals(getCustomClockPos(ctx));
+            boolean useUserClockPos = lockScreenMode || isCustomId(sp.id);
+            String activeClockPos = lockScreenMode ? getLockClockPos(ctx) : getCustomClockPos(ctx);
+            boolean isCustomRight = !lockScreenMode && isCustomId(sp.id) && CLOCK_POS_RIGHT.equals(activeClockPos);
             float topOffsetU = isCustomRight ? 62f : 19f;
             float dateBaselineY = Math.max((46f + topOffsetU) * u, (sp.dateTopU + topOffsetU) * u);
             float greetBaselineY = dateBaselineY - (18.5f * u);
@@ -935,11 +1271,10 @@ public final class Scenes {
 
             float textW = measureClockWidth(timeStr, clockFillPaint, u, isDuo || isRounded);
             float clockX;
-            if (isCustomId(sp.id)) {
-                String cPos = getCustomClockPos(ctx);
-                if (CLOCK_POS_LEFT.equals(cPos)) {
+            if (useUserClockPos) {
+                if (CLOCK_POS_LEFT.equals(activeClockPos)) {
                     clockX = 48f * u;
-                } else if (CLOCK_POS_RIGHT.equals(cPos)) {
+                } else if (CLOCK_POS_RIGHT.equals(activeClockPos)) {
                     clockX = w - textW - (48f * u);
                 } else {
                     clockX = (w - textW) * 0.5f;
@@ -1019,11 +1354,10 @@ public final class Scenes {
             }
             float greetW = greetPaint.measureText(greeting);
             float greetX;
-            if (isCustomId(sp.id)) {
-                String cPos = getCustomClockPos(ctx);
-                if (CLOCK_POS_LEFT.equals(cPos)) {
+            if (useUserClockPos) {
+                if (CLOCK_POS_LEFT.equals(activeClockPos)) {
                     greetX = 52f * u;
-                } else if (CLOCK_POS_RIGHT.equals(cPos)) {
+                } else if (CLOCK_POS_RIGHT.equals(activeClockPos)) {
                     greetX = w - greetW - (52f * u);
                 } else {
                     greetX = (w - greetW) * 0.5f;
@@ -1051,11 +1385,10 @@ public final class Scenes {
             }
             float dateW = datePaint.measureText(fullHeader);
             float dateX;
-            if (isCustomId(sp.id)) {
-                String cPos = getCustomClockPos(ctx);
-                if (CLOCK_POS_LEFT.equals(cPos)) {
+            if (useUserClockPos) {
+                if (CLOCK_POS_LEFT.equals(activeClockPos)) {
                     dateX = 52f * u;
-                } else if (CLOCK_POS_RIGHT.equals(cPos)) {
+                } else if (CLOCK_POS_RIGHT.equals(activeClockPos)) {
                     dateX = w - dateW - (52f * u);
                 } else {
                     dateX = (w - dateW) * 0.5f;

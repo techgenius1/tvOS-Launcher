@@ -1,11 +1,40 @@
-# tvOS Launcher (`v2.0.5`)
+# tvOS Launcher (`v2.0.6`)
 
 > 🇬🇧 **For English documentation and setup guide:** **[README.md (English)](README.md)**  
-> 📦 **En Son APK İndir (`v2.0.5`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **En Son APK İndir (`v2.0.6`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Afiş](screenshots_tr/Header_TR.jpg)
 
-Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlardan **Android 14** modellere kadar 60 FPS akıcılık sunarken; **boyutlandırılabilir macOS Liquid Glass Dock (`%50–%150`)**, dönüşümlü **Gece Sahneleri**, **Özel Duvar Kağıtları (`Özel 1..5`)**, **Uygulama Simgesi Değiştirici ve Simge Düzenleyici**, **Otomatik GitHub Uygulama Güncellemeleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli + Manuel Sistem Uygulaması Debloat + Sistem Başlatıcılarını Devre Dışı Bırakma)**, **Evrensel Denetim Paneli (`Hızlı Ayarlar`)**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı + Ana Ekran Tuşu Düzeltmesi**, **Keep Alive otomatik izin onarımı** ve **tek tıkla Yerel ADB kurulumu** özelliklerini bir araya getirir.
+Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlardan **Android 14** modellere kadar 60 FPS akıcılık sunarken; **boyutlandırılabilir macOS Liquid Glass Dock (`%50–%150`)**, dönüşümlü **Gece Sahneleri**, **Özel Duvar Kağıtları (`Özel 1..5`) + Klasörden Karışık Duvar Kağıdı**, **Dahili Kilit Ekranı / Ekran Koruyucu**, **Uygulama Simgesi Değiştirici ve Simge Düzenleyici**, **Otomatik GitHub Uygulama Güncellemeleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli + Manuel Sistem Uygulaması Debloat + Sistem Başlatıcılarını Devre Dışı Bırakma)**, **Özelleştirilebilir Evrensel Denetim Paneli (`Hızlı Ayarlar`)**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı + Tuş Kodu Gönder (`Send Key Code`) + Ana Ekran Tuşu Düzeltmesi** ve **Çift Modlu Güvenli Yerel ADB Kurulumu (Port 5555'i açık bırakmadan Otomatik Onarım & Ses Tuşu Düzeltmesi)** özelliklerini bir araya getirir.
+
+---
+
+## 🆕 `v2.0.6` Sürümündeki Yenilikler
+
+- **Çift Modlu ADB Güvenlik Mimarisi & Tek Tıkla ADB Aç/Kapat (`Ayarlar → Gelişmiş` & İlk Kurulum)**:
+  - **Güvenli Mod (İzinleri Ver ve ADB'yi Kapat — Varsayılan & Önerilen)**: Kurulum sırasında `WRITE_SECURE_SETTINGS` ve `DUMP` izinlerini bir kez alıp ağ ADB bağlantısını (`adb_enabled = 0`) hemen kapatır; böylece yerel ağınızda `5555` portu açık kalmaz. ADB tamamen kapalıyken bile Erişilebilirlik Servisini (`ServiceRepair`) ve **Ses Tuşu Basılı Tutma Düzeltmesini** uygulama içinden çalıştırır.
+  - **Kalıcı ADB Modu (Onay Pencereli İsteğe Bağlı Mod)**: CleanYourTV gibi çalışma zamanı ADB araçları için ADB'yi açık tutmak isteyen kullanıcılara özel mod. ADB kapalıyken Kalıcı Mod seçildiğinde USB Hata Ayıklamayı açıp geçmek için onay penceresi gösterir; ADB kapatıldığında ise otomatik olarak Güvenli Moda döner.
+  - **Tek Tıkla ADB Aç / Kapat Butonu**: Kablosuz Hata Ayıklamayı (`adb_wifi_enabled`) açmadan yalnızca USB Hata Ayıklamayı (`adb_enabled`) doğrudan `Ayarlar → Gelişmiş` menüsünden açıp kapatabilirsiniz.
+  - **Cihaz Yöneticisi İzninin Kaldırılması & İsteğe Bağlı Keep Alive**: Uygulamanın silinmesini zorlaştıran `BIND_DEVICE_ADMIN` izni tamamen kaldırıldı (ekran kapatma Android 9+ `GLOBAL_ACTION_LOCK_SCREEN` ile çalışır) ve Keep Alive varsayılan olarak kapalı (`İsteğe Bağlı`) hale getirildi.
+- **Dahili Kilit Ekranı & Boşta Kalma Zamanlayıcısı (`Ayarlar → Denetim Paneli → Ortam Modu`)**:
+  - Denetim Panelindeki Ortam Modu tuşuna basıldığında veya **Boşta Kalma Süresi (`Kapalı / 5 / 10 / 15 / 30 / 60 dk`)** dolduğunda **Ortam Modu (Sistem Varsayılanı)** ya da yeni **Dahili Kilit Ekranı** açılacak şekilde seçim yapabilirsiniz.
+  - **Kilit Ekranı Ayarları Alt Menüsü**: Tüm Gece Sahneleri, Klasik duvar kağıtları, Özel 1–5 veya **Klasörden Karıştır** seçeneklerinden birini seçebilir, **Saat Konumunu (`Sol / Orta / Sağ`)** ayarlayabilir ve duvar kağıdı üzerinde saat, tarih, karşılama mesajı ile canlı hava durumunu görüntüleyebilirsiniz (kumandadan herhangi bir tuşa basıldığında anında kaldığınız yere döner).
+- **Klasörden Karışık Duvar Kağıdı (`Ayarlar → Görünüm ve Sahneler` & `Kilit Ekranı`)**:
+  - Yalnızca 5 özel görselle sınırlı kalmadan dahili depolama veya USB bellekteki herhangi bir klasörü seçip (**Klasör Seç ve Karıştır**) içindeki tüm görselleri masaüstü veya kilit ekranı arka planı olarak karışık oynatabilirsiniz.
+- **Gece Sahneleri Ana Ekran Hava Durumu Kısayolu (`Ayarlar → Uygulamalar`)**:
+  - Gece Sahneleri ana ekranında sağ üstteki Denetim Paneli butonunun yanına, tıklandığında 5 günlük hava durumu penceresini açan cam **Hava Durumu Simgesi** eklendi (varsayılan açık, `Ayarlar → Uygulamalar → Ana ekran hava durumu kısayolu` üzerinden kapatılabilir).
+- **Özelleştirilebilir Denetim Paneli Öğeleri (`Ayarlar → Denetim Paneli`)**:
+  - Denetim Panelindeki tüm kutucukları (**Wi-Fi, Bluetooth, RAM, Rahatsız Etmeyin, Ses, Uyku Zamanlayıcısı, Ortam Modu, Kapat, Girişler, Tuş Atayıcı, Ayarlar, Arama**) isteğinize göre tek tek açıp kapatabilirsiniz (tümü varsayılan olarak açıktır).
+- **Düğme Eşleyicide Tuş Kodu Gönder (`Send Key Code`) Seçeneği (`Ayarlar → Düğme Eşleyici`)**:
+  - tvQuickActions gibi üçüncü parti uygulamalara gerek kalmadan kumandadaki herhangi bir tuşa (`1x / 2x / 3x` basış) **Tuş Kodu Gönder** (*Oynat/Duraklat, Sonraki, Önceki, Sessiz, Ses Aç/Kıs, Geri, Ana Ekran, Menü, TV Girişi, Kanal İleri/Geri, Altyazı, Rehber, Bilgi* veya özel Android `KeyEvent` kodu) atayabilirsiniz.
+- **Evrensel Ses Tuşu Basılı Tutma Düzeltmesi (Hem Güvenli Modda Hem Kalıcı ADB Modunda Çalışır)**:
+  - `android.permission.DUMP` izniyle çalışan uygulama içi `AudioService` Binder izleyicisi sayesinde **ADB tamamen kapalıyken (Güvenli Mod)** ve **Kalıcı ADB Modunda**, hem Android 9–12 (`Audio event log: volume changes`, Magcubic HY320 projeksiyon cihazları dahil) hem de Android 13–14+ (`Events log: volume changes`) TV'lerde sorunsuz çalışır.
+- **Açılış Hızı, Uyumluluk ve İzlemeye Devam Et Düzeltmeleri**:
+  - **Daha Hızlı Sistem Açılışında Başlatma**: `PowerService`, sistem açılışında Erişilebilirlik Servisi bağlandığı anda (`BOOT_COMPLETED` gecikmesini beklemeden) başlatıcıyı öne getirir ve açılışta stok başlatıcı pencerelerini yakalar.
+  - **Philips Canlı TV (`org.droidtv.playtv`) Düzeltmesi**: Philips TV'lerde canlı TV / uydu alıcısı paketi olan `org.droidtv.playtv`, `KNOWN_SYSTEM_LAUNCHERS` listesinden çıkarıldı.
+  - **Android 9 İzin Kaldırma Çökme Düzeltmesi & Anlık `5 / 5` İzin Sayacı**: Android 9 TV'lerde izinleri geri alırken oluşan çökme düzeltildi ve izinler onarıldığında `Ayarlar → Gelişmiş` ekranındaki sayacın anında `5 / 5 aktif` olarak güncellenmesi sağlandı.
+  - **Varsayılan Ana Ekran Seçici & İlk Kurulum Sorun Giderme Menüsü**: Android sistem ana ekran seçicisi (`ROLE_HOME` / `ACTION_HOME_SETTINGS`) onarıldı ve 4 adımlı Varsayılan Ana Ekran sorun giderme menüsü İlk Kurulum Sihirbazına da eklendi.
+  - **İzlemeye Devam Et (`Continue Watching`) Düzeltmesi**: Gerçek medya içeriği olmadığında sahte/demo içeriklerin gösterilmesi tamamen engellendi (içerik yoksa satır gizlenir) ve YouTube / SmartTube videolarına tıklandığında yalnızca uygulamayı açmak yerine doğrudan seçilen videoyu başlatan `Intent.parseUri` / `vnd.youtube` derin bağlantı desteği eklendi.
 
 ---
 

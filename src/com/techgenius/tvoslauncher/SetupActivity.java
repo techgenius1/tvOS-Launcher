@@ -183,7 +183,11 @@ public class SetupActivity extends Activity {
             return;
         }
         if (index == 5 && permMode != 0) {
-            permMode = 0;
+            if (permMode == 3) {
+                permMode = prevPermMode;
+            } else {
+                permMode = 0;
+            }
             show(5, -1);
             return;
         }
@@ -820,50 +824,147 @@ public class SetupActivity extends Activity {
     }
 
     boolean askedLocation;
-    int permMode = 0; // 0 = Choose Easy or Manual, 1 = Easy ADB Directions, 2 = Manual Setup
+    int permMode = 0; // 0 = Choose Mode (3 options), 1 = Easy ADB Directions, 2 = Manual Setup, 3 = Default Home Setup & Troubleshooting
+    int prevPermMode = 0;
+
+    void openDefaultHomeSubMenu() {
+        if (permMode != 3) {
+            prevPermMode = permMode;
+        }
+        permMode = 3;
+        show(5, 1);
+    }
 
     void homeAndPermissions() {
+        if (permMode == 3) {
+            title(tr("Default Home Screen", "Varsayılan Ana Ekran"));
+            TextView s = subtitle(tr(
+                    "On TCL and Philips Android 11/12 TVs, the OEM firmware often hides the Android Default Home UI and forces the stock launcher when pressing Home. Disabling the stock launcher (Step 2) or enabling the Home Button Fix (Step 3) guarantees pressing Home always opens tvOS Launcher.",
+                    "TCL ve Philips Android 11/12 TV'lerde üretici yazılımı genellikle Android Varsayılan Ana Ekran seçicisini gizler ve Home tuşuna basıldığında stok başlatıcıyı zorlar. Stok başlatıcıyı devre dışı bırakmak (2. Adım) veya Ana Ekran Tuşu Düzeltmesini açmak (3. Adım) Home tuşunun her zaman tvOS Launcher'ı açmasını sağlar."));
+            ((LinearLayout.LayoutParams) s.getLayoutParams()).width = u(620);
+            ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(14);
+            LinearLayout l = scrollableList();
+
+            boolean isDef = Perms.isDefaultHome(this);
+            option(l, tr("1. Set tvOS Launcher as Default via Local ADB", "1. Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"),
+                    isDef ? tr("Active", "Etkin") : tr("Run ROLE_HOME & set-home-activity ›", "ROLE_HOME ve set-home-activity çalıştır ›"),
+                    isDef,
+                    () -> {
+                        android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                                .setTitle(tr("Setting Default Launcher…", "Varsayılan Başlatıcı Ayarlanıyor…"))
+                                .setMessage(tr("Setting ROLE_HOME and default home activity over Local ADB…",
+                                        "Yerel ADB üzerinden ROLE_HOME ve varsayılan ana ekran etkinliği ayarlanıyor…"))
+                                .setCancelable(false)
+                                .create();
+                        progress.show();
+                        LocalAdb.setDefaultLauncherViaAdb(this, (success, msg) -> runOnUiThread(() -> {
+                            if (isFinishing()) return;
+                            try {
+                                progress.dismiss();
+                            } catch (Throwable ignored) {
+                            }
+                            show(5, 0);
+                            android.widget.Toast.makeText(this,
+                                    success
+                                            ? tr("Default home launcher set!", "Varsayılan ana ekran ayarlandı!")
+                                            : tr("Could not connect to ADB — enable USB/Network Debugging or use Step 3 / Step 4.", "ADB'ye bağlanılamadı — USB/Ağ Hata Ayıklamayı açın veya 3. / 4. Adımı kullanın."),
+                                    android.widget.Toast.LENGTH_LONG).show();
+                        }));
+                    });
+
+            option(l, tr("2. Disable System Launchers (Google TV / Android TV / OEM)", "2. Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"),
+                    CleanYourTv.getSystemLaunchersSummary(this),
+                    !Perms.hasEnabledStockLauncher(this),
+                    () -> CleanYourTv.showDisableSystemLaunchersDialog(this, () -> show(5, 0)));
+
+            boolean homeFixOn = ButtonMapper.isHomeFixEnabled(this);
+            option(l, tr("3. Fix Home Button via Accessibility (Button Mapper)", "3. Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"),
+                    homeFixOn
+                            ? tr("On — Pressing Home launches tvOS Launcher", "Açık — Ana Ekran tuşu tvOS Launcher'ı açar")
+                            : tr("Off — Tap to enable Home button remap", "Kapalı — Ana Ekran tuşu yönlendirmesini açmak için dokunun"),
+                    homeFixOn,
+                    () -> {
+                        boolean next = !ButtonMapper.isHomeFixEnabled(this);
+                        ButtonMapper.setHomeFixEnabled(this, next);
+                        if (next && !ButtonMapper.isServiceEnabled(this)) {
+                            if (!LocalAdb.hasWriteSecureSettings(this) || !LocalAdb.repairPermissionsViaSecureSettings(this)) {
+                                Intent acc = Perms.accessibilityScreen(this);
+                                if (acc != null) {
+                                    Suggestions.start(this, acc);
+                                }
+                            }
+                        }
+                        show(5, 0);
+                    });
+
+            option(l, tr("4. Open Android System Home Settings", "4. Android Sistem Ana Ekran Ayarlarını Aç"),
+                    tr("Open system selector (if supported by TV) ›", "Sistem seçicisini aç (TV destekliyorsa) ›"),
+                    false,
+                    () -> Perms.openSystemHomeSettingsUi(this));
+
+            option(l, tr("← Back", "← Geri"), null, false, () -> {
+                permMode = prevPermMode;
+                show(5, -1);
+            });
+            dots();
+            return;
+        }
+
         if (permMode == 0) {
             title(tr("Finish Setting Up", "Kurulumu Tamamla"));
             TextView s = subtitle(tr(
-                    "Choose how you want to set up permissions (Default Home Screen, Button Mapper Accessibility, Power Off, Continue Watching and Wi-Fi).",
-                    "İzinleri (Varsayılan Ana Ekran, Düğme Eşleyici Erişilebilirliği, Kapatma, İzlemeye Devam Et ve Wi-Fi) nasıl ayarlamak istediğinizi seçin."));
-            ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(16);
-            LinearLayout l = list();
-            option(l, tr("Easy Setup (Automatic via ADB)", "Kolay Kurulum (ADB ile Otomatik)"),
-                    tr("Grants all required permissions automatically at once", "Gerekli tüm izinleri tek seferde otomatik olarak verir"),
+                    "Choose how you want to set up permissions (Default Home Screen, Button Mapper Accessibility, Continue Watching, and Wi-Fi).",
+                    "İzinleri (Varsayılan Ana Ekran, Düğme Eşleyici Erişilebilirliği, İzlemeye Devam Et ve Wi-Fi) nasıl ayarlamak istediğinizi seçin."));
+            ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(14);
+            LinearLayout l = scrollableList();
+            option(l, tr("1. Secure Auto Setup & Close ADB (Recommended)", "1. Güvenli Otomatik Kurulum ve ADB'yi Kapat (Önerilen)"),
+                    tr("Grants WRITE_SECURE_SETTINGS once to self-repair Accessibility, then closes port 5555", "Erişilebilirliği korumak için bir kez WRITE_SECURE_SETTINGS verir, ardından port 5555'i kapatır"),
                     false,
                     () -> {
-                        if (!LocalAdb.isAdbSettingEnabled(this)) {
-                            permMode = 1;
-                            show(5, 1);
-                        } else {
-                            runEasyAdbGrant();
-                        }
+                        LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_SECURE_CLOSE);
+                        LocalAdb.setKeepAliveEnabled(this, false);
+                        proceedToEasyAdbOrDirections();
                     });
-            option(l, tr("Manual Setup", "Manuel Kurulum"),
-                    tr("Grant permissions one by one manually", "İzinleri tek tek elle verin"),
+            option(l, tr("2. Persistent ADB Setup (Keep ADB Open)", "2. Kalıcı ADB Kurulumu (ADB'yi Açık Tut)"),
+                    tr("Keeps network ADB enabled for CleanYourTV debloating (Note: leaves port 5555 open on LAN)", "CleanYourTV debloat özellikleri için ağ ADB'sini açık tutar (Not: yerel ağda port 5555 açık kalır)"),
+                    false,
+                    () -> {
+                        LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_PERSISTENT);
+                        proceedToEasyAdbOrDirections();
+                    });
+            option(l, tr("3. Manual Setup (No ADB)", "3. Manuel Kurulum (ADB Yok)"),
+                    tr("Grant permissions one by one manually through Android TV Settings", "İzinleri Android TV Ayarları üzerinden tek tek elle verin"),
                     false,
                     () -> {
                         permMode = 2;
                         show(5, 1);
                     });
+            boolean home = Perms.isDefaultHome(this);
+            option(l, tr("Make tvOS Launcher the Home Screen", "tvOS Launcher'ı Ana Ekran Yap"),
+                    home
+                            ? tr("Active — The Home button opens tvOS Launcher", "Etkin — Ana Ekran düğmesi tvOS Launcher'ı açar")
+                            : tr("Default launcher setup & troubleshooting steps (TCL / Philips / Google TV)", "Varsayılan başlatıcı kurulumu ve sorun giderme adımları (TCL / Philips / Google TV)"),
+                    home,
+                    this::openDefaultHomeSubMenu);
             option(l, tr("Continue", "Devam Et"), null, false, this::next);
             dots();
             return;
         }
 
         if (permMode == 1) {
+            boolean secureClose = LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_SECURE_CLOSE;
             title(tr("Enable ADB Debugging", "ADB Hata Ayıklamayı Etkinleştirin"));
             TextView s = subtitle(tr(
                     "1. Open TV Settings \u2192 System \u2192 About and click Build 7 times to unlock Developer Options.\n"
                     + "2. Open Settings \u2192 System \u2192 Developer Options and enable USB Debugging / Network Debugging.\n"
-                    + "3. Return here and select Grant Permissions Now.",
+                    + "3. Return here and select Grant Permissions Now"
+                    + (secureClose ? " (ADB port 5555 will be closed automatically right after setup)." : " (ADB will remain enabled for CleanYourTV)."),
                     "1. TV Ayarları \u2192 Sistem \u2192 Hakkında menüsüne gidin ve Geliştirici Seçeneklerini açmak için Yapı Numarası'na 7 kez basın.\n"
                     + "2. Ayarlar \u2192 Sistem \u2192 Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın.\n"
-                    + "3. Buraya dönüp İzinleri Şimdi Ver'i seçin."));
+                    + "3. Buraya dönüp İzinleri Şimdi Ver'i seçin"
+                    + (secureClose ? " (Kurulumdan hemen sonra ADB port 5555 otomatik olarak kapatılacaktır)." : " (CleanYourTV için ADB açık kalacaktır).")));
             ((LinearLayout.LayoutParams) s.getLayoutParams()).width = u(620);
-            ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(16);
+            ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(14);
             LinearLayout l = scrollableList();
             option(l, tr("Open Developer Options / TV Settings\u2026", "Geliştirici Seçeneklerini / TV Ayarlarını Aç\u2026"),
                     tr("Enable USB / Network Debugging in Developer Options", "Geliştirici Seçeneklerinde USB / Ağ Hata Ayıklamayı açın"),
@@ -877,16 +978,20 @@ public class SetupActivity extends Activity {
                             }
                         }
                     });
-            option(l, tr("Grant Permissions Now", "İzinleri Şimdi Ver"),
-                    tr("Use local ADB to grant all permissions automatically", "Tüm izinleri otomatik vermek için yerel ADB'yi kullan"),
+            option(l, secureClose
+                            ? tr("Grant Permissions & Close ADB Now", "İzinleri Ver ve ADB'yi Şimdi Kapat")
+                            : tr("Grant Permissions Now (Keep ADB Open)", "İzinleri Şimdi Ver (ADB'yi Açık Tut)"),
+                    secureClose
+                            ? tr("Grants WRITE_SECURE_SETTINGS & closes port 5555 when done", "WRITE_SECURE_SETTINGS verir ve bittiğinde port 5555'i kapatır")
+                            : tr("Uses local ADB to grant permissions and keeps ADB open", "İzinleri vermek için yerel ADB'yi kullanır ve ADB'yi açık tutar"),
                     false,
                     this::runEasyAdbGrant);
-            option(l, tr("Switch to Manual Setup", "Manuel Kuruluma Geç"),
-                    tr("Grant permissions one by one instead", "İzinleri bunun yerine tek tek elle verin"),
+            option(l, tr("Back to Setup Mode Selection", "Kurulum Modu Seçimine Dön"),
+                    tr("Switch between Secure Auto Setup, Persistent ADB, or Manual Setup", "Güvenli Otomatik, Kalıcı ADB veya Manuel Kurulum arasında geçiş yapın"),
                     false,
                     () -> {
-                        permMode = 2;
-                        show(5, 1);
+                        permMode = 0;
+                        show(5, -1);
                     });
             dots();
             return;
@@ -915,10 +1020,6 @@ public class SetupActivity extends Activity {
             option(l, tr("Continue Watching", "\u0130zlemeye Devam Et"),
                     tr("Remember what you play in each app", "Her uygulamada ne oynatt\u0131\u011f\u0131n\u0131z\u0131 hat\u0131rla"), false, () -> Perms.requestListener(this));
         }
-        if (Perms.adminSupported(this) && !Perms.hasAdmin(this)) {
-            option(l, tr("Power Off & Sleep Timer", "Kapatma ve Uyku Zamanlay\u0131c\u0131s\u0131"),
-                    tr("Let tvOS Launcher turn the screen off", "tvOS Launcher'\u0131n ekran\u0131 kapatmas\u0131na izin ver"), false, () -> Perms.requestAdmin(this));
-        }
         boolean accOn = ButtonMapper.isServiceEnabled(this);
         option(l, tr("Button Mapper & Control Panel", "D\u00fc\u011fme E\u015fleyici ve Denetim Paneli"),
                 accOn
@@ -931,13 +1032,29 @@ public class SetupActivity extends Activity {
                         Suggestions.start(this, new Intent(android.provider.Settings.ACTION_SETTINGS));
                     }
                 });
+        option(l, tr("Back to Setup Mode Selection", "Kurulum Modu Seçimine Dön"), null, false, () -> {
+            permMode = 0;
+            show(5, -1);
+        });
         option(l, tr("Continue", "Devam Et"), null, false, this::next);
         dots();
     }
 
+    private void proceedToEasyAdbOrDirections() {
+        if (!LocalAdb.isAdbSettingEnabled(this)) {
+            permMode = 1;
+            show(5, 1);
+        } else {
+            runEasyAdbGrant();
+        }
+    }
+
     private void runEasyAdbGrant() {
+        final boolean closeAfter = LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_SECURE_CLOSE;
         android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(tr("Easy Setup (ADB)", "Kolay Kurulum (ADB)"))
+                .setTitle(closeAfter
+                        ? tr("Secure Setup (ADB)", "Güvenli Kurulum (ADB)")
+                        : tr("Persistent ADB Setup", "Kalıcı ADB Kurulumu"))
                 .setMessage(tr(
                         "Granting permissions via local ADB\u2026\n\nIf an \u201cAllow USB debugging?\u201d prompt appears on screen, check \u201cAlways allow\u201d and press Allow.",
                         "Yerel ADB ile izinler veriliyor\u2026\n\nEkranda \u201cUSB hata ayıklamaya izin verilsin mi?\u201d penceresi çıkarsa \u201cHer zaman izin ver\u201di işaretleyip İzin Ver'e basın."))
@@ -945,17 +1062,30 @@ public class SetupActivity extends Activity {
                 .create();
         progress.show();
 
-        LocalAdb.grantAllPermissions(this, (success, msg) -> runOnUiThread(() -> {
+        LocalAdb.grantAllPermissions(this, closeAfter, (success, msg) -> runOnUiThread(() -> {
             if (isFinishing()) return;
             try {
                 progress.dismiss();
             } catch (Exception ignored) {
             }
             if (success) {
-                android.widget.Toast.makeText(this,
-                        tr("All permissions granted automatically!", "Tüm izinler otomatik olarak verildi!"),
-                        android.widget.Toast.LENGTH_SHORT).show();
-                next();
+                if (closeAfter) {
+                    new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                            .setTitle(tr("Permissions Granted & ADB Closed", "İzinler Verildi ve ADB Kapatıldı"))
+                            .setMessage(tr(
+                                    "WRITE_SECURE_SETTINGS and all launcher permissions are now active, and ADB (port 5555) has been closed for your security.\n\n"
+                                    + "Tip: For maximum security, you can also select \u201cRevoke USB debugging authorizations\u201d in Developer Options.",
+                                    "WRITE_SECURE_SETTINGS ve tüm başlatıcı izinleri artık etkinleştirildi ve güvenliğiniz için ADB (port 5555) kapatıldı.\n\n"
+                                    + "İpucu: Maksimum güvenlik için Geliştirici Seçenekleri'nden \u201cUSB hata ayıklama yetkilerini kaldır\u201d seçeneğini de kullanabilirsiniz."))
+                            .setPositiveButton(tr("Continue", "Devam Et"), (d, w) -> next())
+                            .setOnCancelListener(d -> next())
+                            .show();
+                } else {
+                    android.widget.Toast.makeText(this,
+                            tr("All permissions granted automatically!", "Tüm izinler otomatik olarak verildi!"),
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    next();
+                }
             } else {
                 permMode = 1;
                 show(5, 0);

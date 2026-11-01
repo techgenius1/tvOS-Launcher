@@ -54,9 +54,23 @@ final class SceneHome {
     final FrameLayout overlay;
 
     LinearLayout whoBar;
+    LinearLayout weatherBtn;
+    ImageView weatherIcon;
     LinearLayout moonBtn;
     ImageView moonIcon;
     TextView moonText;
+
+    private static final String KEY_WEATHER_SHORTCUT = "home_weather_shortcut";
+
+    static boolean isWeatherShortcutEnabled(android.content.Context c) {
+        if (c == null) return true;
+        return Profiles.homePrefs(c).getBoolean(KEY_WEATHER_SHORTCUT, true);
+    }
+
+    static void setWeatherShortcutEnabled(android.content.Context c, boolean enabled) {
+        if (c == null) return;
+        Profiles.homePrefs(c).edit().putBoolean(KEY_WEATHER_SHORTCUT, enabled).apply();
+    }
 
     LinearLayout shelfBox;
     TextView shelfHeader;
@@ -126,6 +140,7 @@ final class SceneHome {
 
     void invalidateSceneGlass() {
         if (whoBar != null) whoBar.invalidate();
+        if (weatherBtn != null) weatherBtn.invalidate();
         if (moonBtn != null) moonBtn.invalidate();
         if (dockBox != null) dockBox.invalidate();
         for (View c : shelfCards) c.invalidate();
@@ -196,11 +211,49 @@ final class SceneHome {
         topRightRow.addView(whoBar, wlp);
         refreshWhoBar();
 
+        // Top-right Weather Shortcut Button (icon only; opens 5-day forecast UI like Classic Home)
+        int mSize = dp(42);
+        weatherBtn = new LinearLayout(host);
+        weatherBtn.setOrientation(LinearLayout.HORIZONTAL);
+        weatherBtn.setGravity(Gravity.CENTER);
+        MainActivity.LiquidGlass weatherGlass = new MainActivity.LiquidGlass(
+                mSize / 2f, 0x6614161C, host.glassSource, host.screenW, host.screenH, host.unit);
+        weatherGlass.lens = dp(5);
+        weatherGlass.rimStrength = 0.45f;
+        weatherBtn.setBackground(weatherGlass);
+        weatherBtn.setFocusable(true);
+        weatherBtn.setClickable(true);
+        weatherBtn.setLongClickable(true);
+
+        weatherIcon = new ImageView(host);
+        weatherIcon.setImageBitmap(Glyphs.get("cloud", dp(19), 0xFFF4F4F6));
+        weatherBtn.addView(weatherIcon, new LinearLayout.LayoutParams(dp(19), dp(19)));
+
+        GradientDrawable weatherFocusRing = new GradientDrawable();
+        weatherFocusRing.setCornerRadius(mSize / 2f);
+        weatherFocusRing.setColor(Color.TRANSPARENT);
+        weatherFocusRing.setStroke(dp(2), Color.WHITE);
+
+        weatherBtn.setOnFocusChangeListener((v, has) -> {
+            v.setForeground(has ? weatherFocusRing : null);
+            v.animate().scaleX(has ? 1.08f : 1f).scaleY(has ? 1.08f : 1f)
+                    .setDuration(180).setInterpolator(MainActivity.LIFT).start();
+        });
+        weatherBtn.setOnClickListener(v -> host.showWeather());
+        weatherBtn.setOnLongClickListener(v -> {
+            host.showWeather();
+            return true;
+        });
+
+        LinearLayout.LayoutParams wxlp = new LinearLayout.LayoutParams(mSize, mSize);
+        wxlp.rightMargin = dp(10);
+        topRightRow.addView(weatherBtn, wxlp);
+        refreshWeatherBtn();
+
         // Top-right Control Panel Button
         moonBtn = new LinearLayout(host);
         moonBtn.setOrientation(LinearLayout.HORIZONTAL);
         moonBtn.setGravity(Gravity.CENTER);
-        int mSize = dp(42);
         MainActivity.LiquidGlass moonGlass = new MainActivity.LiquidGlass(
                 mSize / 2f, 0x6614161C, host.glassSource, host.screenW, host.screenH, host.unit);
         moonGlass.lens = dp(5);
@@ -285,6 +338,12 @@ final class SceneHome {
         }
     }
 
+    void refreshWeatherBtn() {
+        if (weatherBtn == null) return;
+        boolean show = isWeatherShortcutEnabled(host) && Weather.enabled(host);
+        weatherBtn.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
     void refreshMoonBtn() {
         if (moonBtn == null) return;
         int left = SleepReceiver.timerLeft(host);
@@ -307,6 +366,7 @@ final class SceneHome {
         shelfBox.setOrientation(LinearLayout.VERTICAL);
         shelfBox.setClipChildren(false);
         shelfBox.setClipToPadding(false);
+        shelfBox.setVisibility(View.GONE);
 
         shelfHeader = new TextView(host);
         Ui.textSize(shelfHeader, 11.5f);
@@ -343,7 +403,9 @@ final class SceneHome {
             shelfBox.setVisibility(View.GONE);
             return;
         }
-        shelfBox.setVisibility(View.VISIBLE);
+        if (shelfCards.isEmpty()) {
+            shelfBox.setVisibility(View.GONE);
+        }
 
         host.io.execute(() -> {
             List<WatchCardData> cards = loadWatchCards();
@@ -377,66 +439,20 @@ final class SceneHome {
             }
             out.add(c);
         }
-
-        // Fill remaining up to 3 with couch-tv showcase cards so the shelf always looks rich
-        if (out.size() < 3) {
-            ensureDemoArt();
-            WatchCardData[] demos = {
-                makeDemoCard("demo:1", "com.netflix.ninja", "NETFLIX",
-                        "Severance", "S2 · E4 — Woes Hollow", 0.62f, demoArt1),
-                makeDemoCard("demo:2", "com.disney.disneyplus", "DISNEY+",
-                        "The Bear", "S3 · E6 — Napkins", 0.38f, demoArt2),
-                makeDemoCard("demo:3", "au.net.abc.iview", "ABC IVIEW",
-                        "Planet Earth III", I18n.s(host, "E2 — Coasts", "B2 — Kıyılar"), 0.78f, demoArt3)
-            };
-            for (WatchCardData d : demos) {
-                if (out.size() >= 3) break;
-                out.add(d);
-            }
-        }
         return out;
-    }
-
-    private WatchCardData makeDemoCard(String key, String pkg, String appName,
-                                       String title, String sub, float prog, Bitmap art) {
-        WatchCardData d = new WatchCardData();
-        d.key = key;
-        d.pkg = pkg;
-        d.appName = appName;
-        d.title = title;
-        d.subtitle = sub;
-        d.progress = prog;
-        d.thumb = art;
-        d.removable = false;
-        return d;
-    }
-
-    private void ensureDemoArt() {
-        if (demoArt1 == null) {
-            demoArt1 = makeThumbFromScene("backgrounds/scene-fog.jpg", 0xFF10222E, 0xFF1D4052);
-        }
-        if (demoArt2 == null) {
-            demoArt2 = makeThumbFromScene("backgrounds/scene-dawn.jpg", 0xFF3A2418, 0xFF6B4226);
-        }
-        if (demoArt3 == null) {
-            demoArt3 = makeThumbFromScene("backgrounds/scene-water.jpg", 0xFF142A3C, 0xFF285570);
-        }
-    }
-
-    private Bitmap makeThumbFromScene(String asset, int c1, int c2) {
-        Bitmap raw = Scenes.loadAssetBitmap(host, asset, 320, 180);
-        if (raw != null) return raw;
-        Bitmap b = Bitmap.createBitmap(240, 135, Bitmap.Config.ARGB_8888);
-        Canvas cv = new Canvas(b);
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setShader(new LinearGradient(0, 0, 240, 135, c1, c2, Shader.TileMode.CLAMP));
-        cv.drawRect(0, 0, 240, 135, p);
-        return b;
     }
 
     private String lastWatchSig = "";
 
     private void populateWatchRow(List<WatchCardData> cards) {
+        if (cards == null || cards.isEmpty() || !host.cwEnabled() || moreExpanded) {
+            lastWatchSig = "";
+            shelfRow.removeAllViews();
+            shelfCards.clear();
+            shelfBox.setVisibility(View.GONE);
+            return;
+        }
+        shelfBox.setVisibility(View.VISIBLE);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < cards.size() && i < 3; i++) {
             WatchCardData c = cards.get(i);
@@ -836,7 +852,7 @@ final class SceneHome {
         if (!hasAnyOtherOrOverflow && moreExpanded) {
             moreExpanded = false;
             if (shelfBox != null) {
-                shelfBox.setVisibility(!host.cwEnabled() ? View.GONE : View.VISIBLE);
+                shelfBox.setVisibility((!host.cwEnabled() || shelfCards.isEmpty()) ? View.GONE : View.VISIBLE);
             }
         }
 
@@ -1052,7 +1068,7 @@ final class SceneHome {
     private void toggleMoreApps() {
         moreExpanded = !moreExpanded;
         if (shelfBox != null) {
-            shelfBox.setVisibility(moreExpanded || !host.cwEnabled() ? View.GONE : View.VISIBLE);
+            shelfBox.setVisibility((moreExpanded || !host.cwEnabled() || shelfCards.isEmpty()) ? View.GONE : View.VISIBLE);
         }
         rebuildDock();
         focusDock(Math.min(focusedDockIdx, dockTiles.size() - 1));
@@ -1660,11 +1676,6 @@ final class SceneHome {
                         .setDuration(150).setInterpolator(MainActivity.LIFT).start();
             });
             pill.setOnClickListener(v -> {
-                if (m > 0 && !SleepReceiver.canSleep(host)) {
-                    closeSheet();
-                    Perms.requestAdmin(host);
-                    return;
-                }
                 SleepReceiver.setTimer(host, m);
                 refreshMoonBtn();
                 closeSheet();
@@ -1834,13 +1845,28 @@ final class SceneHome {
 
         // Top Bar navigation
         boolean whoVisible = whoBar != null && whoBar.getVisibility() == View.VISIBLE;
-        if (f == whoBar || f == moonBtn) {
-            if (k == KeyEvent.KEYCODE_DPAD_RIGHT && f == whoBar) {
-                if (down) moonBtn.requestFocus();
+        boolean wxVisible = weatherBtn != null && weatherBtn.getVisibility() == View.VISIBLE;
+        if (f == whoBar || f == weatherBtn || f == moonBtn) {
+            if (k == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (down) {
+                    if (f == whoBar) {
+                        if (wxVisible) weatherBtn.requestFocus();
+                        else moonBtn.requestFocus();
+                    } else if (f == weatherBtn) {
+                        moonBtn.requestFocus();
+                    }
+                }
                 return true;
             }
-            if (k == KeyEvent.KEYCODE_DPAD_LEFT && f == moonBtn) {
-                if (down && whoVisible) whoBar.requestFocus();
+            if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
+                if (down) {
+                    if (f == moonBtn) {
+                        if (wxVisible) weatherBtn.requestFocus();
+                        else if (whoVisible) whoBar.requestFocus();
+                    } else if (f == weatherBtn && whoVisible) {
+                        whoBar.requestFocus();
+                    }
+                }
                 return true;
             }
             if (k == KeyEvent.KEYCODE_DPAD_DOWN) {

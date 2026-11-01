@@ -66,6 +66,23 @@ public final class CustomMedia {
         void onImagePicked(Bitmap bitmap);
     }
 
+    public interface FolderPickedCallback {
+        void onFolderPicked(File folder, int imageCount);
+    }
+
+    public static final String SCOPE_SCENE = "scene";
+    public static final String SCOPE_CLASSIC = "classic";
+    public static final String SCOPE_LOCK = "lock";
+
+    private static Bitmap cachedLockWall;
+    private static long cachedLockWallTs = -1L;
+
+    private static final Map<String, List<File>> folderDeckMap = new HashMap<>();
+    private static final Map<String, Integer> folderIndexMap = new HashMap<>();
+    private static final Map<String, String> folderPathCacheMap = new HashMap<>();
+    private static final Map<String, Bitmap> folderCurrentBmpMap = new HashMap<>();
+    private static final Map<String, String> folderCurrentFileMap = new HashMap<>();
+
     private static final class PendingSystemPick {
         final Activity activity;
         final boolean allowIco;
@@ -830,6 +847,189 @@ public final class CustomMedia {
         }
     }
 
+    // ---------------------------------------------------------------- Lock Screen Custom Wallpaper & Folder Shuffle
+
+    private static File lockWallFile(Context c) {
+        File dir = new File(c.getFilesDir(), "custom_wallpapers");
+        if (!dir.exists()) dir.mkdirs();
+        return new File(dir, "lock_wallpaper.jpg");
+    }
+
+    public static boolean hasCustomLockWallpaper(Context c) {
+        if (c == null) return false;
+        File f = lockWallFile(c);
+        return f.exists() && f.length() > 0;
+    }
+
+    public static boolean setCustomLockWallpaper(Context c, Bitmap raw) {
+        if (c == null || raw == null) return false;
+        Bitmap cropped = scaleCenterCropOrFit(raw, 1920, 1080, true);
+        File f = lockWallFile(c);
+        try (FileOutputStream fos = new FileOutputStream(f)) {
+            cropped.compress(Bitmap.CompressFormat.JPEG, 92, fos);
+            fos.flush();
+            long ts = System.currentTimeMillis();
+            prefs(c).edit().putLong("lock_wall_ts", ts).apply();
+            cachedLockWall = cropped;
+            cachedLockWallTs = ts;
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    public static long getCustomLockTimestamp(Context c) {
+        if (c == null) return 0L;
+        return prefs(c).getLong("lock_wall_ts", 0L);
+    }
+
+    public static Bitmap getCustomLockWallpaper(Context c, int reqW, int reqH) {
+        return getCustomLockWallpaper(c);
+    }
+
+    public static Bitmap getCustomLockWallpaper(Context c) {
+        if (c == null) return null;
+        long ts = prefs(c).getLong("lock_wall_ts", 0L);
+        if (cachedLockWall != null && !cachedLockWall.isRecycled() && cachedLockWallTs == ts) {
+            return cachedLockWall;
+        }
+        File f = lockWallFile(c);
+        if (!f.exists() || f.length() == 0) return null;
+        try {
+            Bitmap b = decodeBitmapFromFile(f, 1280, 720);
+            if (b != null) {
+                cachedLockWall = b;
+                cachedLockWallTs = ts;
+            }
+            return b;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    public static void setWallpaperShuffleFolder(Context c, String scope, String folderPath) {
+        if (c == null || scope == null) return;
+        String clean = folderPath == null ? "" : folderPath.trim();
+        prefs(c).edit()
+                .putString("shuffle_folder_" + scope, clean)
+                .putLong("shuffle_folder_ts_" + scope, System.currentTimeMillis())
+                .apply();
+        synchronized (folderDeckMap) {
+            folderDeckMap.remove(scope);
+            folderIndexMap.remove(scope);
+            folderPathCacheMap.remove(scope);
+            folderCurrentBmpMap.remove(scope);
+            folderCurrentFileMap.remove(scope);
+        }
+    }
+
+    public static String getWallpaperShuffleFolder(Context c, String scope) {
+        if (c == null || scope == null) return "";
+        String p = prefs(c).getString("shuffle_folder_" + scope, "");
+        return p != null ? p : "";
+    }
+
+    public static boolean hasWallpaperShuffleFolder(Context c, String scope) {
+        String path = getWallpaperShuffleFolder(c, scope);
+        if (path.isEmpty()) return false;
+        File dir = new File(path);
+        return dir.exists() && dir.isDirectory() && countImagesInFolder(dir) > 0;
+    }
+
+    public static int countImagesInFolder(File dir) {
+        return listFolderImages(dir).size();
+    }
+
+    public static List<File> listFolderImages(File dir) {
+        List<File> out = new ArrayList<>();
+        if (dir == null || !dir.exists() || !dir.isDirectory()) return out;
+        File[] children = dir.listFiles();
+        if (children == null) return out;
+        for (File f : children) {
+            if (f == null || f.getName().startsWith(".")) continue;
+            if (f.isFile() && matchesImageExtension(f.getName(), false)) {
+                out.add(f);
+            } else if (f.isDirectory()) {
+                // Also include images 1 level deep inside the selected folder
+                File[] sub = f.listFiles();
+                if (sub != null) {
+                    for (File sf : sub) {
+                        if (sf != null && !sf.getName().startsWith(".")
+                                && sf.isFile() && matchesImageExtension(sf.getName(), false)) {
+                            out.add(sf);
+                        }
+                    }
+                }
+            }
+            if (out.size() >= 500) break;
+        }
+        return out;
+    }
+
+    public static String getWallpaperShuffleFolderSummary(Context c, String scope) {
+        String path = getWallpaperShuffleFolder(c, scope);
+        if (path.isEmpty()) {
+            return I18n.s(c, "Not selected", "Seçilmedi");
+        }
+        File dir = new File(path);
+        int count = countImagesInFolder(dir);
+        if (count <= 0) {
+            return dir.getName();
+        }
+        return dir.getName() + " (" + count + " " + I18n.s(c, "images", "görsel") + ")";
+    }
+
+    public static Bitmap getNextShuffledFolderBitmap(Context c, String scope, int reqW, int reqH, boolean advance) {
+        if (c == null || scope == null) return null;
+        String path = getWallpaperShuffleFolder(c, scope);
+        if (path.isEmpty()) return null;
+        File targetFile = null;
+        synchronized (folderDeckMap) {
+            if (!advance) {
+                Bitmap cur = folderCurrentBmpMap.get(scope);
+                if (cur != null && !cur.isRecycled()) {
+                    return cur;
+                }
+            }
+            List<File> deck = folderDeckMap.get(scope);
+            String cachedPath = folderPathCacheMap.get(scope);
+            if (deck == null || deck.isEmpty() || !path.equals(cachedPath)) {
+                deck = listFolderImages(new File(path));
+                if (deck.isEmpty()) return null;
+                Collections.shuffle(deck);
+                folderDeckMap.put(scope, deck);
+                folderPathCacheMap.put(scope, path);
+                folderIndexMap.put(scope, 0);
+            }
+            int idx = folderIndexMap.containsKey(scope) ? folderIndexMap.get(scope) : 0;
+            if (advance) {
+                idx++;
+                if (idx >= deck.size()) {
+                    String lastFile = folderCurrentFileMap.get(scope);
+                    Collections.shuffle(deck);
+                    if (deck.size() > 1 && lastFile != null && deck.get(0).getAbsolutePath().equals(lastFile)) {
+                        Collections.swap(deck, 0, deck.size() - 1);
+                    }
+                    idx = 0;
+                }
+                folderIndexMap.put(scope, idx);
+            }
+            if (idx >= 0 && idx < deck.size()) {
+                targetFile = deck.get(idx);
+            }
+        }
+        if (targetFile == null || !targetFile.exists()) return null;
+        Bitmap raw = decodeBitmapFromFile(targetFile, Math.max(1280, reqW), Math.max(720, reqH));
+        if (raw == null) return null;
+        Bitmap cropped = scaleCenterCropOrFit(raw, Math.max(1280, reqW), Math.max(720, reqH), true);
+        if (cropped != raw) raw.recycle();
+        synchronized (folderDeckMap) {
+            folderCurrentBmpMap.put(scope, cropped);
+            folderCurrentFileMap.put(scope, targetFile.getAbsolutePath());
+        }
+        return cropped;
+    }
+
     private static Bitmap scaleCenterCropOrFit(Bitmap src, int targetW, int targetH, boolean centerCrop) {
         int sw = src.getWidth();
         int sh = src.getHeight();
@@ -1314,6 +1514,126 @@ public final class CustomMedia {
 
         String dlgTitle = currentDir == null
                 ? title + " (" + (allowIco ? "JPG, PNG, ICO" : "JPG, PNG") + ")"
+                : currentDir.getAbsolutePath();
+
+        new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(dlgTitle)
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    if (which >= 0 && which < actions.size()) {
+                        actions.get(which).run();
+                    }
+                })
+                .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                .show();
+    }
+
+    public interface SimpleFolderPickedCallback {
+        void onFolderSelected(File folder);
+    }
+
+    public static void showFolderPicker(
+            Activity activity,
+            String scope,
+            String title,
+            SimpleFolderPickedCallback callback) {
+        showFolderPicker(activity, title, (folder, count) -> {
+            if (folder != null) {
+                setWallpaperShuffleFolder(activity, scope, folder.getAbsolutePath());
+                if (callback != null) callback.onFolderSelected(folder);
+            }
+        });
+    }
+
+    public static void showFolderPicker(
+            Activity activity,
+            String title,
+            FolderPickedCallback callback) {
+        if (activity == null || activity.isFinishing()) return;
+        ensureStoragePermissions(activity);
+        showFolderBrowser(activity, title, null, callback);
+    }
+
+    private static void showFolderBrowser(
+            Activity activity,
+            String title,
+            File currentDir,
+            FolderPickedCallback callback) {
+        if (activity == null || activity.isFinishing()) return;
+
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+
+        if (currentDir == null) {
+            Map<String, File> roots = getStorageRoots();
+            for (Map.Entry<String, File> entry : roots.entrySet()) {
+                final File dir = entry.getValue();
+                labels.add(entry.getKey());
+                actions.add(() -> showFolderBrowser(activity, title, dir, callback));
+            }
+            if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
+                labels.add("🔓  " + I18n.s(activity, "Grant All Files Access…", "Tüm Dosyalara Erişim İzni Ver…"));
+                actions.add(() -> {
+                    try {
+                        Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                                Uri.parse("package:" + activity.getPackageName()));
+                        activity.startActivity(i);
+                    } catch (Throwable t) {
+                        try {
+                            activity.startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                });
+            }
+        } else {
+            int imgCount = countImagesInFolder(currentDir);
+            if (imgCount > 0) {
+                labels.add("✓  " + I18n.s(activity,
+                        "Select this folder & shuffle (" + imgCount + " images)",
+                        "Bu klasörü seç ve karıştır (" + imgCount + " görsel)"));
+                actions.add(() -> {
+                    if (callback != null) callback.onFolderPicked(currentDir, imgCount);
+                });
+            } else {
+                labels.add("ℹ️  " + I18n.s(activity,
+                        "No images in this folder (open a subfolder below)",
+                        "Bu klasörde görsel yok (aşağıdan bir alt klasör açın)"));
+                actions.add(() -> showFolderBrowser(activity, title, currentDir, callback));
+            }
+
+            labels.add("⬆️  .. (" + I18n.s(activity, "Back to parent folder", "Üst klasöre dön") + ")");
+            actions.add(() -> {
+                File parent = currentDir.getParentFile();
+                if (parent != null && parent.canRead() && !currentDir.getAbsolutePath().equals("/storage/emulated/0")
+                        && !currentDir.getAbsolutePath().equals("/sdcard")) {
+                    showFolderBrowser(activity, title, parent, callback);
+                } else {
+                    showFolderBrowser(activity, title, null, callback);
+                }
+            });
+
+            File[] files = currentDir.listFiles();
+            if (files != null && files.length > 0) {
+                List<File> dirs = new ArrayList<>();
+                for (File f : files) {
+                    if (f != null && !f.getName().startsWith(".") && f.isDirectory()) {
+                        dirs.add(f);
+                    }
+                }
+                Collections.sort(dirs, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+                for (File d : dirs) {
+                    int subCount = countImagesInFolder(d);
+                    String badge = subCount > 0
+                            ? "  (" + subCount + " " + I18n.s(activity, "images", "görsel") + ")"
+                            : "";
+                    labels.add("📁  " + d.getName() + badge);
+                    actions.add(() -> showFolderBrowser(activity, title, d, callback));
+                }
+            }
+        }
+
+        String dlgTitle = currentDir == null
+                ? title
                 : currentDir.getAbsolutePath();
 
         new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)

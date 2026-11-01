@@ -36,9 +36,64 @@ public final class ButtonMapper {
     public static final String TARGET_CONTROL_PANEL = "control_panel";
     public static final String TARGET_RECENT_APPS = "recent_apps";
     public static final String TARGET_AMBIENT = "ambient";
+    public static final String TARGET_LOCK_SCREEN = "lock_screen";
     public static final String TARGET_STANDBY = "standby";
     public static final String TARGET_POWER_OFF = "power_off";
     public static final String TARGET_APP_PREFIX = "app:";
+    public static final String TARGET_KEYCODE_PREFIX = "keycode:";
+    public static final String TARGET_PICK_KEYCODE = "__pick_keycode__";
+
+    private static volatile int injectedKeyCode = -1;
+    private static volatile long injectedKeyTimeMs = 0L;
+
+    public static final int[][] COMMON_SEND_KEYCODES = {
+        {KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0},
+        {KeyEvent.KEYCODE_MEDIA_PLAY, 0},
+        {KeyEvent.KEYCODE_MEDIA_PAUSE, 0},
+        {KeyEvent.KEYCODE_MEDIA_STOP, 0},
+        {KeyEvent.KEYCODE_MEDIA_NEXT, 0},
+        {KeyEvent.KEYCODE_MEDIA_PREVIOUS, 0},
+        {KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, 0},
+        {KeyEvent.KEYCODE_MEDIA_REWIND, 0},
+        {KeyEvent.KEYCODE_VOLUME_MUTE, 0},
+        {KeyEvent.KEYCODE_VOLUME_UP, 0},
+        {KeyEvent.KEYCODE_VOLUME_DOWN, 0},
+        {KeyEvent.KEYCODE_TV_INPUT, 0},
+        {KeyEvent.KEYCODE_GUIDE, 0},
+        {KeyEvent.KEYCODE_INFO, 0},
+        {KeyEvent.KEYCODE_CAPTIONS, 0},
+        {KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK, 0},
+        {KeyEvent.KEYCODE_CHANNEL_UP, 0},
+        {KeyEvent.KEYCODE_CHANNEL_DOWN, 0},
+        {KeyEvent.KEYCODE_LAST_CHANNEL, 0},
+        {KeyEvent.KEYCODE_MENU, 0},
+        {KeyEvent.KEYCODE_SETTINGS, 0},
+        {KeyEvent.KEYCODE_SEARCH, 0},
+        {KeyEvent.KEYCODE_BACK, 0},
+        {KeyEvent.KEYCODE_HOME, 0},
+        {KeyEvent.KEYCODE_APP_SWITCH, 0},
+        {KeyEvent.KEYCODE_NOTIFICATION, 0},
+        {KeyEvent.KEYCODE_SLEEP, 0},
+        {KeyEvent.KEYCODE_PROG_RED, 0},
+        {KeyEvent.KEYCODE_PROG_GREEN, 0},
+        {KeyEvent.KEYCODE_PROG_YELLOW, 0},
+        {KeyEvent.KEYCODE_PROG_BLUE, 0}
+    };
+
+    public static String sendKeyCodeName(Context c, int code) {
+        switch (code) {
+            case KeyEvent.KEYCODE_VOLUME_MUTE: return I18n.s(c, "Mute / Unmute (164)", "Sesi Kapat / Aç (164)");
+            case KeyEvent.KEYCODE_VOLUME_UP: return I18n.s(c, "Volume Up (24)", "Sesini Aç (24)");
+            case KeyEvent.KEYCODE_VOLUME_DOWN: return I18n.s(c, "Volume Down (25)", "Sesini Kıs (25)");
+            case KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK: return I18n.s(c, "Audio Track (222)", "Ses Parçası / Dil (222)");
+            case KeyEvent.KEYCODE_BACK: return I18n.s(c, "Back (4)", "Geri (4)");
+            case KeyEvent.KEYCODE_HOME: return I18n.s(c, "Home (3)", "Ana Ekran (3)");
+            case KeyEvent.KEYCODE_APP_SWITCH: return I18n.s(c, "App Switch / Recents (187)", "Son Uygulamalar (187)");
+            case KeyEvent.KEYCODE_NOTIFICATION: return I18n.s(c, "Notifications (83)", "Bildirimler (83)");
+            case KeyEvent.KEYCODE_SLEEP: return I18n.s(c, "Sleep / Standby (223)", "Uyku / Bekleme (223)");
+            default: return keyLabel(c, code) + " (" + code + ")";
+        }
+    }
 
     public static final int TAP_SINGLE = 1;
     public static final int TAP_DOUBLE = 2;
@@ -82,6 +137,10 @@ public final class ButtonMapper {
         if (PowerService.instance != null) {
             PowerService.instance.syncVolumeHoldFix();
         }
+    }
+
+    public static boolean isKeyCustomMapped(Context c, int keyCode) {
+        return hasAnyMapping(c, keyCode);
     }
 
     private static final String KEY_HOME_FIX = "home_button_fix";
@@ -359,8 +418,19 @@ public final class ButtonMapper {
         if (TARGET_AMBIENT.equals(target) || TARGET_STANDBY.equals(target)) {
             return I18n.s(c, "Ambient Mode / StandBy", "Ortam Modu / StandBy");
         }
+        if (TARGET_LOCK_SCREEN.equals(target)) {
+            return I18n.s(c, "Lock Screen", "Kilit Ekranı");
+        }
         if (TARGET_POWER_OFF.equals(target)) {
             return I18n.s(c, "Power Off (Screen Off)", "Kapat (Ekranı Kapat)");
+        }
+        if (target.startsWith(TARGET_KEYCODE_PREFIX)) {
+            try {
+                int kc = Integer.parseInt(target.substring(TARGET_KEYCODE_PREFIX.length()).trim());
+                return I18n.s(c, "Key: ", "Tuş: ") + sendKeyCodeName(c, kc);
+            } catch (Exception ignored) {
+                return target;
+            }
         }
         if (target.startsWith(TARGET_APP_PREFIX)) {
             String pkg = target.substring(TARGET_APP_PREFIX.length());
@@ -394,6 +464,11 @@ public final class ButtonMapper {
         if (ev == null || c == null) return false;
         final int code = ev.getKeyCode();
         final int action = ev.getAction();
+
+        // Do not intercept key events synthesized by our own "Send Key Code" action
+        if (code == injectedKeyCode && (android.os.SystemClock.uptimeMillis() - injectedKeyTimeMs) < 600L) {
+            return false;
+        }
 
         // While StandBy / Ambient Mode or Screen Off Blackout is active:
         // ignore trailing events within 600ms of entry, and after 600ms let any key press wake/exit cleanly.
@@ -531,10 +606,23 @@ public final class ButtonMapper {
             ControlPanelOverlay.startAmbientMode(c);
             return;
         }
+        if (TARGET_LOCK_SCREEN.equals(target)) {
+            ControlPanelOverlay.dismiss();
+            RecentAppsOverlay.dismiss();
+            MainActivity.triggerLockScreen(c);
+            return;
+        }
         if (TARGET_POWER_OFF.equals(target)) {
             ControlPanelOverlay.dismiss();
             RecentAppsOverlay.dismiss();
             SleepReceiver.sleepNow(c);
+            return;
+        }
+        if (target.startsWith(TARGET_KEYCODE_PREFIX)) {
+            try {
+                int kc = Integer.parseInt(target.substring(TARGET_KEYCODE_PREFIX.length()).trim());
+                sendKeyCode(c, kc);
+            } catch (Exception ignored) { }
             return;
         }
         if (target.startsWith(TARGET_APP_PREFIX)) {
@@ -682,13 +770,17 @@ public final class ButtonMapper {
         labels.add("⏻  " + I18n.s(a, "Power Off (Screen Off)", "Kapat (Ekranı Kapat)"));
         targets.add(TARGET_POWER_OFF);
 
-        // 3. Clear / None option if already set
+        // 5. Send Key Code (Media, Mute, Input, Subtitles, Custom KeyCode...)
+        labels.add("⌨  " + I18n.s(a, "Send Key Code…", "Tuş Kodu Gönder…"));
+        targets.add(TARGET_PICK_KEYCODE);
+
+        // 6. Clear / None option if already set
         if (!current.isEmpty()) {
             labels.add("🚫  " + I18n.s(a, "None (Clear action)", "Yok (Eylemi temizle)"));
             targets.add("");
         }
 
-        // 4. Installed apps (Leanback + Launcher)
+        // 7. Installed apps (Leanback + Launcher)
         PackageManager pm = a.getPackageManager();
         Set<String> seenPkgs = new HashSet<>();
         List<String[]> appPairs = new ArrayList<>();
@@ -713,6 +805,13 @@ public final class ButtonMapper {
         themedDialog(a, keyName + " · " + tapName)
                 .setItems(labels.toArray(new String[0]), (d, which) -> {
                     String chosenTarget = targets.get(which);
+                    if (TARGET_PICK_KEYCODE.equals(chosenTarget)) {
+                        showSendKeyCodePickerDialog(a, keyCode, tapCount, () -> {
+                            if (onChanged != null) onChanged.run();
+                            showConfigureKeyDialog(a, keyCode, onChanged);
+                        });
+                        return;
+                    }
                     setTarget(a, keyCode, tapCount, chosenTarget);
                     if (onChanged != null) onChanged.run();
                     // Re-open the key's 1x/2x/3x tap dialog so user can easily configure double/triple tap too
@@ -720,5 +819,174 @@ public final class ButtonMapper {
                 })
                 .setNegativeButton(I18n.s(a, "Back", "Geri"), (d, w) -> showConfigureKeyDialog(a, keyCode, onChanged))
                 .show();
+    }
+
+    public static void showSendKeyCodePickerDialog(Activity a, int keyCode, int tapCount, Runnable onDone) {
+        List<String> items = new ArrayList<>();
+        List<Integer> codes = new ArrayList<>();
+        items.add("🔢  " + I18n.s(a, "Custom Key Code (Enter Number…)", "Özel Tuş Kodu (Sayı Girin…)"));
+        codes.add(-1);
+        for (int[] row : COMMON_SEND_KEYCODES) {
+            int kc = row[0];
+            items.add(sendKeyCodeName(a, kc));
+            codes.add(kc);
+        }
+        themedDialog(a, I18n.s(a, "Send Key Code", "Tuş Kodu Gönder"))
+                .setItems(items.toArray(new String[0]), (d, which) -> {
+                    int picked = codes.get(which);
+                    if (picked == -1) {
+                        showCustomKeyCodeInputDialog(a, keyCode, tapCount, onDone);
+                    } else {
+                        setTarget(a, keyCode, tapCount, TARGET_KEYCODE_PREFIX + picked);
+                        if (onDone != null) onDone.run();
+                    }
+                })
+                .setNegativeButton(I18n.s(a, "Cancel", "İptal"), null)
+                .show();
+    }
+
+    public static void showCustomKeyCodeInputDialog(Activity a, int keyCode, int tapCount, Runnable onDone) {
+        android.widget.EditText in = new android.widget.EditText(a);
+        in.setSingleLine(true);
+        in.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        in.setHint(I18n.s(a, "e.g. 85 (Play/Pause), 164 (Mute), 178 (TV Input)", "örn. 85 (Oynat/Duraklat), 164 (Sessiz), 178 (TV Girişi)"));
+        android.widget.FrameLayout box = new android.widget.FrameLayout(a);
+        int pad = Math.round(16 * Ui.unit(a));
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(in);
+        AlertDialog dlg = themedDialog(a, I18n.s(a, "Enter Android Key Code", "Android Tuş Kodunu Girin"))
+                .setView(box)
+                .setPositiveButton(I18n.s(a, "Save", "Kaydet"), (d, w) -> {
+                    try {
+                        int customKc = Integer.parseInt(in.getText().toString().trim());
+                        if (customKc > 0) {
+                            setTarget(a, keyCode, tapCount, TARGET_KEYCODE_PREFIX + customKc);
+                            if (onDone != null) onDone.run();
+                        }
+                    } catch (Exception ignored) { }
+                })
+                .setNegativeButton(I18n.s(a, "Cancel", "İptal"), null)
+                .show();
+        Ui.setupDialogEditText(in, dlg);
+        in.requestFocus();
+    }
+
+    /**
+     * Dispatches any Android KeyEvent keycode across the system:
+     * 1. Uses AccessibilityService global actions for Back/Home/Recents/Notifications/Sleep.
+     * 2. Uses AudioManager for Volume Up/Down/Mute and Media keys (Play/Pause/Next/Prev/Stop/FF/Rew)
+     *    so it works immediately across all apps without needing root or ADB.
+     * 3. Uses Instrumentation / Local ADB fallback for arbitrary hardware keycodes.
+     */
+    public static void sendKeyCode(Context c, int keyCode) {
+        if (c == null || keyCode <= 0) return;
+        injectedKeyCode = keyCode;
+        injectedKeyTimeMs = android.os.SystemClock.uptimeMillis();
+
+        // 1. System / Navigation Global Actions via AccessibilityService
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                if (PowerService.sendGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)) {
+                    return;
+                }
+                break;
+            case KeyEvent.KEYCODE_HOME:
+                if (PowerService.sendGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME)) {
+                    return;
+                }
+                launchHome(c);
+                return;
+            case KeyEvent.KEYCODE_APP_SWITCH:
+                if (PowerService.sendGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS)) {
+                    return;
+                }
+                RecentAppsOverlay.toggle(c);
+                return;
+            case KeyEvent.KEYCODE_NOTIFICATION:
+                if (PowerService.sendGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)) {
+                    return;
+                }
+                break;
+            case KeyEvent.KEYCODE_SLEEP:
+                SleepReceiver.sleepNow(c);
+                return;
+        }
+
+        // 2. Volume & Media Session keys via AudioManager (works over every app with zero ADB requirement!)
+        try {
+            android.media.AudioManager am = (android.media.AudioManager) c.getSystemService(Context.AUDIO_SERVICE);
+            if (am != null) {
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                    am.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC,
+                            android.media.AudioManager.ADJUST_RAISE, android.media.AudioManager.FLAG_SHOW_UI);
+                    return;
+                }
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                    am.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC,
+                            android.media.AudioManager.ADJUST_LOWER, android.media.AudioManager.FLAG_SHOW_UI);
+                    return;
+                }
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+                    am.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC,
+                            android.media.AudioManager.ADJUST_TOGGLE_MUTE, android.media.AudioManager.FLAG_SHOW_UI);
+                    return;
+                }
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                    case KeyEvent.KEYCODE_MEDIA_PLAY:
+                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                    case KeyEvent.KEYCODE_MEDIA_STOP:
+                    case KeyEvent.KEYCODE_MEDIA_NEXT:
+                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                    case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+                    case KeyEvent.KEYCODE_MEDIA_REWIND:
+                    case KeyEvent.KEYCODE_MEDIA_RECORD:
+                    case KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK:
+                    case KeyEvent.KEYCODE_CAPTIONS: {
+                        long now = android.os.SystemClock.uptimeMillis();
+                        am.dispatchMediaKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0));
+                        am.dispatchMediaKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0));
+                        if (keyCode != KeyEvent.KEYCODE_CAPTIONS && keyCode != KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK) {
+                            return;
+                        }
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        // 3. Inject via Instrumentation (if inside our own process) or Local ADB (if paired & open),
+        //    plus intent fallbacks for Settings / TV Input
+        final Context appCtx = c.getApplicationContext();
+        new Thread(() -> {
+            boolean sent = false;
+            try {
+                new android.app.Instrumentation().sendKeyDownUpSync(keyCode);
+                sent = true;
+            } catch (Throwable ignored) {
+            }
+            if (!sent) {
+                if (LocalAdb.portReachable && LocalAdb.isPaired(appCtx)) {
+                    LocalAdb.sendKeyEventViaAdbAsync(appCtx, keyCode);
+                    return;
+                }
+                // Non-ADB fallback for Settings / TV Input / Search keycodes
+                MAIN.post(() -> {
+                    try {
+                        if (keyCode == KeyEvent.KEYCODE_SETTINGS) {
+                            appCtx.startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                        } else if (keyCode == KeyEvent.KEYCODE_TV_INPUT) {
+                            ControlPanelOverlay.openInputs(appCtx, null);
+                        } else if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+                            Intent s = new Intent(appCtx, MainActivity.class)
+                                    .putExtra("panel", "search")
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            appCtx.startActivity(s);
+                        }
+                    } catch (Throwable ignored) { }
+                });
+            }
+        }, "btn-send-keycode").start();
     }
 }

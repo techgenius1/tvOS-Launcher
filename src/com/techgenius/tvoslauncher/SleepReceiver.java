@@ -2,39 +2,23 @@ package com.techgenius.tvoslauncher;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.admin.DeviceAdminReceiver;
-import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
 /**
- * Sleep support for Control Center: Power Off and the Sleep Timer put the TV to sleep through
- * DevicePolicyManager.lockNow(), which needs this app to be a (force-lock only) device admin:
- *   adb shell dpm set-active-admin com.techgenius.tvoslauncher/.SleepReceiver$Admin
+ * Sleep support for Control Center: Power Off and the Sleep Timer turn the TV screen off
+ * through ControlPanelOverlay.showScreenOff() or AccessibilityService sleep.
  */
 public class SleepReceiver extends BroadcastReceiver {
-
-    /** Device-admin component (force-lock only). */
-    public static class Admin extends DeviceAdminReceiver { }
-
-    static ComponentName admin(Context c) {
-        return new ComponentName(c, Admin.class);
-    }
 
     static boolean canSleep(Context c) {
         return true;
     }
 
-    /** Projector-safe screen-off first (keeps Wanbo projector running); falls back to device admin / accessibility sleep. */
+    /** Projector-safe screen-off first (keeps Wanbo projector running); falls back to accessibility sleep. */
     static boolean sleepNow(Context c) {
         if (ControlPanelOverlay.showScreenOff(c)) {
-            return true;
-        }
-        DevicePolicyManager dpm = c.getSystemService(DevicePolicyManager.class);
-        if (dpm != null && dpm.isAdminActive(admin(c))) {
-            dpm.lockNow();
             return true;
         }
         return PowerService.sleep();

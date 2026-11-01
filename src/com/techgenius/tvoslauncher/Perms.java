@@ -3,7 +3,6 @@ package com.techgenius.tvoslauncher;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,20 +13,13 @@ import android.provider.Settings;
 /**
  * Permissions, asked for on screen wherever the TV allows it; adb is only the last resort.
  * - Location (Wi-Fi name): the normal runtime prompt.
- * - Device admin (Power Off, Sleep Timer): Android's "Activate device admin app?" screen.
  * - Notification access (Continue Watching, Do Not Disturb): the system's notification-access
  *   screen (Android 11+ opens tvOS Launcher's own switch directly).
- * Some TVs (e.g. Android 9 builds) have no screen for the last two; only then is the
- * one-time computer command shown.
  */
 final class Perms {
     static final int REQ_LOCATION = 41;
 
     private Perms() {
-    }
-
-    static ComponentName admin(Activity a) {
-        return new ComponentName(a, SleepReceiver.Admin.class);
     }
 
     static ComponentName listener(Activity a) {
@@ -37,16 +29,6 @@ final class Perms {
     static boolean hasLocation(Activity a) {
         try {
             return a != null && a.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
-    /** Some TVs (e.g. this office TV's Android 9 build) lack device admin entirely; nothing can enable it. */
-    /** Power Off is possible via device admin, or via tvOS Launcher's accessibility service (any TV with that screen). */
-    static boolean adminSupported(Activity a) {
-        try {
-            return adminWorks(a) || accessibilityScreen(a) != null;
         } catch (Throwable t) {
             return false;
         }
@@ -63,28 +45,6 @@ final class Perms {
             return i;
         } catch (Throwable t) {
             return null;
-        }
-    }
-
-    static boolean hasAdmin(Activity a) {
-        if (PowerService.instance != null) return true;
-        if (a == null) return false;
-        try {
-            DevicePolicyManager dpm = a.getSystemService(DevicePolicyManager.class);
-            return dpm != null && dpm.isAdminActive(admin(a));
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
-    /** Device admin actually works only when Android's device-policy service is on. */
-    static boolean adminWorks(Activity a) {
-        if (a == null) return false;
-        try {
-            DevicePolicyManager dpm = a.getSystemService(DevicePolicyManager.class);
-            return dpm != null && a.getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
-        } catch (Throwable t) {
-            return false;
         }
     }
 
@@ -109,40 +69,6 @@ final class Perms {
 
     static void requestLocation(Activity a) {
         if (!hasLocation(a)) a.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQ_LOCATION);
-    }
-
-    static void requestAdmin(Activity a) {
-        if (hasAdmin(a)) return;
-        if (!adminSupported(a)) {
-            new AlertDialog.Builder(a, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle(I18n.s(a, "Not available on this TV", "Bu TV'de kullan\u0131lam\u0131yor"))
-                    .setMessage(I18n.s(a,
-                            "This TV doesn't let apps turn the screen off, so Power Off and the Sleep Timer can't work here. Use the power button on the remote.",
-                            "Bu TV uygulamalar\u0131n ekran\u0131 kapatmas\u0131na izin vermiyor, bu nedenle Kapatma ve Uyku Zamanlay\u0131c\u0131s\u0131 burada \u00e7al\u0131\u015famaz. Kumandadaki g\u00fc\u00e7 d\u00fc\u011fmesini kullan\u0131n."))
-                    .setPositiveButton(I18n.s(a, "OK", "Tamam"), null).show();
-            return;
-        }
-        if (!adminWorks(a)) {
-            // Device admin is switched off on this TV: use tvOS Launcher's accessibility switch instead.
-            Intent acc = accessibilityScreen(a);
-            new AlertDialog.Builder(a, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle(I18n.s(a, "Turn on Power Off", "Kapatma \u00d6zelli\u011fini A\u00e7\u0131n"))
-                    .setMessage(I18n.s(a,
-                            "In the next screen, choose \u201ctvOS Launcher \u2013 Button Mapper & Control Panel\u201d and turn it on.",
-                            "Sonraki ekranda \u201ctvOS Launcher \u2013 Button Mapper & Control Panel\u201d se\u00e7ene\u011fini se\u00e7ip a\u00e7\u0131n."))
-                    .setPositiveButton(I18n.s(a, "Open Accessibility", "Eri\u015filebilirli\u011fi A\u00e7"), (d, w) -> tryStart(a, acc))
-                    .setNegativeButton(I18n.s(a, "Cancel", "\u0130ptal"), null).show();
-            return;
-        }
-        Intent i = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin(a))
-                .putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                        I18n.s(a,
-                                "Lets tvOS Launcher turn the screen off for Power Off and the Sleep Timer. It can't do anything else.",
-                                "tvOS Launcher'\u0131n Kapatma ve Uyku Zamanlay\u0131c\u0131s\u0131 i\u00e7in ekran\u0131 kapatmas\u0131n\u0131 sa\u011flar. Ba\u015fka hi\u00e7bir i\u015flem yapamaz."));
-        if (tryStart(a, i)) return;
-        lastResort(a, I18n.s(a, "Power Off & Sleep Timer", "Kapatma ve Uyku Zamanlay\u0131c\u0131s\u0131"),
-                "adb shell dpm set-active-admin com.techgenius.tvoslauncher/.SleepReceiver\\$Admin");
     }
 
     static void requestListener(Activity a) {
@@ -186,18 +112,29 @@ final class Perms {
         "com.google.android.tvlauncher",
         "com.google.android.apps.tv.launcherx",
         "com.google.android.leanbacklauncher",
-        "org.droidtv.playtv",
         "org.droidtv.ui.home",
         "org.droidtv.home",
         "com.tpvision.home",
         "com.tcl.cyberui",
         "com.tcl.tv.launcher",
         "com.tcl.launcher",
+        "com.falcon.launcher",
+        "com.ffalcon.launcher",
         "com.hisense.tv.launcher",
         "com.mi.tv.launcher",
         "com.mitv.tvhome",
-        "com.sony.dtv.homemenu"
+        "com.sony.dtv.homemenu",
+        "com.skyworth.tvos.launcher",
+        "com.coocaa.tv.launcher",
+        "com.haier.tv.launcher",
+        "com.homwee.launcher",
+        "com.zeasn.whaleos.launcher",
+        "com.sdmc.launcher"
     };
+
+    static String[] getStockTvHomePackages() {
+        return STOCK_TV_HOME_PACKAGES;
+    }
 
     static boolean hasEnabledStockLauncher(android.content.Context c) {
         if (c == null) return false;
@@ -231,7 +168,7 @@ final class Perms {
         if (c != null) {
             PackageManager pm = c.getPackageManager();
             String[] oemPkgs = {
-                "org.droidtv.playtv", "org.droidtv.ui.home", "org.droidtv.settings",
+                "org.droidtv.ui.home", "org.droidtv.home", "org.droidtv.settings",
                 "com.tpvision.home", "com.tcl.cyberui", "com.tcl.tv.launcher"
             };
             for (String p : oemPkgs) {
@@ -288,9 +225,13 @@ final class Perms {
      */
     static void requestDefaultHome(Activity a) {
         if (a == null) return;
-        // If inside SettingsActivity, open the native right-side Default Home setup sub-menu
+        // If inside SettingsActivity or SetupActivity, open the native Default Home setup sub-menu
         if (a instanceof SettingsActivity) {
             ((SettingsActivity) a).openDefaultHomeSubMenu();
+            return;
+        }
+        if (a instanceof SetupActivity) {
+            ((SetupActivity) a).openDefaultHomeSubMenu();
             return;
         }
 
@@ -329,6 +270,12 @@ final class Perms {
                         case 2:
                             ButtonMapper.setHomeFixEnabled(a, true);
                             if (!ButtonMapper.isServiceEnabled(a)) {
+                                if (LocalAdb.hasWriteSecureSettings(a) && LocalAdb.repairPermissionsViaSecureSettings(a)) {
+                                    android.widget.Toast.makeText(a,
+                                            I18n.s(a, "Home Button Fix & Accessibility enabled!", "Ana Ekran Tuşu Düzeltmesi ve Erişilebilirlik etkinleştirildi!"),
+                                            android.widget.Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
                                 Intent acc = accessibilityScreen(a);
                                 if (acc != null && tryStart(a, acc)) {
                                     return;
@@ -353,13 +300,17 @@ final class Perms {
         if (tryStart(a, new Intent(Settings.ACTION_HOME_SETTINGS))) return;
         if (Build.VERSION.SDK_INT >= 24 && tryStart(a, new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))) return;
         if (Build.VERSION.SDK_INT >= 29) {
-            android.app.role.RoleManager rm = a.getSystemService(android.app.role.RoleManager.class);
-            if (rm != null && rm.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)) {
-                try {
-                    a.startActivityForResult(rm.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME), 42);
-                    return;
-                } catch (Exception ignored) { }
-            }
+            try {
+                android.app.role.RoleManager rm = a.getSystemService(android.app.role.RoleManager.class);
+                if (rm != null && rm.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)
+                        && !rm.isRoleHeld(android.app.role.RoleManager.ROLE_HOME)) {
+                    Intent roleIntent = rm.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME);
+                    if (roleIntent != null) {
+                        a.startActivityForResult(roleIntent, 42);
+                        return;
+                    }
+                }
+            } catch (Throwable ignored) { }
         }
         Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
         if (tryStart(a, Intent.createChooser(home, I18n.s(a, "Select Home App", "Ana Ekran Uygulamasını Seçin")))) return;

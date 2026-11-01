@@ -366,6 +366,10 @@ public class MainActivity extends Activity {
             else if (panel.equals("ambient")) {
                 setIntent(intent);
                 enterAmbientShowcase();
+            } else if (panel.equals("lock")) {
+                boolean ext = intent.getBooleanExtra("lock_from_external", false);
+                setIntent(intent);
+                enterLockScreen(ext);
             }
             return;
         }
@@ -425,7 +429,8 @@ public class MainActivity extends Activity {
         boolean wasReturningFromSettings = returningFromSettings;
         if (!Scenes.isScenesLook(this)) {
             String ws = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
-            if (!ws.equals(wallStyle) || wallView.getDrawable() == null || (wasReturningFromSettings && "custom".equals(ws))) {
+            if (!ws.equals(wallStyle) || wallView.getDrawable() == null
+                    || (wasReturningFromSettings && ("custom".equals(ws) || FOLDER_SHUFFLE_WALL_KEY.equals(ws)))) {
                 wallStyle = ws;
                 setWallpaper(ws);
             }
@@ -488,6 +493,11 @@ public class MainActivity extends Activity {
         if (ambientShowcase || (getIntent() != null && "ambient".equals(getIntent().getStringExtra("panel")))) {
             if (getIntent() != null) getIntent().removeExtra("panel");
             enterAmbientShowcase();
+        } else if (getIntent() != null && "lock".equals(getIntent().getStringExtra("panel"))) {
+            boolean ext = getIntent().getBooleanExtra("lock_from_external", false);
+            getIntent().removeExtra("panel");
+            getIntent().removeExtra("lock_from_external");
+            enterLockScreen(ext);
         }
     }
 
@@ -502,6 +512,7 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(heroAdvance);
         handler.removeCallbacks(weatherTick);
         handler.removeCallbacks(idleRunnable);
+        handler.removeCallbacks(lockIdleRunnable);
         if (idle) exitIdle();
     }
 
@@ -1087,8 +1098,17 @@ public class MainActivity extends Activity {
     }
 
     static final String CUSTOM_WALL_KEY = "custom";
+    static final String FOLDER_SHUFFLE_WALL_KEY = "folder_shuffle";
 
     Bitmap makeWallpaper(String style) {
+        if (FOLDER_SHUFFLE_WALL_KEY.equals(style)) {
+            Bitmap folderBmp = CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_CLASSIC, 1920, 1080, true);
+            if (folderBmp != null && !folderBmp.isRecycled()) {
+                Bitmap copy = folderBmp.copy(Bitmap.Config.ARGB_8888, true);
+                if (copy != folderBmp) folderBmp.recycle();
+                return bakeShade(copy);
+            }
+        }
         if (CUSTOM_WALL_KEY.equals(style)) {
             Bitmap custom = CustomMedia.getCustomClassicWallpaper(this);
             if (custom != null && !custom.isRecycled()) {
@@ -2569,21 +2589,23 @@ public class MainActivity extends Activity {
             Suggestions.open(this, it);
             return;
         }
-        for (AppEntry e : all.values()) {
-            if (it.pkg.equals(e.pkg) && e.launch != null) {
-                launchAnimated(heroButton, e);
-                return;
+        MediaWatchService.Store.openContinueItem(this, it, () -> {
+            for (AppEntry e : all.values()) {
+                if (it.pkg.equals(e.pkg) && e.launch != null) {
+                    launchAnimated(heroButton, e);
+                    return;
+                }
             }
-        }
-        Intent i = getPackageManager().getLeanbackLaunchIntentForPackage(it.pkg);
-        if (i == null) i = getPackageManager().getLaunchIntentForPackage(it.pkg);
-        if (i != null) {
-            prepareForAppLaunch();
-            Suggestions.start(this, i);
-            overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
-            final String pkg = it.pkg;
-            io.execute(() -> noteLaunched(pkg));
-        }
+            Intent i = getPackageManager().getLeanbackLaunchIntentForPackage(it.pkg);
+            if (i == null) i = getPackageManager().getLaunchIntentForPackage(it.pkg);
+            if (i != null) {
+                prepareForAppLaunch();
+                Suggestions.start(this, i);
+                overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                final String pkg = it.pkg;
+                io.execute(() -> noteLaunched(pkg));
+            }
+        });
     }
 
     // ---------------------------------------------------------------- focus sway
@@ -4018,10 +4040,6 @@ public class MainActivity extends Activity {
 
     /** Off \u2192 15 \u2192 30 \u2192 60 \u2192 90 \u2192 Off. */
     void cycleSleepTimer() {
-        if (!SleepReceiver.canSleep(this)) {
-            Perms.requestAdmin(this);
-            return;
-        }
         int left = SleepReceiver.timerLeft(this);
         int[] steps = {15, 30, 60, 90};
         int next = steps[0];
@@ -4271,6 +4289,8 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- built-in ambient mode & idle carousel
 
     boolean ambientShowcase;
+    boolean lockScreenActive;
+    boolean lockScreenFromExternal;
     long ambientEnterTime;
     final Set<Integer> ambientDownKeys = new HashSet<>();
     boolean idle, swallowUp;
@@ -4279,7 +4299,14 @@ public class MainActivity extends Activity {
 
     public static void triggerBuiltInAmbient(Context c) {
         if (activeInstance != null && activeInstance.resumed) {
-            activeInstance.runOnUiThread(activeInstance::enterAmbientShowcase);
+            activeInstance.runOnUiThread(() -> {
+                activeInstance.lockScreenActive = false;
+                activeInstance.lockScreenFromExternal = false;
+                if (activeInstance.sceneHome != null) {
+                    activeInstance.sceneHome.sceneView.setLockScreenMode(false);
+                }
+                activeInstance.enterAmbientShowcase();
+            });
             return;
         }
         try {
@@ -4289,6 +4316,29 @@ public class MainActivity extends Activity {
             c.startActivity(i);
         } catch (Exception ignored) {
         }
+    }
+
+    public static void triggerLockScreen(Context c) {
+        if (activeInstance != null && activeInstance.resumed) {
+            activeInstance.runOnUiThread(() -> activeInstance.enterLockScreen(false));
+            return;
+        }
+        try {
+            Intent i = new Intent(c, MainActivity.class)
+                    .putExtra("panel", "lock")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            c.startActivity(i);
+        } catch (Exception ignored) {
+        }
+    }
+
+    void enterLockScreen(boolean fromExternal) {
+        lockScreenActive = true;
+        lockScreenFromExternal = fromExternal;
+        if (sceneHome != null) {
+            sceneHome.sceneView.setLockScreenMode(true);
+        }
+        enterAmbientShowcase();
     }
 
     /**
@@ -4303,6 +4353,7 @@ public class MainActivity extends Activity {
         if (sceneHome != null && sceneHome.isSheetOpen()) sceneHome.closeSheet();
         if (idle) exitIdle();
         handler.removeCallbacks(idleRunnable);
+        handler.removeCallbacks(lockIdleRunnable);
         ambientShowcase = true;
         ambientEnterTime = android.os.SystemClock.uptimeMillis();
         ambientDownKeys.clear();
@@ -4336,6 +4387,13 @@ public class MainActivity extends Activity {
     void exitAmbientShowcase() {
         if (!ambientShowcase) return;
         ambientShowcase = false;
+        boolean wasLock = lockScreenActive;
+        boolean wasExternal = lockScreenFromExternal;
+        lockScreenActive = false;
+        lockScreenFromExternal = false;
+        if (sceneHome != null && wasLock) {
+            sceneHome.sceneView.setLockScreenMode(false);
+        }
         if (root != null) root.setKeepScreenOn(false);
         if (Scenes.isScenesLook(this)) {
             if (sceneHome != null) {
@@ -4353,6 +4411,9 @@ public class MainActivity extends Activity {
             applyLookMode();
         }
         resetIdle();
+        if (wasLock && wasExternal) {
+            moveTaskToBack(true);
+        }
     }
 
     /** Seconds without input before the dock slides away (Settings -> Home); 0 = never. */
@@ -4364,11 +4425,21 @@ public class MainActivity extends Activity {
     }
 
     final Runnable idleRunnable = this::enterIdle;
+    final Runnable lockIdleRunnable = () -> {
+        if (resumed && !ambientShowcase) {
+            enterLockScreen(false);
+        }
+    };
 
     void resetIdle() {
         handler.removeCallbacks(idleRunnable);
+        handler.removeCallbacks(lockIdleRunnable);
         int sec = idleSeconds();
         if (sec > 0 && resumed) handler.postDelayed(idleRunnable, sec * 1000L);
+        int lockMin = Scenes.getLockIdleMinutes(this);
+        if (lockMin > 0 && resumed && !ambientShowcase) {
+            handler.postDelayed(lockIdleRunnable, lockMin * 60_000L);
+        }
     }
 
     /**
@@ -4435,6 +4506,9 @@ public class MainActivity extends Activity {
             updateWeather();
             // Carousel content rotates even if Home stays open for hours (fetches only when stale).
             if (++tickCount % 5 == 0 && !shelfView.hasFocus()) loadHero();
+            if (!Scenes.isScenesLook(MainActivity.this) && FOLDER_SHUFFLE_WALL_KEY.equals(wallStyle)) {
+                setWallpaper(wallStyle);
+            }
             if (tickCount % 15 == 0) AirPlayGuard.check(MainActivity.this, false);
             LocalAdb.checkAndRepairPermissionsIfNeeded(MainActivity.this, false);
             updateNet();
@@ -4457,6 +4531,7 @@ public class MainActivity extends Activity {
         if (weatherCard == null) return;
         Weather.Data d = Weather.enabled(this) ? Weather.cached(this) : null;
         if (sceneHome != null) {
+            sceneHome.refreshWeatherBtn();
             if (d != null) {
                 sceneHome.sceneView.setWeather(d.temp + "\u00b0", Weather.describe(this, d.code, d.day), d.code);
             } else {
@@ -4470,13 +4545,28 @@ public class MainActivity extends Activity {
         if (show && !weatherCard.isFocused() && launchOverlay == null) weatherCard.setAlpha(weatherAlpha());
     }
 
-    /** The full forecast: a glass panel opening from the weather card in the top-left corner. */
+    /** The full forecast: a glass panel opening from the weather card in the top-left corner (or top-right weather shortcut in Night Scenes). */
     void showWeather() {
         Weather.Data d = Weather.cached(this);
-        if (d == null) return;
+        if (d == null) {
+            if (Weather.enabled(this)) {
+                Weather.refresh(this, true, () -> {
+                    updateWeather();
+                    if (Weather.cached(this) != null) {
+                        showWeather();
+                    }
+                });
+            }
+            return;
+        }
         dropPicker();
         stopSway(null);
-        popoverReturn = weatherCard;
+        if (Scenes.isScenesLook(this) && sceneHome != null && sceneHome.weatherBtn != null
+                && sceneHome.weatherBtn.getVisibility() == View.VISIBLE) {
+            popoverReturn = sceneHome.weatherBtn;
+        } else {
+            popoverReturn = weatherCard;
+        }
         FrameLayout layer = new FrameLayout(this);
         layer.setClickable(true);
         layer.setClipChildren(false);

@@ -867,6 +867,7 @@ public class SettingsActivity extends Activity {
                 break;
             }
         }
+        folderShuffleSceneRow();
 
         if (Scenes.isAnyCustomSceneEnabled(this)) {
             row(tr("Clock position", "Saat konumu"),
@@ -915,6 +916,7 @@ public class SettingsActivity extends Activity {
             return MainActivity.wallName(this, Math.max(0, idx));
         }, () -> openSubMenu("ambient_themes"));
         customClassicPhotoRow("custom".equals(curWall));
+        folderShuffleClassicRow(MainActivity.FOLDER_SHUFFLE_WALL_KEY.equals(curWall));
     }
 
     void pageApps() {
@@ -947,6 +949,13 @@ public class SettingsActivity extends Activity {
                 () -> {
                     boolean on = !Profiles.homePrefs(this).getBoolean("cw_enabled", false);
                     Profiles.homePrefs(this).edit().putBoolean("cw_enabled", on).apply();
+                });
+        row(tr("Home screen weather shortcut", "Ana ekranda hava durumu kısayolu"),
+                () -> SceneHome.isWeatherShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    boolean next = !SceneHome.isWeatherShortcutEnabled(this);
+                    SceneHome.setWeatherShortcutEnabled(this, next);
+                    refreshAll();
                 });
         row(tr("Classic Top Shelf suggestions", "Klasik Üst Raf önerileri"), () -> {
             switch (Suggestions.shelf(this)) {
@@ -1248,6 +1257,26 @@ public class SettingsActivity extends Activity {
         row(tr("Inputs (Control Panel & Dock)", "Girişler (Denetim Paneli ve Dock)"),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_INPUTS),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_INPUTS));
+        row(tr("Ambient Mode", "Ortam Modu"),
+                () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_AMBIENT),
+                () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_AMBIENT));
+        if (ControlPanelOverlay.isAmbientLockScreenMode(this)) {
+            row(tr("Lock screen settings…", "Kilit ekranı ayarları…"),
+                    () -> Scenes.lockClockPosLabel(this) + " · " + Scenes.lockIdleLabel(this),
+                    () -> openSubMenu("lock_screen_settings"));
+        }
+
+        section(tr("CONTROL PANEL ITEMS (SHOW / HIDE)", "DENETİM PANELİ ÖĞELERİ (GÖSTER / GİZLE)"));
+        for (final String[] itemRow : ControlPanelOverlay.ALL_CP_ITEMS) {
+            final String itemKey = itemRow[0];
+            row(ControlPanelOverlay.getItemTitle(this, itemKey),
+                    () -> ControlPanelOverlay.isItemEnabled(this, itemKey) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        boolean next = !ControlPanelOverlay.isItemEnabled(this, itemKey);
+                        ControlPanelOverlay.setItemEnabled(this, itemKey, next);
+                        refreshAll();
+                    });
+        }
 
         section(tr("INPUTS APP ON DOCK", "DOCK ÜZERİNDEKİ GİRİŞLER UYGULAMASI"));
         row(tr("Show Inputs app on Dock", "Dock'ta Girişler uygulamasını göster"),
@@ -1263,13 +1292,16 @@ public class SettingsActivity extends Activity {
                 () -> "",
                 () -> {
                     ControlPanelOverlay.clearAllCustomActions(this);
-                    refreshAll();
-                    showStatusMsg(tr("Control Panel actions reset to Automatic.",
-                            "Denetim Paneli eylemleri Otomatik olarak sıfırlandı."));
+                    for (String[] itemRow : ControlPanelOverlay.ALL_CP_ITEMS) {
+                        ControlPanelOverlay.setItemEnabled(this, itemRow[0], true);
+                    }
+                    rebuildMainRows();
+                    showStatusMsg(tr("Control Panel actions and items reset to default.",
+                            "Denetim Paneli eylemleri ve öğeleri varsayılana sıfırlandı."));
                 });
 
-        infoNote(tr("Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, and Inputs. Choose an app and then pick the exact activity to launch from the Control Panel (and from the Inputs app on the dock).",
-                "Her TV markası Wi-Fi, Bluetooth, Ses ve Girişler için farklı paket ve etkinlik adları kullanır. Bir uygulama seçin ve ardından Denetim Panelinden (ve dock'taki Girişler uygulamasından) başlatılacak etkinliği belirleyin."));
+        infoNote(tr("Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, Inputs, and Ambient Mode. You can also choose Lock Screen for Ambient Mode (for TVs without built-in Ambient Mode) and toggle individual Control Panel items on or off.",
+                "Her TV markası Wi-Fi, Bluetooth, Ses, Girişler ve Ortam Modu için farklı paket ve etkinlik adları kullanır. Ayrıca Ortam Modu için Kilit Ekranı'nı seçebilir (yerleşik Ortam Modu olmayan TV'ler için) ve Denetim Paneli öğelerini tek tek açıp kapatabilirsiniz."));
     }
 
     void pageButtonMapper() {
@@ -1353,10 +1385,6 @@ public class SettingsActivity extends Activity {
         row(tr("Default home screen", "Varsayılan ana ekran"),
                 () -> Perms.isDefaultHome(this) ? tr("Active", "Etkin") : tr("Set as default…", "Varsayılan yap…"),
                 () -> Perms.requestDefaultHome(this));
-        row(tr("Power Off & Sleep Timer permission", "Kapatma ve Uyku Zamanlayıcısı izni"),
-                () -> Perms.hasAdmin(this) ? tr("Allowed", "İzin verildi")
-                        : Perms.adminSupported(this) ? tr("Allow…", "İzin ver…") : tr("Not on this TV", "Bu TV'de yok"),
-                () -> Perms.requestAdmin(this));
         row(tr("Continue Watching & DND permission", "İzlemeye Devam Et ve Rahatsız Etmeyin izni"),
                 () -> Perms.hasListener(this) ? tr("Allowed", "İzin verildi")
                         : Perms.listenerSupported(this) ? tr("Allow…", "İzin ver…") : tr("Not on this TV", "Bu TV'de yok"),
@@ -1397,13 +1425,21 @@ public class SettingsActivity extends Activity {
     }
 
     void pageAdvanced() {
-        section(tr("ADB & PERMISSIONS", "ADB VE İZİNLER"));
+        section(tr("ADB & SECURITY MODE", "ADB VE GÜVENLİK MODU"));
+        twoLineRow(tr("ADB operating mode", "ADB çalışma modu"),
+                () -> LocalAdb.getAdbModeLabel(this),
+                this::showAdbModeSelectorDialog);
         row(tr("ADB connection status", "ADB bağlantı durumu"),
                 () -> LocalAdb.getStatusLabel(this),
                 this::pairOrRepairAdb);
         row(tr("Pair / Repair ADB connection", "ADB bağlantısını eşleştir / onar"),
                 () -> LocalAdb.isPaired(this) ? tr("Repair", "Onar") : tr("Pair now", "Şimdi eşleştir"),
                 this::pairOrRepairAdb);
+        row(tr("Turn On / Off ADB", "ADB'yi Aç / Kapat"),
+                () -> (LocalAdb.isAdbSettingEnabled(this) || LocalAdb.portReachable)
+                        ? tr("On", "Açık")
+                        : tr("Off", "Kapalı"),
+                this::toggleAdbPort);
         row(tr("Check permissions", "İzinleri kontrol et"),
                 this::permissionsSummaryCount,
                 () -> openSubMenu("check_permissions"));
@@ -1419,28 +1455,17 @@ public class SettingsActivity extends Activity {
                     com.techgenius.tvoslauncher.present.BootReceiver.setLaunchOnBootEnabled(this, next);
                     refreshAll();
                     showStatusMsg(next
-                            ? tr("tvOS Launcher will launch automatically after system boot.",
-                                 "tvOS Launcher sistem açılışından hemen sonra otomatik başlatılacak.")
+                            ? tr("tvOS Launcher will launch immediately on system boot.",
+                                 "tvOS Launcher sistem açılışında anında otomatik başlatılacak.")
                             : tr("Automatic launch on boot disabled.",
                                  "Sistem açılışında otomatik başlatma kapatıldı."));
                 });
-        row(tr("Keep Alive (Auto-repair permissions)", "Keep Alive (İzinleri otomatik onar)"),
-                () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
-                () -> {
-                    boolean next = !LocalAdb.isKeepAliveEnabled(this);
-                    LocalAdb.setKeepAliveEnabled(this, next);
-                    if (next) {
-                        LocalAdb.checkAndRepairPermissionsIfNeeded(this, true);
-                    }
-                    refreshAll();
-                    showStatusMsg(next
-                            ? tr("Keep Alive enabled — permissions will be monitored and restored automatically via ADB.",
-                                 "Keep Alive etkinleştirildi — izinler izlenecek ve ADB ile otomatik olarak onarılacak.")
-                            : tr("Keep Alive disabled.", "Keep Alive devre dışı bırakıldı."));
-                });
+        row(tr("Keep Alive (Auto-repair Accessibility)", "Keep Alive (Erişilebilirliği otomatik onar)"),
+                () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On", "Açık") : tr("Off (Default)", "Kapalı (Varsayılan)"),
+                this::toggleKeepAliveWithWarning);
 
-        infoNote(tr("Some TVs disable Accessibility or other permissions automatically in the background. When Keep Alive is on, tvOS Launcher lightly checks permission status in the background without extra RAM or CPU load and automatically restores any disabled permissions via ADB.",
-                "Bazı TV'ler Erişilebilirlik veya diğer izinleri arka planda kendiliğinden kapatabilir. Keep Alive açıkken tvOS Launcher, ekstra RAM veya işlemci yükü oluşturmadan izin durumunu arka planda hafifçe kontrol eder ve kapanan izinleri ADB üzerinden otomatik olarak yeniden açar."));
+        infoNote(tr("Security Note: In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly without needing network ADB open on port 5555. Keep Alive is off by default; if you use Persistent ADB Mode without WRITE_SECURE_SETTINGS, Keep Alive requires Network Debugging to stay enabled.",
+                "Güvenlik Notu: Güvenli Mod'da tvOS Launcher, port 5555 üzerinde ağ ADB'sine ihtiyaç duymadan Erişilebilirliği doğrudan WRITE_SECURE_SETTINGS ile onarır. Keep Alive varsayılan olarak kapalıdır; Kalıcı ADB Modu'nu seçerseniz Ağ Hata Ayıklamanın açık kalması gerekir."));
 
         section(tr("CLEANYOURTV (BETA)", "CLEANYOURTV (BETA)"));
         twoLineRow(tr("Choose TV model", "TV modelini seçin"),
@@ -1598,20 +1623,211 @@ public class SettingsActivity extends Activity {
 
     private String permissionsSummaryCount() {
         int granted = 0;
-        int total = 5;
+        int total = 4;
         if (Perms.isDefaultHome(this)) granted++;
         if (ButtonMapper.isServiceEnabled(this)) granted++;
-        if (Perms.hasAdmin(this)) granted++;
         if (Perms.hasListener(this)) granted++;
         if (Perms.hasLocation(this)) granted++;
         return granted + " / " + total + " " + tr("active", "etkin");
     }
 
+    private void showAdbModeSelectorDialog() {
+        int curMode = LocalAdb.getAdbMode(this);
+        String[] opts = {
+            (curMode == LocalAdb.ADB_MODE_SECURE_CLOSE ? "✓ " : "   ")
+                    + tr("Secure Mode — Grant WRITE_SECURE_SETTINGS & Close ADB (Recommended)",
+                         "Güvenli Mod — WRITE_SECURE_SETTINGS Ver ve ADB'yi Kapat (Önerilen)"),
+            (curMode == LocalAdb.ADB_MODE_PERSISTENT ? "✓ " : "   ")
+                    + tr("Persistent ADB Mode — Keep Network ADB Open (Optional)",
+                         "Kalıcı ADB Modu — Ağ ADB'sini Açık Tut (İsteğe Bağlı)")
+        };
+        dialog(tr("ADB Operating Mode", "ADB Çalışma Modu"))
+                .setItems(opts, (d, which) -> {
+                    int nextMode = (which == 1) ? LocalAdb.ADB_MODE_PERSISTENT : LocalAdb.ADB_MODE_SECURE_CLOSE;
+                    if (nextMode == LocalAdb.ADB_MODE_PERSISTENT
+                            && !LocalAdb.isAdbSettingEnabled(this) && !LocalAdb.portReachable) {
+                        dialog(tr("Enable ADB for Persistent Mode?", "Kalıcı Mod İçin ADB Açılsın mı?"))
+                                .setMessage(tr(
+                                        "ADB debugging is currently turned off. Persistent ADB Mode requires ADB to be enabled.\n\nWould you like to enable ADB and switch to Persistent ADB Mode?",
+                                        "ADB hata ayıklama şu anda kapalı. Kalıcı ADB Modu için ADB'nin açık olması gerekir.\n\nADB'yi açıp Kalıcı ADB Moduna geçmek ister misiniz?"))
+                                .setPositiveButton(tr("Enable ADB & Switch", "ADB'yi Aç ve Geç"), (d2, w2) -> {
+                                    AlertDialog progress = dialog(tr("Turning On ADB…", "ADB Açılıyor…"))
+                                            .setMessage(tr("Enabling ADB debugging and switching to Persistent ADB Mode…",
+                                                    "ADB hata ayıklama açılıyor ve Kalıcı ADB Moduna geçiliyor…"))
+                                            .setCancelable(false)
+                                            .create();
+                                    progress.show();
+                                    LocalAdb.enableAdbPort(this, (success, msg) -> runOnUiThread(() -> {
+                                        if (isFinishing()) return;
+                                        try {
+                                            progress.dismiss();
+                                        } catch (Throwable ignored) {
+                                        }
+                                        LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_PERSISTENT);
+                                        refreshAll();
+                                        if (list != null) {
+                                            list.postDelayed(this::refreshAll, 500);
+                                        }
+                                        if (success) {
+                                            showStatusMsg(tr("ADB enabled and switched to Persistent ADB Mode.",
+                                                    "ADB açıldı ve Kalıcı ADB Moduna geçildi."));
+                                        } else {
+                                            dialog(tr("Turn On ADB Debugging", "ADB Hata Ayıklamayı Açın"))
+                                                    .setMessage(tr(
+                                                            "Open Developer Options and turn on USB Debugging / Network Debugging to complete switching to Persistent ADB Mode.",
+                                                            "Kalıcı ADB Moduna geçişi tamamlamak için Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın."))
+                                                    .setPositiveButton(tr("Open Developer Options…", "Geliştirici Seçeneklerini Aç…"), (d3, w3) -> {
+                                                        Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                                                        if (!Suggestions.start(this, dev)) {
+                                                            Intent about = new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS);
+                                                            if (!Suggestions.start(this, about)) {
+                                                                Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS));
+                                                            }
+                                                        }
+                                                    })
+                                                    .setNegativeButton(tr("Cancel", "İptal"), null)
+                                                    .show();
+                                        }
+                                    }));
+                                })
+                                .setNegativeButton(tr("Cancel", "İptal"), null)
+                                .show();
+                        return;
+                    }
+                    LocalAdb.setAdbMode(this, nextMode);
+                    refreshAll();
+                    if (nextMode == LocalAdb.ADB_MODE_SECURE_CLOSE) {
+                        showStatusMsg(tr("Secure Mode selected — ADB will grant WRITE_SECURE_SETTINGS and close port 5555 when paired.",
+                                "Güvenli Mod seçildi — Eşleştirildiğinde WRITE_SECURE_SETTINGS verilir ve port 5555 kapatılır."));
+                    } else {
+                        showStatusMsg(tr("Persistent ADB Mode selected — Port 5555 stays open for CleanYourTV & ADB tools.",
+                                "Kalıcı ADB Modu seçildi — Port 5555 CleanYourTV ve ADB araçları için açık kalır."));
+                    }
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+    }
+
+    private void toggleAdbPort() {
+        boolean adbOn = LocalAdb.isAdbSettingEnabled(this) || LocalAdb.portReachable;
+        if (adbOn) {
+            confirmCloseAdbPort();
+        } else {
+            AlertDialog progress = dialog(tr("Turning On ADB…", "ADB Açılıyor…"))
+                    .setMessage(tr("Enabling ADB debugging…", "ADB hata ayıklama etkinleştiriliyor…"))
+                    .setCancelable(false)
+                    .create();
+            progress.show();
+            LocalAdb.enableAdbPort(this, (success, msg) -> runOnUiThread(() -> {
+                if (isFinishing()) return;
+                try {
+                    progress.dismiss();
+                } catch (Throwable ignored) {
+                }
+                refreshAll();
+                if (list != null) {
+                    list.postDelayed(this::refreshAll, 500);
+                }
+                if (success) {
+                    showStatusMsg(tr("ADB debugging enabled.", "ADB hata ayıklama açıldı."));
+                } else {
+                    dialog(tr("Turn On ADB Debugging", "ADB Hata Ayıklamayı Açın"))
+                            .setMessage(tr(
+                                    "Open Developer Options and turn on USB Debugging / Network Debugging.",
+                                    "Geliştirici Seçenekleri'ni açıp USB / Ağ Hata Ayıklamayı etkinleştirin."))
+                            .setPositiveButton(tr("Open Developer Options…", "Geliştirici Seçeneklerini Aç…"), (d, w) -> {
+                                Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                                if (!Suggestions.start(this, dev)) {
+                                    Intent about = new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS);
+                                    if (!Suggestions.start(this, about)) {
+                                        Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS));
+                                    }
+                                }
+                            })
+                            .setNegativeButton(tr("Cancel", "İptal"), null)
+                            .show();
+                }
+            }));
+        }
+    }
+
+    private void confirmCloseAdbPort() {
+        dialog(tr("Close ADB (Disable Port 5555)", "ADB'yi Kapat (Port 5555'i Kapat)"))
+                .setMessage(tr(
+                        "This runs 'settings put global adb_enabled 0' over Local ADB and verifies that port 5555 is closed on your home network.\n\n"
+                        + "If WRITE_SECURE_SETTINGS is already granted, tvOS Launcher will continue repairing Accessibility in-process without needing ADB!\n\n"
+                        + "Tip: For maximum security, you can also open Developer Options and click 'Revoke USB debugging authorizations'.",
+                        "Bu işlem Yerel ADB üzerinden 'settings put global adb_enabled 0' komutunu çalıştırır ve ev ağınızda port 5555'in kapandığını doğrular.\n\n"
+                        + "WRITE_SECURE_SETTINGS izni zaten verilmişse tvOS Launcher, ADB'ye ihtiyaç duymadan Erişilebilirliği doğrudan uygulama içinden onarmaya devam eder!\n\n"
+                        + "İpucu: Maksimum güvenlik için Geliştirici Seçenekleri'nden 'USB hata ayıklama yetkilerini geri al' seçeneğine de tıklayabilirsiniz."))
+                .setPositiveButton(tr("Close ADB Now", "ADB'yi Şimdi Kapat"), (d, w) -> {
+                    if (LocalAdb.getAdbMode(this) != LocalAdb.ADB_MODE_SECURE_CLOSE) {
+                        LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_SECURE_CLOSE);
+                    }
+                    AlertDialog progress = dialog(tr("Closing ADB…", "ADB Kapatılıyor…"))
+                            .setMessage(tr("Running settings put global adb_enabled 0 and verifying port 5555…",
+                                    "settings put global adb_enabled 0 çalıştırılıyor ve port 5555 kontrol ediliyor…"))
+                            .setCancelable(false)
+                            .create();
+                    progress.show();
+                    LocalAdb.closeAdbPort(this, (success, msg) -> runOnUiThread(() -> {
+                        if (isFinishing()) return;
+                        try {
+                            progress.dismiss();
+                        } catch (Throwable ignored) {
+                        }
+                        refreshAll();
+                        showStatusMsg(msg);
+                    }));
+                })
+                .setNeutralButton(tr("Developer Options…", "Geliştirici Seçenekleri…"), (d, w) -> {
+                    Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                    if (!Suggestions.start(this, dev)) {
+                        Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS));
+                    }
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+    }
+
+    private void toggleKeepAliveWithWarning() {
+        boolean currentlyOn = LocalAdb.isKeepAliveEnabled(this);
+        if (currentlyOn) {
+            LocalAdb.setKeepAliveEnabled(this, false);
+            refreshAll();
+            showStatusMsg(tr("Keep Alive disabled.", "Keep Alive devre dışı bırakıldı."));
+            return;
+        }
+        boolean hasSecure = LocalAdb.hasWriteSecureSettings(this);
+        dialog(tr("Enable Keep Alive?", "Keep Alive Etkinleştirilsin mi?"))
+                .setMessage(hasSecure
+                        ? tr("Keep Alive monitors the Accessibility Service and automatically restores it if your TV turns it off.\n\n"
+                             + "✓ Because WRITE_SECURE_SETTINGS is granted on this TV, Keep Alive repairs Accessibility directly in-process without needing Network ADB (port 5555) to stay open.",
+                             "Keep Alive, Erişilebilirlik Servisini izler ve TV'niz kapatırsa otomatik olarak yeniden açar.\n\n"
+                             + "✓ Bu TV'de WRITE_SECURE_SETTINGS izni verildiği için Keep Alive, Ağ ADB'sinin (port 5555) açık kalmasına gerek duymadan Erişilebilirliği doğrudan uygulama içinden onarır.")
+                        : tr("⚠️ Security Warning:\n\n"
+                             + "Keep Alive monitors and restores permissions if your TV turns them off in the background.\n\n"
+                             + "Without WRITE_SECURE_SETTINGS, Keep Alive requires Network Debugging (ADB on port 5555) to stay enabled on your home network. For better security, run Pair / Repair ADB in Secure Mode first so WRITE_SECURE_SETTINGS is granted and port 5555 can be closed.\n\n"
+                             + "Enable Keep Alive anyway?",
+                             "⚠️ Güvenlik Uyarısı:\n\n"
+                             + "Keep Alive, TV'niz arka planda izinleri kapatırsa otomatik olarak yeniden açar.\n\n"
+                             + "WRITE_SECURE_SETTINGS izni olmadan Keep Alive'ın çalışması için Ağ Hata Ayıklamanın (port 5555) açık kalması gerekir. Daha yüksek güvenlik için önce Güvenli Mod'da ADB Eşleştir / Onar çalıştırarak WRITE_SECURE_SETTINGS iznini verin.\n\n"
+                             + "Keep Alive yine de etkinleştirilsin mi?"))
+                .setPositiveButton(tr("Enable Keep Alive", "Keep Alive'ı Etkinleştir"), (d, w) -> {
+                    LocalAdb.setKeepAliveEnabled(this, true);
+                    LocalAdb.checkAndRepairPermissionsIfNeeded(this, true);
+                    refreshAll();
+                    showStatusMsg(tr("Keep Alive enabled.", "Keep Alive etkinleştirildi."));
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+    }
+
     private void pairOrRepairAdb() {
         AlertDialog progress = dialog(tr("Pair / Repair ADB", "ADB Eşleştir / Onar"))
                 .setMessage(tr(
-                        "Connecting to local ADB on port 5555 and granting all permissions…\n\nIf an \u201cAllow USB debugging?\u201d prompt appears, check \u201cAlways allow\u201d and press Allow.",
-                        "Port 5555 üzerinden yerel ADB'ye bağlanılıyor ve tüm izinler veriliyor…\n\nEkranda \u201cUSB hata ayıklamaya izin verilsin mi?\u201d penceresi çıkarsa \u201cHer zaman izin ver\u201di işaretleyip İzin Ver'e basın."))
+                        "Connecting to local ADB on port 5555 and granting permissions…\n\nIf an \u201cAllow USB debugging?\u201d prompt appears, check \u201cAlways allow\u201d and press Allow.",
+                        "Port 5555 üzerinden yerel ADB'ye bağlanılıyor ve izinler veriliyor…\n\nEkranda \u201cUSB hata ayıklamaya izin verilsin mi?\u201d penceresi çıkarsa \u201cHer zaman izin ver\u201di işaretleyip İzin Ver'e basın."))
                 .setCancelable(false)
                 .create();
         progress.show();
@@ -1623,6 +1839,10 @@ public class SettingsActivity extends Activity {
             } catch (Exception ignored) {
             }
             refreshAll();
+            if (list != null) {
+                list.postDelayed(this::refreshAll, 350);
+                list.postDelayed(this::refreshAll, 900);
+            }
             if (success) {
                 showStatusMsg(tr("ADB paired and all permissions granted!", "ADB eşleşti ve tüm izinler verildi!"));
             } else {
@@ -1648,12 +1868,12 @@ public class SettingsActivity extends Activity {
     private void confirmRevokeAllPermissions() {
         dialog(tr("Remove / Revoke All Permissions", "Tüm İzinleri Kaldır / Geri Al"))
                 .setMessage(tr(
-                        "This will disable Keep Alive and remove Device Admin, Accessibility Service, Notification Access, Default Home Role, and runtime permissions (both locally and via ADB).\n\nUse this if your TV does not have a Device Admin settings screen and you want to uninstall tvOS Launcher.",
-                        "Bu işlem Keep Alive'ı kapatır ve Cihaz Yöneticisi, Erişilebilirlik Servisi, Bildirim Erişimi, Varsayılan Ana Ekran ve tüm çalışma zamanı izinlerini (hem yerel olarak hem ADB üzerinden) kaldırır.\n\nTV'nizde Cihaz Yöneticisi ayar ekranı yoksa ve uygulamayı kaldırmak istiyorsanız bu seçeneği kullanın."))
+                        "This will disable Keep Alive and remove Accessibility Service, Notification Access, Default Home Role, and launcher permissions (both locally and via ADB).",
+                        "Bu işlem Keep Alive'ı kapatır ve Erişilebilirlik Servisi, Bildirim Erişimi, Varsayılan Ana Ekran ve tüm başlatıcı izinlerini (hem yerel olarak hem ADB üzerinden) kaldırır."))
                 .setPositiveButton(tr("Revoke All Permissions", "Tüm İzinleri Kaldır"), (d, w) -> {
                     AlertDialog progress = dialog(tr("Revoking Permissions…", "İzinler Kaldırılıyor…"))
-                            .setMessage(tr("Removing Device Admin and revoking all permissions…",
-                                    "Cihaz Yöneticisi ve tüm izinler kaldırılıyor…"))
+                            .setMessage(tr("Revoking all permissions…",
+                                    "Tüm izinler kaldırılıyor…"))
                             .setCancelable(false)
                             .create();
                     progress.show();
@@ -1664,6 +1884,10 @@ public class SettingsActivity extends Activity {
                         } catch (Throwable ignored) {
                         }
                         refreshAll();
+                        if (list != null) {
+                            list.postDelayed(this::refreshAll, 350);
+                            list.postDelayed(this::refreshAll, 900);
+                        }
                         showStatusMsg(msg);
                     }));
                 })
@@ -1703,6 +1927,8 @@ public class SettingsActivity extends Activity {
             subMenuDockSize();
         } else if ("ambient_themes".equals(subId)) {
             subMenuAmbientThemes();
+        } else if ("lock_screen_settings".equals(subId)) {
+            subMenuLockScreenSettings();
         } else if ("weather_source".equals(subId)) {
             subMenuWeatherSource();
         } else if ("top_shelf".equals(subId)) {
@@ -1888,24 +2114,43 @@ public class SettingsActivity extends Activity {
         if (ControlPanelOverlay.ACTION_BLUETOOTH.equals(actionKey)) return tr("Bluetooth", "Bluetooth");
         if (ControlPanelOverlay.ACTION_SOUND.equals(actionKey)) return tr("Sound", "Ses");
         if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) return tr("Inputs", "Girişler");
+        if (ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey)) return tr("Ambient Mode", "Ortam Modu");
         return actionKey;
     }
 
     private void subMenuControlPanelApps(String actionKey) {
         String actionTitle = controlPanelActionTitle(actionKey);
-        mainHeadView.setText(actionTitle + " — " + tr("Choose App", "Uygulama Seçin"));
+        mainHeadView.setText(actionTitle + " — " + tr("Choose Action", "Eylem Seçin"));
         backSubMenuRow();
-        section(tr("TARGET APPLICATION", "HEDEF UYGULAMA"));
+        section(tr("TARGET ACTION / APPLICATION", "HEDEF EYLEM / UYGULAMA"));
 
         String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
-        choiceRow("↺  " + tr("Default (Automatic)", "Varsayılan (Otomatik)"),
-                tr("Use built-in Android TV shortcut", "Yerleşik Android TV kısayolunu kullan"),
-                curPkg.isEmpty(),
+        boolean isAmbient = ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey);
+        boolean isLockMode = isAmbient && ControlPanelOverlay.isAmbientLockScreenMode(this);
+
+        choiceRow("↺  " + (isAmbient ? tr("Default (Ambient Mode)", "Varsayılan (Ortam Modu)")
+                                     : tr("Default (Automatic)", "Varsayılan (Otomatik)")),
+                isAmbient ? tr("Open TV Ambient Mode / Screensaver (or built-in fallback)",
+                               "TV Ortam Modunu / Ekran Koruyucuyu aç (veya yerleşik görünüm)")
+                          : tr("Use built-in Android TV shortcut", "Yerleşik Android TV kısayolunu kullan"),
+                curPkg.isEmpty() && !isLockMode,
                 () -> {
                     ControlPanelOverlay.clearCustomAction(this, actionKey);
                     closeSubMenu();
                     showStatusMsg(actionTitle + ": " + tr("Default (Automatic)", "Varsayılan (Otomatik)"));
                 });
+
+        if (isAmbient) {
+            choiceRow("🔒  " + tr("Lock Screen", "Kilit Ekranı"),
+                    tr("Show Clock, Date & Greeting over your chosen wallpaper (press any key to return)",
+                       "Seçilen duvar kağıdı üzerinde Saat, Tarih ve Karşılama göster (dönmek için herhangi bir tuşa basın)"),
+                    isLockMode,
+                    () -> {
+                        ControlPanelOverlay.setAmbientLockScreenMode(this, true);
+                        closeSubMenu();
+                        showStatusMsg(actionTitle + ": " + tr("Lock Screen", "Kilit Ekranı"));
+                    });
+        }
 
         PackageManager pm = getPackageManager();
         List<PackageInfo> rawPkgs;
@@ -2074,6 +2319,13 @@ public class SettingsActivity extends Activity {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_AMBIENT);
                     closeSubMenu();
                 });
+        choiceRow("🔒  " + tr("Lock Screen", "Kilit Ekranı"),
+                null,
+                ButtonMapper.TARGET_LOCK_SCREEN.equals(current),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_LOCK_SCREEN);
+                    closeSubMenu();
+                });
         choiceRow("⏻  " + tr("Power Off (Screen Off)", "Kapat (Ekranı Kapat)"),
                 null,
                 ButtonMapper.TARGET_POWER_OFF.equals(current),
@@ -2081,6 +2333,10 @@ public class SettingsActivity extends Activity {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_POWER_OFF);
                     closeSubMenu();
                 });
+        choiceRow("⌨  " + tr("Send Key Code (Remote / Media / System)…", "Tuş Kodu Gönder (Kumanda / Medya / Sistem)…"),
+                current.startsWith(ButtonMapper.TARGET_KEYCODE_PREFIX) ? ButtonMapper.targetLabel(this, current) : tr("Send any Android KeyEvent keycode without 3rd-party apps", "Üçüncü parti uygulamaya gerek kalmadan istediğiniz tuş kodunu gönderin"),
+                current.startsWith(ButtonMapper.TARGET_KEYCODE_PREFIX),
+                () -> ButtonMapper.showSendKeyCodePickerDialog(this, keyCode, tapCount, this::closeSubMenu));
 
         section(tr("INSTALLED APPS", "YÜKLÜ UYGULAMALAR"));
         PackageManager pm = getPackageManager();
@@ -2181,10 +2437,6 @@ public class SettingsActivity extends Activity {
                         pairOrRepairAdb();
                     }
                 });
-
-        row(tr("Power Off & Sleep Timer (Device Admin)", "Kapatma ve Uyku Zamanlayıcısı (Cihaz Yöneticisi)"),
-                () -> Perms.hasAdmin(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
-                () -> Perms.requestAdmin(this));
 
         row(tr("Continue Watching & DND (Notification Access)", "İzlemeye Devam Et ve Rahatsız Etmeyin"),
                 () -> Perms.hasListener(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
@@ -3397,6 +3649,662 @@ public class SettingsActivity extends Activity {
 
         r.setOnLongClickListener(view -> {
             pickCustomClassicWallpaper();
+            return true;
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
+    private void pickFolderForSceneShuffle() {
+        CustomMedia.showFolderPicker(
+                this,
+                CustomMedia.SCOPE_SCENE,
+                tr("Choose wallpaper folder to shuffle", "Karıştırılacak duvar kağıdı klasörünü seçin"),
+                dir -> {
+                    Scenes.enableFolderShuffleScene(this, true);
+                    rebuildMainRows();
+                    showStatusMsg(tr("Folder shuffle enabled: " + dir.getName(),
+                            "Klasör karıştırma etkinleştirildi: " + dir.getName()));
+                });
+    }
+
+    private void folderShuffleSceneRow() {
+        final String fid = Scenes.FOLDER_SHUFFLE_ID;
+        boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_SCENE);
+        String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_SCENE);
+        String labelText = tr("Folder shuffle", "Klasör karıştırma")
+                + (hasFolder && !summary.isEmpty() ? "  ·  " + summary : "");
+
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setLongClickable(true);
+        r.setTag("scene:" + fid);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = hasFolder
+                ? CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_SCENE, tw * 2, th * 2, false)
+                : null;
+        if (tbmp == null) {
+            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        }
+        thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(labelText);
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        l.setEllipsize(TextUtils.TruncateAt.END);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(20);
+        ImageView check = new ImageView(this);
+        Runnable updateCheck = () -> {
+            boolean on = Scenes.isSceneEnabled(this, fid);
+            if (on) {
+                check.setImageBitmap(Glyphs.get("check_on", cs, Color.WHITE));
+            } else {
+                check.setImageBitmap(Glyphs.get(r.isFocused() ? "check_off_dark" : "check_off", cs, Color.WHITE));
+            }
+        };
+        updateCheck.run();
+        refreshers.add(updateCheck);
+        r.addView(check, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            updateCheck.run();
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_SCENE)) {
+                pickFolderForSceneShuffle();
+                return;
+            }
+            boolean enabled = Scenes.isSceneEnabled(this, fid);
+            if (!enabled) {
+                String[] opts = {
+                    tr("Turn on Folder shuffle", "Klasör karıştırmayı aç"),
+                    tr("Choose folder…", "Klasör seç…")
+                };
+                dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                        .setItems(opts, (d, which) -> {
+                            if (which == 0) {
+                                Scenes.enableFolderShuffleScene(this, true);
+                                rebuildMainRows();
+                            } else {
+                                pickFolderForSceneShuffle();
+                            }
+                        })
+                        .show();
+            } else {
+                String[] opts = {
+                    tr("Choose folder…", "Klasör seç…"),
+                    tr("Turn off Folder shuffle", "Klasör karıştırmayı kapat")
+                };
+                dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                        .setItems(opts, (d, which) -> {
+                            if (which == 0) {
+                                pickFolderForSceneShuffle();
+                            } else {
+                                if (!Scenes.toggleScene(this, fid)) {
+                                    showStatusMsg(tr("One scene has to stay on.", "En az bir sahne açık kalmalıdır."));
+                                } else {
+                                    rebuildMainRows();
+                                }
+                            }
+                        })
+                        .show();
+            }
+        });
+
+        r.setOnLongClickListener(view -> {
+            pickFolderForSceneShuffle();
+            return true;
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
+    private void pickFolderForClassicShuffle() {
+        CustomMedia.showFolderPicker(
+                this,
+                CustomMedia.SCOPE_CLASSIC,
+                tr("Choose background folder to shuffle", "Karıştırılacak arka plan klasörünü seçin"),
+                dir -> {
+                    Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.FOLDER_SHUFFLE_WALL_KEY).apply();
+                    rebuildMainRows();
+                    showStatusMsg(tr("Folder shuffle enabled: " + dir.getName(),
+                            "Klasör karıştırma etkinleştirildi: " + dir.getName()));
+                });
+    }
+
+    private void folderShuffleClassicRow(boolean checked) {
+        boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_CLASSIC);
+        String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_CLASSIC);
+        String labelText = tr("Folder shuffle", "Klasör karıştırma")
+                + (hasFolder && !summary.isEmpty() ? "  ·  " + summary : "");
+
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setLongClickable(true);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = hasFolder
+                ? CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_CLASSIC, tw * 2, th * 2, false)
+                : null;
+        if (tbmp == null) {
+            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        }
+        thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(labelText);
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        l.setEllipsize(TextUtils.TruncateAt.END);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(17);
+        ImageView mark = new ImageView(this);
+        if (checked) {
+            mark.setImageBitmap(Glyphs.get("check", cs, Color.WHITE));
+        }
+        r.addView(mark, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            if (checked) {
+                mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
+            }
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_CLASSIC)) {
+                pickFolderForClassicShuffle();
+                return;
+            }
+            if (!checked) {
+                String[] opts = {
+                    tr("Use folder shuffle background", "Klasör karıştırma arka planını kullan"),
+                    tr("Choose folder…", "Klasör seç…")
+                };
+                dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                        .setItems(opts, (d, which) -> {
+                            if (which == 0) {
+                                Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.FOLDER_SHUFFLE_WALL_KEY).apply();
+                                rebuildMainRows();
+                            } else {
+                                pickFolderForClassicShuffle();
+                            }
+                        })
+                        .show();
+            } else {
+                pickFolderForClassicShuffle();
+            }
+        });
+
+        r.setOnLongClickListener(view -> {
+            pickFolderForClassicShuffle();
+            return true;
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
+    private void subMenuLockScreenSettings() {
+        mainHeadView.setText(tr("Lock screen settings", "Kilit ekranı ayarları"));
+        backSubMenuRow();
+
+        section(tr("LOCK SCREEN OPTIONS", "KİLİT EKRANI SEÇENEKLERİ"));
+        row(tr("Clock position", "Saat konumu"),
+                () -> Scenes.lockClockPosLabel(this),
+                () -> {
+                    Scenes.cycleLockClockPos(this);
+                    refreshAll();
+                });
+        row(tr("Auto-launch Lock Screen when idle", "Boşta kaldığında Kilit Ekranını otomatik başlat"),
+                () -> Scenes.lockIdleLabel(this),
+                () -> {
+                    Scenes.cycleLockIdleMinutes(this);
+                    refreshAll();
+                });
+        row(tr("Each wallpaper stays", "Her duvar kağıdı süresi"),
+                () -> Scenes.getStaySeconds(this) + tr(" seconds", " saniye"),
+                () -> {
+                    Scenes.cycleStaySeconds(this);
+                    refreshAll();
+                });
+        row(tr("Preview Lock Screen now", "Kilit Ekranını şimdi önizle"),
+                () -> "›",
+                () -> MainActivity.triggerLockScreen(this));
+
+        section(tr("NIGHT SCENES", "GECE SAHNELERİ"));
+        for (Scenes.Spec spec : Scenes.ALL) {
+            lockSceneCheckRow(spec.id, spec.title(this), spec.bgAsset);
+        }
+
+        section(tr("CLASSIC WALLPAPERS", "KLASİK DUVAR KAĞITLARI"));
+        for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
+            String photoFile = Scenes.CLASSIC_PHOTOS[i][0];
+            String id = "photo:" + photoFile;
+            String label = I18n.s(this, Scenes.CLASSIC_PHOTOS[i][1], Scenes.CLASSIC_PHOTOS[i][2]);
+            lockSceneCheckRow(id, label, "backgrounds/" + photoFile);
+        }
+        String[] gradIds = {"aurora", "midnight", "sunset", "ocean", "graphite"};
+        for (String gid : gradIds) {
+            Scenes.Spec gspec = Scenes.byId(gid);
+            lockSceneCheckRow(gid, gspec.title(this), null);
+        }
+
+        section(tr("CUSTOM & FOLDER SHUFFLE", "ÖZEL GÖRSEL VE KLASÖR KARIŞTIRMA"));
+        lockCustomImageRow();
+        lockFolderShuffleRow();
+
+        infoNote(tr("On the Lock Screen, only Clock, Date, and Greeting are shown above your selected backgrounds. Pressing any remote button returns to where you were before.",
+                "Kilit Ekranında yalnızca seçilen arka planların üzerinde Saat, Tarih ve Karşılama gösterilir. Kumandadaki herhangi bir tuşa basmak kaldığınız yere geri döner."));
+    }
+
+    private void lockSceneCheckRow(String id, String titleText, String assetPath) {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = (assetPath != null && !assetPath.isEmpty()) ? getSceneThumb(assetPath, tw * 2, th * 2) : null;
+        if (tbmp == null) {
+            tbmp = MainActivity.makeWallpaperBase(id);
+        }
+        if (tbmp != null) thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(titleText);
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(20);
+        ImageView check = new ImageView(this);
+        Runnable updateCheck = () -> {
+            boolean on = Scenes.isLockSceneEnabled(this, id);
+            if (on) {
+                check.setImageBitmap(Glyphs.get("check_on", cs, Color.WHITE));
+            } else {
+                check.setImageBitmap(Glyphs.get(r.isFocused() ? "check_off_dark" : "check_off", cs, Color.WHITE));
+            }
+        };
+        updateCheck.run();
+        refreshers.add(updateCheck);
+        r.addView(check, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            updateCheck.run();
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!Scenes.toggleLockScene(this, id)) {
+                showStatusMsg(tr("One wallpaper has to stay on.", "En az bir duvar kağıdı açık kalmalıdır."));
+            } else {
+                showStatusMsg(null);
+            }
+            refreshAll();
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
+    private void pickCustomLockWallpaper() {
+        CustomMedia.showImageFilePicker(
+                this,
+                tr("Choose Lock Screen image", "Kilit Ekranı görseli seçin"),
+                false,
+                1920,
+                1080,
+                null,
+                null,
+                bmp -> {
+                    if (CustomMedia.setCustomLockWallpaper(this, bmp)) {
+                        Scenes.enableLockScene(this, Scenes.LOCK_CUSTOM_ID, true);
+                        rebuildMainRows();
+                        showStatusMsg(tr("Custom Lock Screen image updated.", "Özel Kilit Ekranı görseli güncellendi."));
+                    }
+                });
+    }
+
+    private void lockCustomImageRow() {
+        final String cid = Scenes.LOCK_CUSTOM_ID;
+        boolean hasCustom = CustomMedia.hasCustomLockWallpaper(this);
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setLongClickable(true);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = hasCustom ? CustomMedia.getCustomLockWallpaper(this, tw * 2, th * 2) : null;
+        if (tbmp == null) tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(tr("Custom image", "Özel görsel"));
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(20);
+        ImageView check = new ImageView(this);
+        Runnable updateCheck = () -> {
+            boolean on = Scenes.isLockSceneEnabled(this, cid);
+            if (on) {
+                check.setImageBitmap(Glyphs.get("check_on", cs, Color.WHITE));
+            } else {
+                check.setImageBitmap(Glyphs.get(r.isFocused() ? "check_off_dark" : "check_off", cs, Color.WHITE));
+            }
+        };
+        updateCheck.run();
+        refreshers.add(updateCheck);
+        r.addView(check, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            updateCheck.run();
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!CustomMedia.hasCustomLockWallpaper(this)) {
+                pickCustomLockWallpaper();
+                return;
+            }
+            boolean enabled = Scenes.isLockSceneEnabled(this, cid);
+            String[] opts = enabled
+                    ? new String[]{tr("Choose image…", "Görsel seç…"), tr("Turn off Custom image", "Özel görseli kapat")}
+                    : new String[]{tr("Turn on Custom image", "Özel görseli aç"), tr("Choose image…", "Görsel seç…")};
+            dialog(tr("Custom image", "Özel görsel"))
+                    .setItems(opts, (d, which) -> {
+                        if (enabled) {
+                            if (which == 0) pickCustomLockWallpaper();
+                            else {
+                                Scenes.toggleLockScene(this, cid);
+                                rebuildMainRows();
+                            }
+                        } else {
+                            if (which == 0) {
+                                Scenes.enableLockScene(this, cid, true);
+                                rebuildMainRows();
+                            } else {
+                                pickCustomLockWallpaper();
+                            }
+                        }
+                    })
+                    .show();
+        });
+        r.setOnLongClickListener(view -> {
+            pickCustomLockWallpaper();
+            return true;
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, u(40));
+        lp.bottomMargin = u(5);
+        list.addView(r, lp);
+    }
+
+    private void pickLockFolderShuffle() {
+        CustomMedia.showFolderPicker(
+                this,
+                CustomMedia.SCOPE_LOCK,
+                tr("Choose Lock Screen folder to shuffle", "Karıştırılacak Kilit Ekranı klasörünü seçin"),
+                dir -> {
+                    Scenes.enableLockScene(this, Scenes.LOCK_FOLDER_SHUFFLE_ID, true);
+                    rebuildMainRows();
+                    showStatusMsg(tr("Lock Screen folder shuffle enabled: " + dir.getName(),
+                            "Kilit Ekranı klasör karıştırma etkinleştirildi: " + dir.getName()));
+                });
+    }
+
+    private void lockFolderShuffleRow() {
+        final String fid = Scenes.LOCK_FOLDER_SHUFFLE_ID;
+        boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_LOCK);
+        String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_LOCK);
+        String labelText = tr("Folder shuffle", "Klasör karıştırma")
+                + (hasFolder && !summary.isEmpty() ? "  ·  " + summary : "");
+
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setFocusable(true);
+        r.setClickable(true);
+        r.setLongClickable(true);
+        r.setPadding(u(14), u(6), u(16), u(6));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(u(13));
+        bg.setColor(0x14FFFFFF);
+        r.setBackground(bg);
+
+        int tw = u(46), th = u(26);
+        ImageView thumb = new ImageView(this);
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Bitmap tbmp = hasFolder
+                ? CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_LOCK, tw * 2, th * 2, false)
+                : null;
+        if (tbmp == null) tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        thumb.setImageBitmap(tbmp);
+        final float trad = u(5.5f);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), trad);
+            }
+        });
+        thumb.setClipToOutline(true);
+        LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
+        thlp.rightMargin = u(12);
+        r.addView(thumb, thlp);
+
+        TextView l = new TextView(this);
+        l.setText(labelText);
+        l.setTextColor(0xEBF4F4F6);
+        l.setTypeface(Ui.font(this, "semibold"));
+        Ui.textSize(l, 14.5f);
+        l.setSingleLine(true);
+        l.setEllipsize(TextUtils.TruncateAt.END);
+        r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        int cs = u(20);
+        ImageView check = new ImageView(this);
+        Runnable updateCheck = () -> {
+            boolean on = Scenes.isLockSceneEnabled(this, fid);
+            if (on) {
+                check.setImageBitmap(Glyphs.get("check_on", cs, Color.WHITE));
+            } else {
+                check.setImageBitmap(Glyphs.get(r.isFocused() ? "check_off_dark" : "check_off", cs, Color.WHITE));
+            }
+        };
+        updateCheck.run();
+        refreshers.add(updateCheck);
+        r.addView(check, new LinearLayout.LayoutParams(cs, cs));
+
+        r.setOnFocusChangeListener((view, has) -> {
+            if (has) {
+                inRows = true;
+                updateSidebarStyles();
+                updateHintText(false);
+            }
+            bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
+            l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            updateCheck.run();
+            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
+                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+        });
+
+        r.setOnClickListener(view -> {
+            if (!CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_LOCK)) {
+                pickLockFolderShuffle();
+                return;
+            }
+            boolean enabled = Scenes.isLockSceneEnabled(this, fid);
+            String[] opts = enabled
+                    ? new String[]{tr("Choose folder…", "Klasör seç…"), tr("Turn off Folder shuffle", "Klasör karıştırmayı kapat")}
+                    : new String[]{tr("Turn on Folder shuffle", "Klasör karıştırmayı aç"), tr("Choose folder…", "Klasör seç…")};
+            dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                    .setItems(opts, (d, which) -> {
+                        if (enabled) {
+                            if (which == 0) pickLockFolderShuffle();
+                            else {
+                                Scenes.toggleLockScene(this, fid);
+                                rebuildMainRows();
+                            }
+                        } else {
+                            if (which == 0) {
+                                Scenes.enableLockScene(this, fid, true);
+                                rebuildMainRows();
+                            } else {
+                                pickLockFolderShuffle();
+                            }
+                        }
+                    })
+                    .show();
+        });
+        r.setOnLongClickListener(view -> {
+            pickLockFolderShuffle();
             return true;
         });
 
