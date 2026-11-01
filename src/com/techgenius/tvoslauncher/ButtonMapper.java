@@ -99,10 +99,16 @@ public final class ButtonMapper {
     public static final int TAP_DOUBLE = 2;
     public static final int TAP_TRIPLE = 3;
 
+    /** Mode 1 (Default): Original standard volume hold repeat timing (320ms delay, no IR pulse-burst injection). */
+    public static final int VOLUME_FIX_MODE_1 = 1;
+    /** Mode 2 (HY320 / Projector): AudioService dump watcher (Android 9-14) + IR pulse-burst handling. */
+    public static final int VOLUME_FIX_MODE_2 = 2;
+
     private static final long MULTI_TAP_WINDOW_MS = 300L;
     private static final String PREFS = "button_mapper";
     private static final String KEY_ORDER = "mapped_keys";
     private static final String KEY_VOLUME_HOLD_FIX = "volume_hold_fix";
+    private static final String KEY_VOLUME_HOLD_FIX_MODE = "volume_hold_fix_mode";
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     private static final Map<Integer, Integer> pendingTapCounts = new HashMap<>();
@@ -137,6 +143,28 @@ public final class ButtonMapper {
         if (PowerService.instance != null) {
             PowerService.instance.syncVolumeHoldFix();
         }
+    }
+
+    public static int getVolumeHoldFixMode(Context c) {
+        if (c == null) return VOLUME_FIX_MODE_1;
+        int m = prefs(c).getInt(KEY_VOLUME_HOLD_FIX_MODE, VOLUME_FIX_MODE_1);
+        return (m == VOLUME_FIX_MODE_2) ? VOLUME_FIX_MODE_2 : VOLUME_FIX_MODE_1;
+    }
+
+    public static void setVolumeHoldFixMode(Context c, int mode) {
+        if (c == null) return;
+        int valid = (mode == VOLUME_FIX_MODE_2) ? VOLUME_FIX_MODE_2 : VOLUME_FIX_MODE_1;
+        prefs(c).edit().putInt(KEY_VOLUME_HOLD_FIX_MODE, valid).apply();
+        if (PowerService.instance != null) {
+            PowerService.instance.syncVolumeHoldFix();
+        }
+    }
+
+    public static String getVolumeHoldFixModeLabel(Context c) {
+        if (getVolumeHoldFixMode(c) == VOLUME_FIX_MODE_2) {
+            return I18n.s(c, "Mode 2 (HY320 / Projector)", "Mod 2 (HY320 / Projeksiyon)");
+        }
+        return I18n.s(c, "Mode 1 (Standard · Default)", "Mod 1 (Standart · Varsayılan)");
     }
 
     public static boolean isKeyCustomMapped(Context c, int keyCode) {

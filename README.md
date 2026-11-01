@@ -27,8 +27,13 @@ A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Goo
   - Toggle individual Control Panel buttons (**Wi-Fi, Bluetooth, RAM, Do Not Disturb, Audio, Sleep Timer, Ambient Mode, Power, Inputs, Button Mapper, Settings, Search**) on or off (all enabled by default).
 - **Send Key Code in Button Mapper (`Settings → Button Mapper`)**:
   - Assign any mapped button (`1x / 2x / 3x` tap) to **Send Key Code** (Media Play/Pause, Next, Previous, Mute, Volume Up/Down, Back, Home, Menu, TV Input, Channel Up/Down, Captions, Guide, Info, or any custom Android `KeyEvent` code) without needing third-party apps like tvQuickActions.
-- **Universal Volume Button Hold Fix (Works in Both Secure Mode & Persistent ADB Mode)**:
-  - Re-engineered using an in-process `AudioService` Binder dump watcher (`android.permission.DUMP`) that works with **ADB completely OFF (Secure Mode)** as well as **Persistent ADB Mode** across Android 9–12 (`Audio event log: volume changes`, including Magcubic HY320 projectors) and Android 13–14+ (`Events log: volume changes`).
+- **Universal Volume Button Hold Fix with Mode Selector (`Mode 1` / `Mode 2` in `Settings → Button Mapper`)**:
+  - Works in **both Secure Mode (ADB Off) and Persistent ADB Mode** and adds a **Volume button fix mode** selector:
+    - **Mode 1 (Standard — Default)**: Standard volume hold behavior (`320ms` initial delay, `85ms` repeat) without IR pulse-burst injection, preventing unintended volume runaway on standard IR TV remotes.
+    - **Mode 2 (HY320 / Projector)**: Enhanced `AudioService` Binder dump watcher (`Audio event log: volume changes` + `Events log: volume changes`) with `280ms` repeat delay and single-event IR pulse-burst handling for Magcubic HY320 and Android 9–12 projectors.
+- **Interactive Update Available Popup & Dual-Mode APK Installer (`Settings → Updates`)**:
+  - When a new version is found (automatically or manually), displays an **Update Available** popup with **2 buttons**: **Show Changelog** (fetches and displays the GitHub Release notes directly on your TV) and **Install** (focused/selected by default).
+  - **Dual-Mode APK Installation**: When **Install** is chosen, if **ADB is active** (`5555` open), the update is installed automatically in the background via a crash-safe detached Local ADB installer (`LocalAdb.installApkViaAdb`) without triggering `REQUEST_INSTALL_PACKAGES` appops process kills; if **ADB is disabled (Secure Mode)**, it launches the Android system Package Installer for a clean manual update.
 - **Boot Speed, Compatibility & Continue Watching Fixes**:
   - **Faster Boot Auto-Launch**: `PowerService` now triggers the boot home launch immediately upon Accessibility Service connection (before `BOOT_COMPLETED` broadcast delays) and intercepts stock launcher windows during startup.
   - **Philips Live TV Fix**: Removed `org.droidtv.playtv` from `KNOWN_SYSTEM_LAUNCHERS` so the Philips TV tuner activity is never treated as a system launcher.

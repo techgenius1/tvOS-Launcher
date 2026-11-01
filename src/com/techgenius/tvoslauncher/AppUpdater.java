@@ -44,11 +44,13 @@ public final class AppUpdater {
     private static final String KEY_AUTO_UPDATE = "auto_update";
     private static final String KEY_LATEST_VER = "latest_version";
     private static final String KEY_LATEST_URL = "latest_apk_url";
+    private static final String KEY_LATEST_CHANGELOG = "latest_changelog";
     private static final String KEY_LAST_CHECK = "last_check_ms";
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile boolean checking = false;
     private static volatile boolean downloading = false;
+    private static volatile java.lang.ref.WeakReference<android.app.Dialog> activeUpdateDialogRef;
 
     public interface CheckCallback {
         void onResult(boolean success, String latestVersion, String downloadUrl, boolean updateAvailable, String errorMsg);
@@ -86,6 +88,10 @@ public final class AppUpdater {
 
     public static String getCachedDownloadUrl(Context c) {
         return prefs(c).getString(KEY_LATEST_URL, GITHUB_FALLBACK_APK);
+    }
+
+    public static String getCachedChangelog(Context c) {
+        return prefs(c).getString(KEY_LATEST_CHANGELOG, "");
     }
 
     public static boolean isChecking() {
@@ -159,7 +165,7 @@ public final class AppUpdater {
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = br.readLine()) != null) {
-                        sb.append(line);
+                        sb.append(line).append('\n');
                     }
                 }
                 JSONObject json = new JSONObject(sb.toString());
@@ -168,6 +174,7 @@ public final class AppUpdater {
                     tag = json.optString("name", "").trim();
                 }
                 String cleanTag = cleanVersion(tag);
+                String changelog = json.optString("body", "").trim();
                 String apkUrl = GITHUB_FALLBACK_APK;
                 JSONArray assets = json.optJSONArray("assets");
                 if (assets != null) {
@@ -185,6 +192,7 @@ public final class AppUpdater {
                 prefs(appCtx).edit()
                         .putString(KEY_LATEST_VER, cleanTag)
                         .putString(KEY_LATEST_URL, apkUrl)
+                        .putString(KEY_LATEST_CHANGELOG, changelog)
                         .putLong(KEY_LAST_CHECK, System.currentTimeMillis())
                         .apply();
                 final String finalVer = cleanTag;
@@ -208,7 +216,8 @@ public final class AppUpdater {
 
     /**
      * Called on MainActivity startup / network online: if Automatic Updates is ON, checks GitHub
-     * in the background and automatically pulls & installs if a newer release is found.
+     * in the background and shows the Update Available popup (with Changelog & Install buttons)
+     * when a newer release is found.
      */
     public static void checkAutoUpdateIfNeeded(Activity activity) {
         if (activity == null || activity.isFinishing()) return;
@@ -221,12 +230,12 @@ public final class AppUpdater {
 
         checkForUpdates(activity, (success, latestVersion, downloadUrl, updateAvailable, errorMsg) -> {
             if (success && updateAvailable && !activity.isFinishing()) {
-                Toast.makeText(activity,
-                        I18n.s(activity,
-                                "Updating tvOS Launcher to v" + latestVersion + "…",
-                                "tvOS Launcher v" + latestVersion + " sürümüne güncelleniyor…"),
-                        Toast.LENGTH_SHORT).show();
-                downloadAndInstall(activity, downloadUrl, latestVersion, true, null);
+                showUpdateAvailableDialog(
+                        activity,
+                        latestVersion,
+                        downloadUrl,
+                        getCachedChangelog(activity),
+                        null);
             }
         });
     }
@@ -249,16 +258,12 @@ public final class AppUpdater {
             }
             String cur = getCurrentVersion(activity);
             if (updateAvailable) {
-                new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                        .setTitle(I18n.s(activity, "Update Available", "Güncelleme Mevcut") + " (v" + latestVersion + ")")
-                        .setMessage(I18n.s(activity,
-                                "A new version of tvOS Launcher (v" + latestVersion + ") is available on GitHub.\nCurrent version: v" + cur,
-                                "GitHub'da yeni bir tvOS Launcher sürümü (v" + latestVersion + ") mevcut.\nMevcut sürüm: v" + cur))
-                        .setPositiveButton(I18n.s(activity, "Update Now", "Şimdi Güncelle"), (d, w) -> {
-                            downloadAndInstall(activity, downloadUrl, latestVersion, false, onUiRefresh);
-                        })
-                        .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
-                        .show();
+                showUpdateAvailableDialog(
+                        activity,
+                        latestVersion,
+                        downloadUrl,
+                        getCachedChangelog(activity),
+                        onUiRefresh);
             } else {
                 Toast.makeText(activity,
                         I18n.s(activity,
@@ -267,6 +272,278 @@ public final class AppUpdater {
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * Shows the Update Available popup with 2 buttons:
+     * 1) Show Changelog (opens the GitHub Release changelog)
+     * 2) Install (selected/focused by default: auto-updates via ADB if ADB is active, or launches system PackageInstaller if ADB is off)
+     */
+    public static void showUpdateAvailableDialog(
+            Activity activity,
+            String latestVersion,
+            String downloadUrl,
+            String changelog,
+            Runnable onUiRefresh) {
+        if (activity == null || activity.isFinishing()) return;
+        try {
+            if (activeUpdateDialogRef != null) {
+                android.app.Dialog prev = activeUpdateDialogRef.get();
+                if (prev != null && prev.isShowing()) {
+                    prev.dismiss();
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        String cur = getCurrentVersion(activity);
+        boolean adbOn = LocalAdb.isAdbSettingEnabled(activity) || LocalAdb.portReachable;
+
+        android.app.Dialog dlg = new android.app.Dialog(activity);
+        dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        if (dlg.getWindow() != null) {
+            dlg.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        float d = activity.getResources().getDisplayMetrics().density;
+        android.widget.LinearLayout card = new android.widget.LinearLayout(activity);
+        card.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padH = Math.round(28 * d);
+        int padV = Math.round(24 * d);
+        card.setPadding(padH, padV, padH, padV);
+        android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
+        cardBg.setColor(0xF2181A22);
+        cardBg.setCornerRadius(22f * d);
+        cardBg.setStroke(Math.max(1, Math.round(1.2f * d)), 0x38FFFFFF);
+        card.setBackground(cardBg);
+
+        android.widget.TextView titleTv = new android.widget.TextView(activity);
+        titleTv.setText(I18n.s(activity, "Update Available", "Güncelleme Mevcut") + " — v" + latestVersion);
+        titleTv.setTextColor(0xFFFFFFFF);
+        titleTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20);
+        titleTv.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD));
+        card.addView(titleTv);
+
+        android.widget.TextView msgTv = new android.widget.TextView(activity);
+        String modeNote = adbOn
+                ? I18n.s(activity,
+                        "ADB is active — selecting Install will download and install the update automatically.",
+                        "ADB aktif — Yükle'yi seçtiğinizde güncelleme otomatik olarak indirilip kurulacaktır.")
+                : I18n.s(activity,
+                        "ADB is turned off (Secure Mode) — selecting Install will download the update and open the system package installer.",
+                        "ADB kapalı (Güvenli Mod) — Yükle'yi seçtiğinizde güncelleme indirilecek ve sistem paket yükleyicisi açılacaktır.");
+        msgTv.setText(I18n.s(activity,
+                "A new version of tvOS Launcher is available on GitHub.\n"
+                        + "Current version: v" + cur + "  →  New version: v" + latestVersion + "\n\n"
+                        + modeNote,
+                "GitHub'da yeni bir tvOS Launcher sürümü mevcut.\n"
+                        + "Mevcut sürüm: v" + cur + "  →  Yeni sürüm: v" + latestVersion + "\n\n"
+                        + modeNote));
+        msgTv.setTextColor(0xCCFFFFFF);
+        msgTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        msgTv.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL));
+        msgTv.setLineSpacing(0f, 1.18f);
+        android.widget.LinearLayout.LayoutParams msgLp = new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        msgLp.topMargin = Math.round(12 * d);
+        msgLp.bottomMargin = Math.round(22 * d);
+        card.addView(msgTv, msgLp);
+
+        android.widget.LinearLayout btnRow = new android.widget.LinearLayout(activity);
+        btnRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        btnRow.setGravity(android.view.Gravity.END);
+
+        // Button 1: Show Changelog
+        android.widget.TextView changelogBtn = createDialogActionButton(
+                activity,
+                I18n.s(activity, "Show Changelog", "Değişiklik Günlüğü"),
+                false,
+                () -> {
+                    dlg.dismiss();
+                    showChangelogDialog(activity, latestVersion, downloadUrl, changelog, onUiRefresh);
+                });
+        android.widget.LinearLayout.LayoutParams b1Lp = new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        b1Lp.rightMargin = Math.round(12 * d);
+        btnRow.addView(changelogBtn, b1Lp);
+
+        // Button 2: Install (Default Selected / Focused)
+        android.widget.TextView installBtn = createDialogActionButton(
+                activity,
+                I18n.s(activity, "Install", "Yükle"),
+                true,
+                () -> {
+                    dlg.dismiss();
+                    downloadAndInstall(activity, downloadUrl, latestVersion, false, onUiRefresh);
+                });
+        btnRow.addView(installBtn);
+
+        card.addView(btnRow, new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        android.widget.FrameLayout wrapper = new android.widget.FrameLayout(activity);
+        android.widget.FrameLayout.LayoutParams cardLp = new android.widget.FrameLayout.LayoutParams(
+                Math.round(520 * d),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardLp.gravity = android.view.Gravity.CENTER;
+        wrapper.addView(card, cardLp);
+
+        dlg.setContentView(wrapper);
+        activeUpdateDialogRef = new java.lang.ref.WeakReference<>(dlg);
+        dlg.show();
+
+        // Keep Install button selected by default
+        installBtn.post(installBtn::requestFocus);
+    }
+
+    private static void showChangelogDialog(
+            Activity activity,
+            String latestVersion,
+            String downloadUrl,
+            String changelog,
+            Runnable onUiRefresh) {
+        if (activity == null || activity.isFinishing()) return;
+
+        android.app.Dialog dlg = new android.app.Dialog(activity);
+        dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        if (dlg.getWindow() != null) {
+            dlg.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        float d = activity.getResources().getDisplayMetrics().density;
+        android.widget.LinearLayout card = new android.widget.LinearLayout(activity);
+        card.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padH = Math.round(26 * d);
+        int padV = Math.round(22 * d);
+        card.setPadding(padH, padV, padH, padV);
+        android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
+        cardBg.setColor(0xF2181A22);
+        cardBg.setCornerRadius(22f * d);
+        cardBg.setStroke(Math.max(1, Math.round(1.2f * d)), 0x38FFFFFF);
+        card.setBackground(cardBg);
+
+        android.widget.TextView titleTv = new android.widget.TextView(activity);
+        titleTv.setText(I18n.s(activity, "Changelog — v" + latestVersion, "Değişiklik Günlüğü — v" + latestVersion));
+        titleTv.setTextColor(0xFFFFFFFF);
+        titleTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 19);
+        titleTv.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD));
+        card.addView(titleTv);
+
+        android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
+        scroll.setFocusable(true);
+        android.widget.TextView bodyTv = new android.widget.TextView(activity);
+        String bodyText = (changelog != null && !changelog.trim().isEmpty())
+                ? changelog.trim()
+                : I18n.s(activity,
+                        "No changelog text provided for this release.",
+                        "Bu sürüm için değişiklik günlüğü metni bulunamadı.");
+        bodyTv.setText(bodyText);
+        bodyTv.setTextColor(0xDDFFFFFF);
+        bodyTv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+        bodyTv.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL));
+        bodyTv.setLineSpacing(0f, 1.18f);
+        int sPad = Math.round(12 * d);
+        bodyTv.setPadding(sPad, sPad, sPad, sPad);
+        scroll.addView(bodyTv);
+
+        android.graphics.drawable.GradientDrawable scrollBg = new android.graphics.drawable.GradientDrawable();
+        scrollBg.setColor(0x18FFFFFF);
+        scrollBg.setCornerRadius(12f * d);
+        scroll.setBackground(scrollBg);
+
+        android.widget.LinearLayout.LayoutParams scrollLp = new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                Math.round(280 * d));
+        scrollLp.topMargin = Math.round(12 * d);
+        scrollLp.bottomMargin = Math.round(18 * d);
+        card.addView(scroll, scrollLp);
+
+        android.widget.LinearLayout btnRow = new android.widget.LinearLayout(activity);
+        btnRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        btnRow.setGravity(android.view.Gravity.END);
+
+        android.widget.TextView backBtn = createDialogActionButton(
+                activity,
+                I18n.s(activity, "Back", "Geri"),
+                false,
+                () -> {
+                    dlg.dismiss();
+                    showUpdateAvailableDialog(activity, latestVersion, downloadUrl, changelog, onUiRefresh);
+                });
+        android.widget.LinearLayout.LayoutParams backLp = new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        backLp.rightMargin = Math.round(12 * d);
+        btnRow.addView(backBtn, backLp);
+
+        android.widget.TextView installBtn = createDialogActionButton(
+                activity,
+                I18n.s(activity, "Install", "Yükle"),
+                true,
+                () -> {
+                    dlg.dismiss();
+                    downloadAndInstall(activity, downloadUrl, latestVersion, false, onUiRefresh);
+                });
+        btnRow.addView(installBtn);
+
+        card.addView(btnRow, new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        android.widget.FrameLayout wrapper = new android.widget.FrameLayout(activity);
+        android.widget.FrameLayout.LayoutParams cardLp = new android.widget.FrameLayout.LayoutParams(
+                Math.round(580 * d),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardLp.gravity = android.view.Gravity.CENTER;
+        wrapper.addView(card, cardLp);
+
+        dlg.setContentView(wrapper);
+        dlg.show();
+        installBtn.post(installBtn::requestFocus);
+    }
+
+    private static android.widget.TextView createDialogActionButton(
+            Context c, String label, boolean primary, Runnable onClick) {
+        float d = c.getResources().getDisplayMetrics().density;
+        android.widget.TextView btn = new android.widget.TextView(c);
+        btn.setText(label);
+        btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD));
+        btn.setGravity(android.view.Gravity.CENTER);
+        btn.setPadding(Math.round(22 * d), Math.round(11 * d), Math.round(22 * d), Math.round(11 * d));
+        btn.setFocusable(true);
+        btn.setClickable(true);
+
+        Runnable applyStyle = () -> {
+            boolean f = btn.isFocused();
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            bg.setCornerRadius(12f * d);
+            if (f) {
+                bg.setColor(0xFFFFFFFF);
+                btn.setTextColor(0xFF11131A);
+            } else if (primary) {
+                bg.setColor(0x38FFFFFF);
+                bg.setStroke(Math.max(1, Math.round(1f * d)), 0x55FFFFFF);
+                btn.setTextColor(0xFFFFFFFF);
+            } else {
+                bg.setColor(0x1FFFFFFF);
+                bg.setStroke(Math.max(1, Math.round(1f * d)), 0x33FFFFFF);
+                btn.setTextColor(0xDDFFFFFF);
+            }
+            btn.setBackground(bg);
+            btn.animate().scaleX(f ? 1.05f : 1f).scaleY(f ? 1.05f : 1f).setDuration(120).start();
+        };
+        applyStyle.run();
+        btn.setOnFocusChangeListener((v, hasFocus) -> applyStyle.run());
+        btn.setOnClickListener(v -> {
+            if (onClick != null) onClick.run();
+        });
+        return btn;
     }
 
     public static void downloadAndInstall(
@@ -280,11 +557,9 @@ public final class AppUpdater {
         if (onUiRefresh != null) MAIN.post(onUiRefresh);
         final Context appCtx = activity.getApplicationContext();
 
-        if (!autoSilent) {
-            Toast.makeText(activity,
-                    I18n.s(activity, "Downloading update v" + version + "…", "Güncelleme indiriliyor v" + version + "…"),
-                    Toast.LENGTH_SHORT).show();
-        }
+        Toast.makeText(activity,
+                I18n.s(activity, "Downloading update v" + version + "…", "Güncelleme indiriliyor v" + version + "…"),
+                Toast.LENGTH_SHORT).show();
 
         new Thread(() -> {
             HttpURLConnection conn = null;
@@ -333,32 +608,21 @@ public final class AppUpdater {
                 } catch (Throwable ignored) {
                 }
 
-                // 1. Try silent install via LocalAdb if paired
-                if (LocalAdb.isPaired(appCtx)) {
-                    try {
-                        String pkg = appCtx.getPackageName();
-                        LocalAdb.execShellOutput(appCtx,
-                                "appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null");
-                        // Also try copying to /data/local/tmp and running pm install -r
-                        File extDir = appCtx.getExternalCacheDir();
-                        if (extDir != null) {
-                            File extApk = new File(extDir, "tvos-update.apk");
-                            copyFile(apkFile, extApk);
-                            extApk.setReadable(true, false);
-                            String out = LocalAdb.execShellOutput(appCtx,
-                                    "cp \"" + extApk.getAbsolutePath() + "\" /data/local/tmp/tvos-update.apk 2>/dev/null && "
-                                    + "pm install -r /data/local/tmp/tvos-update.apk");
-                            if (out != null && out.contains("Success")) {
-                                downloading = false;
-                                if (onUiRefresh != null) MAIN.post(onUiRefresh);
-                                return;
-                            }
-                        }
-                    } catch (Throwable ignored) {
+                // 1. If ADB is currently active (port 5555 open), install automatically via LocalAdb
+                if (LocalAdb.isAdbPortCurrentlyOpen()) {
+                    MAIN.post(() -> Toast.makeText(appCtx,
+                            I18n.s(appCtx,
+                                    "Installing update v" + version + " automatically via ADB…",
+                                    "v" + version + " güncellemesi ADB ile otomatik kuruluyor…"),
+                            Toast.LENGTH_LONG).show());
+                    if (LocalAdb.installApkViaAdb(appCtx, apkFile)) {
+                        downloading = false;
+                        if (onUiRefresh != null) MAIN.post(onUiRefresh);
+                        return;
                     }
                 }
 
-                // 2. Install via Android PackageInstaller Session
+                // 2. If ADB is disabled (Secure Mode) or ADB install was unavailable, use system PackageInstaller
                 downloading = false;
                 if (onUiRefresh != null) MAIN.post(onUiRefresh);
                 MAIN.post(() -> installWithPackageInstaller(activity, apkFile));

@@ -797,7 +797,12 @@ final class LocalAdb {
             } catch (Throwable ignored) {
             }
 
-            cmds.add("appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null");
+            try {
+                if (android.os.Build.VERSION.SDK_INT < 26 || !c.getPackageManager().canRequestPackageInstalls()) {
+                    cmds.add("appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null");
+                }
+            } catch (Throwable ignored) {
+            }
             cmds.add("appops set " + pkg + " GET_USAGE_STATS allow 2>/dev/null");
             cmds.add("appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null");
 
@@ -1125,6 +1130,182 @@ final class LocalAdb {
             }
         }
         return false;
+    }
+
+    static boolean isAdbPortCurrentlyOpen() {
+        String[] hosts = {"127.0.0.1", localLanIp()};
+        for (String h : hosts) {
+            if (h == null || h.isEmpty()) continue;
+            if (isPortOpen(h, 5555, 450)) {
+                portReachable = true;
+                return true;
+            }
+        }
+        portReachable = false;
+        return false;
+    }
+
+    /**
+     * Stages {@code apkFile} to {@code /data/local/tmp/tvos-update.apk} over Local ADB (using direct
+     * {@code exec:cat} binary streaming fallback if Scoped Storage blocks shell {@code cp}) and
+     * launches a detached background {@code pm install -r} + {@code MainActivity} restart script
+     * so updating self never crashes or leaves the launcher closed.
+     */
+    static boolean installApkViaAdb(Context c, File apkFile) {
+        if (c == null || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
+            return false;
+        }
+        String[] hosts = {"127.0.0.1", localLanIp()};
+        for (String h : hosts) {
+            if (h == null || h.isEmpty()) continue;
+            if (!isPortOpen(h, 5555, 600)) continue;
+            try {
+                String remoteTmp = "/data/local/tmp/tvos-update.apk";
+                boolean staged = false;
+
+                // 1. Try fast local copy from Download or ExternalCacheDir first
+                try {
+                    StringBuilder cpCmd = new StringBuilder("rm -f ").append(remoteTmp).append(" 2>/dev/null; ");
+                    File dlDir = android.os.Environment.getExternalStoragePublicDirectory(
+                            android.os.Environment.DIRECTORY_DOWNLOADS);
+                    if (dlDir != null) {
+                        if (!dlDir.exists()) dlDir.mkdirs();
+                        File dlApk = new File(dlDir, "tvos-update.apk");
+                        copyLocalFile(apkFile, dlApk);
+                        dlApk.setReadable(true, false);
+                        cpCmd.append("cp \"").append(dlApk.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
+                    }
+                    File extDir = c.getExternalCacheDir();
+                    if (extDir != null) {
+                        File extApk = new File(extDir, "tvos-update.apk");
+                        copyLocalFile(apkFile, extApk);
+                        extApk.setReadable(true, false);
+                        cpCmd.append("cp \"").append(extApk.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
+                    }
+                    cpCmd.append("cp \"").append(apkFile.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null; ");
+                    cpCmd.append("[ -s ").append(remoteTmp).append(" ] && echo STAGED_OK");
+                    String cpOut = runShellCommandOutput(c, h, 5555, cpCmd.toString());
+                    if (cpOut != null && cpOut.contains("STAGED_OK")) {
+                        staged = true;
+                    }
+                } catch (Throwable ignored) {
+                }
+
+                // 2. If Scoped Storage blocked shell cp, stream APK bytes directly via ADB exec:cat
+                if (!staged) {
+                    staged = streamFileOverAdbExec(c, h, 5555, apkFile, remoteTmp);
+                }
+                if (!staged) {
+                    continue;
+                }
+
+                // 3. Launch detached background pm install -r + accessibility refresh + MainActivity restart
+                String pkg = c.getPackageName();
+                String existingAcc = "";
+                try {
+                    existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
+                } catch (Throwable ignored) {
+                }
+                String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
+                String installCmd = "nohup sh -c '"
+                        + "sleep 1; "
+                        + "pm install -r -d " + remoteTmp + " || pm install -r " + remoteTmp + "; "
+                        + "rm -f " + remoteTmp + " /sdcard/Download/tvos-update.apk 2>/dev/null; "
+                        + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
+                        + "settings put secure enabled_accessibility_services \"" + newAcc + "\"; "
+                        + "settings put secure accessibility_enabled 1; "
+                        + "am start -n " + pkg + "/" + pkg + ".MainActivity"
+                        + "' >/dev/null 2>&1 & echo STARTED";
+                String out = runShellCommandOutput(c, h, 5555, installCmd);
+                if (out != null && out.contains("STARTED")) {
+                    portReachable = true;
+                    setPaired(c, true);
+                    return true;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return false;
+    }
+
+    private static void copyLocalFile(File src, File dst) throws Exception {
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(src);
+             java.io.FileOutputStream fos = new java.io.FileOutputStream(dst)) {
+            byte[] buf = new byte[32768];
+            int r;
+            while ((r = fis.read(buf)) > 0) {
+                fos.write(buf, 0, r);
+            }
+            fos.flush();
+        }
+    }
+
+    private static boolean streamFileOverAdbExec(Context c, String host, int port, File srcFile, String remotePath) {
+        try {
+            KeyPair kp = getOrCreateKeyPair(c);
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(host, port), 2500);
+                socket.setSoTimeout(20000);
+                DataInputStream in = new DataInputStream(socket.getInputStream());
+                OutputStream out = socket.getOutputStream();
+
+                byte[] banner = "host::\0".getBytes(StandardCharsets.UTF_8);
+                sendPacket(out, A_CNXN, A_VERSION, MAX_PAYLOAD, banner);
+
+                boolean sentSignature = false;
+                while (true) {
+                    Packet p = readPacket(in);
+                    if (p.command == A_CNXN) {
+                        break;
+                    } else if (p.command == A_AUTH && p.arg0 == ADB_AUTH_TOKEN) {
+                        if (!sentSignature) {
+                            sentSignature = true;
+                            byte[] sig = signToken((RSAPrivateKey) kp.getPrivate(), p.data);
+                            sendPacket(out, A_AUTH, ADB_AUTH_SIGNATURE, 0, sig);
+                        } else {
+                            byte[] pubKeyPayload = encodeAndroidRsaPublicKey((RSAPublicKey) kp.getPublic());
+                            sendPacket(out, A_AUTH, ADB_AUTH_RSAPUBLICKEY, 0, pubKeyPayload);
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+
+                int localId = 91;
+                byte[] openData = ("exec:sh -c 'cat > " + remotePath + "'\0").getBytes(StandardCharsets.UTF_8);
+                sendPacket(out, A_OPEN, localId, 0, openData);
+
+                Packet resp = readPacket(in);
+                if (resp.command != A_OKAY) {
+                    return false;
+                }
+                int remoteId = resp.arg0;
+
+                try (java.io.FileInputStream fis = new java.io.FileInputStream(srcFile)) {
+                    byte[] buf = new byte[16384];
+                    int r;
+                    while ((r = fis.read(buf)) > 0) {
+                        byte[] chunk = (r == buf.length) ? buf : java.util.Arrays.copyOf(buf, r);
+                        sendPacket(out, A_WRTE, localId, remoteId, chunk);
+                        while (true) {
+                            Packet ack = readPacket(in);
+                            if (ack.command == A_OKAY) {
+                                break;
+                            } else if (ack.command == A_WRTE) {
+                                sendPacket(out, A_OKAY, localId, ack.arg0, null);
+                            } else if (ack.command == A_CLSE) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                sendPacket(out, A_CLSE, localId, remoteId, null);
+            }
+            String check = runShellCommandOutput(c, host, port, "[ -s " + remotePath + " ] && echo STREAM_OK");
+            return check != null && check.contains("STREAM_OK");
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     private static void runShellCommand(Context c, String host, int port, String shellCmd) throws Exception {

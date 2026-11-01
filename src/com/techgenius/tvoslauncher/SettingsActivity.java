@@ -1353,6 +1353,9 @@ public class SettingsActivity extends Activity {
                             : tr("Long-press volume fix disabled (using native TV volume).",
                                  "Uzun basış ses tuşu düzeltmesi kapatıldı (varsayılan TV sesi kullanılıyor)."));
                 });
+        row(tr("Volume button fix mode", "Ses tuşu düzeltme modu"),
+                () -> ButtonMapper.getVolumeHoldFixModeLabel(this),
+                this::showVolumeFixModeSelectorDialog);
 
         section(tr("BUTTON REMAPPING", "DÜĞME YENİDEN EŞLEME"));
         row(tr("Add new button to remap", "Yeniden eşlemek için yeni düğme ekle"),
@@ -1555,9 +1558,40 @@ public class SettingsActivity extends Activity {
                 checkingLatestRelease = false;
                 if (!isFinishing()) {
                     refreshAll();
+                    if (success && updateAvailable) {
+                        AppUpdater.showUpdateAvailableDialog(this, latestVersion, downloadUrl,
+                                AppUpdater.getCachedChangelog(this), this::refreshAll);
+                    }
                 }
             });
         }
+    }
+
+    private void showVolumeFixModeSelectorDialog() {
+        int curMode = ButtonMapper.getVolumeHoldFixMode(this);
+        String[] opts = new String[]{
+            (curMode == ButtonMapper.VOLUME_FIX_MODE_1 ? "✓ " : "   ")
+                    + tr("Mode 1 — Standard (Default, for most Android TVs & IR remotes)",
+                         "Mod 1 — Standart (Varsayılan, çoğu Android TV ve IR kumanda için)"),
+            (curMode == ButtonMapper.VOLUME_FIX_MODE_2 ? "✓ " : "   ")
+                    + tr("Mode 2 — HY320 / Projector (AudioService & IR pulse-burst mode)",
+                         "Mod 2 — HY320 / Projeksiyon (AudioService ve IR darbe modu)")
+        };
+        dialog(tr("Volume Button Fix Mode", "Ses Tuşu Düzeltme Modu"))
+                .setItems(opts, (d, which) -> {
+                    int nextMode = (which == 1) ? ButtonMapper.VOLUME_FIX_MODE_2 : ButtonMapper.VOLUME_FIX_MODE_1;
+                    ButtonMapper.setVolumeHoldFixMode(this, nextMode);
+                    refreshAll();
+                    if (nextMode == ButtonMapper.VOLUME_FIX_MODE_1) {
+                        showStatusMsg(tr("Volume Fix Mode 1 (Standard) selected.",
+                                "Ses Tuşu Düzeltme Modu 1 (Standart) seçildi."));
+                    } else {
+                        showStatusMsg(tr("Volume Fix Mode 2 (HY320 / Projector) selected.",
+                                "Ses Tuşu Düzeltme Modu 2 (HY320 / Projeksiyon) seçildi."));
+                    }
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
     }
 
     void pageAbout() {

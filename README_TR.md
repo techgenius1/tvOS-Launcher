@@ -27,8 +27,13 @@ Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zaman
   - Denetim Panelindeki tüm kutucukları (**Wi-Fi, Bluetooth, RAM, Rahatsız Etmeyin, Ses, Uyku Zamanlayıcısı, Ortam Modu, Kapat, Girişler, Tuş Atayıcı, Ayarlar, Arama**) isteğinize göre tek tek açıp kapatabilirsiniz (tümü varsayılan olarak açıktır).
 - **Düğme Eşleyicide Tuş Kodu Gönder (`Send Key Code`) Seçeneği (`Ayarlar → Düğme Eşleyici`)**:
   - tvQuickActions gibi üçüncü parti uygulamalara gerek kalmadan kumandadaki herhangi bir tuşa (`1x / 2x / 3x` basış) **Tuş Kodu Gönder** (*Oynat/Duraklat, Sonraki, Önceki, Sessiz, Ses Aç/Kıs, Geri, Ana Ekran, Menü, TV Girişi, Kanal İleri/Geri, Altyazı, Rehber, Bilgi* veya özel Android `KeyEvent` kodu) atayabilirsiniz.
-- **Evrensel Ses Tuşu Basılı Tutma Düzeltmesi (Hem Güvenli Modda Hem Kalıcı ADB Modunda Çalışır)**:
-  - `android.permission.DUMP` izniyle çalışan uygulama içi `AudioService` Binder izleyicisi sayesinde **ADB tamamen kapalıyken (Güvenli Mod)** ve **Kalıcı ADB Modunda**, hem Android 9–12 (`Audio event log: volume changes`, Magcubic HY320 projeksiyon cihazları dahil) hem de Android 13–14+ (`Events log: volume changes`) TV'lerde sorunsuz çalışır.
+- **Mod Seçimli Evrensel Ses Tuşu Basılı Tutma Düzeltmesi (`Ayarlar → Düğme Eşleyici` içinde `Mod 1` / `Mod 2`)**:
+  - **Hem Güvenli Modda (ADB Kapalı) hem Kalıcı ADB Modunda** çalışır ve **Ses tuşu düzeltme modu** seçeneği sunar:
+    - **Mod 1 (Standart — Varsayılan)**: Standart kızılötesi (IR) TV kumandalarında sesin kendi kendine artmaya/azalmaya devam etmesini önleyen klasik zamanlama (`320ms` başlangıç gecikmesi, `85ms` tekrar).
+    - **Mod 2 (HY320 / Projeksiyon)**: Magcubic HY320 ve tekil `ACTION_DOWN` gönderen Android 9–12 projeksiyon cihazları için geliştirilmiş `AudioService` Binder izleyicisi (`Audio event log: volume changes` + `Events log: volume changes`, `280ms` gecikme ve IR darbe algılama).
+- **Etkileşimli Güncelleme Mevcut Penceresi & Çift Modlu APK Yükleyici (`Ayarlar → Güncellemeler`)**:
+  - Otomatik veya manuel güncelleme kontrolünde yeni sürüm bulunduğunda **2 butonlu Güncelleme Mevcut** penceresi açılır: **Değişiklik Günlüğü (`Show Changelog`)** (GitHub sürüm notlarını doğrudan TV ekranında gösterir) ve **Yükle (`Install` — varsayılan seçili)**.
+  - **Çift Modlu Kurulum**: **Yükle** seçildiğinde **ADB aktifse** (`5555` portu açıksa) uygulamayı çökertmeden arka planda otomatik olarak (`LocalAdb.installApkViaAdb`) günceller; **ADB kapalıysa (Güvenli Mod)** sistem paket yükleyicisini açarak kullanıcıyı manuel kuruluma yönlendirir.
 - **Açılış Hızı, Uyumluluk ve İzlemeye Devam Et Düzeltmeleri**:
   - **Daha Hızlı Sistem Açılışında Başlatma**: `PowerService`, sistem açılışında Erişilebilirlik Servisi bağlandığı anda (`BOOT_COMPLETED` gecikmesini beklemeden) başlatıcıyı öne getirir ve açılışta stok başlatıcı pencerelerini yakalar.
   - **Philips Canlı TV (`org.droidtv.playtv`) Düzeltmesi**: Philips TV'lerde canlı TV / uydu alıcısı paketi olan `org.droidtv.playtv`, `KNOWN_SYSTEM_LAUNCHERS` listesinden çıkarıldı.

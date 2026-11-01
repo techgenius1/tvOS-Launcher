@@ -114,6 +114,35 @@ public class PowerService extends AccessibilityService {
     };
 
     private void onVolumeKeyState(int dir, boolean down, boolean isRepeat) {
+        if (!ButtonMapper.isVolumeHoldFixEnabled(this)) {
+            volDir = 0;
+            handler.removeCallbacks(volRepeatRunnable);
+            return;
+        }
+        int mode = ButtonMapper.getVolumeHoldFixMode(this);
+        if (mode == ButtonMapper.VOLUME_FIX_MODE_1) {
+            // Mode 1 (Standard - Default): Original v2.0.5 timing & behavior (320ms initial delay, no pulse-burst/repeat injection)
+            if (isRepeat) {
+                return;
+            }
+            if (!down) {
+                handler.removeCallbacks(volRepeatRunnable);
+                if (dir == 0 || volDir == dir) {
+                    volDir = 0;
+                }
+                return;
+            }
+            if (volDir == dir) {
+                return;
+            }
+            handler.removeCallbacks(volRepeatRunnable);
+            volDir = dir;
+            volDownTime = SystemClock.uptimeMillis();
+            handler.postDelayed(volRepeatRunnable, 320L);
+            return;
+        }
+
+        // Mode 2 (HY320 / Projector): 280ms initial delay + IR repeat & pulse-burst handling
         long now = SystemClock.uptimeMillis();
         if (down) {
             volDownTime = now;
@@ -126,7 +155,7 @@ public class PowerService extends AccessibilityService {
                 handler.postDelayed(volRepeatRunnable, VOL_REPEAT_INTERVAL_MS);
                 return;
             }
-            // Magcubic HY320 (Android 9 IR receiver) rapid DOWN/UP pulse burst when holding volume button:
+            // Magcubic HY320 rapid DOWN/UP pulse burst when holding volume button:
             // if the previous press was a short IR pulse (<110ms) and a new DOWN in the same direction arrives within 240ms
             if (lastDownDir == dir && lastPulseDuration < 110L && (now - lastDownTime) < 240L) {
                 lastDownTime = now;
@@ -203,7 +232,10 @@ public class PowerService extends AccessibilityService {
     }
 
     void syncVolumeHoldFix() {
+        volDir = 0;
+        handler.removeCallbacks(volRepeatRunnable);
         if (ButtonMapper.isVolumeHoldFixEnabled(this)) {
+            int mode = ButtonMapper.getVolumeHoldFixMode(this);
             registerVolumeLongPressListener();
             // Ensure DUMP + SET_VOLUME_KEY_LONG_PRESS_LISTENER are granted if port 5555 is currently open
             if (!LocalAdb.hasDumpPermission(this) || !LocalAdb.hasVolumeLongPressPermission(this)) {
@@ -211,20 +243,25 @@ public class PowerService extends AccessibilityService {
                     if (instance == this && ButtonMapper.isVolumeHoldFixEnabled(this)) {
                         registerVolumeLongPressListener();
                         startAudioDumpVolumeWatcher();
-                        if (LocalAdb.hasDumpPermission(this)) {
+                        if (ButtonMapper.getVolumeHoldFixMode(this) == ButtonMapper.VOLUME_FIX_MODE_2
+                                && LocalAdb.hasDumpPermission(this)) {
                             stopVolumeWatcher();
                         }
                     }
                 });
             }
-            // Primary engine for BOTH Secure ADB Mode and Persistent ADB Mode:
-            // In-process AudioService binder dump watcher (no ADB socket or getevent needed once DUMP is granted)
-            startAudioDumpVolumeWatcher();
-            // Fallback engine only if DUMP permission is not yet granted and port 5555 is open
-            if (!LocalAdb.hasDumpPermission(this)) {
-                startVolumeWatcher();
+            if (mode == ButtonMapper.VOLUME_FIX_MODE_2) {
+                // Mode 2 (HY320 / Projector): AudioService binder dump watcher for both Secure & Persistent modes
+                startAudioDumpVolumeWatcher();
+                if (!LocalAdb.hasDumpPermission(this)) {
+                    startVolumeWatcher();
+                } else {
+                    stopVolumeWatcher();
+                }
             } else {
-                stopVolumeWatcher();
+                // Mode 1 (Standard - Default): LocalAdb getevent when ADB is open + AudioService dump in Secure Mode
+                startVolumeWatcher();
+                startAudioDumpVolumeWatcher();
             }
         } else {
             unregisterVolumeLongPressListener();
@@ -342,7 +379,10 @@ public class PowerService extends AccessibilityService {
             LocalAdb.watchVolumeKeys(
                     appCtx,
                     (dir, down, isRepeat) -> handler.post(() -> onVolumeKeyState(dir, down, isRepeat)),
-                    () -> instance == this && volWatchActive && !LocalAdb.hasDumpPermission(appCtx) && ButtonMapper.isVolumeHoldFixEnabled(appCtx)
+                    () -> instance == this && volWatchActive
+                            && ButtonMapper.isVolumeHoldFixEnabled(appCtx)
+                            && (ButtonMapper.getVolumeHoldFixMode(appCtx) == ButtonMapper.VOLUME_FIX_MODE_1
+                                || !LocalAdb.hasDumpPermission(appCtx))
             );
         }, "vol-hold-watch");
         volWatchThread.setDaemon(true);
@@ -360,14 +400,12 @@ public class PowerService extends AccessibilityService {
     }
 
     /**
-     * Primary Volume Hold Fix Engine for BOTH Secure ADB Mode and Persistent ADB Mode:
-     * On Android TV and projectors (Android 9-14+), PhoneWindowManager calls
-     * AudioService.adjustSuggestedStreamVolume() from "android/WindowManager uid:1000"
-     * once on ACTION_DOWN and once on ACTION_UP, logging both events in AudioService's
-     * in-memory "volume changes" event log ("Audio event log: volume changes" on Android 9-12,
-     * "Events log: volume changes" on Android 13-14+).
-     * With android.permission.DUMP (granted once during ADB setup), we read AudioService's
-     * binder dump in-process (~2ms, no ADB or shell process needed).
+     * Volume Hold Fix Engine using AudioService Binder dump:
+     * - Mode 1 (Standard - Default): Active only when LocalAdb getevent is NOT connected (Secure Mode)
+     *   and matches "Events log: volume changes" (Android 13-14+ TVs where WindowManager logs both DOWN & UP).
+     * - Mode 2 (HY320 / Projector): Active in both Secure Mode and Persistent ADB Mode, matching both
+     *   "Audio event log: volume changes" (Android 9-12, e.g. HY320) and "Events log: volume changes",
+     *   plus IR pulse-burst handling.
      */
     private synchronized void startAudioDumpVolumeWatcher() {
         if (audioDumpWatchActive && audioDumpWatchThread != null && audioDumpWatchThread.isAlive()) {
@@ -386,6 +424,18 @@ public class PowerService extends AccessibilityService {
 
             while (instance == this && audioDumpWatchActive && ButtonMapper.isVolumeHoldFixEnabled(appCtx)) {
                 try {
+                    int mode = ButtonMapper.getVolumeHoldFixMode(appCtx);
+                    // In Mode 1 (Standard), when Persistent ADB Mode is active and getevent stream is connected, let getevent handle it
+                    if (mode == ButtonMapper.VOLUME_FIX_MODE_1 && LocalAdb.volWatchConnected) {
+                        if (wmKeyIsDown) {
+                            wmKeyIsDown = false;
+                            handler.post(() -> onVolumeKeyState(0, false, false));
+                        }
+                        prevLastWmLine = null;
+                        baselineInitialized = false;
+                        Thread.sleep(1000L);
+                        continue;
+                    }
                     // Require android.permission.DUMP and interactive screen
                     if (!LocalAdb.hasDumpPermission(appCtx) || (pm != null && !pm.isInteractive())) {
                         if (wmKeyIsDown) {
@@ -440,10 +490,16 @@ public class PowerService extends AccessibilityService {
                         boolean inVolumeEvents = false;
                         while ((line = br.readLine()) != null) {
                             if (!inVolumeEvents) {
-                                // Matches both "Audio event log: volume changes" (Android 9-12, e.g. HY320)
-                                // and "Events log: volume changes" (Android 13-14+)
-                                if (line.contains("volume changes")) {
-                                    inVolumeEvents = true;
+                                if (mode == ButtonMapper.VOLUME_FIX_MODE_2) {
+                                    // Mode 2 (HY320 / Projector): matches both "Audio event log: volume changes" and "Events log: volume changes"
+                                    if (line.contains("volume changes")) {
+                                        inVolumeEvents = true;
+                                    }
+                                } else {
+                                    // Mode 1 (Standard): matches "Events log: volume changes"
+                                    if (line.contains("Events log: volume changes")) {
+                                        inVolumeEvents = true;
+                                    }
                                 }
                                 continue;
                             }
@@ -462,7 +518,6 @@ public class PowerService extends AccessibilityService {
                         prevLastWmLine = lastWmLine;
                         baselineInitialized = true;
                     } else if (lastWmLine == null) {
-                        // Ring buffer wrapped past previous WindowManager lines (e.g. during a long volume hold)
                         prevLastWmLine = null;
                     } else if (!lastWmLine.equals(prevLastWmLine)) {
                         int dir = 0;
@@ -472,8 +527,6 @@ public class PowerService extends AccessibilityService {
                             dir = -1;
                         }
                         if (!wmKeyIsDown) {
-                            // Check if only 1 new WindowManager event arrived since prevLastWmLine (ACTION_DOWN)
-                            // vs 2 new events (both ACTION_DOWN and ACTION_UP already finished in a fast tap)
                             boolean singleNewEvent = (prevLastWmLine == null && secondLastWmLine == null)
                                     || (prevLastWmLine != null && secondLastWmLine != null && secondLastWmLine.equals(prevLastWmLine));
                             if (singleNewEvent && dir != 0) {
@@ -482,17 +535,15 @@ public class PowerService extends AccessibilityService {
                                 final int d = dir;
                                 handler.post(() -> onVolumeKeyState(d, true, false));
                             } else {
-                                // Both ACTION_DOWN and ACTION_UP occurred within a single poll window (<60ms).
-                                // On normal remotes this is a quick single tap (already handled by WindowManager),
-                                // but on IR pulse-burst projectors holding the button may send repeated short
-                                // DOWN+UP pulses every ~110ms: step volume if pulses repeat within 250ms!
-                                long nowMs = SystemClock.uptimeMillis();
-                                if (dir != 0 && lastFastPulseDir == dir && (nowMs - lastFastPulseMs) < 250L) {
-                                    final int d = dir;
-                                    handler.post(() -> stepVolume(d));
+                                if (mode == ButtonMapper.VOLUME_FIX_MODE_2) {
+                                    long nowMs = SystemClock.uptimeMillis();
+                                    if (dir != 0 && lastFastPulseDir == dir && (nowMs - lastFastPulseMs) < 250L) {
+                                        final int d = dir;
+                                        handler.post(() -> stepVolume(d));
+                                    }
+                                    lastFastPulseDir = dir;
+                                    lastFastPulseMs = nowMs;
                                 }
-                                lastFastPulseDir = dir;
-                                lastFastPulseMs = nowMs;
                                 prevLastWmLine = lastWmLine;
                             }
                         } else {
@@ -536,8 +587,9 @@ public class PowerService extends AccessibilityService {
     protected boolean onKeyEvent(KeyEvent event) {
         if (event == null) return false;
         int code = event.getKeyCode();
-        // Fallback when neither LocalAdb getevent watcher nor DUMP permission is active
-        if (!LocalAdb.volWatchConnected && !LocalAdb.hasDumpPermission(this)
+        // Fallback when LocalAdb getevent watcher is not connected (Mode 1 or when DUMP permission is not active)
+        if (!LocalAdb.volWatchConnected
+                && (ButtonMapper.getVolumeHoldFixMode(this) == ButtonMapper.VOLUME_FIX_MODE_1 || !LocalAdb.hasDumpPermission(this))
                 && (code == KeyEvent.KEYCODE_VOLUME_UP || code == KeyEvent.KEYCODE_VOLUME_DOWN)
                 && ButtonMapper.isVolumeHoldFixEnabled(this)
                 && !ButtonMapper.isKeyCustomMapped(this, code)) {
