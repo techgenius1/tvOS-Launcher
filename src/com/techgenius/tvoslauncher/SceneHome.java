@@ -1317,7 +1317,15 @@ final class SceneHome {
         int clamped = Math.max(0, Math.min(idx, dockTiles.size() - 1));
         focusedDockIdx = clamped;
         host.prefs.edit().putInt("last_dock_idx", clamped).apply();
-        dockTiles.get(clamped).requestFocus();
+        View tile = dockTiles.get(clamped);
+        boolean alreadyFocused = tile.isFocused();
+        tile.requestFocus();
+        // Coming back to Home with focus still on the Nuvio tile fires no focus change, so the
+        // popup (hidden when the launcher paused) has to be told directly.
+        if (alreadyFocused && nuvioPopup != null && moveDockIdx < 0 && clamped < dockEntries.size()
+                && NuvioPopup.isNuvio(dockEntries.get(clamped).pkg)) {
+            nuvioPopup.onTileFocus(tile, dockEntries.get(clamped).pkg, true);
+        }
     }
 
     void invalidateAppLogoCache(MainActivity.AppEntry a) {
