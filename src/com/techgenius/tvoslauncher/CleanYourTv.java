@@ -96,6 +96,11 @@ public final class CleanYourTv {
         NEVER_DISABLE_EXACT.add("com.google.android.gms");
         NEVER_DISABLE_EXACT.add("com.google.android.gsf");
         NEVER_DISABLE_EXACT.add("com.google.android.webview");
+        NEVER_DISABLE_EXACT.add("org.droidtv.playtv");
+        NEVER_DISABLE_EXACT.add("org.droidtv.tunerservice");
+        NEVER_DISABLE_EXACT.add("org.droidtv.channels");
+        NEVER_DISABLE_EXACT.add("com.android.tv");
+        NEVER_DISABLE_EXACT.add("com.google.android.tv");
     }
 
     /** Generic Google / Android bloat packages that appear on almost all TVs (weighted lower in package similarity matching). */
@@ -1480,12 +1485,9 @@ public final class CleanYourTv {
 
     private static final String[][] KNOWN_SYSTEM_LAUNCHERS = {
         {"com.google.android.apps.tv.launcherx", "Google TV Home (LauncherX)", "Stock Google TV Home screen & banner ads"},
-        {"com.google.android.tungsten.setupwraith", "Google TV Setup / Watchdog (setupwraith)", "Google TV launcher watchdog (disable together with LauncherX)"},
+        {"com.google.android.tungsten.setupwraith", "Google TV Home Watchdog (setupwraith)", "Google TV launcher watchdog (disable together with LauncherX)"},
         {"com.google.android.tvlauncher", "Android TV Home (tvlauncher)", "Stock Android TV Home screen"},
         {"com.google.android.leanbacklauncher", "Android TV Home (Leanback)", "Stock Android TV Leanback launcher"},
-        {"com.google.android.leanbacklauncher.recommendations", "Android TV Recommendations", "Stock Android TV recommendations row"},
-        {"com.google.android.tvrecommendations", "Android TV Home Recommendations", "Stock Android TV recommendations service"},
-        {"org.droidtv.playtv", "Philips TV Home Wrapper (org.droidtv.playtv)", "Philips Android TV Home wrapper"},
         {"org.droidtv.ui.home", "Philips TV Home UI (org.droidtv.ui.home)", "Philips OEM Home launcher"},
         {"org.droidtv.home", "Philips Home (org.droidtv.home)", "Philips OEM Home screen"},
         {"com.tpvision.home", "Philips / TPVision Home (com.tpvision.home)", "Philips OEM Home screen"},
@@ -1508,8 +1510,9 @@ public final class CleanYourTv {
     };
 
     /**
-     * Core system/framework/settings packages that may declare a FallbackHome or ResolverActivity
-     * for CATEGORY_HOME, but are NOT actual home launchers and must NEVER be shown in the launcher list.
+     * Core system/framework/settings/live-tv tuner packages that may declare a FallbackHome,
+     * ResolverActivity, or TV input entry for CATEGORY_HOME, but are NOT actual home launchers
+     * and must NEVER be shown in the launcher list.
      */
     private static boolean isExcludedFromLauncherList(String pkg, String activityName) {
         if (pkg == null || pkg.isEmpty()) return true;
@@ -1525,9 +1528,19 @@ public final class CleanYourTv {
                 || lowPkg.equals("com.android.nfc")
                 || lowPkg.equals("com.android.bluetooth")
                 || lowPkg.equals("com.android.vending")
+                || lowPkg.equals("com.android.tv")
+                || lowPkg.equals("com.google.android.tv")
                 || lowPkg.equals("com.google.android.gms")
                 || lowPkg.equals("com.google.android.gsf")
                 || lowPkg.equals("com.google.android.onetimeinitializer")
+                || lowPkg.equals("com.google.android.leanbacklauncher.recommendations")
+                || lowPkg.equals("com.google.android.tvrecommendations")
+                || lowPkg.equals("org.droidtv.playtv")
+                || lowPkg.equals("org.droidtv.channels")
+                || lowPkg.equals("org.droidtv.tunerservice")
+                || lowPkg.equals("org.droidtv.settings")
+                || lowPkg.equals("com.sony.dtv.tvx")
+                || lowPkg.equals("com.tcl.tv")
                 || lowPkg.startsWith("com.android.cts.")) {
             return true;
         }
@@ -1537,6 +1550,8 @@ public final class CleanYourTv {
                     || lowAct.contains("fallbackhome")
                     || lowAct.contains("cryptkeeper")
                     || lowAct.contains("provision")
+                    || lowAct.contains("playtv")
+                    || lowAct.contains("livetv")
                     || lowAct.contains(" uninstaller")) {
                 return true;
             }

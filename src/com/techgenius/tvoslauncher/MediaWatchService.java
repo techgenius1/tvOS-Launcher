@@ -192,11 +192,58 @@ public class MediaWatchService extends NotificationListenerService {
                             MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI);
                     if (uri.startsWith("http")) art = uri;
                 }
+                String link = prev != null ? prev.optString("link", "") : "";
+                String metaUri = text(m, MediaMetadata.METADATA_KEY_MEDIA_URI);
+                if (metaUri.startsWith("http") || metaUri.startsWith("vnd.youtube") || metaUri.contains("://")) {
+                    link = metaUri;
+                }
+                String artUri = text(m, MediaMetadata.METADATA_KEY_ART_URI, MediaMetadata.METADATA_KEY_ALBUM_ART_URI,
+                        MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI);
+                String mediaId = text(m, MediaMetadata.METADATA_KEY_MEDIA_ID);
+                if (isYouTubePkg(pkg)) {
+                    String ytId = extractYouTubeVideoId(metaUri);
+                    if (ytId.isEmpty()) ytId = extractYouTubeVideoId(artUri);
+                    if (ytId.isEmpty()) ytId = extractYouTubeVideoId(mediaId);
+                    if (!ytId.isEmpty()) {
+                        link = "https://www.youtube.com/watch?v=" + ytId;
+                    }
+                }
                 JSONObject e = new JSONObject().put("key", key).put("pkg", pkg).put("title", title).put("sub", sub)
-                        .put("art", art).put("pos", pos).put("dur", dur).put("ts", System.currentTimeMillis());
+                        .put("art", art).put("pos", pos).put("dur", dur).put("ts", System.currentTimeMillis())
+                        .put("link", link);
                 JSONArray res = new JSONArray().put(e);
                 for (int i = 0; i < out.length() && res.length() < MAX; i++) res.put(out.get(i));
                 write(c, res);
+
+                if (isYouTubePkg(pkg) && link.isEmpty()) {
+                    final Context appCtx = c.getApplicationContext();
+                    final String fKey = key;
+                    final String fTitle = title;
+                    final String fSub = sub;
+                    new Thread(() -> {
+                        String resolvedId = searchYouTubeVideoId(fTitle, fSub);
+                        if (!resolvedId.isEmpty()) {
+                            updateLinkForKey(appCtx, fKey, "https://www.youtube.com/watch?v=" + resolvedId);
+                        }
+                    }, "yt-cw-resolve").start();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        static synchronized void updateLinkForKey(Context c, String key, String link) {
+            if (key == null || link == null || link.isEmpty()) return;
+            try {
+                JSONArray a = read(c);
+                boolean changed = false;
+                for (int i = 0; i < a.length(); i++) {
+                    JSONObject o = a.optJSONObject(i);
+                    if (o != null && key.equals(o.optString("key"))) {
+                        o.put("link", link);
+                        changed = true;
+                    }
+                }
+                if (changed) write(c, a);
             } catch (Exception ignored) {
             }
         }
@@ -252,14 +299,141 @@ public class MediaWatchService extends NotificationListenerService {
                 it.title = o.optString("title");
                 it.overview = o.optString("sub");
                 it.backdrop = o.optString("art");
+                it.link = o.optString("link", "");
                 it.year = "";
                 it.genres = "";
                 long pos = o.optLong("pos", -1), dur = o.optLong("dur", 0);
+                it.published = pos; // store raw resume position (ms) for deep-link resume
                 it.progress = dur > 0 && pos >= 0 ? Math.min(1f, pos / (float) dur) : -1f;
                 it.remainingMin = dur > 0 && pos >= 0 ? (int) Math.max(1, (dur - pos) / 60000) : -1;
                 out.add(it);
             }
             return out;
+        }
+
+        static boolean isYouTubePkg(String pkg) {
+            if (pkg == null) return false;
+            String p = pkg.toLowerCase(java.util.Locale.ROOT);
+            return p.contains("youtube") || p.contains("smarttube") || p.contains("teamsmart.videomanager");
+        }
+
+        static String extractYouTubeVideoId(String raw) {
+            if (raw == null || raw.isEmpty()) return "";
+            String s = raw.trim();
+            if (s.matches("^[a-zA-Z0-9_-]{11}$")) return s;
+            java.util.regex.Matcher mVi = java.util.regex.Pattern
+                    .compile("(?:/vi/|/vi_webp/|v=|youtu\\.be/|/embed/|/shorts/)([a-zA-Z0-9_-]{11})")
+                    .matcher(s);
+            if (mVi.find()) return mVi.group(1);
+            return "";
+        }
+
+        static String searchYouTubeVideoId(String title, String sub) {
+            if (title == null || title.trim().isEmpty()) return "";
+            java.net.HttpURLConnection conn = null;
+            try {
+                String q = title.trim() + (sub != null && !sub.trim().isEmpty() ? " " + sub.trim() : "");
+                String urlStr = "https://www.youtube.com/results?search_query="
+                        + java.net.URLEncoder.encode(q, "UTF-8") + "&hl=en";
+                conn = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
+                conn.setConnectTimeout(3500);
+                conn.setReadTimeout(3500);
+                conn.setRequestProperty("User-Agent",
+                        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+                try (java.io.InputStream in = conn.getInputStream()) {
+                    byte[] bytes = Suggestions.readAll(in);
+                    String html = new String(bytes, StandardCharsets.UTF_8);
+                    java.util.regex.Matcher m = java.util.regex.Pattern
+                            .compile("\"videoId\":\"([a-zA-Z0-9_-]{11})\"")
+                            .matcher(html);
+                    if (m.find()) {
+                        return m.group(1);
+                    }
+                }
+            } catch (Exception ignored) {
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+            return "";
+        }
+
+        static void openContinueItem(MainActivity host, Suggestions.Item it, Runnable fallbackAppLaunch) {
+            if (host == null || it == null) return;
+            final String pkg = it.pkg != null ? it.pkg : "";
+            final String existingLink = it.link != null ? it.link.trim() : "";
+            final long posMs = it.published;
+
+            if (isYouTubePkg(pkg)) {
+                String ytId = extractYouTubeVideoId(existingLink);
+                if (!ytId.isEmpty()) {
+                    if (launchYouTubeVideo(host, pkg, ytId, posMs)) return;
+                }
+                // Resolve videoId asynchronously from title + channel name if not cached yet
+                host.io.execute(() -> {
+                    String resolvedId = searchYouTubeVideoId(it.title, it.overview);
+                    if (!resolvedId.isEmpty()) {
+                        updateLinkForKey(host.getApplicationContext(), it.key,
+                                "https://www.youtube.com/watch?v=" + resolvedId);
+                        it.link = "https://www.youtube.com/watch?v=" + resolvedId;
+                        host.handler.post(() -> {
+                            if (!launchYouTubeVideo(host, pkg, resolvedId, posMs) && fallbackAppLaunch != null) {
+                                fallbackAppLaunch.run();
+                            }
+                        });
+                    } else {
+                        host.handler.post(() -> {
+                            android.content.Intent searchIntent = new android.content.Intent(android.content.Intent.ACTION_SEARCH)
+                                    .setPackage(pkg)
+                                    .putExtra(android.app.SearchManager.QUERY, it.title);
+                            host.prepareForAppLaunch();
+                            if (Suggestions.start(host, searchIntent)) {
+                                host.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                                host.io.execute(() -> host.noteLaunched(pkg));
+                            } else if (fallbackAppLaunch != null) {
+                                fallbackAppLaunch.run();
+                            }
+                        });
+                    }
+                });
+                return;
+            }
+
+            if (!existingLink.isEmpty()) {
+                android.content.Intent viewIntent = new android.content.Intent(
+                        android.content.Intent.ACTION_VIEW, android.net.Uri.parse(existingLink))
+                        .setPackage(pkg);
+                host.prepareForAppLaunch();
+                if (Suggestions.start(host, viewIntent)) {
+                    host.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                    host.io.execute(() -> host.noteLaunched(pkg));
+                    return;
+                }
+            }
+            if (fallbackAppLaunch != null) {
+                fallbackAppLaunch.run();
+            }
+        }
+
+        private static boolean launchYouTubeVideo(MainActivity host, String pkg, String videoId, long posMs) {
+            long resumeSec = posMs > 5000L ? (posMs / 1000L) : 0L;
+            String watchUrl = "https://www.youtube.com/watch?v=" + videoId
+                    + (resumeSec > 0 ? "&t=" + resumeSec + "s" : "");
+            String vndUrl = "vnd.youtube://" + videoId
+                    + (resumeSec > 0 ? "?t=" + resumeSec : "");
+            String[] urls = {watchUrl, vndUrl};
+            for (String u : urls) {
+                android.content.Intent vi = new android.content.Intent(
+                        android.content.Intent.ACTION_VIEW, android.net.Uri.parse(u))
+                        .setPackage(pkg);
+                vi.putExtra("force_fullscreen", true);
+                host.prepareForAppLaunch();
+                if (Suggestions.start(host, vi)) {
+                    host.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                    host.io.execute(() -> host.noteLaunched(pkg));
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

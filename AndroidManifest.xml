@@ -26,6 +26,10 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <!-- Granted once via ADB during setup so the launcher can self-repair Accessibility and handle Volume Hold Fix without keeping port 5555 open. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER" />
+    <uses-permission android:name="android.permission.DUMP" />
 
     <queries>
         <intent>
@@ -68,9 +72,10 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize|screenLayout|uiMode|density">
-            <intent-filter>
+            <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.LEANBACK_HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
@@ -80,17 +85,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Control Center: Power Off / Sleep Timer (force-lock device admin only). -->
-        <receiver
-            android:name=".SleepReceiver$Admin"
-            android:exported="true"
-            android:label="tvOS Launcher sleep"
-            android:permission="android.permission.BIND_DEVICE_ADMIN">
-            <meta-data android:name="android.app.device_admin" android:resource="@xml/device_admin" />
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".SleepReceiver" android:exported="false" />
         <receiver android:name=".AppUpdater$InstallStatusReceiver" android:exported="false" />
         <service
@@ -124,11 +118,17 @@
             android:screenOrientation="landscape"
             android:theme="@style/HomeTheme"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize|screenLayout|uiMode|density" />
-        <receiver android:name=".present.BootReceiver" android:exported="true">
-            <intent-filter>
+        <receiver
+            android:name=".present.BootReceiver"
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>

@@ -1,15 +1,49 @@
-# tvOS Launcher (`v2.0.5`)
+# tvOS Launcher (`v2.0.6`)
 
 > 🇹🇷 **Türkçe dokümantasyon ve kurulum rehberi için:** **[README_TR.md (Türkçe)](README_TR.md)**  
-> 📦 **Download Latest APK (`v2.0.5`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **Download Latest APK (`v2.0.6`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Header](screenshots_en/Header_EN.jpg)
 
-A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Google TV — built in pure Java with zero third-party runtime dependencies (**~30 MB private RAM / ~38 MB total PSS, `0.0%` background CPU**). Designed to stay buttery-smooth even on 1 GB RAM TV boxes while bringing a **resizable Liquid Glass Dock (`50%–150%`)**, rotating **Night Scenes**, **Custom Wallpapers (`Custom 1..5`)**, an **App Icon Changer & Interactive Icon Editor**, **Automatic GitHub App Updates**, a **built-in PC-free CleanYourTV Debloater (341 TV models + Manual System App Debloater + Stock Launcher Disabler)**, a **Universal Control Panel (`Quick Settings`) overlay**, a **Recent Apps Switcher**, **multi-tap (`1x / 2x / 3x`) Remote Button Remapping + Home Button Fix**, **Keep Alive auto-permission repair**, and **one-tap Local ADB setup** to any Android TV.
+A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Google TV — built in pure Java with zero third-party runtime dependencies (**~30 MB private RAM / ~38 MB total PSS, `0.0%` background CPU**). Designed to stay buttery-smooth even on 1 GB RAM TV boxes while bringing a **resizable Liquid Glass Dock (`50%–150%`)**, rotating **Night Scenes**, **Custom Wallpapers (`Custom 1..5`) + Wallpaper Folder Shuffle**, a **Built-In Lock Screen / Idle Screensaver**, an **App Icon Changer & Interactive Icon Editor**, **Automatic GitHub App Updates**, a **built-in PC-free CleanYourTV Debloater (341 TV models + Manual System App Debloater + Stock Launcher Disabler)**, a **Customizable Glass Control Panel (`Quick Settings`) overlay**, a **Recent Apps Switcher**, **multi-tap (`1x / 2x / 3x`) Remote Button Remapping + Send Key Code + Home Button Fix**, and **Dual-Mode Secure Local ADB Setup (Self-Repair & Volume Hold Fix without keeping port 5555 open)** to any Android TV.
 
 ---
 
-## 🆕 What's New in `v2.0.5`
+## 🆕 What's New in `v2.0.6`
+
+- **Dual-Mode ADB Security Architecture & One-Tap ADB Toggle (`Settings → Advanced` & First-Time Setup)**:
+  - **Secure Mode (Grant Once & Close ADB — Default & Recommended)**: Grants `WRITE_SECURE_SETTINGS` and `DUMP` once during setup and immediately closes network ADB (`adb_enabled = 0`) so port `5555` is never left open on your LAN. Restores Accessibility (`ServiceRepair`) and runs the **Volume Button Hold Fix** directly in-process with ADB completely turned off.
+  - **Persistent ADB Mode (Opt-In with Confirmation Popup)**: Optional mode for users who want network ADB kept open for runtime ADB tools like CleanYourTV. Selecting Persistent Mode while ADB is off prompts to enable USB Debugging and switch automatically; turning ADB off automatically returns to Secure Mode.
+  - **One-Tap Turn On / Turn Off ADB Button**: Toggle USB Debugging (`adb_enabled`) on or off directly from `Settings → Advanced` without enabling Wireless Debugging (`adb_wifi_enabled`).
+  - **Device Admin Removed & Keep Alive Opt-In**: Completely removed `BIND_DEVICE_ADMIN` (screen-off uses Android 9+ `GLOBAL_ACTION_LOCK_SCREEN`) so the launcher never blocks uninstallation, and made background Keep Alive opt-in (`Off` by default).
+- **Built-In Lock Screen & Idle Timer (`Settings → Control Panel → Ambient Mode`)**:
+  - Choose between **Ambient Mode (System Default)** or the new **Built-In Lock Screen** when opening Ambient Mode or after an automatic **Idle Timer (`Off / 5 / 10 / 15 / 30 / 60 min`)**.
+  - Includes a dedicated **Lock Screen Settings** sub-menu to pick any **Night Scene, Classic Wallpaper, Custom 1–5, or Folder Shuffle**, configure **Clock Position (`Left / Center / Right`)**, and display the glass clock, date, greeting, and live weather over the wallpaper (pressing any key returns immediately).
+- **Wallpaper Folder Shuffle (`Settings → Appearance & Scenes` & `Lock Screen`)**:
+  - Pick any folder on internal storage or a USB drive (**Folder Shuffle**) to randomly cycle through unlimited desktop or lock screen background images instead of being limited to 5 static custom slots.
+- **Night Scenes Weather Shortcut Button (`Settings → Apps`)**:
+  - Added a glass **Weather Icon Shortcut** next to the Control Panel button in the top-right corner of Night Scenes Home that opens the 5-day weather forecast modal on tap (enabled by default, toggleable in `Settings → Apps → Home screen weather shortcut`).
+- **Customizable Control Panel Tiles (`Settings → Control Panel`)**:
+  - Toggle individual Control Panel buttons (**Wi-Fi, Bluetooth, RAM, Do Not Disturb, Audio, Sleep Timer, Ambient Mode, Power, Inputs, Button Mapper, Settings, Search**) on or off (all enabled by default).
+- **Send Key Code in Button Mapper (`Settings → Button Mapper`)**:
+  - Assign any mapped button (`1x / 2x / 3x` tap) to **Send Key Code** (Media Play/Pause, Next, Previous, Mute, Volume Up/Down, Back, Home, Menu, TV Input, Channel Up/Down, Captions, Guide, Info, or any custom Android `KeyEvent` code) without needing third-party apps like tvQuickActions.
+- **Universal Volume Button Hold Fix with Mode Selector (`Mode 1` / `Mode 2` in `Settings → Button Mapper`)**:
+  - Works in **both Secure Mode (ADB Off) and Persistent ADB Mode** and adds a **Volume button fix mode** selector:
+    - **Mode 1 (Standard — Default)**: Standard volume hold behavior (`320ms` initial delay, `85ms` repeat) without IR pulse-burst injection, preventing unintended volume runaway on standard IR TV remotes.
+    - **Mode 2 (HY320 / Projector)**: Enhanced `AudioService` Binder dump watcher (`Audio event log: volume changes` + `Events log: volume changes`) with `280ms` repeat delay and single-event IR pulse-burst handling for Magcubic HY320 and Android 9–12 projectors.
+- **Interactive Update Available Popup & Dual-Mode APK Installer (`Settings → Updates`)**:
+  - When a new version is found (automatically or manually), displays an **Update Available** popup with **2 buttons**: **Show Changelog** (fetches and displays the GitHub Release notes directly on your TV) and **Install** (focused/selected by default).
+  - **Dual-Mode APK Installation**: When **Install** is chosen, if **ADB is active** (`5555` open), the update is installed automatically in the background via a crash-safe detached Local ADB installer (`LocalAdb.installApkViaAdb`) without triggering `REQUEST_INSTALL_PACKAGES` appops process kills; if **ADB is disabled (Secure Mode)**, it launches the Android system Package Installer for a clean manual update.
+- **Boot Speed, Compatibility & Continue Watching Fixes**:
+  - **Faster Boot Auto-Launch**: `PowerService` now triggers the boot home launch immediately upon Accessibility Service connection (before `BOOT_COMPLETED` broadcast delays) and intercepts stock launcher windows during startup.
+  - **Philips Live TV Fix**: Removed `org.droidtv.playtv` from `KNOWN_SYSTEM_LAUNCHERS` so the Philips TV tuner activity is never treated as a system launcher.
+  - **Android 9 Revoke Permissions Fix & Instant `5 / 5` Refresh**: Fixed a crash when revoking permissions on Android 9 TVs and updated the `Settings → Advanced` permission counter to refresh to `5 / 5 active` immediately after repair.
+  - **Default Home Selector & First-Time Setup Troubleshooting**: Restored the native Android Home Screen selector dialog (`ROLE_HOME` / `ACTION_HOME_SETTINGS`) and added the 4-step Default Home troubleshooting menu to the First-Time Setup screen.
+  - **Continue Watching Deep Links & No Demo Content**: Removed all demo/placeholder Continue Watching items (the row is completely hidden when no real media is available) and added full `Intent.parseUri` / `vnd.youtube` deep-link handling so clicking a YouTube video opens the exact video directly.
+
+---
+
+## 🆕 What Was New in `v2.0.5`
 
 - **Resizable Night Scenes Dock (`50%` – `150%`) & Smart Multi-Row Overflow**: Scale the Night Scenes dock from `50%` to `150%` (`100%` default) at the top of *Appearance and scenes*. If a larger dock size leaves room for fewer icons on the main row, overflow apps automatically move into the **Other apps (`...`)** folder, which expands into a multi-row dock with full **DPAD Up / Down / Left / Right** navigation and auto-hides when empty.
 - **Refined Apple tvOS Classic Dock & Symmetrical Focus**: Updated Classic mode dock and app cards with authentic Apple tvOS squircle corner roundness, slightly larger app tiles, symmetrical edge spacing when the first or last dock app is focused, and smooth vertical scroll animations.

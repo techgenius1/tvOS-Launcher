@@ -303,74 +303,116 @@ public final class ControlPanelOverlay {
         panel.setClipChildren(false);
         panel.setClipToPadding(false);
 
-        // Row 0: Wi-Fi | Bluetooth
-        int y0 = 0;
-        outCells.add(makeTile(c, panel, 0, y0, col, cap, unit, screenW, screenH, glassSource,
-                "wifi", "Wi-Fi", () -> wifiState(c), v -> {
-                    dismissAll(c);
-                    openWifiSettings(c);
-                }));
-        outCells.add(makeTile(c, panel, col + gap, y0, col, cap, unit, screenW, screenH, glassSource,
-                "bluetooth", "Bluetooth", () -> bluetoothState(c), v -> {
-                    dismissAll(c);
-                    openBluetoothSettings(c);
-                }));
+        final class CapsuleSpec {
+            final String glyph;
+            final String title;
+            final Status status;
+            final View.OnClickListener click;
+            final boolean isMemory;
 
-        // Row 1: Memory | Do Not Disturb
-        int y1 = y0 + cap + gap;
-        View memTile = makeTile(c, panel, 0, y1, col, cap, unit, screenW, screenH, glassSource,
-                "memory", I18n.s(c, "Memory", "Bellek"), () -> memoryState(c), v -> {
-                    dismissAll(c);
-                    RecentAppsOverlay.show(c);
-                });
-        attachMemoryBar(c, memTile, unit);
-        outCells.add(memTile);
+            CapsuleSpec(String glyph, String title, Status status, View.OnClickListener click, boolean isMemory) {
+                this.glyph = glyph;
+                this.title = title;
+                this.status = status;
+                this.click = click;
+                this.isMemory = isMemory;
+            }
+        }
 
-        outCells.add(makeTile(c, panel, col + gap, y1, col, cap, unit, screenW, screenH, glassSource,
-                "moon", I18n.s(c, "Do Not Disturb", "Rahatsız Etmeyin"), () -> dndState(c), v -> toggleDnd(c)));
+        List<CapsuleSpec> capsules = new ArrayList<>();
+        if (isItemEnabled(c, ITEM_WIFI)) {
+            capsules.add(new CapsuleSpec("wifi", "Wi-Fi", () -> wifiState(c), v -> {
+                dismissAll(c);
+                openWifiSettings(c);
+            }, false));
+        }
+        if (isItemEnabled(c, ITEM_BLUETOOTH)) {
+            capsules.add(new CapsuleSpec("bluetooth", "Bluetooth", () -> bluetoothState(c), v -> {
+                dismissAll(c);
+                openBluetoothSettings(c);
+            }, false));
+        }
+        if (isItemEnabled(c, ITEM_MEMORY)) {
+            capsules.add(new CapsuleSpec("memory", I18n.s(c, "Memory", "Bellek"), () -> memoryState(c), v -> {
+                dismissAll(c);
+                RecentAppsOverlay.show(c);
+            }, true));
+        }
+        if (isItemEnabled(c, ITEM_DND)) {
+            capsules.add(new CapsuleSpec("moon", I18n.s(c, "Do Not Disturb", "Rahatsız Etmeyin"),
+                    () -> dndState(c), v -> toggleDnd(c), false));
+        }
+        if (isItemEnabled(c, ITEM_AUDIO)) {
+            capsules.add(new CapsuleSpec("audio", I18n.s(c, "Audio", "Ses"), () -> audioState(c), v -> {
+                dismissAll(c);
+                openSoundSettings(c);
+            }, false));
+        }
+        if (isItemEnabled(c, ITEM_TIMER)) {
+            capsules.add(new CapsuleSpec("timer", I18n.s(c, "Sleep Timer", "Uyku Zamanlayıcısı"),
+                    () -> timerState(c), v -> cycleSleepTimer(c), false));
+        }
+        if (isItemEnabled(c, ITEM_AMBIENT)) {
+            boolean lockMode = isAmbientLockScreenMode(c);
+            capsules.add(new CapsuleSpec("ambient",
+                    lockMode ? I18n.s(c, "Lock Screen", "Kilit Ekranı") : I18n.s(c, "Ambient Mode", "Ortam Modu"),
+                    () -> lockMode ? I18n.s(c, "Lock Now", "Şimdi Kilitle") : I18n.s(c, "Screensaver", "Ekran Koruyucu"),
+                    v -> {
+                        dismissAll(c);
+                        startAmbientMode(c);
+                    }, false));
+        }
+        if (isItemEnabled(c, ITEM_POWER)) {
+            capsules.add(new CapsuleSpec("power", I18n.s(c, "Power Off", "Kapat"),
+                    () -> I18n.s(c, "Screen Off", "Ekranı Kapat"),
+                    v -> {
+                        dismissAll(c);
+                        SleepReceiver.sleepNow(c);
+                    }, false));
+        }
 
-        // Row 2: Audio | Sleep Timer
-        int y2 = y1 + cap + gap;
-        outCells.add(makeTile(c, panel, 0, y2, col, cap, unit, screenW, screenH, glassSource,
-                "audio", I18n.s(c, "Audio", "Ses"), () -> audioState(c), v -> {
-                    dismissAll(c);
-                    openSoundSettings(c);
-                }));
-        outCells.add(makeTile(c, panel, col + gap, y2, col, cap, unit, screenW, screenH, glassSource,
-                "timer", I18n.s(c, "Sleep Timer", "Uyku Zamanlayıcısı"), () -> timerState(c), v -> cycleSleepTimer(c)));
+        for (int i = 0; i < capsules.size(); i++) {
+            CapsuleSpec cs = capsules.get(i);
+            int colIdx = i % 2;
+            int rowIdx = i / 2;
+            int x = colIdx * (col + gap);
+            int y = rowIdx * (cap + gap);
+            View tile = makeTile(c, panel, x, y, col, cap, unit, screenW, screenH, glassSource,
+                    cs.glyph, cs.title, cs.status, cs.click);
+            if (cs.isMemory) {
+                attachMemoryBar(c, tile, unit);
+            }
+            outCells.add(tile);
+        }
 
-        // Row 3: Ambient Mode | Power Off
-        int y3 = y2 + cap + gap;
-        outCells.add(makeTile(c, panel, 0, y3, col, cap, unit, screenW, screenH, glassSource,
-                "ambient", I18n.s(c, "Ambient Mode", "Ortam Modu"),
-                () -> I18n.s(c, "Screensaver", "Ekran Koruyucu"),
-                v -> {
-                    dismissAll(c);
-                    startAmbientMode(c);
-                }));
-        outCells.add(makeTile(c, panel, col + gap, y3, col, cap, unit, screenW, screenH, glassSource,
-                "power", I18n.s(c, "Power Off", "Kapat"),
-                () -> I18n.s(c, "Screen Off", "Ekranı Kapat"),
-                v -> {
-                    dismissAll(c);
-                    if (!SleepReceiver.sleepNow(c) && c instanceof android.app.Activity) {
-                        Perms.requestAdmin((android.app.Activity) c);
-                    }
-                }));
+        int capsuleRows = (capsules.size() + 1) / 2;
+        int y4 = capsuleRows > 0 ? capsuleRows * (cap + gap) : 0;
 
-        // Row 4: 4 1x1 square/circle icon shortcuts
-        int y4 = y3 + cap + gap;
+        String[] itemKeys = {ITEM_INPUTS, ITEM_MAPPER, ITEM_SETTINGS, ITEM_SEARCH};
         String[] icons = {"input", "remote", "gear", "search"};
         Runnable[] actions = {onInputs, onButtonMapper, onSettings, onSearch};
-        for (int i = 0; i < icons.length; i++) {
+        List<Integer> enabledSmallIdx = new ArrayList<>();
+        for (int i = 0; i < itemKeys.length; i++) {
+            if (isItemEnabled(c, itemKeys[i])) {
+                enabledSmallIdx.add(i);
+            }
+        }
+        if (capsules.isEmpty() && enabledSmallIdx.isEmpty()) {
+            // Never allow a completely empty panel; keep Settings accessible
+            enabledSmallIdx.add(2);
+        }
+        for (int sIdx = 0; sIdx < enabledSmallIdx.size(); sIdx++) {
+            int i = enabledSmallIdx.get(sIdx);
             final Runnable act = actions[i];
-            outCells.add(makeTile(c, panel, i * (small + gap), y4, small, small, unit, screenW, screenH, glassSource,
+            outCells.add(makeTile(c, panel, sIdx * (small + gap), y4, small, small, unit, screenW, screenH, glassSource,
                     icons[i], null, null, v -> {
                         if (act != null) act.run();
                     }));
         }
 
-        int totalH = y4 + small;
+        int totalH = !enabledSmallIdx.isEmpty()
+                ? (y4 + small)
+                : Math.max(cap, capsuleRows * (cap + gap) - gap);
         FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(w, totalH, Gravity.TOP | Gravity.END);
         plp.topMargin = dp(unit, 36);
         plp.rightMargin = dp(unit, 28);
@@ -704,14 +746,6 @@ public final class ControlPanelOverlay {
     }
 
     public static void cycleSleepTimer(Context c) {
-        if (!SleepReceiver.canSleep(c)) {
-            if (c instanceof android.app.Activity) {
-                Perms.requestAdmin((android.app.Activity) c);
-            } else {
-                startExternal(c, new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
-            }
-            return;
-        }
         int left = SleepReceiver.timerLeft(c);
         int[] steps = {15, 30, 60, 90};
         int next = steps[0];
@@ -727,19 +761,90 @@ public final class ControlPanelOverlay {
         SleepReceiver.setTimer(c, next);
     }
 
-    // ---------------------------------------------------------------- Custom Control Panel Actions
+    // ---------------------------------------------------------------- Custom Control Panel Actions & Visibility
 
     public static final String PREFS_CP = "control_panel";
     public static final String ACTION_WIFI = "wifi";
     public static final String ACTION_BLUETOOTH = "bluetooth";
     public static final String ACTION_SOUND = "sound";
     public static final String ACTION_INPUTS = "inputs";
+    public static final String ACTION_AMBIENT = "ambient";
+
+    public static final String AMBIENT_MODE_DEFAULT = "default";
+    public static final String AMBIENT_MODE_LOCK_SCREEN = "lock_screen";
+    public static final String AMBIENT_MODE_CUSTOM = "custom";
+
+    public static final String ITEM_WIFI = "wifi";
+    public static final String ITEM_BLUETOOTH = "bluetooth";
+    public static final String ITEM_MEMORY = "memory";
+    public static final String ITEM_DND = "dnd";
+    public static final String ITEM_AUDIO = "audio";
+    public static final String ITEM_TIMER = "timer";
+    public static final String ITEM_AMBIENT = "ambient";
+    public static final String ITEM_POWER = "power";
+    public static final String ITEM_INPUTS = "inputs";
+    public static final String ITEM_MAPPER = "mapper";
+    public static final String ITEM_SETTINGS = "settings";
+    public static final String ITEM_SEARCH = "search";
+
+    public static final String[][] ALL_CP_ITEMS = {
+        {ITEM_WIFI, "Wi-Fi", "Wi-Fi"},
+        {ITEM_BLUETOOTH, "Bluetooth", "Bluetooth"},
+        {ITEM_MEMORY, "Memory / Recent Apps", "Bellek / Son Uygulamalar"},
+        {ITEM_DND, "Do Not Disturb", "Rahatsız Etmeyin"},
+        {ITEM_AUDIO, "Audio Output", "Ses Çıkışı"},
+        {ITEM_TIMER, "Sleep Timer", "Uyku Zamanlayıcısı"},
+        {ITEM_AMBIENT, "Ambient Mode / Lock Screen", "Ortam Modu / Kilit Ekranı"},
+        {ITEM_POWER, "Power Off / Screen Off", "Kapat / Ekranı Kapat"},
+        {ITEM_INPUTS, "TV Inputs Shortcut", "TV Girişleri Kısayolu"},
+        {ITEM_MAPPER, "Button Mapper Shortcut", "Tuş Atayıcı Kısayolu"},
+        {ITEM_SETTINGS, "Settings Shortcut", "Ayarlar Kısayolu"},
+        {ITEM_SEARCH, "Search / Assistant Shortcut", "Arama / Asistan Kısayolu"}
+    };
 
     public static android.content.SharedPreferences cpPrefs(Context c) {
         return c.getSharedPreferences(PREFS_CP, Context.MODE_PRIVATE);
     }
 
+    public static String getItemTitle(Context c, String itemKey) {
+        for (String[] row : ALL_CP_ITEMS) {
+            if (row[0].equals(itemKey)) {
+                return I18n.s(c, row[1], row[2]);
+            }
+        }
+        return itemKey;
+    }
+
+    public static boolean isItemEnabled(Context c, String itemKey) {
+        if (c == null || itemKey == null) return true;
+        return cpPrefs(c).getBoolean("item_enabled_" + itemKey, true);
+    }
+
+    public static void setItemEnabled(Context c, String itemKey, boolean enabled) {
+        if (c == null || itemKey == null) return;
+        cpPrefs(c).edit().putBoolean("item_enabled_" + itemKey, enabled).apply();
+    }
+
+    public static boolean isAmbientLockScreenMode(Context c) {
+        if (c == null) return false;
+        return AMBIENT_MODE_LOCK_SCREEN.equals(
+                cpPrefs(c).getString("ambient_mode_type", AMBIENT_MODE_DEFAULT));
+    }
+
+    public static void setAmbientLockScreenMode(Context c, boolean lockScreen) {
+        if (c == null) return;
+        cpPrefs(c).edit()
+                .putString("ambient_mode_type", lockScreen ? AMBIENT_MODE_LOCK_SCREEN : AMBIENT_MODE_DEFAULT)
+                .remove(ACTION_AMBIENT + "_pkg")
+                .remove(ACTION_AMBIENT + "_cls")
+                .remove(ACTION_AMBIENT + "_label")
+                .apply();
+    }
+
     public static boolean hasCustomAction(Context c, String key) {
+        if (ACTION_AMBIENT.equals(key) && isAmbientLockScreenMode(c)) {
+            return false;
+        }
         String pkg = cpPrefs(c).getString(key + "_pkg", "");
         return pkg != null && !pkg.isEmpty();
     }
@@ -753,6 +858,9 @@ public final class ControlPanelOverlay {
     }
 
     public static String getActionSummary(Context c, String key) {
+        if (ACTION_AMBIENT.equals(key) && isAmbientLockScreenMode(c)) {
+            return I18n.s(c, "Lock Screen", "Kilit Ekranı");
+        }
         String pkg = getCustomPkg(c, key);
         if (pkg == null || pkg.isEmpty()) {
             return I18n.s(c, "Default (Automatic)", "Varsayılan (Otomatik)");
@@ -764,23 +872,34 @@ public final class ControlPanelOverlay {
     }
 
     public static void setCustomAction(Context c, String key, String pkg, String cls, String label) {
-        cpPrefs(c).edit()
+        android.content.SharedPreferences.Editor ed = cpPrefs(c).edit()
                 .putString(key + "_pkg", pkg != null ? pkg : "")
                 .putString(key + "_cls", cls != null ? cls : "")
-                .putString(key + "_label", label != null ? label : "")
-                .apply();
+                .putString(key + "_label", label != null ? label : "");
+        if (ACTION_AMBIENT.equals(key)) {
+            ed.putString("ambient_mode_type", AMBIENT_MODE_CUSTOM);
+        }
+        ed.apply();
     }
 
     public static void clearCustomAction(Context c, String key) {
-        cpPrefs(c).edit()
+        android.content.SharedPreferences.Editor ed = cpPrefs(c).edit()
                 .remove(key + "_pkg")
                 .remove(key + "_cls")
-                .remove(key + "_label")
-                .apply();
+                .remove(key + "_label");
+        if (ACTION_AMBIENT.equals(key)) {
+            ed.putString("ambient_mode_type", AMBIENT_MODE_DEFAULT);
+        }
+        ed.apply();
     }
 
     public static void clearAllCustomActions(Context c) {
-        cpPrefs(c).edit().clear().apply();
+        android.content.SharedPreferences.Editor ed = cpPrefs(c).edit();
+        for (String k : new String[]{ACTION_WIFI, ACTION_BLUETOOTH, ACTION_SOUND, ACTION_INPUTS, ACTION_AMBIENT}) {
+            ed.remove(k + "_pkg").remove(k + "_cls").remove(k + "_label");
+        }
+        ed.putString("ambient_mode_type", AMBIENT_MODE_DEFAULT);
+        ed.apply();
     }
 
     /** Launches the user-configured app/activity for a Control Panel item if one is set. */
@@ -874,11 +993,18 @@ public final class ControlPanelOverlay {
     }
 
     /**
-     * Launches Google Ambient Mode / Android TV Screensaver if an ambient app is installed on the TV;
-     * otherwise enters tvOS Launcher's built-in Ambient Mode (hiding dock & control panel icon to show
-     * the background scene + clock + date + weather + greeting).
+     * Launches Lock Screen if configured for Lock Screen mode, or a custom app/activity if configured,
+     * or Google Ambient Mode / Android TV Screensaver if an ambient app is installed on the TV;
+     * otherwise enters tvOS Launcher's built-in Ambient Mode.
      */
     public static void startAmbientMode(Context c) {
+        if (isAmbientLockScreenMode(c)) {
+            MainActivity.triggerLockScreen(c);
+            return;
+        }
+        if (launchCustomAction(c, ACTION_AMBIENT)) {
+            return;
+        }
         if (hasExternalAmbientApp(c)) {
             Intent panoSleep = new Intent("com.google.android.pano.action.SLEEP");
             if (startExternal(c, panoSleep)) return;
