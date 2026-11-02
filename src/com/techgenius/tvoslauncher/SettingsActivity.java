@@ -1464,11 +1464,11 @@ public class SettingsActivity extends Activity {
                                  "Sistem açılışında otomatik başlatma kapatıldı."));
                 });
         row(tr("Keep Alive (Auto-repair Accessibility)", "Keep Alive (Erişilebilirliği otomatik onar)"),
-                () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On", "Açık") : tr("Off (Default)", "Kapalı (Varsayılan)"),
+                () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On (Default)", "Açık (Varsayılan)") : tr("Off", "Kapalı"),
                 this::toggleKeepAliveWithWarning);
 
-        infoNote(tr("Security Note: In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly without needing network ADB open on port 5555. Keep Alive is off by default; if you use Persistent ADB Mode without WRITE_SECURE_SETTINGS, Keep Alive requires Network Debugging to stay enabled.",
-                "Güvenlik Notu: Güvenli Mod'da tvOS Launcher, port 5555 üzerinde ağ ADB'sine ihtiyaç duymadan Erişilebilirliği doğrudan WRITE_SECURE_SETTINGS ile onarır. Keep Alive varsayılan olarak kapalıdır; Kalıcı ADB Modu'nu seçerseniz Ağ Hata Ayıklamanın açık kalması gerekir."));
+        infoNote(tr("Security Note: Keep Alive is enabled by default. In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly in-process without touching ADB (even if ADB is enabled on the TV). In Persistent ADB Mode, Keep Alive can also use Local ADB on port 5555.",
+                "Güvenlik Notu: Keep Alive varsayılan olarak açıktır. Güvenli Mod'da tvOS Launcher, ADB'yi hiç kullanmadan (TV'de ADB açık olsa bile) Erişilebilirliği doğrudan WRITE_SECURE_SETTINGS ile onarır. Kalıcı ADB Modu'nda ise port 5555 üzerinden yerel ADB'yi de kullanabilir."));
 
         section(tr("CLEANYOURTV (BETA)", "CLEANYOURTV (BETA)"));
         twoLineRow(tr("Choose TV model", "TV modelini seçin"),

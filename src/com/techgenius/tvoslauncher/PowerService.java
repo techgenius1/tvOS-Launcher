@@ -236,9 +236,10 @@ public class PowerService extends AccessibilityService {
         handler.removeCallbacks(volRepeatRunnable);
         if (ButtonMapper.isVolumeHoldFixEnabled(this)) {
             int mode = ButtonMapper.getVolumeHoldFixMode(this);
+            boolean persistentAdbMode = LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_PERSISTENT;
             registerVolumeLongPressListener();
-            // Ensure DUMP + SET_VOLUME_KEY_LONG_PRESS_LISTENER are granted if port 5555 is currently open
-            if (!LocalAdb.hasDumpPermission(this) || !LocalAdb.hasVolumeLongPressPermission(this)) {
+            // Only connect to Local ADB in the background when Persistent ADB Mode is selected
+            if (persistentAdbMode && (!LocalAdb.hasDumpPermission(this) || !LocalAdb.hasVolumeLongPressPermission(this))) {
                 LocalAdb.grantVolumeLongPressPermissionIfNeeded(this, () -> {
                     if (instance == this && ButtonMapper.isVolumeHoldFixEnabled(this)) {
                         registerVolumeLongPressListener();
@@ -253,14 +254,18 @@ public class PowerService extends AccessibilityService {
             if (mode == ButtonMapper.VOLUME_FIX_MODE_2) {
                 // Mode 2 (HY320 / Projector): AudioService binder dump watcher for both Secure & Persistent modes
                 startAudioDumpVolumeWatcher();
-                if (!LocalAdb.hasDumpPermission(this)) {
+                if (persistentAdbMode && !LocalAdb.hasDumpPermission(this)) {
                     startVolumeWatcher();
                 } else {
                     stopVolumeWatcher();
                 }
             } else {
-                // Mode 1 (Standard - Default): LocalAdb getevent when ADB is open + AudioService dump in Secure Mode
-                startVolumeWatcher();
+                // Mode 1 (Standard - Default): LocalAdb getevent only in Persistent ADB Mode; AudioService + InputReader dump in Secure Mode
+                if (persistentAdbMode) {
+                    startVolumeWatcher();
+                } else {
+                    stopVolumeWatcher();
+                }
                 startAudioDumpVolumeWatcher();
             }
         } else {
@@ -380,6 +385,7 @@ public class PowerService extends AccessibilityService {
                     appCtx,
                     (dir, down, isRepeat) -> handler.post(() -> onVolumeKeyState(dir, down, isRepeat)),
                     () -> instance == this && volWatchActive
+                            && LocalAdb.getAdbMode(appCtx) == LocalAdb.ADB_MODE_PERSISTENT
                             && ButtonMapper.isVolumeHoldFixEnabled(appCtx)
                             && (ButtonMapper.getVolumeHoldFixMode(appCtx) == ButtonMapper.VOLUME_FIX_MODE_1
                                 || !LocalAdb.hasDumpPermission(appCtx))
@@ -400,12 +406,71 @@ public class PowerService extends AccessibilityService {
     }
 
     /**
-     * Volume Hold Fix Engine using AudioService Binder dump:
-     * - Mode 1 (Standard - Default): Active only when LocalAdb getevent is NOT connected (Secure Mode)
-     *   and matches "Events log: volume changes" (Android 13-14+ TVs where WindowManager logs both DOWN & UP).
-     * - Mode 2 (HY320 / Projector): Active in both Secure Mode and Persistent ADB Mode, matching both
-     *   "Audio event log: volume changes" (Android 9-12, e.g. HY320) and "Events log: volume changes",
-     *   plus IR pulse-burst handling.
+     * Queries InputManagerService ("input" binder) InputReader state in-process using DUMP permission.
+     * Returns:
+     *   1 if at least one hardware input device reports KeyDowns > 0 ("KeyDowns: 1 keys currently down", etc.)
+     *   0 if InputReader state was read and all devices report "KeyDowns: 0 keys currently down"
+     *  -1 if inputBinder is unavailable or dump could not be parsed
+     */
+    private static int checkHardwareKeyDownState(android.os.IBinder inputBinder) {
+        if (inputBinder == null) return -1;
+        android.os.ParcelFileDescriptor[] pipe = null;
+        try {
+            pipe = android.os.ParcelFileDescriptor.createPipe();
+            final android.os.ParcelFileDescriptor readPfd = pipe[0];
+            final android.os.ParcelFileDescriptor writePfd = pipe[1];
+            Thread writer = new Thread(() -> {
+                try {
+                    inputBinder.dump(writePfd.getFileDescriptor(), new String[0]);
+                } catch (Throwable ignored) {
+                } finally {
+                    try {
+                        writePfd.close();
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }, "input-dump-writer");
+            writer.setDaemon(true);
+            writer.start();
+
+            boolean sawAnyKeyDownsLine = false;
+            boolean anyDown = false;
+            try (java.io.BufferedReader br = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(
+                            new android.os.ParcelFileDescriptor.AutoCloseInputStream(readPfd),
+                            java.nio.charset.StandardCharsets.UTF_8), 4096)) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.contains("KeyDowns:")) {
+                        sawAnyKeyDownsLine = true;
+                        if (!line.contains("KeyDowns: 0 ")) {
+                            anyDown = true;
+                            break;
+                        }
+                    } else if (line.startsWith("Input Dispatcher State:")) {
+                        break;
+                    }
+                }
+            }
+            if (!sawAnyKeyDownsLine) return -1;
+            return anyDown ? 1 : 0;
+        } catch (Throwable ignored) {
+            if (pipe != null) {
+                try { pipe[0].close(); } catch (Throwable ignored2) {}
+                try { pipe[1].close(); } catch (Throwable ignored2) {}
+            }
+            return -1;
+        }
+    }
+
+    /**
+     * Volume Hold Fix Engine using AudioService + InputManagerService Binder dumps:
+     * - Mode 1 (Standard - Default): Active when LocalAdb getevent is NOT connected (Secure Mode).
+     *   Matches both "Audio event log: volume changes" (Android 9-12) and "Events log: volume changes"
+     *   (Android 13-14+), and uses InputManagerService InputReader ("KeyDowns: N keys currently down")
+     *   for instant, deterministic key-hold and key-release detection.
+     * - Mode 2 (HY320 / Projector): Active in both Secure Mode and Persistent ADB Mode, matching
+     *   "volume changes" plus IR pulse-burst handling.
      */
     private synchronized void startAudioDumpVolumeWatcher() {
         if (audioDumpWatchActive && audioDumpWatchThread != null && audioDumpWatchThread.isAlive()) {
@@ -415,6 +480,7 @@ public class PowerService extends AccessibilityService {
         final Context appCtx = getApplicationContext();
         audioDumpWatchThread = new Thread(() -> {
             android.os.IBinder audioBinder = null;
+            android.os.IBinder inputBinder = null;
             android.os.PowerManager pm = (android.os.PowerManager) appCtx.getSystemService(Context.POWER_SERVICE);
             String prevLastWmLine = null;
             boolean baselineInitialized = false;
@@ -447,11 +513,16 @@ public class PowerService extends AccessibilityService {
                         Thread.sleep(1200L);
                         continue;
                     }
-                    if (audioBinder == null) {
+                    if (audioBinder == null || inputBinder == null) {
                         try {
                             Class<?> sm = Class.forName("android.os.ServiceManager");
                             java.lang.reflect.Method getService = sm.getMethod("getService", String.class);
-                            audioBinder = (android.os.IBinder) getService.invoke(null, Context.AUDIO_SERVICE);
+                            if (audioBinder == null) {
+                                audioBinder = (android.os.IBinder) getService.invoke(null, Context.AUDIO_SERVICE);
+                            }
+                            if (inputBinder == null) {
+                                inputBinder = (android.os.IBinder) getService.invoke(null, Context.INPUT_SERVICE);
+                            }
                         } catch (Throwable ignored) {
                         }
                         if (audioBinder == null) {
@@ -490,16 +561,8 @@ public class PowerService extends AccessibilityService {
                         boolean inVolumeEvents = false;
                         while ((line = br.readLine()) != null) {
                             if (!inVolumeEvents) {
-                                if (mode == ButtonMapper.VOLUME_FIX_MODE_2) {
-                                    // Mode 2 (HY320 / Projector): matches both "Audio event log: volume changes" and "Events log: volume changes"
-                                    if (line.contains("volume changes")) {
-                                        inVolumeEvents = true;
-                                    }
-                                } else {
-                                    // Mode 1 (Standard): matches "Events log: volume changes"
-                                    if (line.contains("Events log: volume changes")) {
-                                        inVolumeEvents = true;
-                                    }
+                                if (line.contains("volume changes")) {
+                                    inVolumeEvents = true;
                                 }
                                 continue;
                             }
@@ -526,16 +589,43 @@ public class PowerService extends AccessibilityService {
                         } else if (lastWmLine.contains("dir:ADJUST_LOWER")) {
                             dir = -1;
                         }
-                        if (!wmKeyIsDown) {
+                        if (mode == ButtonMapper.VOLUME_FIX_MODE_1) {
+                            // Mode 1 (Standard): Use InputReader hardware key-down state to distinguish active hold vs released tap
                             boolean singleNewEvent = (prevLastWmLine == null && secondLastWmLine == null)
                                     || (prevLastWmLine != null && secondLastWmLine != null && secondLastWmLine.equals(prevLastWmLine));
-                            if (singleNewEvent && dir != 0) {
-                                wmKeyIsDown = true;
-                                prevLastWmLine = lastWmLine;
-                                final int d = dir;
-                                handler.post(() -> onVolumeKeyState(d, true, false));
+                            if (dir != 0) {
+                                int kd = checkHardwareKeyDownState(inputBinder);
+                                if (kd == 1 || (kd == -1 && !wmKeyIsDown && singleNewEvent)) {
+                                    wmKeyIsDown = true;
+                                    prevLastWmLine = lastWmLine;
+                                    final int d = dir;
+                                    handler.post(() -> onVolumeKeyState(d, true, false));
+                                } else {
+                                    prevLastWmLine = lastWmLine;
+                                    if (wmKeyIsDown) {
+                                        wmKeyIsDown = false;
+                                        handler.post(() -> onVolumeKeyState(0, false, false));
+                                    }
+                                }
                             } else {
-                                if (mode == ButtonMapper.VOLUME_FIX_MODE_2) {
+                                // dir == 0 (e.g. dir:ADJUST_SAME logged on ACTION_UP)
+                                prevLastWmLine = lastWmLine;
+                                if (wmKeyIsDown) {
+                                    wmKeyIsDown = false;
+                                    handler.post(() -> onVolumeKeyState(0, false, false));
+                                }
+                            }
+                        } else {
+                            // Mode 2 (HY320 / Projector): Keep exact existing Mode 2 behavior untouched
+                            if (!wmKeyIsDown) {
+                                boolean singleNewEvent = (prevLastWmLine == null && secondLastWmLine == null)
+                                        || (prevLastWmLine != null && secondLastWmLine != null && secondLastWmLine.equals(prevLastWmLine));
+                                if (singleNewEvent && dir != 0) {
+                                    wmKeyIsDown = true;
+                                    prevLastWmLine = lastWmLine;
+                                    final int d = dir;
+                                    handler.post(() -> onVolumeKeyState(d, true, false));
+                                } else {
                                     long nowMs = SystemClock.uptimeMillis();
                                     if (dir != 0 && lastFastPulseDir == dir && (nowMs - lastFastPulseMs) < 250L) {
                                         final int d = dir;
@@ -543,14 +633,24 @@ public class PowerService extends AccessibilityService {
                                     }
                                     lastFastPulseDir = dir;
                                     lastFastPulseMs = nowMs;
+                                    prevLastWmLine = lastWmLine;
                                 }
+                            } else {
+                                wmKeyIsDown = false;
                                 prevLastWmLine = lastWmLine;
+                                handler.post(() -> onVolumeKeyState(0, false, false));
                             }
-                        } else {
-                            // Key was held down and a new WindowManager event arrived -> ACTION_UP!
+                        }
+                    }
+
+                    // In Mode 1, while wmKeyIsDown is true, poll InputReader hardware KeyDowns every 45ms so releasing the button stops immediately
+                    if (mode == ButtonMapper.VOLUME_FIX_MODE_1 && wmKeyIsDown) {
+                        int kd = checkHardwareKeyDownState(inputBinder);
+                        if (kd == 0) {
                             wmKeyIsDown = false;
-                            prevLastWmLine = lastWmLine;
                             handler.post(() -> onVolumeKeyState(0, false, false));
+                        } else if (kd == 1) {
+                            volDownTime = SystemClock.uptimeMillis();
                         }
                     }
 
