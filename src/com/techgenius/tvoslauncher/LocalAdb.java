@@ -135,6 +135,13 @@ final class LocalAdb {
                 .edit()
                 .putInt("adb_mode", mode)
                 .apply();
+        if (mode == ADB_MODE_SECURE_CLOSE) {
+            portReachable = false;
+            volWatchConnected = false;
+        }
+        if (PowerService.instance != null) {
+            PowerService.instance.syncVolumeHoldFix();
+        }
     }
 
     static boolean isIntentionalRevokeActive(Context c) {
@@ -162,20 +169,19 @@ final class LocalAdb {
     }
 
     /**
-     * Keep Alive is opt-in and OFF by default (security patch).
-     * When enabled, or when WRITE_SECURE_SETTINGS has been granted (ServiceRepair),
-     * Accessibility is automatically restored if the TV OS disables it.
+     * Keep Alive is ON by default since v2.0.7 (works with Secure Mode via WRITE_SECURE_SETTINGS
+     * without touching ADB, or via Local ADB when Persistent ADB Mode is selected).
      */
     static boolean isKeepAliveEnabled(Context c) {
-        if (c == null) return false;
+        if (c == null) return true;
         android.content.SharedPreferences sp = c.getSharedPreferences("adb_state", Context.MODE_PRIVATE);
-        if (!sp.getBoolean("keep_alive_v206_migrated", false)) {
+        if (!sp.getBoolean("keep_alive_v207_default_on", false)) {
             sp.edit()
-                    .putBoolean("keep_alive_v206_migrated", true)
-                    .putBoolean("keep_alive", false)
+                    .putBoolean("keep_alive_v207_default_on", true)
+                    .putBoolean("keep_alive", true)
                     .apply();
         }
-        return sp.getBoolean("keep_alive", false);
+        return sp.getBoolean("keep_alive", true);
     }
 
     static boolean shouldAutoRepairAccessibility(Context c) {
@@ -187,7 +193,7 @@ final class LocalAdb {
         if (c == null) return;
         c.getSharedPreferences("adb_state", Context.MODE_PRIVATE)
                 .edit()
-                .putBoolean("keep_alive_v206_migrated", true)
+                .putBoolean("keep_alive_v207_default_on", true)
                 .putBoolean("keep_alive", enabled)
                 .apply();
         if (enabled) {
@@ -359,7 +365,11 @@ final class LocalAdb {
                 return;
             }
         }
-        // 2. Fallback to Local ADB only if Keep Alive (or forceNow) is active
+        // 2. If Secure Mode is selected, never connect to ADB port 5555 in the background even if ADB is enabled on the TV
+        if (getAdbMode(appCtx) == ADB_MODE_SECURE_CLOSE) {
+            return;
+        }
+        // 3. Fallback to Local ADB in Persistent ADB Mode only if Keep Alive (or forceNow) is active
         if (!forceNow && !isKeepAliveEnabled(appCtx)) return;
         if (repairInProgress) return;
         long now = android.os.SystemClock.uptimeMillis();
@@ -549,6 +559,9 @@ final class LocalAdb {
             if (onGranted != null) onGranted.run();
             return;
         }
+        if (getAdbMode(c) == ADB_MODE_SECURE_CLOSE) {
+            return;
+        }
         new Thread(() -> {
             String pkg = c.getPackageName();
             String script = "pm grant " + pkg + " android.permission.WRITE_SECURE_SETTINGS 2>/dev/null; "
@@ -574,6 +587,11 @@ final class LocalAdb {
     }
 
     static void probePortAsync(Context c, Runnable onDone) {
+        if (c != null && getAdbMode(c) == ADB_MODE_SECURE_CLOSE) {
+            portReachable = false;
+            if (onDone != null) onDone.run();
+            return;
+        }
         new Thread(() -> {
             String[] hosts = {"127.0.0.1", localLanIp()};
             boolean open = false;
@@ -584,26 +602,26 @@ final class LocalAdb {
                     break;
                 }
             }
-            portReachable = open;
+            portReachable = (c == null || getAdbMode(c) == ADB_MODE_PERSISTENT) && open;
             if (onDone != null) onDone.run();
         }, "adb-probe").start();
     }
 
     static String getStatusLabel(Context c) {
         boolean secureGranted = hasWriteSecureSettings(c);
+        if (getAdbMode(c) == ADB_MODE_SECURE_CLOSE) {
+            if (secureGranted) {
+                return I18n.s(c, "Secure Mode Active (ADB Not Used · Self-Repair Ready)", "Güvenli Mod Aktif (ADB Kullanılmıyor · Otomatik Onarım Hazır)");
+            }
+            return I18n.s(c, "Secure Mode (Needs One-Time Pair to Grant Permissions)", "Güvenli Mod (İzinler İçin Tek Seferlik Eşleştirme Gerekli)");
+        }
         boolean adbOn = isAdbSettingEnabled(c);
         boolean paired = isPaired(c);
-        if (secureGranted && !portReachable && !adbOn) {
-            return I18n.s(c, "Secure Mode Active (ADB Closed · Self-Repair Ready)", "Güvenli Mod Aktif (ADB Kapalı · Otomatik Onarım Hazır)");
-        }
         if (portReachable && paired) {
             return I18n.s(c, "Connected & Paired (Port 5555 Open)", "Bağlı ve Eşleşti (Port 5555 Açık)");
         }
         if (portReachable) {
             return I18n.s(c, "Port 5555 Open · Ready to Pair", "Port 5555 Açık · Eşleşmeye Hazır");
-        }
-        if (secureGranted) {
-            return I18n.s(c, "Secure Mode Ready (WRITE_SECURE_SETTINGS Granted)", "Güvenli Mod Hazır (WRITE_SECURE_SETTINGS Verildi)");
         }
         if (adbOn && paired) {
             return I18n.s(c, "Paired · ADB Enabled", "Eşleşti · ADB Açık");
@@ -750,7 +768,7 @@ final class LocalAdb {
     }
 
     static void grantAllPermissions(Context c, Callback cb) {
-        grantAllPermissions(c, false, cb);
+        grantAllPermissions(c, c != null && getAdbMode(c) == ADB_MODE_SECURE_CLOSE, cb);
     }
 
     static void grantAllPermissions(Context c, boolean closeAdbAfter, Callback cb) {
@@ -759,6 +777,19 @@ final class LocalAdb {
             return;
         }
         setIntentionalRevokeActive(c, false);
+        // If Secure Mode is active and WRITE_SECURE_SETTINGS + DUMP are already granted, repair in-process without touching ADB!
+        if (getAdbMode(c) == ADB_MODE_SECURE_CLOSE
+                && hasWriteSecureSettings(c)
+                && hasDumpPermission(c)
+                && repairPermissionsViaSecureSettings(c)) {
+            portReachable = false;
+            ensureKeepAliveWatchdog(c);
+            if (PowerService.instance != null) {
+                PowerService.instance.syncVolumeHoldFix();
+            }
+            if (cb != null) cb.onResult(true, "SECURE_SETTINGS");
+            return;
+        }
         new Thread(() -> {
             String pkg = c.getPackageName();
             List<String> cmds = new ArrayList<>();
@@ -844,9 +875,9 @@ final class LocalAdb {
                     setPaired(c, true);
                     repairPermissionsViaSecureSettings(c);
                     ensureKeepAliveWatchdog(c);
-                    if (closeAdbAfter) {
+                    if (closeAdbAfter || getAdbMode(c) == ADB_MODE_SECURE_CLOSE) {
                         try { Thread.sleep(350L); } catch (InterruptedException ignored) { }
-                        portReachable = isPortOpen("127.0.0.1", 5555, 300);
+                        portReachable = false;
                     } else {
                         portReachable = true;
                     }
@@ -1029,7 +1060,7 @@ final class LocalAdb {
     }
 
     static void forceStopPackagesAsync(Context c, java.util.List<String> pkgs) {
-        if (pkgs == null || pkgs.isEmpty() || !isPaired(c)) return;
+        if (c == null || getAdbMode(c) == ADB_MODE_SECURE_CLOSE || pkgs == null || pkgs.isEmpty() || !isPaired(c)) return;
         new Thread(() -> {
             StringBuilder sb = new StringBuilder();
             for (String p : pkgs) {
@@ -1052,7 +1083,7 @@ final class LocalAdb {
     }
 
     static boolean startActivityViaAdbAsync(Context c, String pkg, String cls) {
-        if (pkg == null || pkg.isEmpty() || !isPaired(c)) return false;
+        if (c == null || getAdbMode(c) == ADB_MODE_SECURE_CLOSE || pkg == null || pkg.isEmpty() || !isPaired(c)) return false;
         new Thread(() -> {
             String cmd = (cls != null && !cls.isEmpty())
                     ? ("am start -n " + pkg + "/" + cls)
@@ -1072,7 +1103,7 @@ final class LocalAdb {
     }
 
     static boolean sendKeyEventViaAdbAsync(Context c, int keyCode) {
-        if (c == null || keyCode <= 0 || !isPaired(c)) return false;
+        if (c == null || getAdbMode(c) == ADB_MODE_SECURE_CLOSE || keyCode <= 0 || !isPaired(c)) return false;
         new Thread(() -> {
             String cmd = "input keyevent " + keyCode;
             String[] hosts = {"127.0.0.1", localLanIp()};
@@ -1152,7 +1183,7 @@ final class LocalAdb {
      * so updating self never crashes or leaves the launcher closed.
      */
     static boolean installApkViaAdb(Context c, File apkFile) {
-        if (c == null || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
+        if (c == null || getAdbMode(c) == ADB_MODE_SECURE_CLOSE || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
             return false;
         }
         String[] hosts = {"127.0.0.1", localLanIp()};

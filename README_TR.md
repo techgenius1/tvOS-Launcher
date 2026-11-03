@@ -1,7 +1,7 @@
-# tvOS Launcher (`v2.0.6`)
+# tvOS Launcher (`v2.1.0`)
 
 > 🇬🇧 **For English documentation and setup guide:** **[README.md (English)](README.md)**  
-> 📦 **En Son APK İndir (`v2.0.6`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **En Son APK İndir (`v2.1.0`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Afiş](screenshots_tr/Header_TR.jpg)
 
@@ -9,13 +9,21 @@ Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zaman
 
 ---
 
-## 🆕 `v2.0.6` Sürümündeki Yenilikler
+## 🆕 `v2.1.0` Sürümündeki Yenilikler (`v2.0.5` Sonrası Tüm Değişiklikler)
 
 - **Çift Modlu ADB Güvenlik Mimarisi & Tek Tıkla ADB Aç/Kapat (`Ayarlar → Gelişmiş` & İlk Kurulum)**:
-  - **Güvenli Mod (İzinleri Ver ve ADB'yi Kapat — Varsayılan & Önerilen)**: Kurulum sırasında `WRITE_SECURE_SETTINGS` ve `DUMP` izinlerini bir kez alıp ağ ADB bağlantısını (`adb_enabled = 0`) hemen kapatır; böylece yerel ağınızda `5555` portu açık kalmaz. ADB tamamen kapalıyken bile Erişilebilirlik Servisini (`ServiceRepair`) ve **Ses Tuşu Basılı Tutma Düzeltmesini** uygulama içinden çalıştırır.
+  - **Güvenli Mod (İzinleri Ver ve ADB'yi Kapat — Varsayılan & Önerilen)**: Kurulum sırasında `WRITE_SECURE_SETTINGS` ve `DUMP` izinlerini bir kez alıp ağ ADB bağlantısını (`adb_enabled = 0`) hemen kapatır; böylece yerel ağınızda `5555` portu açık kalmaz. Güvenli Mod seçiliyken TV'de ADB açık olsa bile uygulama arka planda kesinlikle ADB port `5555`'e bağlanmaz; Erişilebilirlik Servisini (`ServiceRepair`) ve **Ses Tuşu Basılı Tutma Düzeltmesini** %100 uygulama içinden çalıştırır.
   - **Kalıcı ADB Modu (Onay Pencereli İsteğe Bağlı Mod)**: CleanYourTV gibi çalışma zamanı ADB araçları için ADB'yi açık tutmak isteyen kullanıcılara özel mod. ADB kapalıyken Kalıcı Mod seçildiğinde USB Hata Ayıklamayı açıp geçmek için onay penceresi gösterir; ADB kapatıldığında ise otomatik olarak Güvenli Moda döner.
   - **Tek Tıkla ADB Aç / Kapat Butonu**: Kablosuz Hata Ayıklamayı (`adb_wifi_enabled`) açmadan yalnızca USB Hata Ayıklamayı (`adb_enabled`) doğrudan `Ayarlar → Gelişmiş` menüsünden açıp kapatabilirsiniz.
-  - **Cihaz Yöneticisi İzninin Kaldırılması & İsteğe Bağlı Keep Alive**: Uygulamanın silinmesini zorlaştıran `BIND_DEVICE_ADMIN` izni tamamen kaldırıldı (ekran kapatma Android 9+ `GLOBAL_ACTION_LOCK_SCREEN` ile çalışır) ve Keep Alive varsayılan olarak kapalı (`İsteğe Bağlı`) hale getirildi.
+  - **Cihaz Yöneticisi İzninin Kaldırılması & Varsayılan Açık Keep Alive**: Uygulamanın silinmesini zorlaştıran `BIND_DEVICE_ADMIN` izni tamamen kaldırıldı (ekran kapatma Android 9+ `GLOBAL_ACTION_LOCK_SCREEN` ile çalışır) ve **Keep Alive** varsayılan olarak açık hale getirildi (Güvenli Modda ADB kullanmadan `WRITE_SECURE_SETTINGS` ile, Kalıcı ADB Modunda ise Yerel ADB ile çalışır).
+- **Yenilenen İlk Kurulum Sihirbazı & Ayrı Varsayılan Ana Ekran Kurulum Sayfası**:
+  - **Kullanım Modu Seçimi**: Kurulumu Tamamla ekranındaki izin seçenekleri numaralı adımlar yerine net **Kullanım Modları** (*Mod: Güvenli Otomatik Kurulum ve ADB'yi Kapat*, *Mod: Kalıcı ADB Kurulumu*, *Mod: Manuel Kurulum*) olarak düzenlendi.
+  - **Ayrı "tvOS Launcher'ı Varsayılan Ana Ekran Yap" Sayfası**: Varsayılan başlatıcı ve sorun giderme seçenekleri kendi özel kurulum sayfasına taşındı; **1. Adım – 4. Adım** şeklinde sıralandı ve en alta **Devam Et** butonu eklendi (1. Adım seçildiğinde sayfa atlanmaz, böylece 2. veya 3. Adımı da uygulayabilirsiniz).
+  - **Güvenli Mod Kullanıcıları İçin Akıllı ADB Uyarı Penceresi**: Önceki adımda Güvenli ADB Modunu seçip *2. Adım: Sistem Başlatıcılarını Devre Dışı Bırak* gibi ADB gerektiren bir sorun giderme adımına tıkladığınızda, bu adım için ADB moduna ihtiyaç duyulduğunu ve ADB modunu daha sonra Ayarlar'dan değiştirebileceğinizi belirten kullanıcı dostu bir pencere açılır (**ADB'yi Şimdi Etkinleştir** veya **Bu Adımı Atla**).
+- **Mod Seçimli Evrensel Ses Tuşu Basılı Tutma Düzeltmesi (`Ayarlar → Düğme Eşleyici` içinde `Mod 1` / `Mod 2`)**:
+  - **Hem Güvenli Modda (ADB Kapalı) hem Kalıcı ADB Modunda** kusursuz çalışır:
+    - **Mod 1 (Standart — Varsayılan)**: Güvenli Modda `AudioService` + `InputManagerService` (`DUMP` izniyle `InputReader` donanım `KeyDowns` durumu) ve Kalıcı ADB Modunda `getevent` kullanarak Android 9–14 TV'lerde ses tuşuna basılı tutulduğunda akıcı ses değişimi (`320ms` başlangıç gecikmesi, `85ms` tekrar) ve tuş bırakıldığı anda anında durma (`<= 45ms`) sağlar.
+    - **Mod 2 (HY320 / Projeksiyon)**: Magcubic HY320 ve Android 9–12 projeksiyon cihazları için geliştirilmiş `AudioService` Binder izleyicisi (`280ms` gecikme ve IR darbe algılama).
 - **Dahili Kilit Ekranı & Boşta Kalma Zamanlayıcısı (`Ayarlar → Denetim Paneli → Ortam Modu`)**:
   - Denetim Panelindeki Ortam Modu tuşuna basıldığında veya **Boşta Kalma Süresi (`Kapalı / 5 / 10 / 15 / 30 / 60 dk`)** dolduğunda **Ortam Modu (Sistem Varsayılanı)** ya da yeni **Dahili Kilit Ekranı** açılacak şekilde seçim yapabilirsiniz.
   - **Kilit Ekranı Ayarları Alt Menüsü**: Tüm Gece Sahneleri, Klasik duvar kağıtları, Özel 1–5 veya **Klasörden Karıştır** seçeneklerinden birini seçebilir, **Saat Konumunu (`Sol / Orta / Sağ`)** ayarlayabilir ve duvar kağıdı üzerinde saat, tarih, karşılama mesajı ile canlı hava durumunu görüntüleyebilirsiniz (kumandadan herhangi bir tuşa basıldığında anında kaldığınız yere döner).
@@ -27,18 +35,13 @@ Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zaman
   - Denetim Panelindeki tüm kutucukları (**Wi-Fi, Bluetooth, RAM, Rahatsız Etmeyin, Ses, Uyku Zamanlayıcısı, Ortam Modu, Kapat, Girişler, Tuş Atayıcı, Ayarlar, Arama**) isteğinize göre tek tek açıp kapatabilirsiniz (tümü varsayılan olarak açıktır).
 - **Düğme Eşleyicide Tuş Kodu Gönder (`Send Key Code`) Seçeneği (`Ayarlar → Düğme Eşleyici`)**:
   - tvQuickActions gibi üçüncü parti uygulamalara gerek kalmadan kumandadaki herhangi bir tuşa (`1x / 2x / 3x` basış) **Tuş Kodu Gönder** (*Oynat/Duraklat, Sonraki, Önceki, Sessiz, Ses Aç/Kıs, Geri, Ana Ekran, Menü, TV Girişi, Kanal İleri/Geri, Altyazı, Rehber, Bilgi* veya özel Android `KeyEvent` kodu) atayabilirsiniz.
-- **Mod Seçimli Evrensel Ses Tuşu Basılı Tutma Düzeltmesi (`Ayarlar → Düğme Eşleyici` içinde `Mod 1` / `Mod 2`)**:
-  - **Hem Güvenli Modda (ADB Kapalı) hem Kalıcı ADB Modunda** çalışır ve **Ses tuşu düzeltme modu** seçeneği sunar:
-    - **Mod 1 (Standart — Varsayılan)**: Standart kızılötesi (IR) TV kumandalarında sesin kendi kendine artmaya/azalmaya devam etmesini önleyen klasik zamanlama (`320ms` başlangıç gecikmesi, `85ms` tekrar).
-    - **Mod 2 (HY320 / Projeksiyon)**: Magcubic HY320 ve tekil `ACTION_DOWN` gönderen Android 9–12 projeksiyon cihazları için geliştirilmiş `AudioService` Binder izleyicisi (`Audio event log: volume changes` + `Events log: volume changes`, `280ms` gecikme ve IR darbe algılama).
 - **Etkileşimli Güncelleme Mevcut Penceresi & Çift Modlu APK Yükleyici (`Ayarlar → Güncellemeler`)**:
   - Otomatik veya manuel güncelleme kontrolünde yeni sürüm bulunduğunda **2 butonlu Güncelleme Mevcut** penceresi açılır: **Değişiklik Günlüğü (`Show Changelog`)** (GitHub sürüm notlarını doğrudan TV ekranında gösterir) ve **Yükle (`Install` — varsayılan seçili)**.
-  - **Çift Modlu Kurulum**: **Yükle** seçildiğinde **ADB aktifse** (`5555` portu açıksa) uygulamayı çökertmeden arka planda otomatik olarak (`LocalAdb.installApkViaAdb`) günceller; **ADB kapalıysa (Güvenli Mod)** sistem paket yükleyicisini açarak kullanıcıyı manuel kuruluma yönlendirir.
+  - **Çift Modlu Kurulum**: Kalıcı ADB Modunda (`5555` portu açıkken) uygulamayı çökertmeden arka planda otomatik olarak günceller; Güvenli Modda ise sistem paket yükleyicisini açarak temiz kurulum sağlar.
 - **Açılış Hızı, Uyumluluk ve İzlemeye Devam Et Düzeltmeleri**:
   - **Daha Hızlı Sistem Açılışında Başlatma**: `PowerService`, sistem açılışında Erişilebilirlik Servisi bağlandığı anda (`BOOT_COMPLETED` gecikmesini beklemeden) başlatıcıyı öne getirir ve açılışta stok başlatıcı pencerelerini yakalar.
   - **Philips Canlı TV (`org.droidtv.playtv`) Düzeltmesi**: Philips TV'lerde canlı TV / uydu alıcısı paketi olan `org.droidtv.playtv`, `KNOWN_SYSTEM_LAUNCHERS` listesinden çıkarıldı.
-  - **Android 9 İzin Kaldırma Çökme Düzeltmesi & Anlık `5 / 5` İzin Sayacı**: Android 9 TV'lerde izinleri geri alırken oluşan çökme düzeltildi ve izinler onarıldığında `Ayarlar → Gelişmiş` ekranındaki sayacın anında `5 / 5 aktif` olarak güncellenmesi sağlandı.
-  - **Varsayılan Ana Ekran Seçici & İlk Kurulum Sorun Giderme Menüsü**: Android sistem ana ekran seçicisi (`ROLE_HOME` / `ACTION_HOME_SETTINGS`) onarıldı ve 4 adımlı Varsayılan Ana Ekran sorun giderme menüsü İlk Kurulum Sihirbazına da eklendi.
+  - **Android 9 İzin Kaldırma Çökme Düzeltmesi & Anlık İzin Sayacı**: Android 9 TV'lerde izinleri geri alırken oluşan çökme düzeltildi ve izinler onarıldığında `Ayarlar → Gelişmiş` ekranındaki sayacın (`4 / 4 etkin`) anında güncellenmesi sağlandı.
   - **İzlemeye Devam Et (`Continue Watching`) Düzeltmesi**: Gerçek medya içeriği olmadığında sahte/demo içeriklerin gösterilmesi tamamen engellendi (içerik yoksa satır gizlenir) ve YouTube / SmartTube videolarına tıklandığında yalnızca uygulamayı açmak yerine doğrudan seçilen videoyu başlatan `Intent.parseUri` / `vnd.youtube` derin bağlantı desteği eklendi.
 
 ---
