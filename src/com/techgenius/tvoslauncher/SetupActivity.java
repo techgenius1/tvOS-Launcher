@@ -115,6 +115,7 @@ public class SetupActivity extends Activity {
         steps.add(this::weather);
         steps.add(this::presentation);
         steps.add(this::homeAndPermissions);
+        steps.add(this::defaultHomeSetup);
         steps.add(this::buttonMapperSetup);
         steps.add(this::finish_);
         if (getIntent().getBooleanExtra("skip", false)) {  // adb: --ez skip true marks setup as done
@@ -142,7 +143,7 @@ public class SetupActivity extends Activity {
         int target = intent.getIntExtra("step", savedStep);
         if (target != index || (lang != null && !lang.isEmpty())) {
             show(target, 0);
-        } else if (index == 5 || index == 6) {
+        } else if (index == 5 || index == 6 || index == 7) {
             show(index, 0);
         }
     }
@@ -183,11 +184,7 @@ public class SetupActivity extends Activity {
             return;
         }
         if (index == 5 && permMode != 0) {
-            if (permMode == 3) {
-                permMode = prevPermMode;
-            } else {
-                permMode = 0;
-            }
+            permMode = 0;
             show(5, -1);
             return;
         }
@@ -197,13 +194,13 @@ public class SetupActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int code, String[] p, int[] r) {
-        if (index == 5) show(5, 0);  // refresh the ticks
+        if (index == 5 || index == 6) show(index, 0);  // refresh the ticks
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (index == 5 || index == 6) show(index, 0);
+        if (index == 5 || index == 6 || index == 7) show(index, 0);
     }
 
     // ---------------------------------------------------------------- building blocks
@@ -824,128 +821,41 @@ public class SetupActivity extends Activity {
     }
 
     boolean askedLocation;
-    int permMode = 0; // 0 = Choose Mode (3 options), 1 = Easy ADB Directions, 2 = Manual Setup, 3 = Default Home Setup & Troubleshooting
-    int prevPermMode = 0;
+    int permMode = 0; // 0 = Choose Usage Mode (3 modes), 1 = Easy ADB Directions, 2 = Manual Setup
 
     void openDefaultHomeSubMenu() {
-        if (permMode != 3) {
-            prevPermMode = permMode;
-        }
-        permMode = 3;
-        show(5, 1);
+        show(6, 1);
     }
 
     void homeAndPermissions() {
-        if (permMode == 3) {
-            title(tr("Default Home Screen", "Varsayılan Ana Ekran"));
-            TextView s = subtitle(tr(
-                    "On TCL and Philips Android 11/12 TVs, the OEM firmware often hides the Android Default Home UI and forces the stock launcher when pressing Home. Disabling the stock launcher (Step 2) or enabling the Home Button Fix (Step 3) guarantees pressing Home always opens tvOS Launcher.",
-                    "TCL ve Philips Android 11/12 TV'lerde üretici yazılımı genellikle Android Varsayılan Ana Ekran seçicisini gizler ve Home tuşuna basıldığında stok başlatıcıyı zorlar. Stok başlatıcıyı devre dışı bırakmak (2. Adım) veya Ana Ekran Tuşu Düzeltmesini açmak (3. Adım) Home tuşunun her zaman tvOS Launcher'ı açmasını sağlar."));
-            ((LinearLayout.LayoutParams) s.getLayoutParams()).width = u(620);
-            ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(14);
-            LinearLayout l = scrollableList();
-
-            boolean isDef = Perms.isDefaultHome(this);
-            option(l, tr("1. Set tvOS Launcher as Default via Local ADB", "1. Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"),
-                    isDef ? tr("Active", "Etkin") : tr("Run ROLE_HOME & set-home-activity ›", "ROLE_HOME ve set-home-activity çalıştır ›"),
-                    isDef,
-                    () -> {
-                        android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                                .setTitle(tr("Setting Default Launcher…", "Varsayılan Başlatıcı Ayarlanıyor…"))
-                                .setMessage(tr("Setting ROLE_HOME and default home activity over Local ADB…",
-                                        "Yerel ADB üzerinden ROLE_HOME ve varsayılan ana ekran etkinliği ayarlanıyor…"))
-                                .setCancelable(false)
-                                .create();
-                        progress.show();
-                        LocalAdb.setDefaultLauncherViaAdb(this, (success, msg) -> runOnUiThread(() -> {
-                            if (isFinishing()) return;
-                            try {
-                                progress.dismiss();
-                            } catch (Throwable ignored) {
-                            }
-                            show(5, 0);
-                            android.widget.Toast.makeText(this,
-                                    success
-                                            ? tr("Default home launcher set!", "Varsayılan ana ekran ayarlandı!")
-                                            : tr("Could not connect to ADB — enable USB/Network Debugging or use Step 3 / Step 4.", "ADB'ye bağlanılamadı — USB/Ağ Hata Ayıklamayı açın veya 3. / 4. Adımı kullanın."),
-                                    android.widget.Toast.LENGTH_LONG).show();
-                        }));
-                    });
-
-            option(l, tr("2. Disable System Launchers (Google TV / Android TV / OEM)", "2. Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"),
-                    CleanYourTv.getSystemLaunchersSummary(this),
-                    !Perms.hasEnabledStockLauncher(this),
-                    () -> CleanYourTv.showDisableSystemLaunchersDialog(this, () -> show(5, 0)));
-
-            boolean homeFixOn = ButtonMapper.isHomeFixEnabled(this);
-            option(l, tr("3. Fix Home Button via Accessibility (Button Mapper)", "3. Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"),
-                    homeFixOn
-                            ? tr("On — Pressing Home launches tvOS Launcher", "Açık — Ana Ekran tuşu tvOS Launcher'ı açar")
-                            : tr("Off — Tap to enable Home button remap", "Kapalı — Ana Ekran tuşu yönlendirmesini açmak için dokunun"),
-                    homeFixOn,
-                    () -> {
-                        boolean next = !ButtonMapper.isHomeFixEnabled(this);
-                        ButtonMapper.setHomeFixEnabled(this, next);
-                        if (next && !ButtonMapper.isServiceEnabled(this)) {
-                            if (!LocalAdb.hasWriteSecureSettings(this) || !LocalAdb.repairPermissionsViaSecureSettings(this)) {
-                                Intent acc = Perms.accessibilityScreen(this);
-                                if (acc != null) {
-                                    Suggestions.start(this, acc);
-                                }
-                            }
-                        }
-                        show(5, 0);
-                    });
-
-            option(l, tr("4. Open Android System Home Settings", "4. Android Sistem Ana Ekran Ayarlarını Aç"),
-                    tr("Open system selector (if supported by TV) ›", "Sistem seçicisini aç (TV destekliyorsa) ›"),
-                    false,
-                    () -> Perms.openSystemHomeSettingsUi(this));
-
-            option(l, tr("← Back", "← Geri"), null, false, () -> {
-                permMode = prevPermMode;
-                show(5, -1);
-            });
-            dots();
-            return;
-        }
-
         if (permMode == 0) {
             title(tr("Finish Setting Up", "Kurulumu Tamamla"));
             TextView s = subtitle(tr(
-                    "Choose how you want to set up permissions (Default Home Screen, Button Mapper Accessibility, Continue Watching, and Wi-Fi).",
-                    "İzinleri (Varsayılan Ana Ekran, Düğme Eşleyici Erişilebilirliği, İzlemeye Devam Et ve Wi-Fi) nasıl ayarlamak istediğinizi seçin."));
+                    "Select a usage mode for permissions (Button Mapper Accessibility, Continue Watching, and Wi-Fi). Pick ONE usage mode below:",
+                    "İzinler için bir kullanım modu seçin (Düğme Eşleyici Erişilebilirliği, İzlemeye Devam Et ve Wi-Fi). Aşağıdan BİR kullanım modu seçin:"));
             ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(14);
             LinearLayout l = scrollableList();
-            option(l, tr("1. Secure Auto Setup & Close ADB (Recommended)", "1. Güvenli Otomatik Kurulum ve ADB'yi Kapat (Önerilen)"),
+            option(l, tr("Mode: Secure Auto Setup & Close ADB (Recommended)", "Mod: Güvenli Otomatik Kurulum ve ADB'yi Kapat (Önerilen)"),
                     tr("Grants WRITE_SECURE_SETTINGS once to self-repair Accessibility, then closes port 5555", "Erişilebilirliği korumak için bir kez WRITE_SECURE_SETTINGS verir, ardından port 5555'i kapatır"),
                     false,
                     () -> {
                         LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_SECURE_CLOSE);
-                        LocalAdb.setKeepAliveEnabled(this, false);
                         proceedToEasyAdbOrDirections();
                     });
-            option(l, tr("2. Persistent ADB Setup (Keep ADB Open)", "2. Kalıcı ADB Kurulumu (ADB'yi Açık Tut)"),
+            option(l, tr("Mode: Persistent ADB Setup (Keep ADB Open)", "Mod: Kalıcı ADB Kurulumu (ADB'yi Açık Tut)"),
                     tr("Keeps network ADB enabled for CleanYourTV debloating (Note: leaves port 5555 open on LAN)", "CleanYourTV debloat özellikleri için ağ ADB'sini açık tutar (Not: yerel ağda port 5555 açık kalır)"),
                     false,
                     () -> {
                         LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_PERSISTENT);
                         proceedToEasyAdbOrDirections();
                     });
-            option(l, tr("3. Manual Setup (No ADB)", "3. Manuel Kurulum (ADB Yok)"),
+            option(l, tr("Mode: Manual Setup (Without ADB)", "Mod: Manuel Kurulum (ADB Olmadan)"),
                     tr("Grant permissions one by one manually through Android TV Settings", "İzinleri Android TV Ayarları üzerinden tek tek elle verin"),
                     false,
                     () -> {
                         permMode = 2;
                         show(5, 1);
                     });
-            boolean home = Perms.isDefaultHome(this);
-            option(l, tr("Make tvOS Launcher the Home Screen", "tvOS Launcher'ı Ana Ekran Yap"),
-                    home
-                            ? tr("Active — The Home button opens tvOS Launcher", "Etkin — Ana Ekran düğmesi tvOS Launcher'ı açar")
-                            : tr("Default launcher setup & troubleshooting steps (TCL / Philips / Google TV)", "Varsayılan başlatıcı kurulumu ve sorun giderme adımları (TCL / Philips / Google TV)"),
-                    home,
-                    this::openDefaultHomeSubMenu);
             option(l, tr("Continue", "Devam Et"), null, false, this::next);
             dots();
             return;
@@ -986,7 +896,7 @@ public class SetupActivity extends Activity {
                             : tr("Uses local ADB to grant permissions and keeps ADB open", "İzinleri vermek için yerel ADB'yi kullanır ve ADB'yi açık tutar"),
                     false,
                     this::runEasyAdbGrant);
-            option(l, tr("Back to Setup Mode Selection", "Kurulum Modu Seçimine Dön"),
+            option(l, tr("Back to Usage Mode Selection", "Kullanım Modu Seçimine Dön"),
                     tr("Switch between Secure Auto Setup, Persistent ADB, or Manual Setup", "Güvenli Otomatik, Kalıcı ADB veya Manuel Kurulum arasında geçiş yapın"),
                     false,
                     () -> {
@@ -1032,12 +942,149 @@ public class SetupActivity extends Activity {
                         Suggestions.start(this, new Intent(android.provider.Settings.ACTION_SETTINGS));
                     }
                 });
-        option(l, tr("Back to Setup Mode Selection", "Kurulum Modu Seçimine Dön"), null, false, () -> {
+        option(l, tr("Back to Usage Mode Selection", "Kullanım Modu Seçimine Dön"), null, false, () -> {
             permMode = 0;
             show(5, -1);
         });
         option(l, tr("Continue", "Devam Et"), null, false, this::next);
         dots();
+    }
+
+    /** Dedicated page right after permissions: Make tvOS Launcher Default Home (with sequential troubleshooting steps). */
+    void defaultHomeSetup() {
+        title(tr("Make tvOS Launcher Default Home", "tvOS Launcher'ı Varsayılan Ana Ekran Yap"));
+        TextView s = subtitle(tr(
+                "On TCL, Philips, and Google TVs, OEM firmware often forces the stock launcher when pressing Home. Follow the steps below so pressing Home always opens tvOS Launcher, then click Continue.",
+                "TCL, Philips ve Google TV'lerde üretici yazılımı genellikle Home tuşuna basıldığında stok başlatıcıyı zorlar. Home tuşunun her zaman tvOS Launcher'ı açması için aşağıdaki adımları uygulayın ve ardından Devam Et'e basın."));
+        ((LinearLayout.LayoutParams) s.getLayoutParams()).width = u(620);
+        ((LinearLayout.LayoutParams) s.getLayoutParams()).bottomMargin = u(14);
+        LinearLayout l = scrollableList();
+
+        boolean isDef = Perms.isDefaultHome(this);
+        option(l, tr("Step 1: Set tvOS Launcher as Default via Local ADB", "1. Adım: Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"),
+                isDef ? tr("Active — Set as default home launcher", "Etkin — Varsayılan ana ekran olarak ayarlandı")
+                      : tr("Run ROLE_HOME & set-home-activity over Local ADB ›", "Yerel ADB üzerinden ROLE_HOME ve set-home-activity çalıştır ›"),
+                isDef,
+                () -> runAdbTroubleshootStep(this::executeStep1SetDefaultLauncherViaAdb));
+
+        option(l, tr("Step 2: Disable System Launchers (Google TV / Android TV / OEM)", "2. Adım: Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"),
+                CleanYourTv.getSystemLaunchersSummary(this),
+                !Perms.hasEnabledStockLauncher(this),
+                () -> runAdbTroubleshootStep(() -> CleanYourTv.showDisableSystemLaunchersDialog(this, () -> show(index, 0))));
+
+        boolean homeFixOn = ButtonMapper.isHomeFixEnabled(this);
+        option(l, tr("Step 3: Fix Home Button via Accessibility (Button Mapper)", "3. Adım: Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"),
+                homeFixOn
+                        ? tr("On — Pressing Home launches tvOS Launcher", "Açık — Ana Ekran tuşu tvOS Launcher'ı açar")
+                        : tr("Off — Tap to enable Home button remap", "Kapalı — Ana Ekran tuşu yönlendirmesini açmak için dokunun"),
+                homeFixOn,
+                () -> {
+                    boolean next = !ButtonMapper.isHomeFixEnabled(this);
+                    ButtonMapper.setHomeFixEnabled(this, next);
+                    if (next && !ButtonMapper.isServiceEnabled(this)) {
+                        if (!LocalAdb.hasWriteSecureSettings(this) || !LocalAdb.repairPermissionsViaSecureSettings(this)) {
+                            Intent acc = Perms.accessibilityScreen(this);
+                            if (acc != null) {
+                                Suggestions.start(this, acc);
+                            }
+                        }
+                    }
+                    show(index, 0);
+                });
+
+        option(l, tr("Step 4: Open Android System Home Settings", "4. Adım: Android Sistem Ana Ekran Ayarlarını Aç"),
+                tr("Open system selector (if supported by TV) ›", "Sistem seçicisini aç (TV destekliyorsa) ›"),
+                false,
+                () -> Perms.openSystemHomeSettingsUi(this));
+
+        option(l, tr("Continue", "Devam Et"),
+                tr("Proceed to the next setup step when you are done here", "Buradaki adımlarla işiniz bittiğinde sonraki kurulum adımına geçin"),
+                false,
+                this::next);
+        dots();
+    }
+
+    private void executeStep1SetDefaultLauncherViaAdb() {
+        android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(tr("Setting Default Launcher…", "Varsayılan Başlatıcı Ayarlanıyor…"))
+                .setMessage(tr("Setting ROLE_HOME and default home activity over Local ADB…",
+                        "Yerel ADB üzerinden ROLE_HOME ve varsayılan ana ekran etkinliği ayarlanıyor…"))
+                .setCancelable(false)
+                .create();
+        progress.show();
+        LocalAdb.setDefaultLauncherViaAdb(this, (success, msg) -> runOnUiThread(() -> {
+            if (isFinishing()) return;
+            try {
+                progress.dismiss();
+            } catch (Throwable ignored) {
+            }
+            // Refresh current page without skipping so the user can proceed to the next step on this page
+            show(index, 0);
+            android.widget.Toast.makeText(this,
+                    success
+                            ? tr("Step 1 complete: Default home launcher set via ADB!", "1. Adım tamamlandı: Varsayılan ana ekran ADB ile ayarlandı!")
+                            : tr("Could not connect to ADB — enable USB/Network Debugging or use Step 3 / Step 4.", "ADB'ye bağlanılamadı — USB/Ağ Hata Ayıklamayı açın veya 3. / 4. Adımı kullanın."),
+                    android.widget.Toast.LENGTH_LONG).show();
+        }));
+    }
+
+    /**
+     * If the user selected Secure ADB Mode on the previous page (or ADB is currently off),
+     * prompts them that ADB mode is required for this troubleshooting step and lets them
+     * either Enable ADB Now or Skip This Step.
+     */
+    private void runAdbTroubleshootStep(Runnable stepAction) {
+        boolean secureModeSelected = LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_SECURE_CLOSE;
+        boolean adbOff = !LocalAdb.isAdbSettingEnabled(this) && !LocalAdb.portReachable;
+        if (secureModeSelected || adbOff) {
+            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle(tr("ADB Mode Required", "ADB Modu Gerekli"))
+                    .setMessage(tr(
+                            "You need the ADB mode enabled for this troubleshooting step. You can always change the ADB mode from Settings later.\n\nWould you like to enable ADB now or skip this step?",
+                            "Bu sorun giderme adımı için ADB moduna ihtiyacınız vardır. ADB modunu daha sonra istediğiniz zaman Ayarlar'dan değiştirebilirsiniz.\n\nADB'yi şimdi etkinleştirmek mi yoksa bu adımı atlamak mı istersiniz?"))
+                    .setPositiveButton(tr("Enable ADB Now", "ADB'yi Şimdi Etkinleştir"), (d, w) -> {
+                        LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_PERSISTENT);
+                        android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                                .setTitle(tr("Enabling ADB…", "ADB Etkinleştiriliyor…"))
+                                .setMessage(tr("Turning on ADB debugging for this troubleshooting step…",
+                                        "Bu sorun giderme adımı için ADB hata ayıklama açılıyor…"))
+                                .setCancelable(false)
+                                .create();
+                        progress.show();
+                        LocalAdb.enableAdbPort(this, (success, msg) -> runOnUiThread(() -> {
+                            if (isFinishing()) return;
+                            try {
+                                progress.dismiss();
+                            } catch (Throwable ignored) {
+                            }
+                            show(index, 0);
+                            if (success || LocalAdb.isAdbSettingEnabled(this) || LocalAdb.portReachable) {
+                                stepAction.run();
+                            } else {
+                                new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                                        .setTitle(tr("Turn On ADB Debugging", "ADB Hata Ayıklamayı Açın"))
+                                        .setMessage(tr(
+                                                "Please enable USB Debugging / Network Debugging in Developer Options, then return here to run this step.",
+                                                "Lütfen Geliştirici Seçenekleri'nde USB / Ağ Hata Ayıklamayı açın ve ardından bu adımı çalıştırmak için buraya dönün."))
+                                        .setPositiveButton(tr("Open Developer Options…", "Geliştirici Seçeneklerini Aç…"), (d2, w2) -> {
+                                            Intent dev = new Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                                            if (!Suggestions.start(this, dev)) {
+                                                Intent about = new Intent(android.provider.Settings.ACTION_DEVICE_INFO_SETTINGS);
+                                                if (!Suggestions.start(this, about)) {
+                                                    Suggestions.start(this, new Intent(android.provider.Settings.ACTION_SETTINGS));
+                                                }
+                                            }
+                                        })
+                                        .setNegativeButton(tr("Skip This Step", "Bu Adımı Atla"), null)
+                                        .show();
+                            }
+                        }));
+                    })
+                    .setNegativeButton(tr("Skip This Step", "Bu Adımı Atla"), null)
+                    .show();
+            return;
+        }
+        stepAction.run();
     }
 
     private void proceedToEasyAdbOrDirections() {
