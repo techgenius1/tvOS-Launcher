@@ -956,12 +956,14 @@ public class SettingsActivity extends Activity {
                     boolean on = !Profiles.homePrefs(this).getBoolean("cw_enabled", false);
                     Profiles.homePrefs(this).edit().putBoolean("cw_enabled", on).apply();
                 });
-        row(tr("Nuvio Continue Watching on dock", "Dock'ta Nuvio İzlemeye Devam Et"),
-                () -> NuvioPopup.isEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
-                () -> {
-                    NuvioPopup.setEnabled(this, !NuvioPopup.isEnabled(this));
-                    refreshAll();
-                });
+        for (WatchCloud cloud : new WatchCloud[]{new NuvioCloud(this), new StremioCloud(this)}) {
+            row(tr(cloud.name() + " Continue Watching on dock", "Dock'ta " + cloud.name() + " İzlemeye Devam Et"),
+                    () -> cloud.popupEnabled() ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        cloud.setPopupEnabled(!cloud.popupEnabled());
+                        refreshAll();
+                    });
+        }
         row(tr("Home screen weather shortcut", "Ana ekranda hava durumu kısayolu"),
                 () -> SceneHome.isWeatherShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
                 () -> {

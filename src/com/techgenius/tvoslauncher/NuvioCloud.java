@@ -2,12 +2,12 @@ package com.techgenius.tvoslauncher;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Base64;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -28,95 +28,51 @@ import java.util.Map;
  * Endpoints: https://nuvio.tv/docs (public API). The three QR-login calls are not in the public
  * docs (same ones the Nuvio TV app and the Home Assistant integration use) and could change.
  */
-final class NuvioCloud {
+final class NuvioCloud extends WatchCloud {
 
     static final String BASE = "https://api.nuvio.tv";
     /** Nuvio's public client key (published in its API docs; ships inside every Nuvio app). */
     static final String KEY = "sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN";
     static final String PREFS = "nuvio_cloud";
     private static final String K_ACCESS = "access", K_REFRESH = "refresh", K_EXPIRES = "expires_at",
-            K_PROFILE = "profile", K_CW = "cw_cache", K_META = "meta_cache", K_PROFILES = "profiles_cache";
-    static final int MAX_PROFILES = 6;
+            K_PROFILE = "profile", K_META = "meta_cache", K_PROFILES = "profiles_cache";
+    static final int MAX_PROFILES = MAX_CACHED_PROFILES;
     /** Ignore titles opened for less than a minute; Nuvio itself marks >= 90% as watched. */
     static final long MIN_POSITION_MS = 60_000L;
     static final double WATCHED_FRACTION = 0.90;
 
-    static final class NotSignedInException extends Exception {
-        NotSignedInException() { super("Not signed in to Nuvio"); }
-    }
-
-    static final class QrExpiredException extends Exception {
-        QrExpiredException(String status) { super("Nuvio QR login " + status); }
-    }
-
-    static final class HttpException extends Exception {
-        final int code;
-
-        HttpException(int code, String body) {
-            super("Nuvio HTTP " + code + ": " + (body.length() > 200 ? body.substring(0, 200) : body));
-            this.code = code;
-        }
-    }
-
-    /** One Nuvio profile. {@link #index} (1..6) is what the sync calls take as p_profile_id. */
-    static final class Profile {
-        int index;
-        String name;
-    }
-
-    /** A pending QR login: encode {@link #qrUrl} in the QR; show {@link #userCode} as text. */
-    static final class QrLogin {
-        String deviceCode, userCode, verificationUrl, qrUrl, nonce;
-        long expiresAt, intervalMs;
-
-        boolean expired() { return System.currentTimeMillis() >= expiresAt; }
-    }
-
-    /** One continue-watching entry. title/poster come from Nuvio's library, Cinemeta or TMDB. */
-    static final class Item {
-        String contentId, type, videoId, title, poster;
-        int season = -1, episode = -1;
-        long position, duration, lastWatched;
-
-        double fraction() { return duration > 0 ? position / (double) duration : 0; }
-
-        boolean isSeries() { return "series".equals(type); }
-
-        /** Base id for lookups: "tt0903747" from "tt0903747:2:4". */
-        String baseId() {
-            if (contentId.startsWith("tmdb:")) {
-                String n = contentId.substring(5);
-                int c = n.indexOf(':');
-                return "tmdb:" + (c >= 0 ? n.substring(0, c) : n);
-            }
-            int c = contentId.indexOf(':');
-            return c >= 0 ? contentId.substring(0, c) : contentId;
-        }
-    }
-
-    private final Context ctx;
-    private final SharedPreferences prefs;
-
     NuvioCloud(Context c) {
-        ctx = c.getApplicationContext();
-        prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        super(c, PREFS);
     }
 
-    boolean isSignedIn() {
+    @Override String name() { return "Nuvio"; }
+
+    @Override boolean ownsPackage(String pkg) { return pkg != null && pkg.startsWith("com.nuvio."); }
+
+    @Override String defaultPackage() { return "com.nuvio.tv"; }
+
+    /** Same deep link the launcher's Suggestions already use for Nuvio. */
+    @Override String deepLink(Item it) {
+        return "nuvio://detail/" + (it.isSeries() ? "series" : "movie") + "/" + Uri.encode(it.contentId, ":");
+    }
+
+    @Override String popupPrefKey() { return "nuvio_popup"; }
+
+    @Override boolean isSignedIn() {
         return !prefs.getString(K_REFRESH, "").isEmpty();
     }
 
     /** Nuvio profile 1..6 whose progress is shown. Profile 1 is the main profile. */
-    int profile() {
+    @Override int profile() {
         return prefs.getInt(K_PROFILE, 1);
     }
 
-    void setProfile(int index) {
+    @Override void setProfile(int index) {
         prefs.edit().putInt(K_PROFILE, Math.max(1, Math.min(MAX_PROFILES, index))).apply();
     }
 
     /** The account's profiles, sorted by index. Also cached for instant display next time. */
-    List<Profile> profiles() throws Exception {
+    @Override List<Profile> profiles() throws Exception {
         JSONArray a = new JSONArray(rpc("sync_pull_profiles", new JSONObject()));
         List<Profile> out = new ArrayList<>();
         for (int i = 0; i < a.length(); i++) {
@@ -136,8 +92,7 @@ final class NuvioCloud {
         return out;
     }
 
-    /** Last fetched profiles, or an empty list. */
-    List<Profile> loadProfilesCache() {
+    @Override List<Profile> loadProfilesCache() {
         List<Profile> out = new ArrayList<>();
         try {
             JSONArray a = new JSONArray(prefs.getString(K_PROFILES, "[]"));
@@ -153,7 +108,7 @@ final class NuvioCloud {
         return out;
     }
 
-    synchronized void signOut() {
+    @Override synchronized void signOut() {
         String access = prefs.getString(K_ACCESS, "");
         if (!access.isEmpty()) {
             try {
@@ -163,19 +118,14 @@ final class NuvioCloud {
             }
         }
         SharedPreferences.Editor e = prefs.edit()
-                .remove(K_ACCESS).remove(K_REFRESH).remove(K_EXPIRES).remove(K_CW).remove(K_PROFILES);
-        for (int p = 1; p <= MAX_PROFILES; p++) e.remove(cwKey(p));
+                .remove(K_ACCESS).remove(K_REFRESH).remove(K_EXPIRES).remove(K_PROFILES);
+        clearCache(e);
         e.apply();
-    }
-
-    /** Continue-watching cache key; each profile keeps its own row. */
-    private static String cwKey(int profile) {
-        return K_CW + "_" + profile;
     }
 
     // ------------------------------------------------------------------ QR login
 
-    QrLogin startQrLogin(String deviceName) throws Exception {
+    @Override QrLogin startQrLogin(String deviceName) throws Exception {
         byte[] raw = new byte[24];
         new SecureRandom().nextBytes(raw);
         String nonce = Base64.encodeToString(raw, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
@@ -201,11 +151,7 @@ final class NuvioCloud {
         return l;
     }
 
-    /**
-     * Checks a pending QR login once. Returns true when it was approved and the session is saved,
-     * false while it is still waiting. Throws {@link QrExpiredException} when a new code is needed.
-     */
-    synchronized boolean pollQrLogin(QrLogin l) throws Exception {
+    @Override synchronized boolean pollQrLogin(QrLogin l) throws Exception {
         if (l.expired()) throw new QrExpiredException("expired");
         JSONObject body = new JSONObject().put("p_code", l.deviceCode).put("p_device_nonce", l.nonce);
         JSONObject s = new JSONArray(post("/rest/v1/rpc/poll_tv_login_session", body, null)).optJSONObject(0);
@@ -227,11 +173,8 @@ final class NuvioCloud {
 
     // ------------------------------------------------------------------ continue watching
 
-    /**
-     * Up to {@code max} in-progress titles (one per movie/show) for one profile, newest first,
-     * with title + poster.
-     */
-    List<Item> continueWatching(int profile, int max) throws Exception {
+    /** Newest in-progress titles, with title + poster filled in (see {@link #enrich}). */
+    @Override List<Item> continueWatching(int profile, int max) throws Exception {
         JSONObject body = new JSONObject().put("p_profile_id", profile).put("p_limit", 200);
         JSONArray rows = new JSONArray(rpc("sync_pull_watch_progress", body));
 
@@ -260,47 +203,6 @@ final class NuvioCloud {
         enrich(profile, out);
         saveCache(profile, out);
         return out;
-    }
-
-    /** Last successful result, so the popup has something to show instantly after a restart. */
-    List<Item> loadCache(int profile) {
-        String s = prefs.getString(cwKey(profile), "");
-        if (s.isEmpty()) return null;
-        try {
-            JSONArray a = new JSONArray(s);
-            List<Item> out = new ArrayList<>();
-            for (int i = 0; i < a.length(); i++) {
-                JSONObject o = a.getJSONObject(i);
-                Item it = new Item();
-                it.contentId = o.getString("id");
-                it.type = o.optString("type", "movie");
-                it.videoId = o.optString("video", it.contentId);
-                it.title = o.optString("title", "");
-                it.poster = o.optString("poster", "");
-                it.season = o.optInt("s", -1);
-                it.episode = o.optInt("e", -1);
-                it.position = o.optLong("pos");
-                it.duration = o.optLong("dur");
-                it.lastWatched = o.optLong("at");
-                out.add(it);
-            }
-            return out;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private void saveCache(int profile, List<Item> items) {
-        try {
-            JSONArray a = new JSONArray();
-            for (Item it : items) {
-                a.put(new JSONObject().put("id", it.contentId).put("type", it.type).put("video", it.videoId)
-                        .put("title", it.title).put("poster", it.poster).put("s", it.season).put("e", it.episode)
-                        .put("pos", it.position).put("dur", it.duration).put("at", it.lastWatched));
-            }
-            prefs.edit().putString(cwKey(profile), a.toString()).apply();
-        } catch (Exception ignored) {
-        }
     }
 
     /**
@@ -397,7 +299,7 @@ final class NuvioCloud {
     }
 
     private synchronized String accessToken() throws Exception {
-        if (!isSignedIn()) throw new NotSignedInException();
+        if (!isSignedIn()) throw new NotSignedInException("Nuvio");
         String access = prefs.getString(K_ACCESS, "");
         if (access.isEmpty() || System.currentTimeMillis() > prefs.getLong(K_EXPIRES, 0) - 60_000L) {
             return refresh();
@@ -407,7 +309,7 @@ final class NuvioCloud {
 
     private synchronized String refresh() throws Exception {
         String rt = prefs.getString(K_REFRESH, "");
-        if (rt.isEmpty()) throw new NotSignedInException();
+        if (rt.isEmpty()) throw new NotSignedInException("Nuvio");
         try {
             JSONObject j = new JSONObject(post("/auth/v1/token?grant_type=refresh_token",
                     new JSONObject().put("refresh_token", rt), null));
@@ -418,7 +320,7 @@ final class NuvioCloud {
             // Anything else (5xx, 429, offline): keep the session and try again later.
             if (e.code == 400 || e.code == 401) {
                 prefs.edit().remove(K_ACCESS).remove(K_REFRESH).remove(K_EXPIRES).apply();
-                throw new NotSignedInException();
+                throw new NotSignedInException("Nuvio");
             }
             throw e;
         }
@@ -459,30 +361,6 @@ final class NuvioCloud {
             return text.isEmpty() ? "null" : text;
         } finally {
             con.disconnect();
-        }
-    }
-
-    private static String get(String url) throws Exception {
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        try {
-            con.setConnectTimeout(8_000);
-            con.setReadTimeout(10_000);
-            con.setRequestProperty("Accept", "application/json");
-            int code = con.getResponseCode();
-            if (code != 200) throw new HttpException(code, "");
-            return read(con.getInputStream());
-        } finally {
-            con.disconnect();
-        }
-    }
-
-    private static String read(InputStream in) throws Exception {
-        try (InputStream s = in) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buf = new byte[8192];
-            int n;
-            while ((n = s.read(buf)) > 0) out.write(buf, 0, n);
-            return new String(out.toByteArray(), StandardCharsets.UTF_8);
         }
     }
 }

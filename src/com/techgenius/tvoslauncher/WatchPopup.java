@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
@@ -28,18 +27,19 @@ import java.util.concurrent.Executors;
 import io.nayuki.qrcodegen.QrCode;
 
 /**
- * Popup for the Nuvio dock tile, drawn in the same style and spot as the Keep Watching shelf.
+ * Continue-watching popup for a streaming app's dock tile (Nuvio, Stremio; see WatchCloud),
+ * drawn in the same style and spot as the Keep Watching shelf. One popup per app.
  *
- * - Launcher opened/resumed: if signed in to Nuvio, continue-watching data refreshes in the
- *   background. If not signed in, nothing happens (no network, no prompt).
- * - Focus on the Nuvio tile: shows the cached continue-watching row instantly. When not signed in,
+ * - Launcher opened/resumed: if signed in to the app's account, continue-watching data refreshes
+ *   in the background. If not signed in, nothing happens (no network, no prompt).
+ * - Focus on the app's tile: shows the cached continue-watching row instantly. When not signed in,
  *   it shows a one-time QR login instead; once approved on the phone, the row loads right away.
- * - DPAD Up from the tile moves into the row; OK opens the title in Nuvio; Down returns to the dock.
+ * - DPAD Up from the tile moves into the row; OK opens the title in the app; Down returns to the dock.
  * - While the popup is open, the Keep Watching shelf behind it fades out.
- * - Accounts with several Nuvio profiles get profile buttons next to the header (Up from a card
+ * - Accounts with several profiles (Nuvio) get profile buttons next to the header (Up from a card
  *   reaches them). Moving onto a profile shows its row as soon as the highlight lands there.
  */
-final class NuvioPopup {
+final class WatchPopup {
 
     private static final int MAX_ITEMS = 5;
     private static final long REFRESH_AFTER_MS = 60_000L;  // don't re-pull on every quick resume
@@ -47,23 +47,11 @@ final class NuvioPopup {
     private static final float QR_DP = 96;
     /** Placeholder cards while a row loads; three fill the row like the Keep Watching shelf. */
     private static final int GHOST_CARDS = 3;
-    private static final String PREF_ENABLED = "nuvio_popup";
-
-    /** Settings switch: off = no popup, no sign-in prompt, no network calls. On by default. */
-    static boolean isEnabled(android.content.Context c) {
-        return c.getSharedPreferences("settings", android.content.Context.MODE_PRIVATE)
-                .getBoolean(PREF_ENABLED, true);
-    }
-
-    static void setEnabled(android.content.Context c, boolean on) {
-        c.getSharedPreferences("settings", android.content.Context.MODE_PRIVATE)
-                .edit().putBoolean(PREF_ENABLED, on).apply();
-    }
 
     private final SceneHome home;
     private final MainActivity host;
     private final FrameLayout overlay;
-    private final NuvioCloud cloud;
+    private final WatchCloud cloud;
     /** Own thread: QR polling must never queue behind the launcher's wallpaper/blur work on host.io. */
     private final ExecutorService exec = Executors.newSingleThreadExecutor();
     /** contentId -> 16:9 thumbnail. */
@@ -81,8 +69,8 @@ final class NuvioPopup {
     /** Height of the plain header text; the shelf's "Keep watching" header is the same size. */
     private int headerTextH;
 
-    /** Nuvio profiles of the signed-in account; buttons show when there are 2 or more. */
-    private List<NuvioCloud.Profile> profiles;
+    /** Profiles of the signed-in account; buttons show when there are 2 or more. */
+    private List<WatchCloud.Profile> profiles;
     private final List<View> profileButtons = new ArrayList<>();
     private View profileBar;
     private Slider slider;
@@ -95,20 +83,20 @@ final class NuvioPopup {
     private String anchorPkg;
     private boolean visible;
 
-    private List<NuvioCloud.Item> items;  // null = never loaded
+    private List<WatchCloud.Item> items;  // null = never loaded
     private boolean loading, loadFailed;
     private long lastLoad;
 
-    private NuvioCloud.QrLogin qr;
+    private WatchCloud.QrLogin qr;
     private Bitmap qrBitmap;
     private boolean startingQr, qrFailed;
     private int pollGeneration;
 
-    NuvioPopup(SceneHome home) {
+    WatchPopup(SceneHome home, WatchCloud cloud) {
         this.home = home;
         this.host = home.host;
         this.overlay = home.overlay;
-        this.cloud = new NuvioCloud(host);
+        this.cloud = cloud;
         boolean signedIn = cloud.isSignedIn();
         this.items = signedIn ? cloud.loadCache(cloud.profile()) : null;
         this.profiles = signedIn ? cloud.loadProfilesCache() : new ArrayList<>();
@@ -125,15 +113,21 @@ final class NuvioPopup {
                 Gravity.TOP | Gravity.START));
     }
 
-    static boolean isNuvio(String pkg) {
-        return pkg != null && pkg.startsWith("com.nuvio.");
+    /** Whether this popup belongs to the dock tile of that package. */
+    boolean owns(String pkg) {
+        return cloud.ownsPackage(pkg);
+    }
+
+    /** Whether the popup is on screen (the Keep Watching shelf hides while any popup is). */
+    boolean isShowing() {
+        return visible;
     }
 
     // ------------------------------------------------------------------ lifecycle hooks
 
     /** Launcher opened or came back to the front. Signed out: do nothing at all. */
     void onLauncherResume() {
-        if (!isEnabled(host) || !cloud.isSignedIn()) return;
+        if (!cloud.popupEnabled() || !cloud.isSignedIn()) return;
         if (!loading && System.currentTimeMillis() - lastLoad > REFRESH_AFTER_MS) load();
     }
 
@@ -143,7 +137,7 @@ final class NuvioPopup {
         hide();
     }
 
-    /** Called from the dock tile's focus listener for the Nuvio app. */
+    /** Called from the focus listener of this app's dock tile. */
     void onTileFocus(View tile, String pkg, boolean has) {
         if (has) {
             show(tile, pkg);
@@ -153,7 +147,7 @@ final class NuvioPopup {
     }
 
     /**
-     * DPAD Up on the Nuvio tile. The dock handles its own keys (so nextFocusUpId is never used);
+     * DPAD Up on the app's tile. The dock handles its own keys (so nextFocusUpId is never used);
      * it calls this first. Returns false when there's no row to move into.
      */
     boolean focusRow(View tile) {
@@ -175,7 +169,7 @@ final class NuvioPopup {
     // ------------------------------------------------------------------ show / hide
 
     private void show(View tile, String pkg) {
-        if (!isEnabled(host)) {
+        if (!cloud.popupEnabled()) {
             stopPolling();
             hide();
             return;
@@ -193,7 +187,7 @@ final class NuvioPopup {
         }
         render();
         if (!wasVisible) {
-            home.setShelfDimmed(true);
+            home.updateShelfDim();
             panel.setVisibility(View.VISIBLE);
             panel.setAlpha(0f);
             panel.animate().alpha(1f).setDuration(160).start();
@@ -211,10 +205,10 @@ final class NuvioPopup {
         visible = false;
         panel.animate().cancel();
         panel.setVisibility(View.GONE);
-        home.setShelfDimmed(false);
+        home.updateShelfDim();
         if (anchor != null) anchor.setNextFocusUpId(View.NO_ID);
         // QR polling keeps running until the code is approved or expires, so you can
-        // scan, look away from the Nuvio tile, and still come back signed in.
+        // scan, look away from the tile, and still come back signed in.
     }
 
     // ------------------------------------------------------------------ data
@@ -225,32 +219,32 @@ final class NuvioPopup {
         loading = true;
         if (visible) render();
         exec.execute(() -> {
-            List<NuvioCloud.Profile> ps = null;
-            List<NuvioCloud.Item> result = null;
+            List<WatchCloud.Profile> ps = null;
+            List<WatchCloud.Item> result = null;
             boolean signedOut = false, failed = false;
             try {
                 try {
                     ps = cloud.profiles();
-                } catch (NuvioCloud.NotSignedInException e) {
+                } catch (WatchCloud.NotSignedInException e) {
                     throw e;
                 } catch (Exception e) {
                     // Keep the cached profile list; continue watching can still load.
-                    android.util.Log.w("NuvioPopup", "Couldn't load Nuvio profiles", e);
+                    android.util.Log.w("WatchPopup", "Couldn't load " + cloud.name() + " profiles", e);
                 }
                 int profile = wanted;
                 if (ps != null && !ps.isEmpty() && find(ps, profile) == null) {
-                    // The saved profile was deleted in Nuvio: fall back to the first one.
+                    // The saved profile was deleted in the app: fall back to the first one.
                     profile = ps.get(0).index;
                     cloud.setProfile(profile);
                 }
                 result = cloud.continueWatching(profile, MAX_ITEMS);
-            } catch (NuvioCloud.NotSignedInException e) {
+            } catch (WatchCloud.NotSignedInException e) {
                 signedOut = true;
             } catch (Exception e) {
                 failed = true;
             }
-            final List<NuvioCloud.Profile> p = ps;
-            final List<NuvioCloud.Item> r = result;
+            final List<WatchCloud.Profile> p = ps;
+            final List<WatchCloud.Item> r = result;
             final boolean so = signedOut, fl = failed;
             host.handler.post(() -> {
                 if (p != null) profiles = p;
@@ -291,8 +285,8 @@ final class NuvioPopup {
         load();
     }
 
-    private static NuvioCloud.Profile find(List<NuvioCloud.Profile> ps, int index) {
-        for (NuvioCloud.Profile p : ps) if (p.index == index) return p;
+    private static WatchCloud.Profile find(List<WatchCloud.Profile> ps, int index) {
+        for (WatchCloud.Profile p : ps) if (p.index == index) return p;
         return null;
     }
 
@@ -317,12 +311,12 @@ final class NuvioPopup {
         startingQr = true;
         qrFailed = false;
         exec.execute(() -> {
-            NuvioCloud.QrLogin l = null;
+            WatchCloud.QrLogin l = null;
             try {
                 l = cloud.startQrLogin("tvOS Launcher");
             } catch (Exception ignored) {
             }
-            final NuvioCloud.QrLogin login = l;
+            final WatchCloud.QrLogin login = l;
             final Bitmap bmp = login != null ? qrBitmap(login.qrUrl, dp(QR_DP)) : null;
             host.handler.post(() -> {
                 startingQr = false;
@@ -335,7 +329,7 @@ final class NuvioPopup {
         });
     }
 
-    private void startPolling(NuvioCloud.QrLogin login) {
+    private void startPolling(WatchCloud.QrLogin login) {
         final int gen = ++pollGeneration;
         Runnable[] tick = new Runnable[1];
         tick[0] = () -> {
@@ -344,7 +338,7 @@ final class NuvioPopup {
                 boolean approved = false, expired = false;
                 try {
                     approved = cloud.pollQrLogin(login);
-                } catch (NuvioCloud.QrExpiredException e) {
+                } catch (WatchCloud.QrExpiredException e) {
                     expired = true;
                 } catch (Exception ignored) {
                     // Network blip: try again on the next tick.
@@ -402,7 +396,8 @@ final class NuvioPopup {
 
         String cw = I18n.s(host, "Continue watching", "İzlemeye devam et");
         if (!cloud.isSignedIn()) {
-            addHeader(I18n.s(host, "Sign in to Nuvio", "Nuvio'ya giriş yap"), 0);
+            // Turkish: both "Nuvio" and "Stremio" end in a back vowel, so "'ya" fits each.
+            addHeader(I18n.s(host, "Sign in to " + cloud.name(), cloud.name() + "'ya giriş yap"), 0);
             renderLogin();
         } else if (items != null && !items.isEmpty()) {
             renderItems(cw);
@@ -410,7 +405,7 @@ final class NuvioPopup {
             renderGhosts(cw);  // this profile's row hasn't loaded yet
         } else {
             addHeader(cw, 0);
-            String msg = items == null ? I18n.s(host, "Couldn't reach Nuvio", "Nuvio'ya ulaşılamadı")
+            String msg = items == null ? I18n.s(host, "Couldn't reach " + cloud.name(), cloud.name() + "'ya ulaşılamadı")
                     : I18n.s(host, "Nothing to continue yet", "Devam edecek bir şey yok");
             LinearLayout box = glassBox();
             box.addView(label(msg, 11.5f, 0xB8F4F4F6, "regular"));
@@ -438,7 +433,7 @@ final class NuvioPopup {
 
     /**
      * Remote navigation: Up from a card goes to the selected profile button, Down from a profile
-     * button goes to the first card (or the Nuvio tile when the row is empty). Both rows stop
+     * button goes to the first card (or the app's tile when the row is empty). Both rows stop
      * at their ends instead of jumping out to the dock.
      */
     private void wireFocus() {
@@ -468,8 +463,8 @@ final class NuvioPopup {
     private void renderLogin() {
         LinearLayout box = glassBox();
         if (qr == null || qrBitmap == null) {
-            box.addView(label(qrFailed ? I18n.s(host, "Couldn't reach Nuvio. Focus the tile again to retry.",
-                            "Nuvio'ya ulaşılamadı. Tekrar denemek için simgeye yeniden gel.")
+            box.addView(label(qrFailed ? I18n.s(host, "Couldn't reach " + cloud.name() + ". Focus the tile again to retry.",
+                            cloud.name() + "'ya ulaşılamadı. Tekrar denemek için simgeye yeniden gel.")
                     : I18n.s(host, "Preparing QR code…", "QR kodu hazırlanıyor…"), 11.5f, 0xB8F4F4F6, "regular"));
             addStatusBox(box);
             return;
@@ -550,10 +545,10 @@ final class NuvioPopup {
         // The scroller clips the row to the row's own bounds, so the room must be inside the row.
         row.setPadding(pad, pad, pad, pad);
 
-        String pkg = anchorPkg != null ? anchorPkg : "com.nuvio.tv";
+        String pkg = anchorPkg != null ? anchorPkg : cloud.defaultPackage();
         String appName = host.appLabel(pkg);
         for (int i = 0; i < items.size(); i++) {
-            NuvioCloud.Item it = items.get(i);
+            WatchCloud.Item it = items.get(i);
             View card = home.watchCard(cardData(it, pkg, appName), cardW, cardH, (v, has) -> {
                 if (!has) overlay.post(this::hideIfFocusLeft);
             });
@@ -584,9 +579,9 @@ final class NuvioPopup {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
-    private SceneHome.WatchCardData cardData(NuvioCloud.Item it, String pkg, String appName) {
+    private SceneHome.WatchCardData cardData(WatchCloud.Item it, String pkg, String appName) {
         SceneHome.WatchCardData d = new SceneHome.WatchCardData();
-        d.key = "nuvio:" + it.contentId;
+        d.key = cloud.name().toLowerCase(java.util.Locale.ROOT) + ":" + it.contentId;
         d.pkg = pkg;
         d.appName = appName;
         d.title = it.title == null || it.title.isEmpty()
@@ -597,14 +592,19 @@ final class NuvioPopup {
         return d;
     }
 
-    /** "S2 · E4 · 23 min left" for shows, "23 min left" for movies. */
-    private String subtitle(NuvioCloud.Item it) {
+    /** "S2 · E4 · 23 min left" for shows, "23 min left" for movies, "S2 · E5 · Up next". */
+    private String subtitle(WatchCloud.Item it) {
         StringBuilder sb = new StringBuilder();
-        if (it.isSeries() && it.season >= 0 && it.episode >= 0) {
+        if (it.season >= 0 && it.episode >= 0) {
             sb.append('S').append(it.season).append(" · E").append(it.episode);
+        } else if (it.episode >= 0) {
+            sb.append('E').append(it.episode);
         }
         long leftMin = Math.max(0, it.duration - it.position) / 60_000L;
-        if (leftMin > 0) {
+        if (it.upNext) {
+            if (sb.length() > 0) sb.append(" · ");
+            sb.append(I18n.s(host, "Up next", "Sıradaki"));
+        } else if (leftMin > 0) {
             if (sb.length() > 0) sb.append(" · ");
             sb.append(leftMin).append(I18n.s(host, " min left", " dk kaldı"));
         }
@@ -613,7 +613,7 @@ final class NuvioPopup {
     }
 
     /** 16:9 art like the shelf: the title's backdrop when it has an IMDb id, else its poster. */
-    private void loadThumb(NuvioCloud.Item it) {
+    private void loadThumb(WatchCloud.Item it) {
         String base = it.baseId();
         final String backdrop = base.startsWith("tt")
                 ? "https://images.metahub.space/background/medium/" + base + "/img" : null;
@@ -631,12 +631,10 @@ final class NuvioPopup {
         });
     }
 
-    private void open(NuvioCloud.Item it) {
-        String pkg = anchorPkg != null ? anchorPkg : "com.nuvio.tv";
-        String type = it.isSeries() ? "series" : "movie";
+    private void open(WatchCloud.Item it) {
+        String pkg = anchorPkg != null ? anchorPkg : cloud.defaultPackage();
         PackageManager pm = host.getPackageManager();
-        // Same deep link the launcher's Suggestions already use for Nuvio.
-        Intent i = Suggestions.view("nuvio://detail/" + type + "/" + Uri.encode(it.contentId, ":"), pkg);
+        Intent i = Suggestions.view(cloud.deepLink(it), pkg);
         if (i.resolveActivity(pm) != null && Suggestions.start(host, i)) return;
         Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
         if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
@@ -645,7 +643,7 @@ final class NuvioPopup {
 
     /**
      * Puts the popup where the Keep Watching shelf sits, so it reads as the shelf switching to
-     * Nuvio while the Nuvio tile is focused. The popup's bottom lines up with the bottom of the
+     * the app while its tile is focused. The popup's bottom lines up with the bottom of the
      * shelf's cards: cards land exactly on the shelf's row, and anything taller (the sign-in QR,
      * profile buttons) grows upward instead of covering the dock.
      */
@@ -664,7 +662,7 @@ final class NuvioPopup {
     // ------------------------------------------------------------------ small helpers
 
     /**
-     * Header in the same look as the shelf's "Keep watching" header, followed by the Nuvio
+     * Header in the same look as the shelf's "Keep watching" header, followed by the account's
      * profile buttons when the account has more than one profile.
      */
     private void addHeader(String s, int indent) {
@@ -706,7 +704,7 @@ final class NuvioPopup {
      */
     private View profileBarView() {
         StringBuilder sig = new StringBuilder();
-        for (NuvioCloud.Profile p : profiles) sig.append(p.index).append(':').append(p.name).append(';');
+        for (WatchCloud.Profile p : profiles) sig.append(p.index).append(':').append(p.name).append(';');
         if (profileBar != null && sig.toString().equals(profileBarSig)) {
             ViewGroup old = (ViewGroup) profileBar.getParent();
             if (old != null) old.removeView(profileBar);
@@ -747,7 +745,7 @@ final class NuvioPopup {
         row.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> moveHighlight(false));
 
         for (int i = 0; i < profiles.size(); i++) {
-            NuvioCloud.Profile p = profiles.get(i);
+            WatchCloud.Profile p = profiles.get(i);
             TextView b = new TextView(host);
             Ui.textSize(b, 10.5f);
             b.setTypeface(Ui.font(host, "semibold"));

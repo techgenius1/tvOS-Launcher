@@ -52,8 +52,8 @@ final class SceneHome {
     final MainActivity host;
     final Scenes.SceneView sceneView;
     final FrameLayout overlay;
-    /** Continue-watching / QR-login popup shown above the Nuvio dock tile. */
-    NuvioPopup nuvioPopup;
+    /** Continue-watching / QR-login popups shown above the Nuvio and Stremio dock tiles. */
+    final List<WatchPopup> watchPopups = new ArrayList<>();
 
     LinearLayout whoBar;
     LinearLayout weatherBtn;
@@ -138,7 +138,28 @@ final class SceneHome {
         buildTopBar();
         buildKeepWatchingShelf();
         buildBottomDock();
-        nuvioPopup = new NuvioPopup(this);
+        watchPopups.add(new WatchPopup(this, new NuvioCloud(host)));
+        watchPopups.add(new WatchPopup(this, new StremioCloud(host)));
+    }
+
+    /** The continue-watching popup for a dock tile's app, or null when it has none. */
+    WatchPopup watchPopupFor(String pkg) {
+        for (WatchPopup p : watchPopups) if (p.owns(pkg)) return p;
+        return null;
+    }
+
+    /** DPAD Up on a dock tile: moves into that tile's popup row, if one is open. */
+    private boolean focusWatchPopupRow(View tile) {
+        for (WatchPopup p : watchPopups) if (p.focusRow(tile)) return true;
+        return false;
+    }
+
+    void onWatchPopupsResume() {
+        for (WatchPopup p : watchPopups) p.onLauncherResume();
+    }
+
+    void onWatchPopupsPause() {
+        for (WatchPopup p : watchPopups) p.onLauncherPause();
     }
 
     void invalidateSceneGlass() {
@@ -147,7 +168,7 @@ final class SceneHome {
         if (moonBtn != null) moonBtn.invalidate();
         if (dockBox != null) dockBox.invalidate();
         for (View c : shelfCards) c.invalidate();
-        if (nuvioPopup != null) nuvioPopup.invalidateGlass();
+        for (WatchPopup p : watchPopups) p.invalidateGlass();
     }
 
     private int dp(float u) {
@@ -365,7 +386,7 @@ final class SceneHome {
 
     // ---------------------------------------------------------------- Keep Watching Glass Shelf
 
-    /** Where the Keep Watching shelf sits. NuvioPopup lines its row up with the same spot. */
+    /** Where the Keep Watching shelf sits. WatchPopup lines its row up with the same spot. */
     static final float SHELF_LEFT_DP = 40, SHELF_TOP_DP = 312, SHELF_HEADER_GAP_DP = 7;
     static final float SHELF_CARD_W_DP = 282, SHELF_CARD_H_DP = 64, SHELF_CARD_GAP_DP = 12;
 
@@ -505,7 +526,7 @@ final class SceneHome {
 
     /**
      * The Keep Watching glass card: thumbnail, app name, title, subtitle, progress bar.
-     * NuvioPopup uses it too, so both rows look the same. Callers set click handling.
+     * WatchPopup uses it too, so both rows look the same. Callers set click handling.
      */
     View watchCard(WatchCardData d, int cardW, int cardH, View.OnFocusChangeListener onFocus) {
         LinearLayout card = new LinearLayout(host);
@@ -705,8 +726,13 @@ final class SceneHome {
         return v;
     }
 
-    /** Fades the Keep Watching row out while the Nuvio popup sits in front of it. */
-    void setShelfDimmed(boolean dim) {
+    /**
+     * Fades the Keep Watching row out while a continue-watching popup sits in front of it.
+     * Checks all popups, so moving from one app's tile straight to another's keeps it hidden.
+     */
+    void updateShelfDim() {
+        boolean dim = false;
+        for (WatchPopup p : watchPopups) dim |= p.isShowing();
         float a = dim ? 0f : 1f;
         if (shelfHeader != null) shelfHeader.animate().alpha(a).setDuration(160).start();
         if (shelfRow != null) shelfRow.animate().alpha(a).setDuration(160).start();
@@ -1083,9 +1109,8 @@ final class SceneHome {
         focusRing.setStroke(dp(2.2f), Color.WHITE);
 
         tile.setOnFocusChangeListener((v, has) -> {
-            if (!isGear && !isMore && nuvioPopup != null && NuvioPopup.isNuvio(a.pkg)) {
-                nuvioPopup.onTileFocus(v, a.pkg, has && moveDockIdx < 0);
-            }
+            WatchPopup popup = isGear || isMore ? null : watchPopupFor(a.pkg);
+            if (popup != null) popup.onTileFocus(v, a.pkg, has && moveDockIdx < 0);
             v.setPivotX(v.getWidth() > 0 ? v.getWidth() / 2f : size / 2f);
             v.setPivotY(v.getHeight() > 0 ? v.getHeight() / 2f : size / 2f);
             v.setForeground(has ? focusRing : null);
@@ -1320,11 +1345,12 @@ final class SceneHome {
         View tile = dockTiles.get(clamped);
         boolean alreadyFocused = tile.isFocused();
         tile.requestFocus();
-        // Coming back to Home with focus still on the Nuvio tile fires no focus change, so the
-        // popup (hidden when the launcher paused) has to be told directly.
-        if (alreadyFocused && nuvioPopup != null && moveDockIdx < 0 && clamped < dockEntries.size()
-                && NuvioPopup.isNuvio(dockEntries.get(clamped).pkg)) {
-            nuvioPopup.onTileFocus(tile, dockEntries.get(clamped).pkg, true);
+        // Coming back to Home with focus still on the Nuvio/Stremio tile fires no focus change,
+        // so the popup (hidden when the launcher paused) has to be told directly.
+        if (alreadyFocused && moveDockIdx < 0 && clamped < dockEntries.size()) {
+            String pkg = dockEntries.get(clamped).pkg;
+            WatchPopup popup = watchPopupFor(pkg);
+            if (popup != null) popup.onTileFocus(tile, pkg, true);
         }
     }
 
@@ -2032,8 +2058,8 @@ final class SceneHome {
             }
             if (k == KeyEvent.KEYCODE_DPAD_UP) {
                 if (down) {
-                    if (nuvioPopup != null && nuvioPopup.focusRow(f)) {
-                        // Moved into the Nuvio continue-watching popup above the tile.
+                    if (focusWatchPopupRow(f)) {
+                        // Moved into the continue-watching popup above the tile.
                     } else if (dIdx >= cols) {
                         focusDock(dIdx - cols);
                     } else if (shelfBox.getVisibility() == View.VISIBLE && !shelfCards.isEmpty()) {
