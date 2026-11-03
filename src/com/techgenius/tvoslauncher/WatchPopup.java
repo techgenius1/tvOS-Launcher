@@ -127,6 +127,16 @@ final class WatchPopup {
 
     /** Launcher opened or came back to the front. Signed out: do nothing at all. */
     void onLauncherResume() {
+        if (!cloud.isSignedIn() && (items != null || !profiles.isEmpty())) {
+            // Signed out in Settings while away: forget the old account's row and profiles,
+            // and drop the result of any load still on its way.
+            loadGen++;
+            loading = false;
+            loadFailed = false;
+            items = null;
+            profiles = new ArrayList<>();
+            lastLoad = 0;
+        }
         if (!cloud.popupEnabled() || !cloud.isSignedIn()) return;
         if (!loading && System.currentTimeMillis() - lastLoad > REFRESH_AFTER_MS) load();
     }

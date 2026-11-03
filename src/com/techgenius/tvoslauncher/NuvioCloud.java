@@ -112,7 +112,9 @@ final class NuvioCloud extends WatchCloud {
         String access = prefs.getString(K_ACCESS, "");
         if (!access.isEmpty()) {
             try {
-                post("/auth/v1/logout", null, access);
+                // scope=local ends only this launcher's session. The default ("global") would
+                // also sign the Nuvio apps out on every device.
+                post("/auth/v1/logout?scope=local", null, access);
             } catch (Exception ignored) {
                 // Signing out locally is what matters.
             }
