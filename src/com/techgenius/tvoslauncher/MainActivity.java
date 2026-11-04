@@ -442,6 +442,8 @@ public class MainActivity extends Activity {
             avatarView.setImageBitmap(Profiles.avatar(this, Profiles.current(this), avatarSize));
             avatarView.setVisibility(Profiles.list(this).size() > 1 ? View.VISIBLE : View.GONE);
         }
+        // Signed in to Nuvio/Stremio: refresh continue watching in the background. Signed out: no-op.
+        if (sceneHome != null) sceneHome.onWatchPopupsResume();
         if (Scenes.isScenesLook(this) && sceneHome != null) {
             sceneHome.sceneView.syncSettings();
             sceneHome.sceneView.start();
@@ -509,6 +511,7 @@ public class MainActivity extends Activity {
             exitAmbientShowcase();
         }
         if (sceneHome != null && !ambientShowcase) sceneHome.sceneView.stop();
+        if (sceneHome != null) sceneHome.onWatchPopupsPause();
         handler.removeCallbacks(heroAdvance);
         handler.removeCallbacks(weatherTick);
         handler.removeCallbacks(idleRunnable);

@@ -52,6 +52,8 @@ final class SceneHome {
     final MainActivity host;
     final Scenes.SceneView sceneView;
     final FrameLayout overlay;
+    /** Continue-watching / QR-login popups shown above the Nuvio and Stremio dock tiles. */
+    final List<WatchPopup> watchPopups = new ArrayList<>();
 
     LinearLayout whoBar;
     LinearLayout weatherBtn;
@@ -136,6 +138,28 @@ final class SceneHome {
         buildTopBar();
         buildKeepWatchingShelf();
         buildBottomDock();
+        watchPopups.add(new WatchPopup(this, new NuvioCloud(host)));
+        watchPopups.add(new WatchPopup(this, new StremioCloud(host)));
+    }
+
+    /** The continue-watching popup for a dock tile's app, or null when it has none. */
+    WatchPopup watchPopupFor(String pkg) {
+        for (WatchPopup p : watchPopups) if (p.owns(pkg)) return p;
+        return null;
+    }
+
+    /** DPAD Up on a dock tile: moves into that tile's popup row, if one is open. */
+    private boolean focusWatchPopupRow(View tile) {
+        for (WatchPopup p : watchPopups) if (p.focusRow(tile)) return true;
+        return false;
+    }
+
+    void onWatchPopupsResume() {
+        for (WatchPopup p : watchPopups) p.onLauncherResume();
+    }
+
+    void onWatchPopupsPause() {
+        for (WatchPopup p : watchPopups) p.onLauncherPause();
     }
 
     void invalidateSceneGlass() {
@@ -144,6 +168,7 @@ final class SceneHome {
         if (moonBtn != null) moonBtn.invalidate();
         if (dockBox != null) dockBox.invalidate();
         for (View c : shelfCards) c.invalidate();
+        for (WatchPopup p : watchPopups) p.invalidateGlass();
     }
 
     private int dp(float u) {
@@ -361,6 +386,10 @@ final class SceneHome {
 
     // ---------------------------------------------------------------- Keep Watching Glass Shelf
 
+    /** Where the Keep Watching shelf sits. WatchPopup lines its row up with the same spot. */
+    static final float SHELF_LEFT_DP = 40, SHELF_TOP_DP = 312, SHELF_HEADER_GAP_DP = 7;
+    static final float SHELF_CARD_W_DP = 282, SHELF_CARD_H_DP = 64, SHELF_CARD_GAP_DP = 12;
+
     private void buildKeepWatchingShelf() {
         shelfBox = new LinearLayout(host);
         shelfBox.setOrientation(LinearLayout.VERTICAL);
@@ -376,7 +405,7 @@ final class SceneHome {
         shelfHeader.setText(I18n.s(host, "Keep watching", "İzlemeye devam et"));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        hlp.bottomMargin = dp(7);
+        hlp.bottomMargin = dp(SHELF_HEADER_GAP_DP);
         hlp.leftMargin = dp(2);
         shelfBox.addView(shelfHeader, hlp);
 
@@ -390,9 +419,9 @@ final class SceneHome {
         FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.TOP | Gravity.START);
-        slp.leftMargin = dp(40);
-        slp.rightMargin = dp(40);
-        slp.topMargin = dp(312);
+        slp.leftMargin = dp(SHELF_LEFT_DP);
+        slp.rightMargin = dp(SHELF_LEFT_DP);
+        slp.topMargin = dp(SHELF_TOP_DP);
         overlay.addView(shelfBox, slp);
     }
 
@@ -465,9 +494,9 @@ final class SceneHome {
         lastWatchSig = sig;
         shelfRow.removeAllViews();
         shelfCards.clear();
-        int cardW = dp(282);
-        int cardH = dp(64);
-        int gap = dp(12);
+        int cardW = dp(SHELF_CARD_W_DP);
+        int cardH = dp(SHELF_CARD_H_DP);
+        int gap = dp(SHELF_CARD_GAP_DP);
         for (int i = 0; i < cards.size() && i < 3; i++) {
             final int idx = i;
             WatchCardData data = cards.get(i);
@@ -480,6 +509,26 @@ final class SceneHome {
     }
 
     private View buildWatchCard(WatchCardData d, int index, int cardW, int cardH) {
+        View card = watchCard(d, cardW, cardH, (v, has) -> {
+            if (has) focusedShelfIdx = index;
+        });
+        card.setLongClickable(true);
+        card.setOnClickListener(v -> openWatchCard(d));
+        card.setOnLongClickListener(v -> {
+            showWatchCardMenu(v, d);
+            return true;
+        });
+        return card;
+    }
+
+    /** Tag on a watch card's thumbnail ImageView, for art that loads after the card is built. */
+    static final String WATCH_THUMB = "watch_thumb";
+
+    /**
+     * The Keep Watching glass card: thumbnail, app name, title, subtitle, progress bar.
+     * WatchPopup uses it too, so both rows look the same. Callers set click handling.
+     */
+    View watchCard(WatchCardData d, int cardW, int cardH, View.OnFocusChangeListener onFocus) {
         LinearLayout card = new LinearLayout(host);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
@@ -487,7 +536,6 @@ final class SceneHome {
         card.setPadding(pad, pad, dp(12), pad);
         card.setFocusable(true);
         card.setClickable(true);
-        card.setLongClickable(true);
         card.setElevation(dp(5));
 
         float r = dp(15);
@@ -512,6 +560,7 @@ final class SceneHome {
         thumb.setBackground(tbg);
         thumb.setOutlineProvider(host.roundedOutline(new float[]{dp(8.5f)}));
         thumb.setClipToOutline(true);
+        thumb.setTag(WATCH_THUMB);
         if (d.thumb != null) thumb.setImageBitmap(d.thumb);
         card.addView(thumb, new LinearLayout.LayoutParams(tw, th));
 
@@ -592,20 +641,101 @@ final class SceneHome {
         body.addView(barTrack, prlp);
 
         card.setOnFocusChangeListener((v, has) -> {
-            if (has) focusedShelfIdx = index;
             v.setForeground(has ? focusRing : null);
             v.animate().withLayer().scaleX(has ? 1.035f : 1f).scaleY(has ? 1.035f : 1f)
                     .translationY(has ? -dp(2) : 0)
                     .translationZ(has ? dp(10) : 0)
                     .setDuration(180).setInterpolator(MainActivity.LIFT).start();
+            if (onFocus != null) onFocus.onFocusChange(v, has);
         });
-        card.setOnClickListener(v -> openWatchCard(d));
-        card.setOnLongClickListener(v -> {
-            showWatchCardMenu(v, d);
-            return true;
-        });
-
         return card;
+    }
+
+    /**
+     * Placeholder version of {@link #watchCard}: same glass card and layout, with soft blocks
+     * where the thumbnail, app name, title, subtitle and progress bar go. The blocks pulse
+     * gently; {@code index} staggers the pulse so a row of them ripples. Not focusable.
+     */
+    View ghostWatchCard(int index) {
+        LinearLayout card = new LinearLayout(host);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        int pad = dp(8);
+        card.setPadding(pad, pad, dp(12), pad);
+        card.setElevation(dp(5));
+        MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
+                dp(15), 0x5C1E141C, host.glassSource, host.screenW, host.screenH, host.unit);
+        glass.lens = dp(6);
+        glass.rimStrength = 0.42f;
+        card.setBackground(glass);
+
+        List<View> blocks = new ArrayList<>();
+        View thumb = ghostBlock(dp(8.5f));
+        card.addView(thumb, new LinearLayout.LayoutParams(dp(84), dp(48)));
+        blocks.add(thumb);
+
+        LinearLayout body = new LinearLayout(host);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        blp.leftMargin = dp(10);
+        card.addView(body, blp);
+
+        // App name, title, subtitle: widths vary a little per card so the row doesn't look stamped.
+        float[][] lines = {{44, 7, 0}, {index % 2 == 0 ? 132 : 108, 11, 5}, {index % 2 == 0 ? 78 : 92, 8, 5}};
+        for (float[] l : lines) {
+            View b = ghostBlock(dp(3.5f));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(l[0]), dp(l[1]));
+            lp.topMargin = dp(l[2]);
+            body.addView(b, lp);
+            blocks.add(b);
+        }
+        View bar = ghostBlock(dp(1.5f));
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(2.5f));
+        plp.topMargin = dp(7);
+        body.addView(bar, plp);
+        blocks.add(bar);
+
+        ValueAnimator pulse = ValueAnimator.ofFloat(0.45f, 1f);
+        pulse.setDuration(850);
+        pulse.setStartDelay(index * 140L);
+        pulse.setRepeatMode(ValueAnimator.REVERSE);
+        pulse.setRepeatCount(ValueAnimator.INFINITE);
+        pulse.addUpdateListener(a -> {
+            float alpha = (float) a.getAnimatedValue();
+            for (View v : blocks) v.setAlpha(alpha);
+        });
+        card.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override public void onViewAttachedToWindow(View v) {
+                if (!pulse.isStarted()) pulse.start();
+            }
+
+            @Override public void onViewDetachedFromWindow(View v) {
+                pulse.cancel();
+            }
+        });
+        return card;
+    }
+
+    private View ghostBlock(float radius) {
+        View v = new View(host);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(radius);
+        bg.setColor(0x2EFFFFFF);
+        v.setBackground(bg);
+        return v;
+    }
+
+    /**
+     * Fades the Keep Watching row out while a continue-watching popup sits in front of it.
+     * Checks all popups, so moving from one app's tile straight to another's keeps it hidden.
+     */
+    void updateShelfDim() {
+        boolean dim = false;
+        for (WatchPopup p : watchPopups) dim |= p.isShowing();
+        float a = dim ? 0f : 1f;
+        if (shelfHeader != null) shelfHeader.animate().alpha(a).setDuration(160).start();
+        if (shelfRow != null) shelfRow.animate().alpha(a).setDuration(160).start();
     }
 
     private void openWatchCard(WatchCardData d) {
@@ -778,7 +908,7 @@ final class SceneHome {
 
     private void updateDockTooltip(View tile, String text) {
         if (dockLabel == null) return;
-        if (text == null || text.isEmpty() || tile == null) {
+        if (text == null || text.isEmpty() || tile == null || !Scenes.isDockNamesShown(host)) {
             dockLabel.setVisibility(View.INVISIBLE);
             return;
         }
@@ -979,6 +1109,8 @@ final class SceneHome {
         focusRing.setStroke(dp(2.2f), Color.WHITE);
 
         tile.setOnFocusChangeListener((v, has) -> {
+            WatchPopup popup = isGear || isMore ? null : watchPopupFor(a.pkg);
+            if (popup != null) popup.onTileFocus(v, a.pkg, has && moveDockIdx < 0);
             v.setPivotX(v.getWidth() > 0 ? v.getWidth() / 2f : size / 2f);
             v.setPivotY(v.getHeight() > 0 ? v.getHeight() / 2f : size / 2f);
             v.setForeground(has ? focusRing : null);
@@ -1210,7 +1342,16 @@ final class SceneHome {
         int clamped = Math.max(0, Math.min(idx, dockTiles.size() - 1));
         focusedDockIdx = clamped;
         host.prefs.edit().putInt("last_dock_idx", clamped).apply();
-        dockTiles.get(clamped).requestFocus();
+        View tile = dockTiles.get(clamped);
+        boolean alreadyFocused = tile.isFocused();
+        tile.requestFocus();
+        // Coming back to Home with focus still on the Nuvio/Stremio tile fires no focus change,
+        // so the popup (hidden when the launcher paused) has to be told directly.
+        if (alreadyFocused && moveDockIdx < 0 && clamped < dockEntries.size()) {
+            String pkg = dockEntries.get(clamped).pkg;
+            WatchPopup popup = watchPopupFor(pkg);
+            if (popup != null) popup.onTileFocus(tile, pkg, true);
+        }
     }
 
     void invalidateAppLogoCache(MainActivity.AppEntry a) {
@@ -1917,7 +2058,9 @@ final class SceneHome {
             }
             if (k == KeyEvent.KEYCODE_DPAD_UP) {
                 if (down) {
-                    if (dIdx >= cols) {
+                    if (focusWatchPopupRow(f)) {
+                        // Moved into the continue-watching popup above the tile.
+                    } else if (dIdx >= cols) {
                         focusDock(dIdx - cols);
                     } else if (shelfBox.getVisibility() == View.VISIBLE && !shelfCards.isEmpty()) {
                         int target = Math.min(shelfCards.size() - 1, dIdx * shelfCards.size() / cols);

@@ -832,6 +832,12 @@ public class SettingsActivity extends Activity {
             row(tr("Dock size", "Dock boyutu"),
                     () -> Scenes.dockScaleLabel(this),
                     () -> openSubMenu("dock_size"));
+            row(tr("Show app names", "Uygulama adlarını göster"),
+                    () -> Scenes.isDockNamesShown(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        Scenes.setDockNamesShown(this, !Scenes.isDockNamesShown(this));
+                        refreshAll();
+                    });
         }
 
         section(tr("LOOK", "GÖRÜNÜM"));
@@ -976,6 +982,21 @@ public class SettingsActivity extends Activity {
                 () -> Suggestions.start(this, new Intent(Settings.ACTION_APPLICATION_SETTINGS)));
         infoNote(tr("Tip: Hold OK on any app on the home screen dock to move or hide it.",
                 "İpucu: Ana ekran dock'undaki herhangi bir uygulamayı taşımak veya gizlemek için OK tuşuna basılı tutun."));
+
+        // One section per streaming app with a continue-watching popup on its dock tile.
+        for (WatchCloud cloud : new WatchCloud[]{new NuvioCloud(this), new StremioCloud(this)}) {
+            section(cloud.name().toUpperCase(java.util.Locale.ROOT));
+            row(tr("Continue Watching on dock", "Dock'ta İzlemeye Devam Et"),
+                    () -> cloud.popupEnabled() ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        cloud.setPopupEnabled(!cloud.popupEnabled());
+                        refreshAll();
+                    });
+            row(tr("Account", "Hesap"),
+                    () -> cloud.isSignedIn() ? tr("Signed in · Sign out", "Giriş yapıldı · Çıkış yap")
+                            : tr("Not signed in", "Giriş yapılmadı"),
+                    () -> confirmWatchSignOut(cloud));
+        }
     }
 
     static final class HiddenAppItem {
@@ -1611,6 +1632,34 @@ public class SettingsActivity extends Activity {
                         .setPositiveButton(tr("Reset", "Sıfırla"), (d, w) -> resetAllAppDataAndReturnToSetup())
                         .setNegativeButton(tr("Cancel", "İptal"), null)
                         .show());
+    }
+
+    /**
+     * Signs the dock's continue-watching popup out of Nuvio/Stremio. Only the launcher's session
+     * ends; the app itself stays signed in. Signing back in is the QR on the app's dock tile.
+     */
+    private void confirmWatchSignOut(WatchCloud cloud) {
+        if (!cloud.isSignedIn()) {
+            showStatusMsg(tr("To sign in, focus the " + cloud.name() + " tile on the Home screen and scan the QR code.",
+                    "Giriş yapmak için Ana ekranda " + cloud.name() + " simgesine gel ve QR kodu tara."));
+            return;
+        }
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(tr("Sign out of " + cloud.name() + "?", cloud.name() + " hesabından çıkılsın mı?"))
+                .setMessage(tr("Continue watching on the dock will stop showing your " + cloud.name()
+                                + " titles. The " + cloud.name() + " app itself stays signed in.",
+                        "Dock'taki izlemeye devam et artık " + cloud.name() + " içeriklerini göstermeyecek. "
+                                + cloud.name() + " uygulamasının kendisinde oturum açık kalır."))
+                .setPositiveButton(tr("Sign out", "Çıkış yap"), (d, w) -> new Thread(() -> {
+                    cloud.signOut();  // tells the server too, so it can take a moment
+                    runOnUiThread(() -> {
+                        if (isFinishing()) return;
+                        refreshAll();
+                        showStatusMsg(tr("Signed out of " + cloud.name() + ".", cloud.name() + " hesabından çıkıldı."));
+                    });
+                }, "watch-sign-out").start())
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
     }
 
     private void resetAllAppDataAndReturnToSetup() {
