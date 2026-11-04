@@ -101,6 +101,10 @@ public final class CleanYourTv {
         NEVER_DISABLE_EXACT.add("org.droidtv.channels");
         NEVER_DISABLE_EXACT.add("com.android.tv");
         NEVER_DISABLE_EXACT.add("com.google.android.tv");
+        NEVER_DISABLE_EXACT.add("com.xiaomi.bluetooth");
+        NEVER_DISABLE_EXACT.add("com.mi.bluetooth");
+        NEVER_DISABLE_EXACT.add("com.xiaomi.mitv.bluetooth");
+        NEVER_DISABLE_EXACT.add("com.mitv.bluetooth");
     }
 
     /** Generic Google / Android bloat packages that appear on almost all TVs (weighted lower in package similarity matching). */
@@ -394,6 +398,31 @@ public final class CleanYourTv {
     // ================================================================ Safety Guards
 
     /**
+     * Returns true if {@code pkg} or {@code appLabel} is a critical system service (such as MiBluetooth)
+     * that must NEVER be disabled under any circumstances, even in Manual Debloat.
+     */
+    public static boolean isCriticalProtectedService(String pkg, String appLabel) {
+        if (pkg != null) {
+            String lowPkg = pkg.toLowerCase(Locale.US);
+            if (lowPkg.equals("com.xiaomi.bluetooth")
+                    || lowPkg.equals("com.mi.bluetooth")
+                    || lowPkg.equals("com.xiaomi.mitv.bluetooth")
+                    || lowPkg.equals("com.mitv.bluetooth")
+                    || lowPkg.contains("mibluetooth")
+                    || lowPkg.contains("xiaomi.bluetooth")) {
+                return true;
+            }
+        }
+        if (appLabel != null) {
+            String lowLabel = appLabel.toLowerCase(Locale.US).replace(" ", "");
+            if (lowLabel.contains("mibluetooth")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Checks whether a package is safe to disable according to cleanyourtv/tools/disable.sh
      * and recovery.py (never disables core system packages, TV input hardware services, or tvOS Launcher).
      */
@@ -402,7 +431,7 @@ public final class CleanYourTv {
         if ("android".equals(pkg)) return false;
         Boolean cached = SAFE_DISABLE_CACHE.get(pkg);
         if (cached != null) return cached;
-        if (NEVER_DISABLE_EXACT.contains(pkg)) {
+        if (NEVER_DISABLE_EXACT.contains(pkg) || isCriticalProtectedService(pkg, null)) {
             SAFE_DISABLE_CACHE.put(pkg, false);
             return false;
         }
@@ -1506,7 +1535,8 @@ public final class CleanYourTv {
         {"com.homwee.launcher", "Haier / Homwee TV Launcher", "Haier OEM TV Home screen"},
         {"com.zeasn.whaleos.launcher", "WhaleOS / Zeasn TV Launcher", "Zeasn OEM TV Home screen"},
         {"com.sdmc.launcher", "SDMC TV Launcher", "SDMC OEM TV Home screen"},
-        {"com.amazon.tv.launcher", "Fire TV Home Launcher", "Amazon OEM TV Home screen"}
+        {"com.amazon.tv.launcher", "Fire TV Home Launcher", "Amazon OEM TV Home screen"},
+        {"com.amazon.firehomestarter", "Fire TV Home Starter", "Amazon Fire OS Home button interceptor"}
     };
 
     /**
@@ -1677,10 +1707,13 @@ public final class CleanYourTv {
                             ? enabledPkgs.contains(pkg)
                             : (isPackageCurrentlyEnabled(pm, pkg, ai) && !savedDisabled.contains(pkg));
                     String label = resolveAppLabel(pm, pkg);
-                    boolean coreWarning = !isSafeToDisable(c, pkg);
-                    String desc = coreWarning
-                            ? tr(c, "⚠️ Core system package — disabling may affect system stability", "⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir")
-                            : defaultDescriptionForPackage(c, pkg);
+                    boolean isCritical = isCriticalProtectedService(pkg, label);
+                    boolean coreWarning = isCritical || !isSafeToDisable(c, pkg);
+                    String desc = isCritical
+                            ? tr(c, "🛑 Critical system service — protected (cannot be disabled)", "🛑 Kritik sistem servisi — korumalı (devre dışı bırakılamaz)")
+                            : (coreWarning
+                                    ? tr(c, "⚠️ Core system package — disabling may affect system stability", "⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir")
+                                    : defaultDescriptionForPackage(c, pkg));
                     map.put(pkg, new DebloatItem(pkg, label, desc, coreWarning, isEnabled));
                 }
             }
@@ -1702,10 +1735,13 @@ public final class CleanYourTv {
                         ? enabledPkgs.contains(pkg)
                         : !savedDisabled.contains(pkg);
                 String label = resolveAppLabel(pm, pkg);
-                boolean coreWarning = !isSafeToDisable(c, pkg);
-                String desc = coreWarning
-                        ? tr(c, "⚠️ Core system package — disabling may affect system stability", "⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir")
-                        : defaultDescriptionForPackage(c, pkg);
+                boolean isCritical = isCriticalProtectedService(pkg, label);
+                boolean coreWarning = isCritical || !isSafeToDisable(c, pkg);
+                String desc = isCritical
+                        ? tr(c, "🛑 Critical system service — protected (cannot be disabled)", "🛑 Kritik sistem servisi — korumalı (devre dışı bırakılamaz)")
+                        : (coreWarning
+                                ? tr(c, "⚠️ Core system package — disabling may affect system stability", "⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir")
+                                : defaultDescriptionForPackage(c, pkg));
                 map.put(pkg, new DebloatItem(pkg, label, desc, coreWarning, isEnabled));
             }
         }
@@ -1725,6 +1761,16 @@ public final class CleanYourTv {
     public static void toggleSinglePackage(Activity activity, String pkg, boolean disable,
                                            boolean allowAnySystemApp, Runnable onDone) {
         if (pkg == null || pkg.isEmpty() || pkg.equals(activity.getPackageName())) return;
+        String resolvedLabel = resolvePackageLabel(activity, pkg);
+        if (disable && isCriticalProtectedService(pkg, resolvedLabel)) {
+            dialog(activity, tr(activity, "🛑 Critical System Service", "🛑 Kritik Sistem Servisi"))
+                    .setMessage(tr(activity,
+                            resolvedLabel + " (" + pkg + ") is a critical system service required for your TV remote and Bluetooth connectivity.\n\nIt cannot be disabled under any circumstances.",
+                            resolvedLabel + " (" + pkg + ") TV kumandanız ve Bluetooth bağlantısı için gerekli kritik bir sistem servisidir.\n\nHiçbir koşulda devre dışı bırakılamaz."))
+                    .setPositiveButton(tr(activity, "OK", "Tamam"), null)
+                    .show();
+            return;
+        }
         if (disable && !allowAnySystemApp && !isSafeToDisable(activity, pkg)) {
             dialog(activity, tr(activity, "Protected Core Package", "Korunan Temel Paket"))
                     .setMessage(tr(activity,

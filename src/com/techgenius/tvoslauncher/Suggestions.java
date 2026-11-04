@@ -559,9 +559,13 @@ final class Suggestions {
 
     // ------------------------------------------------------------------ images
 
-    /** TMDB image, cached on disk, decoded no larger than maxWidth (the box has little RAM). */
+    /** TMDB / TvProvider / Continue Watching image, cached on disk, decoded no larger than maxWidth. */
     static Bitmap image(Context c, String path, String size, int maxWidth) {
         if (path == null || path.isEmpty()) return null;
+        if (path.startsWith("file://")) {
+            path = Uri.parse(path).getPath();
+            if (path == null || path.isEmpty()) return null;
+        }
         if (path.startsWith("/")) {  // local artwork (Continue Watching)
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
@@ -571,6 +575,22 @@ final class Suggestions {
             o.inJustDecodeBounds = false;
             return BitmapFactory.decodeFile(path, o);
         }
+        if (path.startsWith("content://") || path.startsWith("android.resource://")) {
+            try (InputStream in = c.getContentResolver().openInputStream(Uri.parse(path))) {
+                if (in == null) return null;
+                byte[] data = readAll(in);
+                if (data == null || data.length == 0) return null;
+                BitmapFactory.Options o = new BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(data, 0, data.length, o);
+                o.inSampleSize = 1;
+                while (o.outWidth / (o.inSampleSize * 2) >= maxWidth) o.inSampleSize *= 2;
+                o.inJustDecodeBounds = false;
+                return BitmapFactory.decodeByteArray(data, 0, data.length, o);
+            } catch (Exception e) {
+                return null;
+            }
+        }
         try {
             File dir = new File(c.getCacheDir(), "tmdb");
             dir.mkdirs();
@@ -578,8 +598,10 @@ final class Suggestions {
             File f = new File(dir, (abs ? "u" + Integer.toHexString(path.hashCode()) : size + "_" + path.replace("/", "")) + ".img");
             if (!f.exists()) {
                 HttpURLConnection con = (HttpURLConnection) new URL(abs ? path : "https://image.tmdb.org/t/p/" + size + path).openConnection();
+                con.setInstanceFollowRedirects(true);
                 con.setConnectTimeout(8000);
                 con.setReadTimeout(15000);
+                con.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 11; Android TV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
                 try {
                     if (con.getResponseCode() != 200) return null;
                     byte[] data = readAll(con.getInputStream());

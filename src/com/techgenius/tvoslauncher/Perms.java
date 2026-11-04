@@ -48,15 +48,13 @@ final class Perms {
         }
     }
 
-    /** Android turns notification listeners off for other apps on low-RAM (1 GB) TVs. */
+    /**
+     * Checks whether Notification / MediaSession listener can be enabled on this TV.
+     * Even on low-RAM Android TVs (where ro.config.low_ram=true), MediaSessionManager.getActiveSessions()
+     * works when enabled_notification_listeners is set via WRITE_SECURE_SETTINGS or ADB.
+     */
     static boolean listenerSupported(Activity a) {
-        if (a == null) return false;
-        try {
-            android.app.ActivityManager am = a.getSystemService(android.app.ActivityManager.class);
-            return am != null && !am.isLowRamDevice();
-        } catch (Throwable t) {
-            return false;
-        }
+        return a != null;
     }
 
     static boolean hasListener(Activity a) {
@@ -72,14 +70,12 @@ final class Perms {
     }
 
     static void requestListener(Activity a) {
-        if (hasListener(a)) return;
-        if (!listenerSupported(a)) {
-            new AlertDialog.Builder(a, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle(I18n.s(a, "Not available on this TV", "Bu TV'de kullan\u0131lam\u0131yor"))
-                    .setMessage(I18n.s(a,
-                            "This TV has limited memory, so Android doesn't let apps read what's playing. Continue Watching and Do Not Disturb can't work here.",
-                            "Bu TV'nin belle\u011fi s\u0131n\u0131rl\u0131 oldu\u011fundan Android uygulamalar\u0131n ne oynat\u0131ld\u0131\u011f\u0131n\u0131 okumas\u0131na izin vermiyor. \u0130zlemeye Devam Et ve Rahats\u0131z Etmeyin burada \u00e7al\u0131\u015famaz."))
-                    .setPositiveButton(I18n.s(a, "OK", "Tamam"), null).show();
+        if (hasListener(a)) {
+            MediaWatchService.ensureSessionTracking(a);
+            return;
+        }
+        if (LocalAdb.hasWriteSecureSettings(a) && LocalAdb.repairPermissionsViaSecureSettings(a) && hasListener(a)) {
+            MediaWatchService.ensureSessionTracking(a);
             return;
         }
         if (Build.VERSION.SDK_INT >= 30) {
@@ -129,7 +125,9 @@ final class Perms {
         "com.haier.tv.launcher",
         "com.homwee.launcher",
         "com.zeasn.whaleos.launcher",
-        "com.sdmc.launcher"
+        "com.sdmc.launcher",
+        "com.amazon.tv.launcher",
+        "com.amazon.firehomestarter"
     };
 
     static String[] getStockTvHomePackages() {

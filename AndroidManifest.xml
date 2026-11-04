@@ -17,8 +17,10 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- Search dictation: asked on screen the first time the mic is used. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- Normal-level permission: lets us try reading apps' published TV rows for the top shelf. -->
+    <!-- Normal-level & TV listings permissions: lets us read apps' published Watch Next & Preview rows. -->
     <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
+    <uses-permission android:name="android.permission.READ_TV_LISTINGS" />
     <!-- Custom app icons, custom wallpapers, and automatic GitHub APK updates. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

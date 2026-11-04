@@ -31,6 +31,7 @@ public final class I18n {
     public static final String LANG_AR = "ar";
     public static final String LANG_JA = "ja";
     public static final String LANG_ZH = "zh";
+    public static final String LANG_KO = "ko";
 
     public static final String[][] LANGUAGES = {
         {LANG_EN, "English", "Use tvOS Launcher in English"},
@@ -45,12 +46,13 @@ public final class I18n {
         {LANG_PT, "Português", "Usar o tvOS Launcher em português"},
         {LANG_AR, "العربية", "استخدم tvOS Launcher باللغة العربية"},
         {LANG_JA, "日本語", "tvOS Launcher を日本語で使用する"},
-        {LANG_ZH, "中文", "使用中文版 tvOS Launcher"}
+        {LANG_ZH, "中文", "使用中文版 tvOS Launcher"},
+        {LANG_KO, "한국어", "tvOS Launcher를 한국어로 사용"}
     };
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
             LANG_EN, LANG_TR, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
-            LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH
+            LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO
     ));
 
     private static String cachedLang;
@@ -125,13 +127,14 @@ public final class I18n {
         TR_MAP.put("Showers", "Sağanak");
         TR_MAP.put("Thunderstorms", "Fırtına");
 
-        String[] langs = {LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH};
+        String[] langs = {LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
 
         initTranslations();
         initSwedish();
+        initKorean();
     }
 
     private static void add(String en, String hi, String es, String fr, String de, String it, String ru, String pt, String ar, String ja, String zh) {
@@ -861,6 +864,365 @@ public final class I18n {
         sv("Indigo", "Indigo");
         sv("Purple", "Lila");
         sv("Pink", "Rosa");
+        sv("BACKUP & RESTORE", "SÄKERHETSKOPIERING OCH ÅTERSTÄLLNING");
+        sv("Backup settings to Download", "Säkerhetskopiera inställningar till Download");
+        sv("Restore settings from folder…", "Återställ inställningar från mapp…");
+        sv("Choose folder ›", "Välj mapp ›");
+    }
+
+    private static void ko(String en, String koVal) {
+        LANG_MAPS.get(LANG_KO).put(en, koVal);
+    }
+
+    private static void initKorean() {
+        // Greetings
+        ko("Good morning", "좋은 아침입니다");
+        ko("Good afternoon", "좋은 오후입니다");
+        ko("Good evening", "좋은 저녁입니다");
+        ko("Good night", "안녕히 주무세요");
+        ko("Welcome", "환영합니다");
+
+        // Weather conditions
+        ko("Clear", "맑음");
+        ko("Sunny", "화창함");
+        ko("Mostly Sunny", "대체로 화창함");
+        ko("Mostly Clear", "대체로 맑음");
+        ko("Partly Cloudy", "구름 조금");
+        ko("Cloudy", "흐림");
+        ko("Foggy", "안개");
+        ko("Drizzle", "이슬비");
+        ko("Rain", "비");
+        ko("Heavy Rain", "폭우");
+        ko("Sleet", "진눈깨비");
+        ko("Snow", "눈");
+        ko("Heavy Snow", "폭설");
+        ko("Showers", "소나기");
+        ko("Thunderstorms", "뇌우");
+
+        // Sidebar & Main Sections
+        ko("Settings", "설정");
+        ko("Home settings", "홈 설정");
+        ko("Home Settings", "홈 설정");
+        ko("Language", "언어");
+        ko("Location", "위치");
+        ko("Weather", "날씨");
+        ko("Weather and location", "날씨 및 위치");
+        ko("Look and scenes", "외관 및 장면");
+        ko("Appearance and scenes", "외관 및 장면");
+        ko("Apps", "앱");
+        ko("People", "프로필");
+        ko("Profiles", "프로필");
+        ko("Control Panel", "제어판");
+        ko("Control Panel (Overlay)", "제어판 (오버레이)");
+        ko("Button Mapper", "버튼 매퍼");
+        ko("Button mapper", "버튼 매퍼");
+        ko("Quick settings", "빠른 설정");
+        ko("Quick buttons", "빠른 설정");
+        ko("Home & System", "홈 및 시스템");
+        ko("Advanced", "고급 설정");
+        ko("Updates", "업데이트");
+        ko("UPDATES", "업데이트");
+        ko("About", "정보");
+
+        // Look & Scenes & Custom Wallpaper & Clock Position
+        ko("LOOK", "외관");
+        ko("Night scenes", "야간 장면");
+        ko("A big glass clock, scenes taking turns", "커다란 글래스 시계와 번갈아 바뀌는 배경 장면");
+        ko("Classic", "클래식");
+        ko("One photo and a grid of app banners", "배경 사진과 앱 배너 그리드");
+        ko("SCENES", "장면");
+        ko("Night", "밤");
+        ko("Golden hour", "골든 아워");
+        ko("Waterline", "수평선");
+        ko("Fog", "안개");
+        ko("Rainforest dawn", "열대우림의 새벽");
+        ko("Custom", "사용자 지정");
+        ko("Custom 2", "사용자 지정 2");
+        ko("Custom 3", "사용자 지정 3");
+        ko("Custom 4", "사용자 지정 4");
+        ko("Custom 5", "사용자 지정 5");
+        ko("Clock position", "시계 위치");
+        ko("Left", "왼쪽");
+        ko("Center", "가운데");
+        ko("Right", "오른쪽");
+        ko("Each scene stays", "장면 전환 간격");
+        ko(" seconds", "초");
+        ko("Clock", "시계");
+        ko("Clock font", "시계 글꼴");
+        ko("Clock style", "시계 스타일");
+        ko("Glass", "글래스");
+        ko("Rounded", "둥근 글꼴");
+        ko("Modern", "모던");
+        ko("Serif", "명조(세리프)");
+        ko("Stencil", "스텐실");
+        ko("12 hour", "12시간제");
+        ko("24 hour", "24시간제");
+        ko("One scene has to stay on.", "최소 하나의 장면이 켜져 있어야 합니다.");
+        ko("CLASSIC BACKGROUND", "클래식 배경");
+        ko("Classic background", "클래식 배경");
+        ko("Ambient colour themes…", "앰비언트 컬러 테마…");
+        ko("Turn on Custom scene", "사용자 지정 장면 켜기");
+        ko("Turn off Custom scene", "사용자 지정 장면 끄기");
+        ko("Use custom background", "사용자 지정 배경 사용");
+        ko("Choose image…", "이미지 선택…");
+        ko("Choose new image…", "새 이미지 선택…");
+        ko("Choose custom scene image", "사용자 지정 장면 이미지 선택");
+        ko("Choose custom background image", "사용자 지정 배경 이미지 선택");
+        ko("Custom scene wallpaper updated.", "사용자 지정 장면 배경화면이 업데이트되었습니다.");
+        ko("Custom background updated.", "사용자 지정 배경화면이 업데이트되었습니다.");
+        ko("Could not load selected image.", "선택한 이미지를 불러올 수 없습니다.");
+
+        // App Icon Changer & Dock Context Menu
+        ko("Change app icon", "앱 아이콘 변경");
+        ko("Choose icon for ", "아이콘 선택: ");
+        ko("Choose new icon file…", "새 아이콘 파일 선택…");
+        ko("Reset to default icon", "기본 아이콘으로 초기화");
+        ko("App icon updated", "앱 아이콘이 업데이트되었습니다");
+        ko("Default icon restored", "기본 아이콘으로 복원되었습니다");
+        ko("Could not decode image file", "이미지 파일을 읽을 수 없습니다");
+        ko("System file picker…", "시스템 파일 선택기…");
+        ko("Grant storage permission", "저장소 권한 허용");
+        ko("Storage folders", "저장소 폴더");
+        ko("Open", "열기");
+        ko("Rename", "이름 변경");
+        ko("Rename App", "앱 이름 변경");
+        ko("Move left in dock", "독에서 왼쪽으로 이동");
+        ko("Move right in dock", "독에서 오른쪽으로 이동");
+        ko("Remove from dock", "독에서 제거");
+        ko("Pin to Home", "홈에 고정");
+        ko("Unpin from Home", "홈에서 고정 해제");
+        ko("Move", "이동");
+        ko("Hide", "숨기기");
+        ko("Hide from All Apps", "모든 앱에서 숨기기");
+        ko("Move to Other Apps", "기타 앱으로 이동");
+        ko("App info", "앱 정보");
+        ko("Uninstall", "설치 삭제");
+
+        // Updates section
+        ko("Automatic updates", "자동 업데이트");
+        ko("Automatic updates enabled.", "자동 업데이트가 활성화되었습니다.");
+        ko("Automatic updates disabled.", "자동 업데이트가 비활성화되었습니다.");
+        ko("Check for updates", "업데이트 확인");
+        ko("Check now ›", "지금 확인 ›");
+        ko("VERSION INFO", "버전 정보");
+        ko("Current version", "현재 버전");
+        ko("GitHub release latest version", "GitHub 최신 릴리스 버전");
+        ko("Checking…", "확인 중…");
+        ko("Checking for Updates", "업데이트 확인 중");
+        ko("Checking GitHub releases for the latest version…", "GitHub에서 최신 버전을 확인하는 중…");
+        ko("Tap Check for updates", "업데이트 확인을 누르세요");
+        ko("Update Check Failed", "업데이트 확인 실패");
+        ko("Could not reach GitHub Releases. Please check your internet connection.", "GitHub Releases에 연결할 수 없습니다. 인터넷 연결을 확인하세요.");
+        ko("Update Available", "업데이트 가능");
+        ko("Current version: v", "현재 버전: v");
+        ko("Latest GitHub version: v", "최신 GitHub 버전: v");
+        ko("Download & Install", "다운로드 및 설치");
+        ko("Up to Date", "최신 상태");
+        ko("You are running the latest version.", "최신 버전을 사용 중입니다.");
+        ko("Updating tvOS Launcher", "tvOS Launcher 업데이트 중");
+        ko("Downloading latest APK from GitHub…", "GitHub에서 최신 APK를 다운로드하는 중…");
+        ko("Installing update…", "업데이트 설치 중…");
+        ko("Update Failed", "업데이트 실패");
+        ko("Checks GitHub Releases (techgenius1/tvOS-Launcher) for the latest APK and installs updates directly on your TV.", "GitHub Releases(techgenius1/tvOS-Launcher)에서 최신 APK를 확인하고 TV에 직접 업데이트를 설치합니다.");
+
+        // Home screen & Quick buttons & Setup
+        ko("Keep watching", "이어보기");
+        ko("Continue Watching", "이어보기");
+        ko("More apps", "더 많은 앱");
+        ko("More Apps", "더 많은 앱");
+        ko("Fewer apps", "앱 접기");
+        ko("Other apps", "기타 앱");
+        ko("Other Apps", "기타 앱");
+        ko("Hidden apps", "숨겨진 앱");
+        ko("Back to Apps", "앱으로 돌아가기");
+        ko("Inputs", "외부 입력");
+        ko("Presentation", "프레젠테이션");
+        ko("TV settings", "TV 설정");
+        ko("TV Settings", "TV 설정");
+        ko("Language, weather, scenes, apps and people", "언어, 날씨, 장면, 앱 및 프로필");
+        ko("Wi-Fi, picture, sound and the rest of the TV", "Wi-Fi, 화면, 소리 및 기타 TV 설정");
+        ko("Sleep timer", "취침 예약");
+        ko("Sleep Timer", "취침 예약");
+        ko("Turn the TV off after", "다음 시간 후 TV 끄기:");
+        ko("Off", "꺼짐");
+        ko("On", "켜짐");
+        ko("Search", "검색");
+        ko("Refresh", "새로고침");
+        ko("Cancel", "취소");
+        ko("Next", "다음");
+        ko("Continue", "계속");
+        ko("Get Started", "시작하기");
+        ko("Skip Setup", "설정 건너뛰기");
+        ko("Select your language to begin", "시작하려면 언어를 선택하세요");
+        ko("Let’s set up tvOS Launcher.", "tvOS Launcher 설정을 시작합니다.");
+        ko("Choose a look", "외관 선택");
+        ko("Choose how you want your Home Screen to look.", "홈 화면의 스타일을 선택하세요.");
+        ko("Choose Your Scenes", "장면 선택");
+        ko("Choose which scenes take turns behind the glass clock.", "글래스 시계 뒤에서 번갈아 표시할 장면을 선택하세요.");
+        ko("Choose a Background", "배경 선택");
+        ko("Choose a photo or ambient colour theme behind your apps.", "앱 뒤에 표시할 사진이나 컬러 테마를 선택하세요.");
+        ko("Use My Location", "내 위치 사용");
+        ko("Choose a City…", "도시 선택…");
+        ko("Search by name", "이름으로 검색");
+        ko("Don't Show Weather", "날씨 표시 안 함");
+        ko("Finish Setting Up", "설정 완료");
+        ko("Automatic Setup", "자동 설정");
+        ko("Choose how to grant permissions", "권한 허용 방식을 선택하세요");
+        ko("Easy Setup (Automatic via ADB)", "간편 설정 (ADB 자동 권한 부여)");
+        ko("Grants all required permissions automatically at once", "필요한 모든 권한을 한 번에 자동으로 부여합니다");
+        ko("Manual Setup", "수동 설정");
+        ko("Manual Permissions", "수동 권한 설정");
+        ko("Grant permissions one by one manually", "권한을 하나씩 수동으로 허용합니다");
+        ko("Enable ADB Debugging", "ADB 디버깅 활성화");
+        ko("Grant Permissions Now", "지금 권한 부여");
+        ko("Switch to Manual Setup", "수동 설정으로 전환");
+        ko("Make tvOS Launcher the Home Screen", "tvOS Launcher를 기본 홈 화면으로 설정");
+        ko("Button Mapper & Control Panel", "버튼 매퍼 및 제어판");
+        ko("Active in Accessibility", "접근성에서 활성화됨");
+        ko("Enable in Accessibility so remapped buttons work in all apps", "모든 앱에서 리모컨 버튼 매핑이 작동하도록 접근성에서 활성화하세요");
+        ko("Setup Complete", "설정 완료");
+        ko("You're All Set", "모든 준비가 완료되었습니다");
+        ko("Go to Home Screen", "홈 화면으로 이동");
+        ko("Save", "저장");
+        ko("Reset", "초기화");
+        ko("Close", "닫기");
+        ko("Close All", "모두 닫기");
+        ko("Done", "완료");
+
+        // Weather & Location page
+        ko("WEATHER", "날씨");
+        ko("LOCATION", "위치");
+        ko("Weather on the home screen", "홈 화면 날씨 표시");
+        ko("Temperature", "온도 단위");
+        ko("Update every", "업데이트 주기");
+        ko(" minutes", "분");
+        ko("Weather source", "날씨 정보 제공처");
+        ko("Weather from", "날씨 제공:");
+        ko("Free forecast service, no account needed", "계정이 필요 없는 무료 일기예보 서비스");
+        ko("Current place", "현재 위치");
+        ko("Automatic (from internet)", "자동 (인터넷 기반)");
+        ko("Set manually", "수동 설정됨");
+        ko("Detected automatically", "자동 감지됨");
+        ko("Search for a city or town…", "도시 또는 지역 검색…");
+        ko("Use automatic location", "자동 위치 사용");
+        ko("Used for the weather on the home screen and local headlines.", "홈 화면의 날씨 및 지역 뉴스에 사용됩니다.");
+
+        // Control Panel & Recent Apps & Button Mapper & Advanced & About
+        ko("Connected", "연결됨");
+        ko("Settings ›", "설정 ›");
+        ko("Accessories", "액세서리");
+        ko("Memory", "메모리");
+        ko("Clean", "정리");
+        ko("Cleaned · ", "정리 완료 · ");
+        ko(" free", " 여유");
+        ko("Do Not Disturb", "방해 금지 모드");
+        ko("Audio", "오디오");
+        ko("Sound", "소리");
+        ko("Output", "출력");
+        ko("Ambient Mode", "앰비언트 모드");
+        ko("Screensaver", "화면 보호기");
+        ko("Power Off", "전원 끄기");
+        ko("Sleep", "절전");
+        ko("Grant ›", "허용 ›");
+        ko("No recent apps", "최근 실행한 앱 없음");
+        ko("Recent Apps", "최근 앱");
+        ko("Recent Apps Switcher", "최근 앱 전환기");
+        ko("Recent Apps Switcher (Overlay)", "최근 앱 전환기 (오버레이)");
+        ko("No recent apps yet", "아직 최근 실행한 앱이 없습니다");
+        ko("Press ▲ on an app to close it", "앱에서 ▲ 버튼을 눌러 종료");
+        ko("Up and down to move, OK when done", "위/아래로 이동, 완료되면 확인(OK)");
+        ko("Up and down to browse, OK to change, Back to close", "위/아래로 탐색, 확인(OK)으로 변경, 뒤로 버튼으로 닫기");
+        ko("OK to change, hold OK to move, Back to go back", "확인(OK)으로 변경, 길게 눌러 이동, 뒤로 버튼으로 돌아가기");
+        ko("OK to change, Back to go back", "확인(OK)으로 변경, 뒤로 버튼으로 돌아가기");
+        ko("OK to open  ·  Hold OK to restore  ·  Back to go back", "확인(OK)으로 열기  ·  길게 눌러 복원  ·  뒤로 돌아가기");
+        ko("Changes the words on the home screen, date, weather and settings.", "홈 화면, 날짜, 날씨 및 설정의 표시 언어를 변경합니다.");
+        ko("Active", "활성");
+        ko("Switch", "전환");
+        ko("PROFILES", "프로필");
+        ko("+ Add a person", "+ 프로필 추가");
+        ko("Add a person", "프로필 추가");
+        ko("Each person gets their own pinned apps and Continue Watching list.", "각 프로필마다 고정된 앱과 이어보기 목록이 별도로 저장됩니다.");
+        ko("Rename…", "이름 변경…");
+        ko("Avatar color…", "아바타 색상…");
+        ko("Delete profile", "프로필 삭제");
+        ko("None", "없음");
+        ko("None (Clear action)", "없음 (동작 지우기)");
+        ko("Single Tap (1x)", "한 번 누르기 (1x)");
+        ko("Double Tap (2x)", "두 번 누르기 (2x)");
+        ko("Triple Tap (3x)", "세 번 누르기 (3x)");
+        ko("ACCESSIBILITY SERVICE", "접근성 서비스");
+        ko("Button Mapper service", "버튼 매퍼 서비스");
+        ko("Enable in Accessibility…", "접근성에서 활성화…");
+        ko("REMAPPED BUTTONS", "매핑된 리모컨 버튼");
+        ko("+ Add new button to remap", "+ 매핑할 새 버튼 추가");
+        ko("Listen for a remote key press", "리모컨 버튼 입력 대기");
+        ko("REMOTE FIXES", "리모컨 수정");
+        ko("Long-press volume button fix", "볼륨 버튼 길게 누르기 수정");
+        ko("Clear all button mappings", "모든 버튼 매핑 초기화");
+        ko("ADB & PERMISSIONS", "ADB 및 권한");
+        ko("ADB connection status", "ADB 연결 상태");
+        ko("Pair / Repair ADB connection", "ADB 연결 페어링 / 복구");
+        ko("Check permissions", "권한 확인");
+        ko("Check Permissions", "권한 확인");
+        ko("Grant All via ADB", "ADB로 모든 권한 부여");
+        ko("Repair", "복구");
+        ko("Pair now", "지금 페어링");
+        ko("Paired & Ready", "페어링 완료");
+        ko("Not paired (ADB off)", "페어링 안 됨 (ADB 꺼짐)");
+        ko("active", "활성");
+        ko("KEEP ALIVE", "KEEP ALIVE (자동 권한 복구)");
+        ko("Keep Alive (Auto-repair permissions)", "Keep Alive (권한 자동 복구)");
+        ko("CLEANYOURTV (BETA)", "CLEANYOURTV (베타)");
+        ko("Choose TV model", "TV 모델 선택");
+        ko("Debloat status", "디블로트 상태");
+        ko("Debloat TV…", "TV 최적화 (Debloat)…");
+        ko("Start ›", "시작 ›");
+        ko("Disabled apps backup", "비활성화된 앱 백업");
+        ko("Restore debloated apps…", "비활성화된 앱 복원…");
+        ko("Restore ›", "복원 ›");
+        ko("Ad-blocking Private DNS (AdGuard)", "광고 차단 프라이빗 DNS (AdGuard)");
+        ko("APPLICATION", "애플리케이션");
+        ko("Home screen", "홈 화면");
+        ko("Developer", "개발자");
+        ko("Version", "버전");
+        ko("Settings kept", "설정 저장 위치");
+        ko("On this TV", "이 TV에 저장됨");
+        ko("BACKUP & RESTORE", "백업 및 복원");
+        ko("Backup settings to Download", "Download 폴더에 설정 백업");
+        ko("Restore settings from folder…", "폴더에서 설정 복원…");
+        ko("Choose folder ›", "폴더 선택 ›");
+        ko("RESET", "초기화");
+        ko("Reset settings to defaults", "설정을 기본값으로 초기화");
+        ko("Reset settings?", "설정을 초기화하시겠습니까?");
+        ko("This resets look, scenes, clock and language settings back to defaults.", "외관, 장면, 시계 및 언어 설정을 기본값으로 되돌립니다.");
+        ko("App Icon Editor", "앱 아이콘 편집기");
+        ko("Preview", "미리보기");
+        ko("Background color", "배경 색상");
+        ko("Zoom", "확대/축소");
+        ko("Zoom in", "확대");
+        ko("Zoom out", "축소");
+        ko("Move icon", "아이콘 이동");
+        ko("Up", "위");
+        ko("Down", "아래");
+        ko("Apply", "적용");
+        ko("Auto", "자동");
+        ko("Dark", "다크");
+        ko("Black", "검정");
+        ko("White", "흰색");
+        ko("Gray", "회색");
+        ko("Red", "빨강");
+        ko("Orange", "주황");
+        ko("Yellow", "노랑");
+        ko("Green", "초록");
+        ko("Teal", "청록");
+        ko("Blue", "파랑");
+        ko("Indigo", "남색");
+        ko("Purple", "보라");
+        ko("Pink", "분홍");
+        ko("Done", "완료");
+        ko("Not done", "미완료");
+        ko("apps", "개 앱");
+        ko("packages", "개 패키지");
     }
 
     private I18n() { }
@@ -947,6 +1309,7 @@ public final class I18n {
             case LANG_AR: return Locale.forLanguageTag("ar-SA");
             case LANG_JA: return Locale.forLanguageTag("ja-JP");
             case LANG_ZH: return Locale.forLanguageTag("zh-CN");
+            case LANG_KO: return Locale.forLanguageTag("ko-KR");
             default: return Locale.US;
         }
     }
@@ -1022,6 +1385,8 @@ public final class I18n {
             case LANG_JA:
             case LANG_ZH:
                 return new SimpleDateFormat("M月d日 EEEE", loc).format(date);
+            case LANG_KO:
+                return new SimpleDateFormat("M월 d일 EEEE", loc).format(date);
             case LANG_DE:
                 return new SimpleDateFormat("EEEE, d. MMMM", loc).format(date);
             case LANG_SV:

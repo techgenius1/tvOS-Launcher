@@ -319,10 +319,10 @@ final class LocalAdb {
             } catch (Throwable ignored) {
             }
 
-            // Also restore NotificationListener in-process if supported and missing
+            // Also restore NotificationListener in-process (even on low-RAM TVs where ro.config.low_ram=true,
+            // setting enabled_notification_listeners allows MediaSessionManager.getActiveSessions to work!)
             try {
-                android.app.ActivityManager am = c.getSystemService(android.app.ActivityManager.class);
-                if (am != null && !am.isLowRamDevice() && !MediaWatchService.granted(c)) {
+                if (!MediaWatchService.granted(c)) {
                     String pkg = c.getPackageName();
                     String ourNotif = pkg + "/" + pkg + ".MediaWatchService";
                     String curNotif = Settings.Secure.getString(cr, "enabled_notification_listeners");
@@ -332,6 +332,7 @@ final class LocalAdb {
                         Settings.Secure.putString(cr, "enabled_notification_listeners", curNotif + ":" + ourNotif);
                     }
                 }
+                MediaWatchService.ensureSessionTracking(c);
             } catch (Throwable ignored) {
             }
             return true;
@@ -567,6 +568,8 @@ final class LocalAdb {
             String script = "pm grant " + pkg + " android.permission.WRITE_SECURE_SETTINGS 2>/dev/null; "
                     + "pm grant " + pkg + " android.permission.DUMP 2>/dev/null; "
                     + "pm grant " + pkg + " android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER 2>/dev/null; "
+                    + "pm grant " + pkg + " android.permission.READ_TV_LISTINGS 2>/dev/null; "
+                    + "appops set " + pkg + " READ_TV_LISTINGS allow 2>/dev/null; "
                     + "settings put global hidden_api_policy 1 2>/dev/null; "
                     + "settings put global hidden_api_policy_p_apps 1 2>/dev/null; "
                     + "settings put global hidden_api_policy_pre_p_apps 1 2>/dev/null";
@@ -679,6 +682,8 @@ final class LocalAdb {
             String script = "pm grant " + pkg + " android.permission.WRITE_SECURE_SETTINGS 2>/dev/null; "
                     + "pm grant " + pkg + " android.permission.DUMP 2>/dev/null; "
                     + "pm grant " + pkg + " android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER 2>/dev/null; "
+                    + "pm grant " + pkg + " android.permission.READ_TV_LISTINGS 2>/dev/null; "
+                    + "appops set " + pkg + " READ_TV_LISTINGS allow 2>/dev/null; "
                     + "settings put global hidden_api_policy 1 2>/dev/null; "
                     + "settings put global hidden_api_policy_p_apps 1 2>/dev/null; "
                     + "settings put global hidden_api_policy_pre_p_apps 1 2>/dev/null; "
@@ -794,10 +799,12 @@ final class LocalAdb {
             String pkg = c.getPackageName();
             List<String> cmds = new ArrayList<>();
 
-            // 0. Grant WRITE_SECURE_SETTINGS, DUMP, and SET_VOLUME_KEY_LONG_PRESS_LISTENER so the app can self-repair Accessibility and handle Volume Hold Fix without port 5555!
+            // 0. Grant WRITE_SECURE_SETTINGS, DUMP, SET_VOLUME_KEY_LONG_PRESS_LISTENER, and READ_TV_LISTINGS
             cmds.add("pm grant " + pkg + " android.permission.WRITE_SECURE_SETTINGS 2>/dev/null");
             cmds.add("pm grant " + pkg + " android.permission.DUMP 2>/dev/null");
             cmds.add("pm grant " + pkg + " android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER 2>/dev/null");
+            cmds.add("pm grant " + pkg + " android.permission.READ_TV_LISTINGS 2>/dev/null");
+            cmds.add("appops set " + pkg + " READ_TV_LISTINGS allow 2>/dev/null");
             cmds.add("settings put global hidden_api_policy 1 2>/dev/null");
             cmds.add("settings put global hidden_api_policy_p_apps 1 2>/dev/null");
             cmds.add("settings put global hidden_api_policy_pre_p_apps 1 2>/dev/null");
@@ -837,9 +844,21 @@ final class LocalAdb {
             cmds.add("appops set " + pkg + " GET_USAGE_STATS allow 2>/dev/null");
             cmds.add("appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null");
 
-            // 3. Notification Listener (only if not already granted)
+            // 3. Notification Listener & MediaSession access (both cmd notification allow_listener and
+            // enabled_notification_listeners setting, so low-RAM Android TVs also allow MediaSessionManager!)
+            cmds.add("pm grant " + pkg + " android.permission.MEDIA_CONTENT_CONTROL 2>/dev/null");
             if (!MediaWatchService.granted(c)) {
                 cmds.add("cmd notification allow_listener " + pkg + "/" + pkg + ".MediaWatchService 2>/dev/null");
+                String ourNotif = pkg + "/" + pkg + ".MediaWatchService";
+                String curNotif = "";
+                try {
+                    curNotif = Settings.Secure.getString(c.getContentResolver(), "enabled_notification_listeners");
+                } catch (Throwable ignored) {
+                }
+                String newNotif = (curNotif == null || curNotif.trim().isEmpty() || "null".equalsIgnoreCase(curNotif.trim()))
+                        ? ourNotif
+                        : (curNotif.contains(ourNotif) ? curNotif : (curNotif + ":" + ourNotif));
+                cmds.add("settings put secure enabled_notification_listeners '" + newNotif + "'");
             }
 
             // 4. Accessibility Service (never toggle accessibility_enabled 0, only update if needed)

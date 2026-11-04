@@ -94,12 +94,25 @@ public class SettingsActivity extends Activity {
     private TextView hintView;
 
     private final List<Runnable> refreshers = new ArrayList<>();
-    private final Map<String, Bitmap> sceneThumbCache = new HashMap<>();
+    private static final Map<String, Bitmap> SCENE_THUMB_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ExecutorService THUMB_EXEC =
+            java.util.concurrent.Executors.newFixedThreadPool(2);
+    private static volatile Bitmap sCachedBackdropBmp = null;
+    private static volatile String sCachedBackdropKey = null;
+    private static volatile Bitmap sPlaceholderThumb = null;
     private final Map<String, View> sideRowViews = new HashMap<>();
     private final Map<String, ImageView> sideIcons = new HashMap<>();
     private final Map<String, GradientDrawable> sideIconBgs = new HashMap<>();
     private final Map<String, TextView> sideLabels = new HashMap<>();
     private final Map<String, GradientDrawable> sidePillBgs = new HashMap<>();
+    private final Map<String, Integer> sideRowStates = new HashMap<>();
+    private boolean pendingSidebarRebuildScheduled = false;
+    private final Runnable pendingSidebarRebuild = () -> {
+        pendingSidebarRebuildScheduled = false;
+        if (!isFinishing()) {
+            rebuildMainRows();
+        }
+    };
 
     private String currentSection = LOOK_SCENES;
     private boolean inRows = false;
@@ -244,23 +257,15 @@ public class SettingsActivity extends Activity {
     }
 
     private void buildUi() {
+        getWindow().setBackgroundDrawable(null);
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(0xFF0A080C);
 
-        // Blurred scene backdrop matching couch-tv's Home settings screen
+        // Blurred scene backdrop with baked dark scrim (single full-screen pass instead of 4 layers)
         ImageView bgView = new ImageView(this);
         bgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap blurredBg = buildSettingsBackdrop();
-        if (blurredBg != null) {
-            bgView.setImageDrawable(new BitmapDrawable(getResources(), blurredBg));
-        }
+        bindSettingsBackdropAsync(bgView);
         root.addView(bgView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-        // Dark translucent scrim: rgba(10, 8, 12, 0.80)
-        View scrim = new View(this);
-        scrim.setBackgroundColor(0xCC0A080C);
-        root.addView(scrim, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         // Two-column grid: left sidebar (276dp) + gap (34dp) + right content (1f)
@@ -328,8 +333,6 @@ public class SettingsActivity extends Activity {
         scroller = new ScrollView(this);
         scroller.setVerticalScrollBarEnabled(false);
         scroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        scroller.setVerticalFadingEdgeEnabled(true);
-        scroller.setFadingEdgeLength(u(24));
         scroller.setClipChildren(true);
         scroller.setClipToPadding(true);
         scroller.setPadding(0, 0, 0, 0);
@@ -382,15 +385,39 @@ public class SettingsActivity extends Activity {
         setContentView(root);
     }
 
-    /** Creates the soft blurred scene + dock glow backdrop behind Home settings (matching home-settings.jpg). */
-    private Bitmap buildSettingsBackdrop() {
+    /** Creates or reuses the soft blurred scene + dock glow backdrop behind Home settings without stalling the UI thread. */
+    private void bindSettingsBackdropAsync(final ImageView bgView) {
+        List<String> enabled = Scenes.getEnabledSceneIds(this);
+        final String sceneId = enabled.isEmpty() ? "night" : enabled.get(0);
+        final String key = sceneId + ":" + (Scenes.isCustomId(sceneId) ? "custom" : "asset");
+        Bitmap cached = sCachedBackdropBmp;
+        if (cached != null && !cached.isRecycled() && key.equals(sCachedBackdropKey)) {
+            bgView.setImageDrawable(new BitmapDrawable(getResources(), cached));
+            return;
+        }
+        if (cached != null && !cached.isRecycled()) {
+            bgView.setImageDrawable(new BitmapDrawable(getResources(), cached));
+        }
+        THUMB_EXEC.execute(() -> {
+            Bitmap blurred = buildSettingsBackdrop(sceneId);
+            if (blurred != null) {
+                sCachedBackdropBmp = blurred;
+                sCachedBackdropKey = key;
+                runOnUiThread(() -> {
+                    if (!isFinishing()) {
+                        bgView.setImageDrawable(new BitmapDrawable(getResources(), blurred));
+                    }
+                });
+            }
+        });
+    }
+
+    private static Bitmap buildSettingsBackdropStatic(android.content.Context ctx, String sceneId) {
         try {
-            List<String> enabled = Scenes.getEnabledSceneIds(this);
-            String sceneId = enabled.isEmpty() ? "night" : enabled.get(0);
             Scenes.Spec spec = Scenes.byId(sceneId);
             Bitmap src = Scenes.CUSTOM_ID.equals(sceneId)
-                    ? CustomMedia.getCustomSceneWallpaper(this, 480, 270)
-                    : Scenes.loadAssetBitmap(this, spec.bgAsset, 480, 270);
+                    ? CustomMedia.getCustomSceneWallpaper(ctx, 480, 270)
+                    : Scenes.loadAssetBitmap(ctx, spec.bgAsset, 480, 270);
             if (src == null) return null;
             int w = 240, h = 135;
             Bitmap base = Bitmap.createScaledBitmap(src, w, h, true);
@@ -407,10 +434,63 @@ public class SettingsActivity extends Activity {
             }
             Bitmap blurred = Ui.blur(base, w, h, 8, 3);
             if (blurred != base) base.recycle();
+            if (blurred != null) {
+                new Canvas(blurred).drawColor(0xCC0A080C);
+            }
             return blurred;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private Bitmap buildSettingsBackdrop(String sceneId) {
+        return buildSettingsBackdropStatic(this, sceneId);
+    }
+
+    /** Pre-warms the Settings backdrop and scene/background thumbnails in the background so Settings opens in <16ms. */
+    public static void prewarmCache(final android.content.Context ctx) {
+        if (ctx == null) return;
+        THUMB_EXEC.execute(() -> {
+            try {
+                List<String> enabled = Scenes.getEnabledSceneIds(ctx);
+                String sceneId = enabled.isEmpty() ? "night" : enabled.get(0);
+                String key = sceneId + ":" + (Scenes.isCustomId(sceneId) ? "custom" : "asset");
+                if (sCachedBackdropBmp == null || sCachedBackdropBmp.isRecycled() || !key.equals(sCachedBackdropKey)) {
+                    Bitmap blurred = buildSettingsBackdropStatic(ctx, sceneId);
+                    if (blurred != null) {
+                        sCachedBackdropBmp = blurred;
+                        sCachedBackdropKey = key;
+                    }
+                }
+                int reqW = Ui.px(ctx, 46) * 2;
+                int reqH = Ui.px(ctx, 26) * 2;
+                for (Scenes.Spec spec : Scenes.ALL) {
+                    if (spec.bgAsset == null || spec.bgAsset.isEmpty()) continue;
+                    String tk = spec.bgAsset + ":" + reqW + "x" + reqH;
+                    if (!SCENE_THUMB_CACHE.containsKey(tk)) {
+                        Bitmap raw = Scenes.loadAssetBitmap(ctx, spec.bgAsset, reqW, reqH);
+                        if (raw != null) {
+                            Bitmap scaled = Bitmap.createScaledBitmap(raw, reqW, reqH, true);
+                            if (scaled != raw) raw.recycle();
+                            SCENE_THUMB_CACHE.put(tk, scaled);
+                        }
+                    }
+                }
+                for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
+                    String assetPath = "backgrounds/" + Scenes.CLASSIC_PHOTOS[i][0];
+                    String tk = assetPath + ":" + reqW + "x" + reqH;
+                    if (!SCENE_THUMB_CACHE.containsKey(tk)) {
+                        Bitmap raw = Scenes.loadAssetBitmap(ctx, assetPath, reqW, reqH);
+                        if (raw != null) {
+                            Bitmap scaled = Bitmap.createScaledBitmap(raw, reqW, reqH, true);
+                            if (scaled != raw) raw.recycle();
+                            SCENE_THUMB_CACHE.put(tk, scaled);
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        });
     }
 
     private void buildSidebarRows() {
@@ -420,6 +500,10 @@ public class SettingsActivity extends Activity {
         sideIconBgs.clear();
         sideLabels.clear();
         sidePillBgs.clear();
+        sideRowStates.clear();
+
+        int iconBoxSz = u(27);
+        final float iconRad = iconBoxSz * 0.26f; // Exact squircle corner ratio used by dock app icons
 
         for (int i = 0; i < SIDEBAR_SECTIONS.length; i++) {
             final String secKey = SIDEBAR_SECTIONS[i][0];
@@ -430,26 +514,30 @@ public class SettingsActivity extends Activity {
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setFocusable(true);
             row.setClickable(true);
-            row.setPadding(u(8), u(5), u(14), u(5));
+            row.setClipChildren(false);
+            row.setClipToPadding(false);
+            row.setMinimumHeight(u(35));
+            row.setPadding(u(7), u(4), u(14), u(4));
 
             GradientDrawable pillBg = new GradientDrawable();
             pillBg.setCornerRadius(u(12));
             pillBg.setColor(Color.TRANSPARENT);
             row.setBackground(pillBg);
 
-            // Rounded icon container (.ssec i)
+            // Squircle icon container matching the dock app icon shape (.ssec i)
             FrameLayout iconBox = new FrameLayout(this);
             GradientDrawable iconBg = new GradientDrawable();
-            iconBg.setCornerRadius(u(8));
+            iconBg.setCornerRadius(iconRad);
             iconBg.setColor(0x1AFFFFFF);
             iconBox.setBackground(iconBg);
 
             int iconGlyphSz = u(15);
             ImageView iconIv = new ImageView(this);
+            iconIv.setScaleType(ImageView.ScaleType.FIT_CENTER);
             iconIv.setImageBitmap(Glyphs.get(glyphName, iconGlyphSz, Color.WHITE));
             iconBox.addView(iconIv, new FrameLayout.LayoutParams(iconGlyphSz, iconGlyphSz, Gravity.CENTER));
 
-            LinearLayout.LayoutParams ibLp = new LinearLayout.LayoutParams(u(27), u(27));
+            LinearLayout.LayoutParams ibLp = new LinearLayout.LayoutParams(iconBoxSz, iconBoxSz);
             ibLp.rightMargin = u(11);
             row.addView(iconBox, ibLp);
 
@@ -467,13 +555,15 @@ public class SettingsActivity extends Activity {
                 if (has) {
                     inRows = false;
                     liftedSceneId = null;
-                    if (!secKey.equals(currentSection) || showingHiddenApps || activeSubMenu != null) {
+                    boolean sectionChanged = !secKey.equals(currentSection) || showingHiddenApps || activeSubMenu != null;
+                    if (sectionChanged) {
                         showingHiddenApps = false;
                         activeSubMenu = null;
                         subMenuStack.clear();
                         subMenuParentFocusIdx.clear();
                         currentSection = secKey;
-                        rebuildMainRows();
+                        mainHeadView.setText(sectionTitle(currentSection));
+                        scheduleSidebarRebuild();
                     }
                     updateSidebarStyles();
                     updateHintText(false);
@@ -481,13 +571,13 @@ public class SettingsActivity extends Activity {
                     updateSidebarStyles();
                 }
                 v.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                        .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                        .setDuration(160).start();
             });
 
             row.setOnClickListener(v -> focusFirstRow());
 
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, u(33));
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             rlp.bottomMargin = u(2);
             sideList.addView(row, rlp);
 
@@ -496,6 +586,24 @@ public class SettingsActivity extends Activity {
             sideIconBgs.put(secKey, iconBg);
             sideLabels.put(secKey, label);
             sidePillBgs.put(secKey, pillBg);
+        }
+    }
+
+    private void scheduleSidebarRebuild() {
+        if (sideList == null) {
+            rebuildMainRows();
+            return;
+        }
+        sideList.removeCallbacks(pendingSidebarRebuild);
+        pendingSidebarRebuildScheduled = true;
+        sideList.postDelayed(pendingSidebarRebuild, 32);
+    }
+
+    private void flushPendingSidebarRebuild() {
+        if (pendingSidebarRebuildScheduled) {
+            if (sideList != null) sideList.removeCallbacks(pendingSidebarRebuild);
+            pendingSidebarRebuildScheduled = false;
+            rebuildMainRows();
         }
     }
 
@@ -508,6 +616,10 @@ public class SettingsActivity extends Activity {
             if (row == null) continue;
             boolean focused = row.isFocused();
             boolean active = key.equals(currentSection);
+            int state = focused ? 2 : (active ? 1 : 0);
+            Integer prev = sideRowStates.get(key);
+            if (prev != null && prev == state) continue;
+            sideRowStates.put(key, state);
 
             GradientDrawable pillBg = sidePillBgs.get(key);
             GradientDrawable iconBg = sideIconBgs.get(key);
@@ -543,6 +655,8 @@ public class SettingsActivity extends Activity {
     }
 
     private void selectSection(String sec, boolean focusRightPane, int rowIdx) {
+        if (sideList != null) sideList.removeCallbacks(pendingSidebarRebuild);
+        pendingSidebarRebuildScheduled = false;
         currentSection = sec;
         inRows = focusRightPane;
         rebuildMainRows();
@@ -560,6 +674,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void focusRowAtIndex(int targetIdx) {
+        flushPendingSidebarRebuild();
         View target = null;
         int count = 0;
         for (int i = 0; i < list.getChildCount(); i++) {
@@ -932,7 +1047,8 @@ public class SettingsActivity extends Activity {
         }
         row(tr("Hidden apps", "Gizlenen uygulamalar"),
                 () -> {
-                    int count = listHiddenAppItems().size();
+                    Set<String> hidden = Profiles.homePrefs(this).getStringSet(MainActivity.PREF_HIDDEN, Collections.emptySet());
+                    int count = hidden != null ? hidden.size() : 0;
                     return (count > 0 ? count + "  " : "") + "›";
                 },
                 () -> {
@@ -1144,7 +1260,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             v.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -1446,6 +1562,14 @@ public class SettingsActivity extends Activity {
         row(tr("Open Android TV Settings…", "Android TV Ayarlarını Aç…"),
                 () -> "›",
                 () -> Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS)));
+
+        section(tr("BACKUP & RESTORE", "YEDEKLEME VE GERİ YÜKLEME"));
+        row(tr("Backup settings to Download", "Ayarları Download klasörüne yedekle"),
+                () -> "Download/" + CustomMedia.SETTINGS_BACKUP_FILENAME,
+                () -> CustomMedia.backupSettingsToDownload(this, this::refreshAll));
+        row(tr("Restore settings from folder…", "Klasörden ayarları geri yükle…"),
+                () -> tr("Choose folder ›", "Klasör seç ›"),
+                () -> CustomMedia.showRestoreSettingsPicker(this, this::refreshAll));
     }
 
     void pageAdvanced() {
@@ -1499,7 +1623,7 @@ public class SettingsActivity extends Activity {
                     openSubMenu("cyt_models");
                 });
         row(tr("Debloat status", "Debloat durumu"),
-                () -> CleanYourTv.getDebloatStatusSummary(this),
+                () -> advDebloatSummary != null ? advDebloatSummary : "…",
                 () -> openSubMenu("cyt_saved"));
         row(tr("Debloat TV…", "TV Debloat Başlat…"),
                 () -> tr("Start ›", "Başlat ›"),
@@ -1513,13 +1637,13 @@ public class SettingsActivity extends Activity {
                     }
                 });
         row(tr("Disable system launchers…", "Sistem başlatıcılarını devre dışı bırak…"),
-                () -> CleanYourTv.getSystemLaunchersSummary(this),
+                () -> advLaunchersSummary != null ? advLaunchersSummary : "…",
                 () -> openSubMenu("cyt_launchers"));
         row(tr("Manual debloat (All system apps)…", "Manuel debloat (Tüm sistem uygulamaları)…"),
                 () -> tr("Advanced ›", "Gelişmiş ›"),
                 this::promptManualDebloatWarning);
         row(tr("Disabled apps backup", "Devre dışı bırakılan uygulamalar kaydı"),
-                () -> CleanYourTv.getSavedDisabledSummary(this),
+                () -> advSavedSummary != null ? advSavedSummary : "…",
                 () -> openSubMenu("cyt_saved"));
         row(tr("Restore debloated apps…", "Debloat edilen uygulamaları geri yükle…"),
                 () -> tr("Restore ›", "Geri Yükle ›"),
@@ -1531,7 +1655,45 @@ public class SettingsActivity extends Activity {
         infoNote(tr("CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), disable stock launchers or bloatware, and restore them anytime with one tap.",
                 "CleanYourTV (Beta), bilgisayara ihtiyaç duymadan CleanYourTV debloat profillerini Yerel ADB üzerinden doğrudan TV'nizde çalıştırır. TV modelinizi seçin (veya yüklü sistem uygulaması paketlerine göre tarayın), stok başlatıcıları veya gereksiz uygulamaları devre dışı bırakın ve istediğiniz zaman tek dokunuşla geri yükleyin."));
 
-        LocalAdb.probePortAsync(this, () -> runOnUiThread(this::refreshAll));
+        // Expensive PackageManager scans (launchers, debloat status) run off the UI thread so the
+        // page's first frames aren't blocked; rows show "…" until the values arrive.
+        loadAdvancedSummariesAsync();
+        if (LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_PERSISTENT) {
+            LocalAdb.probePortAsync(this, () -> runOnUiThread(() -> {
+                if (!isFinishing()) refreshAll();
+            }));
+        } else {
+            LocalAdb.portReachable = false;
+        }
+    }
+
+    private volatile String advLaunchersSummary, advDebloatSummary, advSavedSummary;
+    private boolean advSummariesLoading;
+
+    private void loadAdvancedSummariesAsync() {
+        if (advSummariesLoading) return;
+        advSummariesLoading = true;
+        final android.content.Context app = this;
+        new Thread(() -> {
+            String launchers, debloat, saved;
+            try {
+                launchers = CleanYourTv.getSystemLaunchersSummary(app);
+                debloat = CleanYourTv.getDebloatStatusSummary(app);
+                saved = CleanYourTv.getSavedDisabledSummary(app);
+            } catch (Throwable t) {
+                launchers = debloat = saved = "";
+            }
+            final String l = launchers, d = debloat, s = saved;
+            runOnUiThread(() -> {
+                advSummariesLoading = false;
+                boolean changed = !l.equals(advLaunchersSummary) || !d.equals(advDebloatSummary)
+                        || !s.equals(advSavedSummary);
+                advLaunchersSummary = l;
+                advDebloatSummary = d;
+                advSavedSummary = s;
+                if (changed && !isFinishing()) refreshAll();
+            });
+        }, "adv-summaries").start();
     }
 
     private boolean checkingLatestRelease = false;
@@ -1621,6 +1783,14 @@ public class SettingsActivity extends Activity {
         infoRow(tr("Developer", "Geliştirici"), "techgenius", null);
         infoRow(tr("Version", "Sürüm"), version(), null);
         infoRow(tr("Settings kept", "Ayarların saklandığı yer"), tr("On this TV", "Bu TV'de"), null);
+
+        section(tr("BACKUP & RESTORE", "YEDEKLEME VE GERİ YÜKLEME"));
+        row(tr("Backup settings to Download", "Ayarları Download klasörüne yedekle"),
+                () -> "Download/" + CustomMedia.SETTINGS_BACKUP_FILENAME,
+                () -> CustomMedia.backupSettingsToDownload(this, this::refreshAll));
+        row(tr("Restore settings from folder…", "Klasörden ayarları geri yükle…"),
+                () -> tr("Choose folder ›", "Klasör seç ›"),
+                () -> CustomMedia.showRestoreSettingsPicker(this, this::refreshAll));
 
         section(tr("RESET", "SIFIRLAMA"));
         row(tr("Reset settings to defaults", "Ayarları varsayılana sıfırla"),
@@ -3068,12 +3238,22 @@ public class SettingsActivity extends Activity {
         for (int i = start; i < end; i++) {
             final CleanYourTv.DebloatItem item = filtered.get(i);
             final boolean isCurrentlyEnabled = item.checked;
-            String statusTag = isCurrentlyEnabled
-                    ? tr(" [Enabled]", " [Etkin]")
-                    : tr(" [Disabled]", " [Devre Dışı]");
+            final boolean isCritical = CleanYourTv.isCriticalProtectedService(item.pkg, item.appLabel);
+            String statusTag = isCritical && isCurrentlyEnabled
+                    ? tr(" [Critical System Service — Protected]", " [Kritik Sistem Servisi — Korumalı]")
+                    : (isCurrentlyEnabled
+                            ? tr(" [Enabled]", " [Etkin]")
+                            : tr(" [Disabled]", " [Devre Dışı]"));
             String sub = item.pkg + "  •  " + item.description;
             choiceRow(item.appLabel + statusTag, sub, !isCurrentlyEnabled, () -> {
-                if (isCurrentlyEnabled && item.optionalChoice) {
+                if (isCurrentlyEnabled && isCritical) {
+                    dialog(tr("🛑 Critical System Service", "🛑 Kritik Sistem Servisi"))
+                            .setMessage(tr(
+                                    item.appLabel + " (" + item.pkg + ") is a critical system service required for your TV remote and Bluetooth connectivity.\n\nIt cannot be disabled under any circumstances.",
+                                    item.appLabel + " (" + item.pkg + ") TV kumandanız ve Bluetooth bağlantısı için gerekli kritik bir sistem servisidir.\n\nHiçbir koşulda devre dışı bırakılamaz."))
+                            .setPositiveButton(tr("OK", "Tamam"), null)
+                            .show();
+                } else if (isCurrentlyEnabled && item.optionalChoice) {
                     dialog(tr("⚠️ Core System Package", "⚠️ Temel Sistem Paketi"))
                             .setMessage(tr(
                                     item.appLabel + " (" + item.pkg + ") is a core system package.\n\nDisabling it may break system settings, TV inputs, or cause instability. Disable anyway?",
@@ -3222,16 +3402,57 @@ public class SettingsActivity extends Activity {
 
     private Bitmap getSceneThumb(String assetPath, int reqW, int reqH) {
         String key = assetPath + ":" + reqW + "x" + reqH;
-        Bitmap cached = sceneThumbCache.get(key);
-        if (cached != null) return cached;
+        Bitmap cached = SCENE_THUMB_CACHE.get(key);
+        if (cached != null && !cached.isRecycled()) return cached;
         Bitmap raw = Scenes.loadAssetBitmap(this, assetPath, reqW, reqH);
         if (raw != null) {
             Bitmap scaled = Bitmap.createScaledBitmap(raw, reqW, reqH, true);
             if (scaled != raw) raw.recycle();
-            sceneThumbCache.put(key, scaled);
+            SCENE_THUMB_CACHE.put(key, scaled);
             return scaled;
         }
         return null;
+    }
+
+    private void bindAssetThumbAsync(final ImageView thumb, final String assetPath, final int reqW, final int reqH) {
+        if (assetPath == null || assetPath.isEmpty()) return;
+        final String key = assetPath + ":" + reqW + "x" + reqH;
+        Bitmap cached = SCENE_THUMB_CACHE.get(key);
+        if (cached != null && !cached.isRecycled()) {
+            thumb.setImageBitmap(cached);
+            return;
+        }
+        thumb.setImageBitmap(buildPlaceholderThumb(reqW, reqH));
+        THUMB_EXEC.execute(() -> {
+            Bitmap loaded = getSceneThumb(assetPath, reqW, reqH);
+            if (loaded != null) {
+                runOnUiThread(() -> {
+                    if (!isFinishing()) thumb.setImageBitmap(loaded);
+                });
+            }
+        });
+    }
+
+    private void bindCustomThumbAsync(final ImageView thumb, final String cacheKey, final int reqW, final int reqH,
+                                      final java.util.concurrent.Callable<Bitmap> loader) {
+        Bitmap cached = SCENE_THUMB_CACHE.get(cacheKey);
+        if (cached != null && !cached.isRecycled()) {
+            thumb.setImageBitmap(cached);
+            return;
+        }
+        thumb.setImageBitmap(buildPlaceholderThumb(reqW, reqH));
+        THUMB_EXEC.execute(() -> {
+            try {
+                Bitmap loaded = loader.call();
+                if (loaded != null) {
+                    SCENE_THUMB_CACHE.put(cacheKey, loaded);
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) thumb.setImageBitmap(loaded);
+                    });
+                }
+            } catch (Throwable ignored) {
+            }
+        });
     }
 
     /** Sub-heading (.shead in couch-tv). */
@@ -3314,7 +3535,7 @@ public class SettingsActivity extends Activity {
                 mark.setImageBitmap(has ? cachedCheckDark : cachedCheckWhite);
             }
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> onClick.run());
 
@@ -3350,8 +3571,7 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = getSceneThumb(spec.bgAsset, tw * 2, th * 2);
-        if (tbmp != null) thumb.setImageBitmap(tbmp);
+        bindAssetThumbAsync(thumb, spec.bgAsset, tw * 2, th * 2);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -3402,7 +3622,7 @@ public class SettingsActivity extends Activity {
             float scale = has ? (isLifted ? 1.04f : 1.02f) : 1f;
             float tx = has && isLifted ? u(6) : 0f;
             view.animate().scaleX(scale).scaleY(scale).translationX(tx)
-                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -3444,6 +3664,10 @@ public class SettingsActivity extends Activity {
     }
 
     private Bitmap buildPlaceholderThumb(int w, int h) {
+        Bitmap cached = sPlaceholderThumb;
+        if (cached != null && !cached.isRecycled() && cached.getWidth() == w && cached.getHeight() == h) {
+            return cached;
+        }
         Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -3457,6 +3681,7 @@ public class SettingsActivity extends Activity {
         if (glyph != null) {
             c.drawBitmap(glyph, (w - gsz) / 2f, (h - gsz) / 2f, null);
         }
+        sPlaceholderThumb = bmp;
         return bmp;
     }
 
@@ -3476,6 +3701,8 @@ public class SettingsActivity extends Activity {
                 null,
                 bmp -> {
                     if (CustomMedia.setCustomSceneWallpaper(this, slot, bmp)) {
+                        SCENE_THUMB_CACHE.remove("custom_scene:" + slot);
+                        sCachedBackdropKey = null;
                         Scenes.enableCustomScene(this, slot, true);
                         rebuildMainRows();
                         showStatusMsg(tr("Custom scene wallpaper updated.", "Özel sahne duvar kağıdı güncellendi."));
@@ -3509,13 +3736,12 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = CustomMedia.hasCustomSceneWallpaper(this, slot)
-                ? CustomMedia.getCustomSceneWallpaper(this, slot, tw * 2, th * 2)
-                : null;
-        if (tbmp == null) {
-            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        if (CustomMedia.hasCustomSceneWallpaper(this, slot)) {
+            bindCustomThumbAsync(thumb, "custom_scene:" + slot, tw * 2, th * 2,
+                    () -> CustomMedia.getCustomSceneWallpaper(this, slot, tw * 2, th * 2));
+        } else {
+            thumb.setImageBitmap(buildPlaceholderThumb(tw * 2, th * 2));
         }
-        thumb.setImageBitmap(tbmp);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -3560,7 +3786,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -3627,6 +3853,7 @@ public class SettingsActivity extends Activity {
                 null,
                 bmp -> {
                     if (CustomMedia.setCustomClassicWallpaper(this, bmp)) {
+                        SCENE_THUMB_CACHE.remove("custom_classic");
                         Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.CUSTOM_WALL_KEY).apply();
                         rebuildMainRows();
                         showStatusMsg(tr("Custom background updated.", "Özel arka plan güncellendi."));
@@ -3656,13 +3883,17 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = CustomMedia.hasCustomClassicWallpaper(this)
-                ? CustomMedia.getCustomClassicWallpaper(this)
-                : null;
-        if (tbmp == null) {
-            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        if (CustomMedia.hasCustomClassicWallpaper(this)) {
+            bindCustomThumbAsync(thumb, "custom_classic", tw * 2, th * 2, () -> {
+                Bitmap full = CustomMedia.getCustomClassicWallpaper(this);
+                if (full == null) return null;
+                Bitmap scaled = Bitmap.createScaledBitmap(full, tw * 2, th * 2, true);
+                if (scaled != full) full.recycle();
+                return scaled;
+            });
+        } else {
+            thumb.setImageBitmap(buildPlaceholderThumb(tw * 2, th * 2));
         }
-        thumb.setImageBitmap(tbmp);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -3702,7 +3933,7 @@ public class SettingsActivity extends Activity {
                 mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
             }
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -3747,6 +3978,7 @@ public class SettingsActivity extends Activity {
                 CustomMedia.SCOPE_SCENE,
                 tr("Choose wallpaper folder to shuffle", "Karıştırılacak duvar kağıdı klasörünü seçin"),
                 dir -> {
+                    SCENE_THUMB_CACHE.remove("folder_scene");
                     Scenes.enableFolderShuffleScene(this, true);
                     rebuildMainRows();
                     showStatusMsg(tr("Folder shuffle enabled: " + dir.getName(),
@@ -3757,9 +3989,7 @@ public class SettingsActivity extends Activity {
     private void folderShuffleSceneRow() {
         final String fid = Scenes.FOLDER_SHUFFLE_ID;
         boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_SCENE);
-        String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_SCENE);
-        String labelText = tr("Folder shuffle", "Klasör karıştırma")
-                + (hasFolder && !summary.isEmpty() ? "  ·  " + summary : "");
+        final String baseTitle = tr("Folder shuffle", "Klasör karıştırma");
 
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -3778,13 +4008,12 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = hasFolder
-                ? CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_SCENE, tw * 2, th * 2, false)
-                : null;
-        if (tbmp == null) {
-            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        if (hasFolder) {
+            bindCustomThumbAsync(thumb, "folder_scene", tw * 2, th * 2,
+                    () -> CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_SCENE, tw * 2, th * 2, false));
+        } else {
+            thumb.setImageBitmap(buildPlaceholderThumb(tw * 2, th * 2));
         }
-        thumb.setImageBitmap(tbmp);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -3798,13 +4027,23 @@ public class SettingsActivity extends Activity {
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
-        l.setText(labelText);
+        l.setText(baseTitle);
         l.setTextColor(0xEBF4F4F6);
         l.setTypeface(Ui.font(this, "semibold"));
         Ui.textSize(l, 14.5f);
         l.setSingleLine(true);
         l.setEllipsize(TextUtils.TruncateAt.END);
         r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (hasFolder) {
+            THUMB_EXEC.execute(() -> {
+                String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_SCENE);
+                if (!summary.isEmpty()) {
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) l.setText(baseTitle + "  ·  " + summary);
+                    });
+                }
+            });
+        }
 
         int cs = u(20);
         ImageView check = new ImageView(this);
@@ -3830,7 +4069,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -3892,6 +4131,7 @@ public class SettingsActivity extends Activity {
                 CustomMedia.SCOPE_CLASSIC,
                 tr("Choose background folder to shuffle", "Karıştırılacak arka plan klasörünü seçin"),
                 dir -> {
+                    SCENE_THUMB_CACHE.remove("folder_classic");
                     Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.FOLDER_SHUFFLE_WALL_KEY).apply();
                     rebuildMainRows();
                     showStatusMsg(tr("Folder shuffle enabled: " + dir.getName(),
@@ -3901,9 +4141,7 @@ public class SettingsActivity extends Activity {
 
     private void folderShuffleClassicRow(boolean checked) {
         boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_CLASSIC);
-        String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_CLASSIC);
-        String labelText = tr("Folder shuffle", "Klasör karıştırma")
-                + (hasFolder && !summary.isEmpty() ? "  ·  " + summary : "");
+        final String baseTitle = tr("Folder shuffle", "Klasör karıştırma");
 
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -3921,13 +4159,12 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = hasFolder
-                ? CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_CLASSIC, tw * 2, th * 2, false)
-                : null;
-        if (tbmp == null) {
-            tbmp = buildPlaceholderThumb(tw * 2, th * 2);
+        if (hasFolder) {
+            bindCustomThumbAsync(thumb, "folder_classic", tw * 2, th * 2,
+                    () -> CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_CLASSIC, tw * 2, th * 2, false));
+        } else {
+            thumb.setImageBitmap(buildPlaceholderThumb(tw * 2, th * 2));
         }
-        thumb.setImageBitmap(tbmp);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -3941,13 +4178,23 @@ public class SettingsActivity extends Activity {
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
-        l.setText(labelText);
+        l.setText(baseTitle);
         l.setTextColor(0xEBF4F4F6);
         l.setTypeface(Ui.font(this, "semibold"));
         Ui.textSize(l, 14.5f);
         l.setSingleLine(true);
         l.setEllipsize(TextUtils.TruncateAt.END);
         r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (hasFolder) {
+            THUMB_EXEC.execute(() -> {
+                String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_CLASSIC);
+                if (!summary.isEmpty()) {
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) l.setText(baseTitle + "  ·  " + summary);
+                    });
+                }
+            });
+        }
 
         int cs = u(17);
         ImageView mark = new ImageView(this);
@@ -3968,7 +4215,7 @@ public class SettingsActivity extends Activity {
                 mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
             }
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -4076,11 +4323,12 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = (assetPath != null && !assetPath.isEmpty()) ? getSceneThumb(assetPath, tw * 2, th * 2) : null;
-        if (tbmp == null) {
-            tbmp = MainActivity.makeWallpaperBase(id);
+        if (assetPath != null && !assetPath.isEmpty()) {
+            bindAssetThumbAsync(thumb, assetPath, tw * 2, th * 2);
+        } else {
+            Bitmap tbmp = MainActivity.makeWallpaperBase(id);
+            if (tbmp != null) thumb.setImageBitmap(tbmp);
         }
-        if (tbmp != null) thumb.setImageBitmap(tbmp);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -4125,7 +4373,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -4154,6 +4402,7 @@ public class SettingsActivity extends Activity {
                 null,
                 bmp -> {
                     if (CustomMedia.setCustomLockWallpaper(this, bmp)) {
+                        SCENE_THUMB_CACHE.remove("custom_lock");
                         Scenes.enableLockScene(this, Scenes.LOCK_CUSTOM_ID, true);
                         rebuildMainRows();
                         showStatusMsg(tr("Custom Lock Screen image updated.", "Özel Kilit Ekranı görseli güncellendi."));
@@ -4180,9 +4429,12 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = hasCustom ? CustomMedia.getCustomLockWallpaper(this, tw * 2, th * 2) : null;
-        if (tbmp == null) tbmp = buildPlaceholderThumb(tw * 2, th * 2);
-        thumb.setImageBitmap(tbmp);
+        if (hasCustom) {
+            bindCustomThumbAsync(thumb, "custom_lock", tw * 2, th * 2,
+                    () -> CustomMedia.getCustomLockWallpaper(this, tw * 2, th * 2));
+        } else {
+            thumb.setImageBitmap(buildPlaceholderThumb(tw * 2, th * 2));
+        }
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -4227,7 +4479,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -4275,6 +4527,7 @@ public class SettingsActivity extends Activity {
                 CustomMedia.SCOPE_LOCK,
                 tr("Choose Lock Screen folder to shuffle", "Karıştırılacak Kilit Ekranı klasörünü seçin"),
                 dir -> {
+                    SCENE_THUMB_CACHE.remove("folder_lock");
                     Scenes.enableLockScene(this, Scenes.LOCK_FOLDER_SHUFFLE_ID, true);
                     rebuildMainRows();
                     showStatusMsg(tr("Lock Screen folder shuffle enabled: " + dir.getName(),
@@ -4285,9 +4538,7 @@ public class SettingsActivity extends Activity {
     private void lockFolderShuffleRow() {
         final String fid = Scenes.LOCK_FOLDER_SHUFFLE_ID;
         boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_LOCK);
-        String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_LOCK);
-        String labelText = tr("Folder shuffle", "Klasör karıştırma")
-                + (hasFolder && !summary.isEmpty() ? "  ·  " + summary : "");
+        final String baseTitle = tr("Folder shuffle", "Klasör karıştırma");
 
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -4305,11 +4556,12 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = hasFolder
-                ? CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_LOCK, tw * 2, th * 2, false)
-                : null;
-        if (tbmp == null) tbmp = buildPlaceholderThumb(tw * 2, th * 2);
-        thumb.setImageBitmap(tbmp);
+        if (hasFolder) {
+            bindCustomThumbAsync(thumb, "folder_lock", tw * 2, th * 2,
+                    () -> CustomMedia.getNextShuffledFolderBitmap(this, CustomMedia.SCOPE_LOCK, tw * 2, th * 2, false));
+        } else {
+            thumb.setImageBitmap(buildPlaceholderThumb(tw * 2, th * 2));
+        }
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -4323,13 +4575,23 @@ public class SettingsActivity extends Activity {
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
-        l.setText(labelText);
+        l.setText(baseTitle);
         l.setTextColor(0xEBF4F4F6);
         l.setTypeface(Ui.font(this, "semibold"));
         Ui.textSize(l, 14.5f);
         l.setSingleLine(true);
         l.setEllipsize(TextUtils.TruncateAt.END);
         r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (hasFolder) {
+            THUMB_EXEC.execute(() -> {
+                String summary = CustomMedia.getWallpaperShuffleFolderSummary(this, CustomMedia.SCOPE_LOCK);
+                if (!summary.isEmpty()) {
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) l.setText(baseTitle + "  ·  " + summary);
+                    });
+                }
+            });
+        }
 
         int cs = u(20);
         ImageView check = new ImageView(this);
@@ -4355,7 +4617,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(10) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -4413,8 +4675,7 @@ public class SettingsActivity extends Activity {
         int tw = u(46), th = u(26);
         ImageView thumb = new ImageView(this);
         thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap tbmp = getSceneThumb(assetPath, tw * 2, th * 2);
-        if (tbmp != null) thumb.setImageBitmap(tbmp);
+        bindAssetThumbAsync(thumb, assetPath, tw * 2, th * 2);
         final float trad = u(5.5f);
         thumb.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -4454,7 +4715,7 @@ public class SettingsActivity extends Activity {
                 mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
             }
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> onClick.run());
 
@@ -4521,7 +4782,7 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             v.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> {
             action.run();
@@ -4605,7 +4866,7 @@ public class SettingsActivity extends Activity {
             v.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
             chev.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
             view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .translationZ(has ? u(8) : 0f).setDuration(180).start();
+                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> {
             action.run();
@@ -4907,7 +5168,7 @@ public class SettingsActivity extends Activity {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception e) {
-            return "2.0.5";
+            return "2.1.2";
         }
     }
 

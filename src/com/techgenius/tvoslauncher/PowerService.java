@@ -43,6 +43,7 @@ public class PowerService extends AccessibilityService {
     private AudioManager audioManager;
     private volatile int volDir = 0;
     private volatile long volDownTime = 0L;
+    private volatile long lastKeyActiveTime = 0L;
     private volatile long lastDownTime = 0L;
     private volatile int lastDownDir = 0;
     private volatile long lastPulseDuration = 999L;
@@ -102,7 +103,8 @@ public class PowerService extends AccessibilityService {
         public void run() {
             int d = volDir;
             if (d == 0) return;
-            if (SystemClock.uptimeMillis() - volDownTime > 4500L) {
+            long activeRef = Math.max(volDownTime, lastKeyActiveTime);
+            if (SystemClock.uptimeMillis() - activeRef > 4500L) {
                 volDir = 0;
                 return;
             }
@@ -137,7 +139,9 @@ public class PowerService extends AccessibilityService {
             }
             handler.removeCallbacks(volRepeatRunnable);
             volDir = dir;
-            volDownTime = SystemClock.uptimeMillis();
+            long now = SystemClock.uptimeMillis();
+            volDownTime = now;
+            lastKeyActiveTime = now;
             handler.postDelayed(volRepeatRunnable, 320L);
             return;
         }
@@ -145,7 +149,10 @@ public class PowerService extends AccessibilityService {
         // Mode 2 (HY320 / Projector): 280ms initial delay + IR repeat & pulse-burst handling
         long now = SystemClock.uptimeMillis();
         if (down) {
-            volDownTime = now;
+            lastKeyActiveTime = now;
+            if (volDir != dir) {
+                volDownTime = now;
+            }
             if (isRepeat) {
                 if (now - lastStepTime >= 70L) {
                     stepVolume(dir);
@@ -171,6 +178,7 @@ public class PowerService extends AccessibilityService {
             lastDownTime = now;
             if (volDir != dir) {
                 volDir = dir;
+                volDownTime = now;
                 handler.removeCallbacks(volRepeatRunnable);
                 handler.postDelayed(volRepeatRunnable, VOL_REPEAT_INITIAL_MS);
             }
@@ -201,6 +209,7 @@ public class PowerService extends AccessibilityService {
         }
         syncVolumeHoldFix();
         LocalAdb.ensureKeepAliveWatchdog(this);
+        MediaWatchService.ensureSessionTracking(this);
 
         // If "Launch Automatically on System Boot" is enabled and the system just booted,
         // AccessibilityService connects much earlier than BOOT_COMPLETED on many TVs: launch Home immediately!
@@ -485,6 +494,7 @@ public class PowerService extends AccessibilityService {
             String prevLastWmLine = null;
             boolean baselineInitialized = false;
             boolean wmKeyIsDown = false;
+            int zeroKeyDownTicks = 0;
             long lastFastPulseMs = 0L;
             int lastFastPulseDir = 0;
 
@@ -581,7 +591,9 @@ public class PowerService extends AccessibilityService {
                         prevLastWmLine = lastWmLine;
                         baselineInitialized = true;
                     } else if (lastWmLine == null) {
-                        prevLastWmLine = null;
+                        if (!wmKeyIsDown) {
+                            prevLastWmLine = null;
+                        }
                     } else if (!lastWmLine.equals(prevLastWmLine)) {
                         int dir = 0;
                         if (lastWmLine.contains("dir:ADJUST_RAISE")) {
@@ -597,6 +609,8 @@ public class PowerService extends AccessibilityService {
                                 int kd = checkHardwareKeyDownState(inputBinder);
                                 if (kd == 1 || (kd == -1 && !wmKeyIsDown && singleNewEvent)) {
                                     wmKeyIsDown = true;
+                                    zeroKeyDownTicks = 0;
+                                    lastKeyActiveTime = SystemClock.uptimeMillis();
                                     prevLastWmLine = lastWmLine;
                                     final int d = dir;
                                     handler.post(() -> onVolumeKeyState(d, true, false));
@@ -604,6 +618,7 @@ public class PowerService extends AccessibilityService {
                                     prevLastWmLine = lastWmLine;
                                     if (wmKeyIsDown) {
                                         wmKeyIsDown = false;
+                                        zeroKeyDownTicks = 0;
                                         handler.post(() -> onVolumeKeyState(0, false, false));
                                     }
                                 }
@@ -612,45 +627,86 @@ public class PowerService extends AccessibilityService {
                                 prevLastWmLine = lastWmLine;
                                 if (wmKeyIsDown) {
                                     wmKeyIsDown = false;
+                                    zeroKeyDownTicks = 0;
                                     handler.post(() -> onVolumeKeyState(0, false, false));
                                 }
                             }
                         } else {
-                            // Mode 2 (HY320 / Projector): Keep exact existing Mode 2 behavior untouched
-                            if (!wmKeyIsDown) {
-                                boolean singleNewEvent = (prevLastWmLine == null && secondLastWmLine == null)
-                                        || (prevLastWmLine != null && secondLastWmLine != null && secondLastWmLine.equals(prevLastWmLine));
-                                if (singleNewEvent && dir != 0) {
-                                    wmKeyIsDown = true;
-                                    prevLastWmLine = lastWmLine;
-                                    final int d = dir;
-                                    handler.post(() -> onVolumeKeyState(d, true, false));
-                                } else {
+                            // Mode 2 (HY320 / Projector): Combine AudioService dump with InputReader hardware key state
+                            // so holding longer than ~1.5s never gets out-of-phase or mistakes ACTION_UP for ACTION_DOWN
+                            int kd = checkHardwareKeyDownState(inputBinder);
+                            if (dir == 0 || kd == 0) {
+                                // Hardware key is already UP (released) or dir is ADJUST_SAME
+                                prevLastWmLine = lastWmLine;
+                                if (wmKeyIsDown) {
+                                    wmKeyIsDown = false;
+                                    zeroKeyDownTicks = 0;
+                                    handler.post(() -> onVolumeKeyState(0, false, false));
+                                } else if (dir != 0) {
                                     long nowMs = SystemClock.uptimeMillis();
-                                    if (dir != 0 && lastFastPulseDir == dir && (nowMs - lastFastPulseMs) < 250L) {
+                                    if (lastFastPulseDir == dir && (nowMs - lastFastPulseMs) < 220L) {
                                         final int d = dir;
                                         handler.post(() -> stepVolume(d));
                                     }
                                     lastFastPulseDir = dir;
                                     lastFastPulseMs = nowMs;
-                                    prevLastWmLine = lastWmLine;
+                                }
+                            } else if (kd == 1) {
+                                // Hardware key is physically held DOWN right now
+                                zeroKeyDownTicks = 0;
+                                lastKeyActiveTime = SystemClock.uptimeMillis();
+                                prevLastWmLine = lastWmLine;
+                                if (!wmKeyIsDown) {
+                                    wmKeyIsDown = true;
+                                    final int d = dir;
+                                    handler.post(() -> onVolumeKeyState(d, true, false));
                                 }
                             } else {
-                                wmKeyIsDown = false;
-                                prevLastWmLine = lastWmLine;
-                                handler.post(() -> onVolumeKeyState(0, false, false));
+                                // Fallback when InputReader state is unavailable (kd == -1)
+                                if (!wmKeyIsDown) {
+                                    boolean singleNewEvent = (prevLastWmLine == null && secondLastWmLine == null)
+                                            || (prevLastWmLine != null && secondLastWmLine != null && secondLastWmLine.equals(prevLastWmLine));
+                                    if (singleNewEvent && dir != 0) {
+                                        wmKeyIsDown = true;
+                                        zeroKeyDownTicks = 0;
+                                        lastKeyActiveTime = SystemClock.uptimeMillis();
+                                        prevLastWmLine = lastWmLine;
+                                        final int d = dir;
+                                        handler.post(() -> onVolumeKeyState(d, true, false));
+                                    } else {
+                                        long nowMs = SystemClock.uptimeMillis();
+                                        if (dir != 0 && lastFastPulseDir == dir && (nowMs - lastFastPulseMs) < 250L) {
+                                            final int d = dir;
+                                            handler.post(() -> stepVolume(d));
+                                        }
+                                        lastFastPulseDir = dir;
+                                        lastFastPulseMs = nowMs;
+                                        prevLastWmLine = lastWmLine;
+                                    }
+                                } else {
+                                    wmKeyIsDown = false;
+                                    zeroKeyDownTicks = 0;
+                                    prevLastWmLine = lastWmLine;
+                                    handler.post(() -> onVolumeKeyState(0, false, false));
+                                }
                             }
                         }
                     }
 
-                    // In Mode 1, while wmKeyIsDown is true, poll InputReader hardware KeyDowns every 45ms so releasing the button stops immediately
-                    if (mode == ButtonMapper.VOLUME_FIX_MODE_1 && wmKeyIsDown) {
+                    // While wmKeyIsDown is true (both Mode 1 & Mode 2), poll InputReader hardware KeyDowns every 45ms
+                    // so releasing the button after a short or long hold always stops volume adjustment immediately.
+                    if (wmKeyIsDown) {
                         int kd = checkHardwareKeyDownState(inputBinder);
                         if (kd == 0) {
-                            wmKeyIsDown = false;
-                            handler.post(() -> onVolumeKeyState(0, false, false));
+                            zeroKeyDownTicks++;
+                            if (mode == ButtonMapper.VOLUME_FIX_MODE_1 || zeroKeyDownTicks >= 2) {
+                                wmKeyIsDown = false;
+                                zeroKeyDownTicks = 0;
+                                handler.post(() -> onVolumeKeyState(0, false, false));
+                            }
                         } else if (kd == 1) {
-                            volDownTime = SystemClock.uptimeMillis();
+                            zeroKeyDownTicks = 0;
+                            lastKeyActiveTime = SystemClock.uptimeMillis();
                         }
                     }
 
@@ -687,6 +743,17 @@ public class PowerService extends AccessibilityService {
     protected boolean onKeyEvent(KeyEvent event) {
         if (event == null) return false;
         int code = event.getKeyCode();
+        if (event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0
+                && (code == KeyEvent.KEYCODE_BACK
+                    || code == KeyEvent.KEYCODE_HOME
+                    || code == KeyEvent.KEYCODE_ESCAPE
+                    || code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                    || code == KeyEvent.KEYCODE_MEDIA_STOP
+                    || code == KeyEvent.KEYCODE_MEDIA_PAUSE
+                    || code == KeyEvent.KEYCODE_DPAD_CENTER)) {
+            MediaWatchService.pollActiveSessionsImmediate(this);
+        }
         // Fallback when LocalAdb getevent watcher is not connected (Mode 1 or when DUMP permission is not active)
         if (!LocalAdb.volWatchConnected
                 && (ButtonMapper.getVolumeHoldFixMode(this) == ButtonMapper.VOLUME_FIX_MODE_1 || !LocalAdb.hasDumpPermission(this))
@@ -763,6 +830,16 @@ public class PowerService extends AccessibilityService {
         if (e != null && e.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && e.getPackageName() != null) {
             String fgPkg = e.getPackageName().toString();
             RecentAppsOverlay.recordAppUsed(this, fgPkg);
+            MediaWatchService.pollActiveSessionsAsync(this);
+
+            // Fire TV Stick ("Home on Fire" style) & OEM Home Button Fix:
+            // On Fire OS 7/8, Amazon intercepts KEYCODE_HOME before onKeyEvent and launches com.amazon.tv.launcher
+            // or com.amazon.firehomestarter. When Home Button Fix is enabled, intercept its window immediately!
+            if (ButtonMapper.isHomeFixEnabled(this)
+                    && ("com.amazon.tv.launcher".equals(fgPkg) || "com.amazon.firehomestarter".equals(fgPkg))) {
+                BootReceiver.launchHomeImmediately(this);
+                return;
+            }
 
             // Fast boot guard: during the first 40s after system boot, if "Launch on System Boot" is enabled
             // and a stock OEM/Chinese TV launcher pops to the foreground, immediately bring tvOS Launcher to front!

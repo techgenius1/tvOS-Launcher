@@ -1,7 +1,7 @@
-# tvOS Launcher (`v2.1.0`)
+# tvOS Launcher (`v2.1.2`)
 
 > 🇹🇷 **Türkçe dokümantasyon ve kurulum rehberi için:** **[README_TR.md (Türkçe)](README_TR.md)**  
-> 📦 **Download Latest APK (`v2.1.0`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **Download Latest APK (`v2.1.2`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Header](screenshots_en/Header_EN.jpg)
 
@@ -9,7 +9,37 @@ A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Goo
 
 ---
 
-## 🆕 What's New in `v2.1.0` (Changes Since `v2.0.5`)
+## 🆕 What's New in `v2.1.2`
+
+- **Universal Continue Watching for All Media Apps**:
+  - Expanded Continue Watching support beyond YouTube to all installed media apps (Prime Video, HBO Max, Tivimate, Netflix, Disney+, Apple TV+, etc.) using Android TV `TvContract` EPG / Watch Next content provider, `MediaSessionManager` active session tracking, and notification listeners.
+  - **Dock-Linked Focused App Filtering**: The Continue Watching shelf now only displays content for the media app currently focused on the dock (YouTube no longer shows permanently by default when hovering over other apps).
+  - **Integrated Stremio & Nuvio Dock Popups**: Integrated Continue Watching popups directly above dock tiles for Stremio and Nuvio, complete with QR code sign-in, multi-profile switching, and instant local caching.
+  - **Fluid RenderNode Entrance & Exit Animation**: Smooth float-up and glide-down animations with zero GPU overdraw overhead (`hasOverlappingRendering = false`).
+  - **Instant App Switching (No Re-Animation)**: Switching between two apps that both have Continue Watching content swaps the row instantly without re-animating; the entrance animation only triggers when moving from an app without a shelf to one with a shelf, or when the shelf closes.
+  - **Home Button Stability**: Pressing Home on the remote preserves the Continue Watching row and dock without triggering unintended re-entrance animations.
+- **Settings Backup & Restore (`Settings → System / About / Quick & Home`)**:
+  - Full backup of launcher preferences, dock order, custom app names, custom icons, button remapping, and scene settings to `Download/tvos-launcher-settings.json`.
+  - Built-in directory picker to restore settings from internal storage or external USB drives with one click.
+- **Korean Language Localization (한국어)**:
+  - Added full Korean localization across all launcher screens, setup wizard, settings sidebar, debloat tools, dialogs, and button mapper (`I18n.java`).
+- **CleanYourTV & MiBluetooth Protection**:
+  - Marked `MiBluetooth` (`com.xiaomi.bluetooth`, `com.mi.bluetooth`, `com.xiaomi.mitv.bluetooth`, etc.) as a critical system service in Manual Debloat and completely prohibited disabling it to prevent remote control unpairing or Bluetooth connectivity issues on Xiaomi TVs and Mi Boxes.
+- **HY320 / Projector Volume Button Hold Fix (Mode 2 & Mode 1)**:
+  - Fixed an issue in Mode 2 where holding the volume button for slightly longer than usual would sometimes continue adjusting after release; added release debouncing, timeout watchdogs, and proper cancellation across both ADB On and ADB Off modes.
+- **Launcher Settings Performance & UI Refinements**:
+  - Opening Launcher Settings from Quick Settings or the Dock is now significantly faster: heavy synchronous system app scans (`CleanYourTv.getSystemLaunchersSummary`, `getDebloatStatusSummary`) are offloaded to background threads with placeholder loading (`…`).
+  - Pre-warmed cache and debounced sidebar rebuilds to ensure zero frame drops when scrolling through the settings sidebar.
+  - Fixed Settings header icons: updated them to true squircles matching the dock app icon aesthetic instead of appearing cropped on the top and bottom.
+- **HWUI & GPU Performance Optimization**:
+  - Added vector glyph caching (`LruCache`) to eliminate CPU rasterization and GPU texture uploads on focus transitions.
+  - Optimized `LiquidGlass` shaders (eliminated redundant matrix computations and full-screen offscreen layers).
+  - Removed unnecessary 3D shadow meshes and elevation translations on dock cards and menus.
+  - Validated via `dumpsys gfxinfo`: 99th percentile GPU frame times maintained under 14ms (well within the 16.6ms 60 FPS budget).
+
+---
+
+## 🆕 What Was New in `v2.1.0` (Changes Since `v2.0.5`)
 
 - **Dual-Mode ADB Security Architecture & One-Tap ADB Toggle (`Settings → Advanced` & First-Time Setup)**:
   - **Secure Mode (Grant Once & Close ADB — Default & Recommended)**: Grants `WRITE_SECURE_SETTINGS` and `DUMP` once during setup and immediately closes network ADB (`adb_enabled = 0`) so port `5555` is never left open on your LAN. When Secure Mode is selected, the launcher strictly never connects to or probes ADB port `5555` in the background (even if ADB is enabled on the TV), repairing Accessibility (`ServiceRepair`) and running the **Volume Button Hold Fix** 100% in-process.

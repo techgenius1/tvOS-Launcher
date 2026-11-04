@@ -201,15 +201,15 @@ public final class ControlPanelOverlay {
             ImageView blurBg = new ImageView(svcCtx);
             blurBg.setScaleType(ImageView.ScaleType.FIT_XY);
             blurBg.setImageBitmap(glassBmp);
-            blurBg.setAlpha(0.88f);
+            blurBg.setColorFilter(0x8C000000, android.graphics.PorterDuff.Mode.SRC_OVER);
             layer.addView(blurBg, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        } else {
+            View shade = new View(svcCtx);
+            shade.setBackgroundColor(0xB3000000);
+            layer.addView(shade, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
-
-        View shade = new View(svcCtx);
-        shade.setBackgroundColor(0x8C000000);
-        layer.addView(shade, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         MainActivity.LiquidGlass.Backdrop overlayBackdrop = () -> {
             if (MainActivity.activeInstance != null
@@ -254,16 +254,9 @@ public final class ControlPanelOverlay {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                        | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-                        | WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
+                        | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT);
         wlp.gravity = Gravity.TOP | Gravity.END;
-        if (android.os.Build.VERSION.SDK_INT >= 31) {
-            try {
-                wlp.setBlurBehindRadius(dp(unit, 30));
-            } catch (Throwable ignored) {
-            }
-        }
 
         wm.addView(layer, wlp);
         activeWm = wm;
@@ -508,13 +501,16 @@ public final class ControlPanelOverlay {
         white.setCornerRadius(radius);
         white.setColor(0xF7FFFFFF);
 
+        final int focusIconColor = ("wifi".equals(glyph) || "bluetooth".equals(glyph)) ? 0xFF0A84FF
+                : "ambient".equals(glyph) ? 0xFFD97706
+                : "power".equals(glyph) ? 0xFFD7372A
+                : 0xFF111114;
+        final android.graphics.Bitmap baseBmp = Glyphs.get(glyph, gs, baseIconColor);
+        final android.graphics.Bitmap focusBmp = Glyphs.get(glyph, gs, focusIconColor);
+
         t.setOnFocusChangeListener((v, has) -> {
             t.setBackground(has ? white : idleBg);
-            int focusIconColor = ("wifi".equals(glyph) || "bluetooth".equals(glyph)) ? 0xFF0A84FF
-                    : "ambient".equals(glyph) ? 0xFFD97706
-                    : "power".equals(glyph) ? 0xFFD7372A
-                    : 0xFF111114;
-            gi.setImageBitmap(Glyphs.get(glyph, gs, has ? focusIconColor : baseIconColor));
+            gi.setImageBitmap(has ? focusBmp : baseBmp);
             TextView tt = titleRef[0];
             if (tt != null) {
                 tt.setTextColor(has ? 0xFF111114 : Color.WHITE);
@@ -528,7 +524,6 @@ public final class ControlPanelOverlay {
                 ((GradientDrawable) memBarFill.getBackground()).setColor(has ? 0xFF111114 : (memoryUsed(c) > 0.85f ? 0xFFFF9F0A : Color.WHITE));
             }
             v.animate().scaleX(has ? 1.05f : 1f).scaleY(has ? 1.05f : 1f)
-                    .translationZ(has ? dp(unit, 10) : 0)
                     .setDuration(180).setInterpolator(MainActivity.LIFT).start();
         });
 

@@ -103,7 +103,9 @@ final class WatchPopup {
 
         // No panel background: like the shelf, the header floats over the wallpaper and the
         // cards themselves are liquid glass.
-        panel = new LinearLayout(host);
+        panel = new LinearLayout(host) {
+            @Override public boolean hasOverlappingRendering() { return false; }
+        };
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setClipChildren(false);
         panel.setClipToPadding(false);
@@ -137,6 +139,14 @@ final class WatchPopup {
             profiles = new ArrayList<>();
             lastLoad = 0;
         }
+        if (visible) {
+            if (!cloud.popupEnabled()) {
+                hideImmediate();
+            } else {
+                if (!cloud.isSignedIn()) ensureQrLogin();  // polling was stopped on pause
+                render();
+            }
+        }
         if (!cloud.popupEnabled() || !cloud.isSignedIn()) return;
         if (!loading && System.currentTimeMillis() - lastLoad > REFRESH_AFTER_MS) load();
     }
@@ -144,7 +154,14 @@ final class WatchPopup {
     void onLauncherPause() {
         host.handler.removeCallbacks(applyFocusedProfile);
         stopPolling();
-        hide();
+        // Stay on screen (no hide/show cycle on Home); just settle any running animation.
+        panel.animate().cancel();
+        if (visible) {
+            panel.setAlpha(1f);
+            panel.setTranslationY(0f);
+        } else {
+            panel.setVisibility(View.GONE);
+        }
     }
 
     /** Called from the focus listener of this app's dock tile. */
@@ -197,10 +214,28 @@ final class WatchPopup {
         }
         render();
         if (!wasVisible) {
+            // Coming from another app that already shows a continue-watching row: swap instantly.
+            boolean instant = home.isShelfShowing() || home.isOtherPopupShowing(this) || home.cwAnimSuppressed();
             home.updateShelfDim();
-            panel.setVisibility(View.VISIBLE);
-            panel.setAlpha(0f);
-            panel.animate().alpha(1f).setDuration(160).start();
+            panel.animate().cancel();
+            if (instant) {
+                panel.setAlpha(1f);
+                panel.setTranslationY(0f);
+                panel.setVisibility(View.VISIBLE);
+            } else {
+                if (panel.getVisibility() != View.VISIBLE) {
+                    panel.setAlpha(0f);
+                    panel.setTranslationY(dp(10));
+                    panel.setVisibility(View.VISIBLE);
+                }
+                panel.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(180)
+                        .setInterpolator(MainActivity.LIFT)
+                        .withEndAction(null)
+                        .start();
+            }
         }
     }
 
@@ -212,13 +247,38 @@ final class WatchPopup {
 
     private void hide() {
         if (!visible) return;
+        // Another continue-watching row already took over: disappear without a fade.
+        if (home.isShelfShowing() || home.isOtherPopupShowing(this) || home.cwAnimSuppressed()) {
+            hideImmediate();
+            return;
+        }
+        visible = false;
+        home.updateShelfDim();
+        if (anchor != null) anchor.setNextFocusUpId(View.NO_ID);
+        panel.animate().cancel();
+        panel.animate()
+                .alpha(0f)
+                .translationY(dp(8))
+                .setDuration(140)
+                .withEndAction(() -> {
+                    if (!visible) {
+                        panel.setVisibility(View.GONE);
+                        panel.setTranslationY(0f);
+                    }
+                })
+                .start();
+        // QR polling keeps running until the code is approved or expires, so you can
+        // scan, look away from the tile, and still come back signed in.
+    }
+
+    private void hideImmediate() {
         visible = false;
         panel.animate().cancel();
+        panel.setAlpha(1f);
+        panel.setTranslationY(0f);
         panel.setVisibility(View.GONE);
         home.updateShelfDim();
         if (anchor != null) anchor.setNextFocusUpId(View.NO_ID);
-        // QR polling keeps running until the code is approved or expires, so you can
-        // scan, look away from the tile, and still come back signed in.
     }
 
     // ------------------------------------------------------------------ data
@@ -658,13 +718,25 @@ final class WatchPopup {
      * profile buttons) grows upward instead of covering the dock.
      */
     private void position() {
-        panel.setTranslationX(dp(SceneHome.SHELF_LEFT_DP) - rowInset);
         int any = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         panel.measure(any, any);
         int shelfCardsBottom = dp(SceneHome.SHELF_TOP_DP) + headerTextH
                 + dp(SceneHome.SHELF_HEADER_GAP_DP) + dp(SceneHome.SHELF_CARD_H_DP);
         int contentBottom = panel.getMeasuredHeight() - rowInset;  // the card row has rowInset below it
-        panel.setTranslationY(shelfCardsBottom - contentBottom);
+        // Placed with layout margins (not translation) so translationY stays free for the
+        // show/hide slide animation and can never push the popup to the top of the screen.
+        int left = dp(SceneHome.SHELF_LEFT_DP) - rowInset;
+        int top = shelfCardsBottom - contentBottom;
+        ViewGroup.LayoutParams raw = panel.getLayoutParams();
+        if (raw instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) raw;
+            if (lp.leftMargin != left || lp.topMargin != top) {
+                lp.leftMargin = left;
+                lp.topMargin = top;
+                panel.setLayoutParams(lp);
+            }
+        }
+        panel.setTranslationX(0f);
         // Liquid glass samples the wallpaper at its on-screen spot, which may have moved.
         panel.post(this::invalidateGlass);
     }

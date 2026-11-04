@@ -1288,8 +1288,8 @@ public final class CustomMedia {
 
     public static void ensureStoragePermissions(Activity a) {
         if (a == null) return;
-        // Also grant silently via LocalAdb if paired
-        if (LocalAdb.isPaired(a)) {
+        // Also grant silently via LocalAdb if paired and in Persistent ADB Mode
+        if (LocalAdb.isPaired(a) && LocalAdb.getAdbMode(a) == LocalAdb.ADB_MODE_PERSISTENT) {
             new Thread(() -> {
                 try {
                     String pkg = a.getPackageName();
@@ -1310,8 +1310,12 @@ public final class CustomMedia {
                     a.requestPermissions(new String[]{"android.permission.READ_MEDIA_IMAGES", "android.permission.READ_EXTERNAL_STORAGE"}, 9402);
                 }
             } else {
-                if (a.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    a.requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 9402);
+                if (a.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                        || a.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    a.requestPermissions(new String[]{
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    }, 9402);
                 }
             }
         } catch (Throwable ignored) {
@@ -1645,5 +1649,414 @@ public final class CustomMedia {
                 })
                 .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
                 .show();
+    }
+
+    // ---------------------------------------------------------------- Settings Backup & Restore (Download/tvos-launcher-settings.json)
+
+    public static final String SETTINGS_BACKUP_FILENAME = "tvos-launcher-settings.json";
+
+    private static final String[] KNOWN_PREF_NAMES = {
+        "settings", "setup", "profiles", "home", "home_default",
+        "app_custom_names", "button_mapper", "control_panel",
+        "weather", "suggestions", "inputs", "clicks",
+        "media_watch", "cleanyourtv", "cleanyourtv_prefs", "local_adb", "present",
+        "custom_media", "app_updater", "screensaver"
+    };
+
+    private static File resolveDownloadFolder() {
+        File dl = null;
+        try {
+            dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        } catch (Throwable ignored) {
+        }
+        if (dl == null) {
+            File ext = Environment.getExternalStorageDirectory();
+            if (ext == null || !ext.exists()) {
+                ext = new File("/storage/emulated/0");
+            }
+            if (!ext.exists()) {
+                ext = new File("/sdcard");
+            }
+            dl = new File(ext, "Download");
+        }
+        if (!dl.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            dl.mkdirs();
+        }
+        return dl;
+    }
+
+    public static String buildSettingsBackupJson(Context c) throws Exception {
+        org.json.JSONObject root = new org.json.JSONObject();
+        root.put("format", "tvos-launcher-backup");
+        root.put("version", 1);
+        root.put("timestamp", System.currentTimeMillis());
+
+        java.util.Set<String> prefNames = new java.util.LinkedHashSet<>(java.util.Arrays.asList(KNOWN_PREF_NAMES));
+        try {
+            File spDir = new File(c.getApplicationInfo().dataDir, "shared_prefs");
+            File[] files = spDir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    String n = f.getName();
+                    if (n.endsWith(".xml")) {
+                        prefNames.add(n.substring(0, n.length() - 4));
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        org.json.JSONObject prefsObj = new org.json.JSONObject();
+        for (String pName : prefNames) {
+            if (pName == null || pName.isEmpty()) continue;
+            SharedPreferences sp = c.getSharedPreferences(pName, Context.MODE_PRIVATE);
+            Map<String, ?> all = sp.getAll();
+            if (all == null || all.isEmpty()) continue;
+
+            org.json.JSONObject entriesObj = new org.json.JSONObject();
+            for (Map.Entry<String, ?> entry : all.entrySet()) {
+                String k = entry.getKey();
+                Object v = entry.getValue();
+                if (k == null || v == null) continue;
+                org.json.JSONObject item = new org.json.JSONObject();
+                if (v instanceof Boolean) {
+                    item.put("t", "bool");
+                    item.put("v", (Boolean) v);
+                } else if (v instanceof Integer) {
+                    item.put("t", "int");
+                    item.put("v", (Integer) v);
+                } else if (v instanceof Long) {
+                    item.put("t", "long");
+                    item.put("v", (Long) v);
+                } else if (v instanceof Float) {
+                    item.put("t", "float");
+                    item.put("v", ((Float) v).doubleValue());
+                } else if (v instanceof String) {
+                    item.put("t", "string");
+                    item.put("v", (String) v);
+                } else if (v instanceof java.util.Set) {
+                    item.put("t", "set");
+                    org.json.JSONArray arr = new org.json.JSONArray();
+                    for (Object elem : (java.util.Set<?>) v) {
+                        if (elem != null) arr.put(elem.toString());
+                    }
+                    item.put("v", arr);
+                } else {
+                    continue;
+                }
+                entriesObj.put(k, item);
+            }
+            if (entriesObj.length() > 0) {
+                prefsObj.put(pName, entriesObj);
+            }
+        }
+        root.put("prefs", prefsObj);
+        return root.toString(2);
+    }
+
+    public static boolean applySettingsBackupJson(Context c, String jsonText) throws Exception {
+        if (jsonText == null || jsonText.trim().isEmpty()) return false;
+        org.json.JSONObject root = new org.json.JSONObject(jsonText);
+        org.json.JSONObject prefsObj = root.optJSONObject("prefs");
+        if (prefsObj == null) return false;
+
+        java.util.Iterator<String> prefKeys = prefsObj.keys();
+        int restoredFiles = 0;
+        while (prefKeys.hasNext()) {
+            String pName = prefKeys.next();
+            org.json.JSONObject entriesObj = prefsObj.optJSONObject(pName);
+            if (entriesObj == null) continue;
+
+            SharedPreferences.Editor ed = c.getSharedPreferences(pName, Context.MODE_PRIVATE).edit();
+            ed.clear();
+            java.util.Iterator<String> entryKeys = entriesObj.keys();
+            while (entryKeys.hasNext()) {
+                String k = entryKeys.next();
+                org.json.JSONObject item = entriesObj.optJSONObject(k);
+                if (item == null) continue;
+                String t = item.optString("t", "");
+                if ("bool".equals(t)) {
+                    ed.putBoolean(k, item.optBoolean("v", false));
+                } else if ("int".equals(t)) {
+                    ed.putInt(k, item.optInt("v", 0));
+                } else if ("long".equals(t)) {
+                    ed.putLong(k, item.optLong("v", 0L));
+                } else if ("float".equals(t)) {
+                    ed.putFloat(k, (float) item.optDouble("v", 0.0));
+                } else if ("string".equals(t)) {
+                    ed.putString(k, item.optString("v", ""));
+                } else if ("set".equals(t)) {
+                    org.json.JSONArray arr = item.optJSONArray("v");
+                    java.util.Set<String> set = new java.util.LinkedHashSet<>();
+                    if (arr != null) {
+                        for (int i = 0; i < arr.length(); i++) {
+                            set.add(arr.optString(i, ""));
+                        }
+                    }
+                    ed.putStringSet(k, set);
+                }
+            }
+            ed.commit();
+            restoredFiles++;
+        }
+        I18n.resetCache();
+        if (PowerService.instance != null) {
+            PowerService.instance.syncVolumeHoldFix();
+        }
+        return restoredFiles > 0;
+    }
+
+    public static void backupSettingsToDownload(Activity activity, Runnable onDone) {
+        if (activity == null || activity.isFinishing()) return;
+        ensureStoragePermissions(activity);
+        new Thread(() -> {
+            File dlDir = resolveDownloadFolder();
+            File outFile = new File(dlDir, SETTINGS_BACKUP_FILENAME);
+            boolean ok = false;
+            String errMsg = null;
+            try {
+                String json = buildSettingsBackupJson(activity);
+                byte[] bytes = json.getBytes( java.nio.charset.StandardCharsets.UTF_8);
+                try {
+                    if (!dlDir.exists()) dlDir.mkdirs();
+                    try (FileOutputStream fos = new FileOutputStream(outFile, false)) {
+                        fos.write(bytes);
+                        fos.flush();
+                    }
+                    ok = outFile.exists() && outFile.length() > 0;
+                } catch (Throwable writeErr) {
+                    errMsg = writeErr.getMessage();
+                    // Fallback on Android 10+ Scoped Storage if direct file write to existing file was blocked
+                    if (Build.VERSION.SDK_INT >= 29) {
+                        try {
+                            android.content.ContentResolver cr = activity.getContentResolver();
+                            try {
+                                cr.delete(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                                        android.provider.MediaStore.MediaColumns.DISPLAY_NAME + "=?",
+                                        new String[]{SETTINGS_BACKUP_FILENAME});
+                            } catch (Throwable ignored) {
+                            }
+                            android.content.ContentValues cv = new android.content.ContentValues();
+                            cv.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, SETTINGS_BACKUP_FILENAME);
+                            cv.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "application/json");
+                            cv.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                            Uri uri = cr.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
+                            if (uri != null) {
+                                try (java.io.OutputStream os = cr.openOutputStream(uri, "w")) {
+                                    if (os != null) {
+                                        os.write(bytes);
+                                        os.flush();
+                                        ok = true;
+                                    }
+                                }
+                            }
+                        } catch (Throwable msErr) {
+                            errMsg = msErr.getMessage();
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                errMsg = e.getMessage();
+            }
+
+            final boolean success = ok;
+            final String finalPath = "Download/" + SETTINGS_BACKUP_FILENAME + "\n(" + outFile.getAbsolutePath() + ")";
+            final String finalErr = errMsg;
+            activity.runOnUiThread(() -> {
+                if (activity.isFinishing()) return;
+                if (onDone != null) onDone.run();
+                if (success) {
+                    new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                            .setTitle(I18n.s(activity, "Settings Backed Up", "Ayarlar Yedeklendi"))
+                            .setMessage(I18n.s(activity,
+                                    "Your current tvOS Launcher settings have been saved to:\n\n" + finalPath,
+                                    "Mevcut tvOS Launcher ayarlarınız şu konuma kaydedildi:\n\n" + finalPath))
+                            .setPositiveButton(I18n.s(activity, "OK", "Tamam"), null)
+                            .show();
+                } else {
+                    new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                            .setTitle(I18n.s(activity, "Backup Failed", "Yedekleme Başarısız"))
+                            .setMessage(I18n.s(activity,
+                                    "Could not write to Download/" + SETTINGS_BACKUP_FILENAME
+                                            + (finalErr != null ? "\n\n" + finalErr : "")
+                                            + "\n\nPlease allow storage access and try again.",
+                                    "Download/" + SETTINGS_BACKUP_FILENAME + " dosyasına yazılamadı"
+                                            + (finalErr != null ? "\n\n" + finalErr : "")
+                                            + "\n\nLütfen depolama erişimine izin verip tekrar deneyin."))
+                            .setPositiveButton(I18n.s(activity, "Grant Storage Access…", "Depolama İzni Ver…"), (d, w) -> {
+                                if (Build.VERSION.SDK_INT >= 30) {
+                                    try {
+                                        activity.startActivity(new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                                                Uri.parse("package:" + activity.getPackageName())));
+                                        return;
+                                    } catch (Throwable ignored) {
+                                    }
+                                }
+                                ensureStoragePermissions(activity);
+                            })
+                            .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                            .show();
+                }
+            });
+        }, "settings-backup").start();
+    }
+
+    public static void showRestoreSettingsPicker(Activity activity, Runnable onRestored) {
+        if (activity == null || activity.isFinishing()) return;
+        ensureStoragePermissions(activity);
+        showRestoreFolderBrowser(activity, null, onRestored);
+    }
+
+    private static void showRestoreFolderBrowser(Activity activity, File currentDir, Runnable onRestored) {
+        if (activity == null || activity.isFinishing()) return;
+
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+
+        if (currentDir == null) {
+            File dl = resolveDownloadFolder();
+            File defaultBackup = new File(dl, SETTINGS_BACKUP_FILENAME);
+            if (defaultBackup.exists() && defaultBackup.isFile()) {
+                labels.add("⚡  " + I18n.s(activity,
+                        "Restore from Download/" + SETTINGS_BACKUP_FILENAME,
+                        "Download/" + SETTINGS_BACKUP_FILENAME + " dosyasından geri yükle"));
+                actions.add(() -> restoreSettingsFromFile(activity, defaultBackup, onRestored));
+            }
+            Map<String, File> roots = getStorageRoots();
+            for (Map.Entry<String, File> entry : roots.entrySet()) {
+                final File dir = entry.getValue();
+                labels.add(entry.getKey());
+                actions.add(() -> showRestoreFolderBrowser(activity, dir, onRestored));
+            }
+            if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
+                labels.add("🔓  " + I18n.s(activity, "Grant All Files Access…", "Tüm Dosyalara Erişim İzni Ver…"));
+                actions.add(() -> {
+                    try {
+                        Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                                Uri.parse("package:" + activity.getPackageName()));
+                        activity.startActivity(i);
+                    } catch (Throwable t) {
+                        try {
+                            activity.startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                });
+            }
+        } else {
+            File defaultInFolder = new File(currentDir, SETTINGS_BACKUP_FILENAME);
+            if (defaultInFolder.exists() && defaultInFolder.isFile()) {
+                labels.add("✓  " + I18n.s(activity,
+                        "Restore from this folder (" + SETTINGS_BACKUP_FILENAME + ")",
+                        "Bu klasörden geri yükle (" + SETTINGS_BACKUP_FILENAME + ")"));
+                actions.add(() -> restoreSettingsFromFile(activity, defaultInFolder, onRestored));
+            }
+
+            labels.add("⬆️  .. (" + I18n.s(activity, "Back to parent folder", "Üst klasöre dön") + ")");
+            actions.add(() -> {
+                File parent = currentDir.getParentFile();
+                if (parent != null && parent.canRead() && !currentDir.getAbsolutePath().equals("/storage/emulated/0")
+                        && !currentDir.getAbsolutePath().equals("/sdcard")) {
+                    showRestoreFolderBrowser(activity, parent, onRestored);
+                } else {
+                    showRestoreFolderBrowser(activity, null, onRestored);
+                }
+            });
+
+            File[] files = currentDir.listFiles();
+            if (files != null && files.length > 0) {
+                List<File> dirs = new ArrayList<>();
+                List<File> jsons = new ArrayList<>();
+                for (File f : files) {
+                    if (f == null || f.getName().startsWith(".")) continue;
+                    if (f.isDirectory()) {
+                        dirs.add(f);
+                    } else if (f.isFile() && f.getName().toLowerCase(Locale.US).endsWith(".json")) {
+                        jsons.add(f);
+                    }
+                }
+                Collections.sort(dirs, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+                Collections.sort(jsons, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+
+                for (File jf : jsons) {
+                    long kb = Math.max(1L, jf.length() / 1024L);
+                    labels.add("📄  " + jf.getName() + "  (" + kb + " KB)");
+                    actions.add(() -> restoreSettingsFromFile(activity, jf, onRestored));
+                }
+                for (File d : dirs) {
+                    File subBackup = new File(d, SETTINGS_BACKUP_FILENAME);
+                    String badge = (subBackup.exists() && subBackup.isFile())
+                            ? "  (" + SETTINGS_BACKUP_FILENAME + ")"
+                            : "";
+                    labels.add("📁  " + d.getName() + badge);
+                    actions.add(() -> showRestoreFolderBrowser(activity, d, onRestored));
+                }
+            }
+            if (labels.size() == 1) {
+                labels.add("ℹ️  " + I18n.s(activity,
+                        "No settings backup (.json) found in this folder",
+                        "Bu klasörde ayar yedeği (.json) bulunamadı"));
+                actions.add(() -> showRestoreFolderBrowser(activity, currentDir, onRestored));
+            }
+        }
+
+        String dlgTitle = currentDir == null
+                ? I18n.s(activity, "Choose Folder to Restore Settings", "Ayarların Geri Yükleneceği Klasörü Seçin")
+                : currentDir.getAbsolutePath();
+
+        new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(dlgTitle)
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    if (which >= 0 && which < actions.size()) {
+                        actions.get(which).run();
+                    }
+                })
+                .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                .show();
+    }
+
+    private static void restoreSettingsFromFile(Activity activity, File file, Runnable onRestored) {
+        if (activity == null || file == null) return;
+        new Thread(() -> {
+            boolean ok = false;
+            String errMsg = null;
+            try {
+                byte[] bytes;
+                try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+                    bytes = Suggestions.readAll(fis);
+                }
+                String json = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+                ok = applySettingsBackupJson(activity, json);
+            } catch (Throwable e) {
+                errMsg = e.getMessage();
+            }
+            final boolean success = ok;
+            final String finalErr = errMsg;
+            activity.runOnUiThread(() -> {
+                if (activity.isFinishing()) return;
+                if (success) {
+                    if (onRestored != null) onRestored.run();
+                    new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                            .setTitle(I18n.s(activity, "Settings Restored", "Ayarlar Geri Yüklendi"))
+                            .setMessage(I18n.s(activity,
+                                    "Settings were successfully restored from:\n" + file.getAbsolutePath(),
+                                    "Ayarlar şu dosyadan başarıyla geri yüklendi:\n" + file.getAbsolutePath()))
+                            .setPositiveButton(I18n.s(activity, "OK", "Tamam"), (d, w) -> activity.recreate())
+                            .setOnCancelListener(d -> activity.recreate())
+                            .show();
+                } else {
+                    new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                            .setTitle(I18n.s(activity, "Restore Failed", "Geri Yükleme Başarısız"))
+                            .setMessage(I18n.s(activity,
+                                    "Could not restore settings from:\n" + file.getAbsolutePath()
+                                            + (finalErr != null ? "\n\n" + finalErr : ""),
+                                    "Ayarlar şu dosyadan geri yüklenemedi:\n" + file.getAbsolutePath()
+                                            + (finalErr != null ? "\n\n" + finalErr : "")))
+                            .setPositiveButton(I18n.s(activity, "OK", "Tamam"), null)
+                            .show();
+                }
+            });
+        }, "settings-restore").start();
     }
 }

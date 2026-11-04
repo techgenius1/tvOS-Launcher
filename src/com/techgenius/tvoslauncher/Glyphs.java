@@ -5,12 +5,23 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.util.LruCache;
 
 /** SF Symbols\u2013style line glyphs for Control Center, drawn in code (no image assets). */
 final class Glyphs {
+    private static final LruCache<String, Bitmap> CACHE = new LruCache<>(160);
+
     private Glyphs() { }
 
     static Bitmap get(String name, int s, int color) {
+        if (s <= 0) s = 1;
+        String key = name + ':' + s + ':' + color;
+        synchronized (CACHE) {
+            Bitmap cached = CACHE.get(key);
+            if (cached != null && !cached.isRecycled()) {
+                return cached;
+            }
+        }
         Bitmap b = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -552,6 +563,9 @@ final class Glyphs {
             }
             default:
                 break;
+        }
+        synchronized (CACHE) {
+            CACHE.put(key, b);
         }
         return b;
     }

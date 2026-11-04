@@ -1,11 +1,41 @@
-# tvOS Launcher (`v2.1.0`)
+# tvOS Launcher (`v2.1.2`)
 
 > 🇬🇧 **For English documentation and setup guide:** **[README.md (English)](README.md)**  
-> 📦 **En Son APK İndir (`v2.1.0`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **En Son APK İndir (`v2.1.2`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Afiş](screenshots_tr/Header_TR.jpg)
 
 Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlardan **Android 14** modellere kadar 60 FPS akıcılık sunarken; **boyutlandırılabilir macOS Liquid Glass Dock (`%50–%150`)**, dönüşümlü **Gece Sahneleri**, **Özel Duvar Kağıtları (`Özel 1..5`) + Klasörden Karışık Duvar Kağıdı**, **Dahili Kilit Ekranı / Ekran Koruyucu**, **Uygulama Simgesi Değiştirici ve Simge Düzenleyici**, **Otomatik GitHub Uygulama Güncellemeleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli + Manuel Sistem Uygulaması Debloat + Sistem Başlatıcılarını Devre Dışı Bırakma)**, **Özelleştirilebilir Evrensel Denetim Paneli (`Hızlı Ayarlar`)**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı + Tuş Kodu Gönder (`Send Key Code`) + Ana Ekran Tuşu Düzeltmesi** ve **Çift Modlu Güvenli Yerel ADB Kurulumu (Port 5555'i açık bırakmadan Otomatik Onarım & Ses Tuşu Düzeltmesi)** özelliklerini bir araya getirir.
+
+---
+
+## 🆕 `v2.1.2` Sürümündeki Yenilikler
+
+- **Tüm Medya Uygulamaları İçin Evrensel İzlemeye Devam Et Desteği**:
+  - İzlemeye Devam Et özelliği yalnızca YouTube ile sınırlı kalmayıp yüklü tüm medya uygulamalarını (Prime Video, HBO Max, Tivimate, Netflix, Disney+, Apple TV+ vb.) kapsayacak şekilde genişletildi. Android TV `TvContract` EPG / Watch Next içerik sağlayıcısı, `MediaSessionManager` aktif medya oturumu takibi ve bildirim dinleyicileri entegre edildi.
+  - **Dock ile Eşzamanlı Odak Filtreleme**: İzlemeye Devam Et rafı artık yalnızca dock üzerinde seçili olan medya uygulamasının içeriklerini gösterir (başka uygulamanın üzerindeyken varsayılan olarak sürekli YouTube gösterme durumu düzeltildi).
+  - **Stremio & Nuvio Dock Açılır Menü Entegrasyonu**: Stremio ve Nuvio dock simgeleri üzerine doğrudan yerel önbellek, QR kodlu hızlı giriş ve çoklu profil geçişi destekli izlemeye devam et pencereleri entegre edildi.
+  - **Akıcı RenderNode Açılış & Kapanış Animasyonu**: Sıfır GPU aşırı çizim (overdraw) yükü (`hasOverlappingRendering = false`) ile yukarı süzülme ve aşağı kaybolma animasyonları eklendi.
+  - **Uygulamalar Arası Anında Geçiş (Yeniden Animasyon Oynatılmaz)**: İki izlemeye devam et içerikli uygulama arasında gezinirken satır anında güncellenir, gereksiz yere animasyon tekrarlanmaz. Animasyon yalnızca içerik olmayan bir uygulamadan içerik olan bir uygulamaya geçildiğinde veya dock kapandığında devreye girer.
+  - **Ana Ekran (Home) Tuşu Kararlılığı**: Kumandadan Home tuşuna basıldığında dock ve izlemeye devam et satırının gereksiz yere baştan animasyonla açılması engellendi.
+- **Ayarları Yedekleme ve Geri Yükleme (`Ayarlar → Sistem / Hakkında / Hızlı ve Ana Ekran`)**:
+  - Tüm başlatıcı ayarları, dock sıralaması, özel uygulama isimleri ve simgeleri, kumanda tuş eşlemeleri ve sahne tercihleri tek dokunuşla `Download/tvos-launcher-settings.json` dosyasına yedeklenebilir.
+  - Dahili depolamadan veya takılan USB bellekten klasör seçilerek ayarlar tek tıkla geri yüklenebilir.
+- **Korece Dil Desteği (한국어)**:
+  - Başlatıcının tüm ekranları, ilk kurulum sihirbazı, ayarlar menüsü, debloat araçları ve tuş eşleyici için eksiksiz Korece dil desteği eklendi (`I18n.java`).
+- **CleanYourTV & MiBluetooth Koruması**:
+  - Manuel Debloat listesinde `MiBluetooth` (`com.xiaomi.bluetooth`, `com.mi.bluetooth`, `com.xiaomi.mitv.bluetooth` vb.) kritik sistem servisi olarak işaretlendi ve Xiaomi TV/Mi Box kumandalarının bağlantısının kopmaması için hiçbir koşulda devre dışı bırakılamaz hale getirildi.
+- **HY320 / Projeksiyon Ses Tuşu Basılı Tutma Düzeltmesi (Mod 2 & Mod 1)**:
+  - Mod 2'de ses tuşuna normalden biraz daha uzun basıldığında tuş bırakılsa bile sesin değişmeye devam etmesi sorunu giderildi; hem ADB Açık hem ADB Kapalı modlarında tuş bırakma debouncing, zaman aşımı bekçisi ve anında durdurma mekanizması eklendi.
+- **Ayarlar Menüsü Açılış Hızı ve Görsel Düzeltmeler**:
+  - Hızlı Ayarlar veya Dock'tan Ayarlar menüsünün açılışı optimize edildi: arka planda çalışan ağır sistem uygulaması taramaları (`CleanYourTv.getSystemLaunchersSummary`, `getDebloatStatusSummary`) arka plan iş parçacığına taşınarak açılış anında takılma engellendi (`…` yükleniyor göstergesi eklendi).
+  - Ayarlar kenar çubuğu önbelleği ve geçişleri optimize edilerek gezinme akıcı hale getirildi.
+  - Ayarlar başlık simgeleri düzeltildi: alttan ve üstten kırpılmış görünüm yerine dock simgeleriyle birebir uyumlu gerçek squircle (yuvarlatılmış kare) şekline dönüştürüldü.
+- **HWUI & GPU Performans Optimizasyonu**:
+  - Vektör simgeler için `LruCache` önbellek eklenerek odak değişimlerindeki CPU rasterizasyonu ve GPU doku yüklemeleri tamamen ortadan kaldırıldı.
+  - `LiquidGlass` cam efektleri ve shader'lar optimize edilerek gereksiz matris hesaplamaları ve tam ekran katmanları kaldırıldı.
+  - Dock kartları ve menülerdeki gereksiz 3D gölge yükseklikleri (`translationZ`) temizlendi.
+  - `dumpsys gfxinfo` ile doğrulandı: 99. yüzdelik GPU kare süreleri 14ms seviyesine düşürüldü (60 FPS için gereken 16.6ms sınırının oldukça altında).
 
 ---
 

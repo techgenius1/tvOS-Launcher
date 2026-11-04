@@ -443,6 +443,8 @@ public class MainActivity extends Activity {
             avatarView.setVisibility(Profiles.list(this).size() > 1 ? View.VISIBLE : View.GONE);
         }
         // Signed in to Nuvio/Stremio: refresh continue watching in the background. Signed out: no-op.
+        ensureTvListingsPermission();
+        MediaWatchService.ensureSessionTracking(this);
         if (sceneHome != null) sceneHome.onWatchPopupsResume();
         if (Scenes.isScenesLook(this) && sceneHome != null) {
             sceneHome.sceneView.syncSettings();
@@ -492,6 +494,7 @@ public class MainActivity extends Activity {
         LocalAdb.ensureKeepAliveWatchdog(this);
         LocalAdb.scheduleKeepAliveRepair(this, 1000L);
         AppUpdater.checkAutoUpdateIfNeeded(this);
+        SettingsActivity.prewarmCache(getApplicationContext());
         if (ambientShowcase || (getIntent() != null && "ambient".equals(getIntent().getStringExtra("panel")))) {
             if (getIntent() != null) getIntent().removeExtra("panel");
             enterAmbientShowcase();
@@ -500,6 +503,29 @@ public class MainActivity extends Activity {
             getIntent().removeExtra("panel");
             getIntent().removeExtra("lock_from_external");
             enterLockScreen(ext);
+        }
+    }
+
+    private void ensureTvListingsPermission() {
+        try {
+            if (checkSelfPermission("android.permission.READ_TV_LISTINGS") == PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            if (LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_PERSISTENT) {
+                LocalAdb.grantVolumeLongPressPermissionIfNeeded(this, () -> {
+                    if (sceneHome != null && Scenes.isScenesLook(this)) {
+                        sceneHome.refreshKeepWatching();
+                    } else {
+                        loadHero();
+                    }
+                });
+                return;
+            }
+            if (SetupActivity.done(this) && cwEnabled() && !prefs.getBoolean("asked_tv_listings_perm", false)) {
+                prefs.edit().putBoolean("asked_tv_listings_perm", true).apply();
+                requestPermissions(new String[]{"android.permission.READ_TV_LISTINGS"}, 901);
+            }
+        } catch (Throwable ignored) {
         }
     }
 
@@ -967,7 +993,6 @@ public class MainActivity extends Activity {
         tile.setBackground(bg);
         tile.setOutlineProvider(roundedOutline(new float[]{cardRadius}));
         tile.setClipToOutline(true);
-        tile.setElevation(dp(3));
 
         ImageView iv = new ImageView(this);
         if (a.banner != null) {
@@ -1004,11 +1029,10 @@ public class MainActivity extends Activity {
                     // Rebuilt while moving: appear already lifted, or every step would "pop".
                     v.setScaleX(FOCUS_SCALE);
                     v.setScaleY(FOCUS_SCALE);
-                    v.setTranslationZ(dp(18));
                     label.setAlpha(1f);
                     label.setTranslationY(cardH * (FOCUS_SCALE - 1f) / 2f);
                 } else {
-                    v.animate().scaleX(FOCUS_SCALE).scaleY(FOCUS_SCALE).translationZ(dp(18)).setDuration(180)
+                    v.animate().scaleX(FOCUS_SCALE).scaleY(FOCUS_SCALE).setDuration(180)
                             .setInterpolator(LIFT).start();
                     label.animate().alpha(1f).translationY(cardH * (FOCUS_SCALE - 1f) / 2f).setDuration(160).start();
                 }
@@ -1017,7 +1041,7 @@ public class MainActivity extends Activity {
             } else {
                 cell.setTranslationZ(0);
                 stopSway(v);
-                v.animate().scaleX(1f).scaleY(1f).translationZ(0).setDuration(140).setInterpolator(EASE).start();
+                v.animate().scaleX(1f).scaleY(1f).setDuration(140).setInterpolator(EASE).start();
                 label.animate().alpha(0f).translationY(0).setDuration(120).start();
                 topSheen.setAlpha(0f);
             }
@@ -1453,8 +1477,10 @@ public class MainActivity extends Activity {
 
         boolean lit, adaptive;
         int adaptiveTint, minBlack;
-        Bitmap lumFor;
+        Bitmap lumFor, matFor;
         int lumX = Integer.MIN_VALUE, lumY;
+        int matLocX = Integer.MIN_VALUE, matLocY = Integer.MIN_VALUE;
+        float matBoxW = -1f, matBoxH = -1f;
 
         /** Never lighter than this much black: for text-heavy tiles (Control Center). */
         LiquidGlass darker(int alpha) {
@@ -1464,19 +1490,12 @@ public class MainActivity extends Activity {
         final int[] sample = new int[64];
 
         /**
-         * Glass for small controls (Liquid Glass "regular"): the backdrop is desaturated so the
-         * control reads as clear glass rather than a coloured blob, and the tint follows the
+         * Glass for small controls (Liquid Glass "regular"): the tint follows the
          * brightness behind it \u2014 darker over bright artwork so white text stays legible, a light
          * frost over dark artwork so the control stays visible.
          */
         LiquidGlass adaptive() {
             adaptive = true;
-            android.graphics.ColorMatrix cm = new android.graphics.ColorMatrix();
-            cm.setSaturation(0.4f);
-            android.graphics.ColorMatrixColorFilter f = new android.graphics.ColorMatrixColorFilter(cm);
-            body.setColorFilter(f);
-            lens1.setColorFilter(f);
-            lens2.setColorFilter(f);
             return this;
         }
 
@@ -1518,6 +1537,7 @@ public class MainActivity extends Activity {
 
         @Override protected void onBoundsChange(Rect b) {
             box.set(b);
+            matBoxW = -1f;
             float h = box.height();
             glow.setShader(new LinearGradient(0, box.top, 0, box.top + h * 0.5f,
                     0x1FFFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
@@ -1544,10 +1564,13 @@ public class MainActivity extends Activity {
             if (b != null && !b.isRecycled()) {
                 if (b != shaderFor) {
                     shader1 = new android.graphics.BitmapShader(b, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                    shader2 = new android.graphics.BitmapShader(b, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    if (!adaptive && lens > 0) {
+                        shader2 = new android.graphics.BitmapShader(b, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                        lens1.setShader(shader2);
+                    }
                     body.setShader(shader1);
-                    lens1.setShader(shader2);
                     shaderFor = b;
+                    matFor = null;
                 }
                 if (adaptive && (b != lumFor || Math.abs(loc[0] - lumX) > 32 || Math.abs(loc[1] - lumY) > 32)) {
                     lumFor = b;
@@ -1563,11 +1586,21 @@ public class MainActivity extends Activity {
                         if (!lit) fill.setColor(t);
                     }
                 }
-                place(shader1, b, 1f);
+                if (b != matFor || loc[0] != matLocX || loc[1] != matLocY
+                        || box.width() != matBoxW || box.height() != matBoxH) {
+                    matFor = b;
+                    matLocX = loc[0];
+                    matLocY = loc[1];
+                    matBoxW = box.width();
+                    matBoxH = box.height();
+                    place(shader1, b, 1f);
+                    if (!adaptive && lens > 0 && shader2 != null) {
+                        place(shader2, b, 1.04f);
+                    }
+                }
                 c.drawRoundRect(box, r, r, body);
-                if (lens > 0) {
+                if (!adaptive && lens > 0 && shader2 != null) {
                     float w1 = lens1.getStrokeWidth();
-                    place(shader2, b, 1.04f);
                     tmp.set(box.left + w1 / 2, box.top + w1 / 2, box.right - w1 / 2, box.bottom - w1 / 2);
                     c.drawRoundRect(tmp, r - w1 / 2, r - w1 / 2, lens1);
                 }
@@ -3761,13 +3794,19 @@ public class MainActivity extends Activity {
                     ControlPanelOverlay.openInputs(this, () -> showInputs(popoverReturn != null ? popoverReturn : ccButton));
                 },
                 () -> {
-                    closeProfilePicker();
+                    dropPicker();
+                    pickerLayer = null;
+                    popoverReturn = null;
+                    weatherOpen = false;
                     returningFromSettings = true;
                     startActivity(new Intent(this, SettingsActivity.class)
                             .putExtra("page", SettingsActivity.BUTTON_MAPPER));
                 },
                 () -> {
-                    closeProfilePicker();
+                    dropPicker();
+                    pickerLayer = null;
+                    popoverReturn = null;
+                    weatherOpen = false;
                     returningFromSettings = true;
                     startActivity(new Intent(this, SettingsActivity.class));
                 },
@@ -3787,7 +3826,7 @@ public class MainActivity extends Activity {
         pickerCells = cells;
         layer.setAlpha(0f);
         panel.setTranslationY(-dp(10));
-        layer.animate().alpha(1f).setDuration(200).start();
+        layer.animate().alpha(1f).setDuration(200).withEndAction(() -> hideUnderOverlay(layer)).start();
         panel.animate().translationY(0).setDuration(260).setInterpolator(EASE).start();
         if (!cells.isEmpty()) cells.get(0).requestFocus();
     }
@@ -3866,7 +3905,7 @@ public class MainActivity extends Activity {
                 ((GradientDrawable) ((View) memBarFill.getParent()).getBackground()).setColor(has ? 0x33111114 : 0x40FFFFFF);
                 ((GradientDrawable) memBarFill.getBackground()).setColor(has ? 0xFF111114 : (memoryUsed() > 0.85f ? 0xFFFF9F0A : Color.WHITE));
             }
-            v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f).translationZ(has ? dp(10) : 0)
+            v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f)
                     .setDuration(200).setInterpolator(LIFT).start();
         });
         t.setOnClickListener(v -> {
@@ -4626,6 +4665,7 @@ public class MainActivity extends Activity {
     void addBlurredBackdrop(FrameLayout layer, int dim) {
         ImageView iv = new ImageView(this);
         iv.setScaleType(ImageView.ScaleType.FIT_XY);
+        boolean bakedDim = false;
         try {
             int w = Math.max(1, screenW / 4), h = Math.max(1, screenH / 4);
             Bitmap snap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -4634,15 +4674,21 @@ public class MainActivity extends Activity {
             root.draw(c);
             Bitmap blurred = Ui.blur(snap, w / 2, h / 2, 4, 3);
             snap.recycle();
-            if (blurred != null) iv.setImageBitmap(blurred);
+            if (blurred != null) {
+                new Canvas(blurred).drawColor(dim);
+                iv.setImageBitmap(blurred);
+                bakedDim = true;
+            }
         } catch (Throwable e) {
             Bitmap bg = glassSource.get();
             if (bg != null) iv.setImageBitmap(bg);
         }
         layer.addView(iv, match());
-        View v = new View(this);
-        v.setBackgroundColor(dim);
-        layer.addView(v, match());
+        if (!bakedDim) {
+            View v = new View(this);
+            v.setBackgroundColor(dim);
+            layer.addView(v, match());
+        }
     }
 
     /**
@@ -4724,7 +4770,7 @@ public class MainActivity extends Activity {
         layer.setAlpha(0f);
         col.setScaleX(0.96f);
         col.setScaleY(0.96f);
-        layer.animate().alpha(1f).setDuration(onWake ? 380 : 260).start();
+        layer.animate().alpha(1f).setDuration(onWake ? 380 : 260).withEndAction(() -> hideUnderOverlay(layer)).start();
         col.animate().scaleX(1f).scaleY(1f).setDuration(onWake ? 420 : 300).setInterpolator(EASE).start();
         View focus = cells.isEmpty() ? null : cells.get(0);
         for (View c : cells) if (cur.equals(c.getTag())) focus = c;
@@ -4841,9 +4887,27 @@ public class MainActivity extends Activity {
 
     final List<View> hiddenUnderSearch = new ArrayList<>();
 
-    void releaseSearch() {
-        for (View c : hiddenUnderSearch) c.setVisibility(View.VISIBLE);
+    void hideUnderOverlay(FrameLayout activeLayer) {
+        if (pickerLayer != activeLayer || activeLayer == null) return;
         hiddenUnderSearch.clear();
+        for (int i = 0; i < root.getChildCount(); i++) {
+            View c = root.getChildAt(i);
+            if (c != activeLayer && c != launchOverlay && c.getVisibility() == View.VISIBLE) {
+                c.setVisibility(View.INVISIBLE);
+                hiddenUnderSearch.add(c);
+            }
+        }
+    }
+
+    void restoreUnderOverlay() {
+        for (View c : hiddenUnderSearch) {
+            if (c != null) c.setVisibility(View.VISIBLE);
+        }
+        hiddenUnderSearch.clear();
+    }
+
+    void releaseSearch() {
+        restoreUnderOverlay();
         if (search == null) return;
         search.release();
         search = null;
@@ -4851,6 +4915,7 @@ public class MainActivity extends Activity {
 
     /** Removes whichever overlay is open (stopping search's work if it was search). */
     void dropPicker() {
+        restoreUnderOverlay();
         if (pickerLayer == null) return;
         if (search != null && pickerLayer == search.layer) releaseSearch();
         root.removeView(pickerLayer);
@@ -4868,6 +4933,12 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(req, perms, results);
         if (req == SearchPanel.REQ_MIC && search != null) {
             search.onMicPermission(results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED);
+        } else if (req == 901) {
+            if (sceneHome != null && Scenes.isScenesLook(this)) {
+                sceneHome.refreshKeepWatching();
+            } else {
+                loadHero();
+            }
         }
     }
 
@@ -4999,6 +5070,7 @@ public class MainActivity extends Activity {
     View popoverReturn;
 
     void closeProfilePicker() {
+        restoreUnderOverlay();
         if (pickerLayer == null) return;
         FrameLayout l = pickerLayer;
         pickerLayer = null;
@@ -5170,7 +5242,6 @@ public class MainActivity extends Activity {
         LiquidGlass glass = new LiquidGlass(dp(20), 0xB81A1A20, glassSource, screenW, screenH, unit);
         glass.lens = dp(8);
         panel.setBackground(glass);
-        panel.setElevation(dp(30));
         panel.setClipChildren(false);
         panel.setClipToPadding(false);
 
@@ -5203,7 +5274,6 @@ public class MainActivity extends Activity {
             row.setOnFocusChangeListener((v, has) -> {
                 pill.setColor(has ? 0xFFFFFFFF : Color.TRANSPARENT);
                 row.setTextColor(has ? (idx == destructive ? 0xFFD7372A : 0xFF111114) : base);
-                v.animate().scaleX(1f).scaleY(1f).setDuration(150).setInterpolator(EASE).start();
             });
             row.setOnClickListener(v -> {
                 closeMenu();

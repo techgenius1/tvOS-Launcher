@@ -76,8 +76,15 @@ final class SceneHome {
 
     LinearLayout shelfBox;
     TextView shelfHeader;
+    android.widget.HorizontalScrollView shelfScroll;
     LinearLayout shelfRow;
     final List<View> shelfCards = new ArrayList<>();
+    private static final int MAX_SHELF_ITEMS = 5;
+    private final Map<String, List<WatchCardData>> pkgWatchCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final android.util.LruCache<String, Bitmap> shelfThumbs = new android.util.LruCache<>(32);
+    private View activeShelfTile;
+    private String activeShelfPkg;
+    private int shelfLoadGen = 0;
 
     LinearLayout dockContainer;
     LinearLayout dockBox;
@@ -155,11 +162,31 @@ final class SceneHome {
     }
 
     void onWatchPopupsResume() {
+        // Home pressed / launcher resumed: rows reappear in place, without the entrance slide.
+        suppressCwAnimUntil = android.os.SystemClock.uptimeMillis() + 700L;
         for (WatchPopup p : watchPopups) p.onLauncherResume();
+    }
+
+    /** Uptime until which Continue Watching rows show/hide instantly (set on resume). */
+    private long suppressCwAnimUntil;
+
+    boolean cwAnimSuppressed() {
+        return android.os.SystemClock.uptimeMillis() < suppressCwAnimUntil;
     }
 
     void onWatchPopupsPause() {
         for (WatchPopup p : watchPopups) p.onLauncherPause();
+        // Keep the shelf exactly as it is: on Home / return the focused tile is usually the same,
+        // and Android won't re-fire its focus listener, so hiding here made the row slide in again.
+        if (shelfBox != null && shelfBox.getVisibility() == View.VISIBLE) {
+            shelfBox.animate().cancel();
+            if (shelfHiding) {
+                hideShelfImmediate();
+            } else {
+                shelfBox.setAlpha(1f);
+                shelfBox.setTranslationY(0f);
+            }
+        }
     }
 
     void invalidateSceneGlass() {
@@ -391,7 +418,10 @@ final class SceneHome {
     static final float SHELF_CARD_W_DP = 282, SHELF_CARD_H_DP = 64, SHELF_CARD_GAP_DP = 12;
 
     private void buildKeepWatchingShelf() {
-        shelfBox = new LinearLayout(host);
+        int pad = dp(SHELF_HEADER_GAP_DP);
+        shelfBox = new LinearLayout(host) {
+            @Override public boolean hasOverlappingRendering() { return false; }
+        };
         shelfBox.setOrientation(LinearLayout.VERTICAL);
         shelfBox.setClipChildren(false);
         shelfBox.setClipToPadding(false);
@@ -402,69 +432,232 @@ final class SceneHome {
         shelfHeader.setTypeface(Ui.font(host, "semibold"));
         shelfHeader.setTextColor(0xC7F4F4F6);
         shelfHeader.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
-        shelfHeader.setText(I18n.s(host, "Keep watching", "İzlemeye devam et"));
+        shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        hlp.bottomMargin = dp(SHELF_HEADER_GAP_DP);
-        hlp.leftMargin = dp(2);
+        hlp.bottomMargin = 0;
+        hlp.leftMargin = pad + dp(2);
         shelfBox.addView(shelfHeader, hlp);
 
-        shelfRow = new LinearLayout(host);
+        shelfRow = new LinearLayout(host) {
+            @Override public boolean hasOverlappingRendering() { return false; }
+        };
         shelfRow.setOrientation(LinearLayout.HORIZONTAL);
         shelfRow.setClipChildren(false);
         shelfRow.setClipToPadding(false);
-        shelfBox.addView(shelfRow, new LinearLayout.LayoutParams(
+        shelfRow.setPadding(pad, pad, pad, pad);
+
+        shelfScroll = new android.widget.HorizontalScrollView(host);
+        shelfScroll.setHorizontalScrollBarEnabled(false);
+        shelfScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        shelfScroll.setFocusable(false);
+        shelfScroll.setClipChildren(false);
+        shelfScroll.setClipToPadding(false);
+        shelfScroll.addView(shelfRow, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        shelfBox.addView(shelfScroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.TOP | Gravity.START);
-        slp.leftMargin = dp(SHELF_LEFT_DP);
-        slp.rightMargin = dp(SHELF_LEFT_DP);
+        slp.leftMargin = dp(SHELF_LEFT_DP) - pad;
+        slp.rightMargin = dp(SHELF_LEFT_DP) - pad;
         slp.topMargin = dp(SHELF_TOP_DP);
         overlay.addView(shelfBox, slp);
     }
 
     void refreshKeepWatching() {
         if (shelfRow == null) return;
-        shelfHeader.setText(I18n.s(host, "Keep watching", "İzlemeye devam et"));
+        shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
         if (!host.cwEnabled() || moreExpanded) {
-            shelfBox.setVisibility(View.GONE);
+            pkgWatchCache.clear();
+            hideShelf();
             return;
         }
-        if (shelfCards.isEmpty()) {
-            shelfBox.setVisibility(View.GONE);
+        final String curPkg = activeShelfPkg;
+        final List<String> dockPkgs = new ArrayList<>();
+        for (MainActivity.AppEntry e : dockEntries) {
+            if (e != null && e.pkg != null && !e.pkg.isEmpty()
+                    && !GEAR_KEY.equals(e.key) && !MORE_KEY.equals(e.key)) {
+                WatchPopup p = watchPopupFor(e.pkg);
+                if (p == null) {
+                    dockPkgs.add(e.pkg);
+                }
+            }
         }
-
+        final int gen = ++shelfLoadGen;
         host.io.execute(() -> {
-            List<WatchCardData> cards = loadWatchCards();
-            host.handler.post(() -> populateWatchRow(cards));
+            if (curPkg != null && !curPkg.isEmpty()) {
+                List<WatchCardData> curCards = loadWatchCardsForPackage(curPkg);
+                pkgWatchCache.put(curPkg, curCards);
+                host.handler.post(() -> {
+                    if (gen != shelfLoadGen || !curPkg.equals(activeShelfPkg)) return;
+                    populateWatchRow(curPkg, curCards);
+                });
+            }
+            for (String p : dockPkgs) {
+                if (p.equals(curPkg)) continue;
+                List<WatchCardData> cards = loadWatchCardsForPackage(p);
+                pkgWatchCache.put(p, cards);
+                for (WatchCardData cd : cards) {
+                    if (cd.thumb == null && cd.backdropUrl != null && !cd.backdropUrl.isEmpty()) {
+                        Bitmap b = Suggestions.image(host, cd.backdropUrl, "w300", 240);
+                        if (b != null) {
+                            shelfThumbs.put(cd.backdropUrl, b);
+                            cd.thumb = b;
+                        }
+                    }
+                }
+            }
         });
     }
 
-    private List<WatchCardData> loadWatchCards() {
+    void onDockTileFocusForShelf(View tile, MainActivity.AppEntry a, boolean isGear, boolean isMore, WatchPopup popup, boolean has) {
+        if (has) {
+            if (isGear || isMore || a == null || a.pkg == null || a.pkg.isEmpty()
+                    || moveDockIdx >= 0 || !host.cwEnabled() || moreExpanded
+                    || (popup != null && popup.isShowing())) {
+                hideShelf();
+                return;
+            }
+            showShelfForPackage(tile, a.pkg);
+        } else {
+            overlay.post(this::hideShelfIfFocusLeft);
+        }
+    }
+
+    private boolean shelfHiding;
+
+    private void showShelfForPackage(View tile, String pkg) {
+        activeShelfTile = tile;
+        activeShelfPkg = pkg;
+        shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
+        List<WatchCardData> cached = pkgWatchCache.get(pkg);
+        if (cached != null && !cached.isEmpty()) {
+            populateWatchRow(pkg, cached);
+        } else if (cached != null) {
+            animateShelfOut();
+        }
+        final int gen = ++shelfLoadGen;
+        final String targetPkg = pkg;
+        host.io.execute(() -> {
+            List<WatchCardData> fresh = loadWatchCardsForPackage(targetPkg);
+            pkgWatchCache.put(targetPkg, fresh);
+            host.handler.post(() -> {
+                if (gen != shelfLoadGen || !targetPkg.equals(activeShelfPkg)) return;
+                populateWatchRow(targetPkg, fresh);
+            });
+        });
+    }
+
+    private void hideShelfIfFocusLeft() {
+        View f = host.getCurrentFocus();
+        if (f != null && (f == activeShelfTile || shelfCards.contains(f)
+                || host.menuLayer != null || sheetLayer != null)) {
+            return;
+        }
+        if (f != null && dockTiles.contains(f)) {
+            return;
+        }
+        hideShelf();
+    }
+
+    void hideShelf() {
+        // A continue-watching popup took over (or the launcher just resumed): swap instantly.
+        if (isAnyPopupShowing() || cwAnimSuppressed()) {
+            hideShelfImmediate();
+            return;
+        }
+        activeShelfTile = null;
+        activeShelfPkg = null;
+        animateShelfOut();
+    }
+
+    /** Whether the Keep Watching shelf is on screen (and not fading away). */
+    boolean isShelfShowing() {
+        return shelfBox != null && shelfBox.getVisibility() == View.VISIBLE && !shelfHiding && !shelfCards.isEmpty();
+    }
+
+    boolean isAnyPopupShowing() {
+        for (WatchPopup p : watchPopups) if (p.isShowing()) return true;
+        return false;
+    }
+
+    boolean isOtherPopupShowing(WatchPopup self) {
+        for (WatchPopup p : watchPopups) if (p != self && p.isShowing()) return true;
+        return false;
+    }
+
+    void hideShelfImmediate() {
+        activeShelfTile = null;
+        activeShelfPkg = null;
+        lastWatchSig = "";
+        shelfHiding = false;
+        if (shelfRow != null) shelfRow.removeAllViews();
+        shelfCards.clear();
+        if (shelfBox != null) {
+            shelfBox.animate().cancel();
+            shelfBox.setAlpha(1f);
+            shelfBox.setTranslationY(0f);
+            shelfBox.setVisibility(View.GONE);
+        }
+    }
+
+    private void animateShelfOut() {
+        lastWatchSig = "";
+        shelfCards.clear();
+        if (shelfBox == null || shelfBox.getVisibility() != View.VISIBLE) {
+            shelfHiding = false;
+            if (shelfRow != null) shelfRow.removeAllViews();
+            if (shelfBox != null) shelfBox.setVisibility(View.GONE);
+            return;
+        }
+        if (shelfHiding) return;
+        shelfHiding = true;
+        shelfBox.animate().cancel();
+        shelfBox.animate()
+                .alpha(0f)
+                .translationY(dp(8))
+                .setDuration(140)
+                .withEndAction(() -> {
+                    if (shelfHiding) {
+                        shelfHiding = false;
+                        shelfBox.setVisibility(View.GONE);
+                        shelfBox.setTranslationY(0f);
+                        if (shelfRow != null) shelfRow.removeAllViews();
+                    }
+                })
+                .start();
+    }
+
+    private List<WatchCardData> loadWatchCardsForPackage(String pkg) {
         List<WatchCardData> out = new ArrayList<>();
-        List<Suggestions.Item> cw = MediaWatchService.Store.list(host);
+        if (pkg == null || pkg.isEmpty()) return out;
+        List<Suggestions.Item> cw = MediaWatchService.Store.listForPackage(host, pkg, MAX_SHELF_ITEMS);
+        String appName = host.appLabel(pkg);
         for (Suggestions.Item it : cw) {
-            if (out.size() >= 3) break;
+            if (out.size() >= MAX_SHELF_ITEMS) break;
             WatchCardData c = new WatchCardData();
             c.key = it.key;
-            c.pkg = it.pkg;
-            c.appName = host.appLabel(it.pkg);
+            c.pkg = pkg;
+            c.appName = appName;
             c.title = it.title;
-            if (it.remainingMin > 0) {
+            if (it.remainingMin > 0 && it.overview != null && !it.overview.isEmpty() && !it.overview.equals(it.title)) {
+                c.subtitle = it.overview + " · " + it.remainingMin + I18n.s(host, " min left", " dk kaldı");
+            } else if (it.remainingMin > 0) {
                 c.subtitle = it.remainingMin + I18n.s(host, " min left", " dk kaldı");
             } else if (it.overview != null && !it.overview.isEmpty()) {
                 c.subtitle = it.overview;
             } else {
                 c.subtitle = I18n.s(host, "Resume playback", "Oynatmaya devam et");
             }
-            c.progress = it.progress > 0 ? it.progress : 0.45f;
+            c.progress = it.progress > 0 ? it.progress : 0.08f;
             c.backdropUrl = it.backdrop;
             c.sourceItem = it;
             c.removable = true;
             if (it.backdrop != null && !it.backdrop.isEmpty()) {
-                c.thumb = Suggestions.image(host, it.backdrop, "w300", 240);
+                c.thumb = shelfThumbs.get(it.backdrop);
             }
             out.add(c);
         }
@@ -473,31 +666,35 @@ final class SceneHome {
 
     private String lastWatchSig = "";
 
-    private void populateWatchRow(List<WatchCardData> cards) {
-        if (cards == null || cards.isEmpty() || !host.cwEnabled() || moreExpanded) {
-            lastWatchSig = "";
-            shelfRow.removeAllViews();
-            shelfCards.clear();
-            shelfBox.setVisibility(View.GONE);
+    private void populateWatchRow(String pkg, List<WatchCardData> cards) {
+        if (cards == null || cards.isEmpty() || !host.cwEnabled() || moreExpanded || moveDockIdx >= 0
+                || pkg == null || !pkg.equals(activeShelfPkg)) {
+            boolean wasFocusedInShelf = shelfCards.contains(host.getCurrentFocus());
+            animateShelfOut();
+            if (wasFocusedInShelf) {
+                focusDock(focusedDockIdx);
+            }
             return;
         }
-        shelfBox.setVisibility(View.VISIBLE);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < cards.size() && i < 3; i++) {
+        boolean wasVisible = shelfBox.getVisibility() == View.VISIBLE && !shelfHiding;
+        StringBuilder sb = new StringBuilder(pkg).append("::");
+        for (int i = 0; i < cards.size() && i < MAX_SHELF_ITEMS; i++) {
             WatchCardData c = cards.get(i);
             sb.append(c.key).append('|').append(c.title).append('|').append(c.subtitle).append('|').append(c.progress).append(';');
         }
         String sig = sb.toString();
-        if (sig.equals(lastWatchSig) && !shelfCards.isEmpty()) {
+        if (sig.equals(lastWatchSig) && !shelfCards.isEmpty() && wasVisible) {
             return;
         }
+        int focusedSlot = shelfCards.indexOf(host.getCurrentFocus());
         lastWatchSig = sig;
         shelfRow.removeAllViews();
         shelfCards.clear();
+        if (shelfScroll != null) shelfScroll.scrollTo(0, 0);
         int cardW = dp(SHELF_CARD_W_DP);
         int cardH = dp(SHELF_CARD_H_DP);
         int gap = dp(SHELF_CARD_GAP_DP);
-        for (int i = 0; i < cards.size() && i < 3; i++) {
+        for (int i = 0; i < cards.size() && i < MAX_SHELF_ITEMS; i++) {
             final int idx = i;
             WatchCardData data = cards.get(i);
             View card = buildWatchCard(data, idx, cardW, cardH);
@@ -506,11 +703,39 @@ final class SceneHome {
             shelfRow.addView(card, lp);
             shelfCards.add(card);
         }
+        boolean wasHiding = shelfHiding;
+        shelfHiding = false;
+        shelfBox.animate().cancel();
+        shelfBox.setVisibility(View.VISIBLE);
+        if (wasVisible || isAnyPopupShowing() || cwAnimSuppressed()) {
+            // Switching between apps that both have a continue-watching row: no re-animation.
+            shelfBox.setAlpha(1f);
+            shelfBox.setTranslationY(0f);
+        } else {
+            if (!wasHiding) {
+                shelfBox.setAlpha(0f);
+                shelfBox.setTranslationY(dp(10));
+            }
+            shelfBox.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(180)
+                    .setInterpolator(MainActivity.LIFT)
+                    .withEndAction(null)
+                    .start();
+        }
+        if (focusedSlot >= 0 && !shelfCards.isEmpty()) {
+            shelfCards.get(Math.min(focusedSlot, shelfCards.size() - 1)).requestFocus();
+        }
     }
 
     private View buildWatchCard(WatchCardData d, int index, int cardW, int cardH) {
         View card = watchCard(d, cardW, cardH, (v, has) -> {
-            if (has) focusedShelfIdx = index;
+            if (has) {
+                focusedShelfIdx = index;
+            } else {
+                overlay.post(this::hideShelfIfFocusLeft);
+            }
         });
         card.setLongClickable(true);
         card.setOnClickListener(v -> openWatchCard(d));
@@ -518,6 +743,28 @@ final class SceneHome {
             showWatchCardMenu(v, d);
             return true;
         });
+        if (d.thumb == null && d.backdropUrl != null && !d.backdropUrl.isEmpty()) {
+            final ImageView thumbIv = card.findViewWithTag(WATCH_THUMB);
+            final String url = d.backdropUrl;
+            if (thumbIv != null) {
+                host.io.execute(() -> {
+                    Bitmap b = shelfThumbs.get(url);
+                    if (b == null) {
+                        b = Suggestions.image(host, url, "w300", 240);
+                        if (b != null) shelfThumbs.put(url, b);
+                    }
+                    if (b != null) {
+                        final Bitmap bmp = b;
+                        d.thumb = bmp;
+                        host.handler.post(() -> {
+                            if (thumbIv.isAttachedToWindow()) {
+                                thumbIv.setImageBitmap(bmp);
+                            }
+                        });
+                    }
+                });
+            }
+        }
         return card;
     }
 
@@ -529,14 +776,15 @@ final class SceneHome {
      * WatchPopup uses it too, so both rows look the same. Callers set click handling.
      */
     View watchCard(WatchCardData d, int cardW, int cardH, View.OnFocusChangeListener onFocus) {
-        LinearLayout card = new LinearLayout(host);
+        LinearLayout card = new LinearLayout(host) {
+            @Override public boolean hasOverlappingRendering() { return false; }
+        };
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
         int pad = dp(8);
         card.setPadding(pad, pad, dp(12), pad);
         card.setFocusable(true);
         card.setClickable(true);
-        card.setElevation(dp(5));
 
         float r = dp(15);
         MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
@@ -642,9 +890,8 @@ final class SceneHome {
 
         card.setOnFocusChangeListener((v, has) -> {
             v.setForeground(has ? focusRing : null);
-            v.animate().withLayer().scaleX(has ? 1.035f : 1f).scaleY(has ? 1.035f : 1f)
+            v.animate().scaleX(has ? 1.035f : 1f).scaleY(has ? 1.035f : 1f)
                     .translationY(has ? -dp(2) : 0)
-                    .translationZ(has ? dp(10) : 0)
                     .setDuration(180).setInterpolator(MainActivity.LIFT).start();
             if (onFocus != null) onFocus.onFocusChange(v, has);
         });
@@ -662,7 +909,6 @@ final class SceneHome {
         card.setGravity(Gravity.CENTER_VERTICAL);
         int pad = dp(8);
         card.setPadding(pad, pad, dp(12), pad);
-        card.setElevation(dp(5));
         MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
                 dp(15), 0x5C1E141C, host.glassSource, host.screenW, host.screenH, host.unit);
         glass.lens = dp(6);
@@ -734,8 +980,14 @@ final class SceneHome {
         boolean dim = false;
         for (WatchPopup p : watchPopups) dim |= p.isShowing();
         float a = dim ? 0f : 1f;
-        if (shelfHeader != null) shelfHeader.animate().alpha(a).setDuration(160).start();
-        if (shelfRow != null) shelfRow.animate().alpha(a).setDuration(160).start();
+        if (shelfHeader != null) {
+            shelfHeader.animate().cancel();
+            shelfHeader.setAlpha(a);
+        }
+        if (shelfRow != null) {
+            shelfRow.animate().cancel();
+            shelfRow.setAlpha(a);
+        }
     }
 
     private void openWatchCard(WatchCardData d) {
@@ -779,6 +1031,7 @@ final class SceneHome {
             labels.add(I18n.s(host, "Remove from Keep Watching", "İzlemeye Devam Et'ten Kaldır"));
             actions.add(() -> {
                 MediaWatchService.Store.remove(host, d.key);
+                if (d.pkg != null) pkgWatchCache.remove(d.pkg);
                 refreshKeepWatching();
             });
         }
@@ -801,12 +1054,12 @@ final class SceneHome {
         dockLabel.setTextColor(0xF5F5F5F7);
         dockLabel.setGravity(Gravity.CENTER);
         dockLabel.setSingleLine(true);
+        dockLabel.setEllipsize(TextUtils.TruncateAt.END);
         dockLabel.setPadding(dp(12), dp(5), dp(12), dp(5) + ptrH);
         dockLabel.setBackground(createMacTooltipDrawable());
-        dockLabel.setElevation(dp(12));
         dockLabel.setVisibility(View.INVISIBLE);
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dp(340), dp(26) + ptrH);
         llp.bottomMargin = dp(5);
         dockContainer.addView(dockLabel, llp);
 
@@ -823,7 +1076,6 @@ final class SceneHome {
         dockGlass.lens = dp(10);
         dockGlass.rimStrength = 0.38f;
         dockBox.setBackground(dockGlass);
-        dockBox.setElevation(dp(8));
 
         dockContainer.addView(dockBox, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -840,6 +1092,8 @@ final class SceneHome {
         final float ptrW = dp(9.5f);
         final float ptrH = dp(5f);
         final float strokeW = Math.max(1f, dp(0.8f));
+        final float padX = dp(24f);
+        final float minBubbleW = dp(44f);
         final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         fillPaint.setStyle(Paint.Style.FILL);
         fillPaint.setColor(0xEB1C1E24);
@@ -849,6 +1103,9 @@ final class SceneHome {
         borderPaint.setColor(0x2EFFFFFF);
 
         return new Drawable() {
+            private final android.graphics.Path cachedPath = new android.graphics.Path();
+            private float lastLeft = -1f, lastRight = -1f, lastH = -1f;
+
             @Override
             public void draw(Canvas canvas) {
                 android.graphics.Rect b = getBounds();
@@ -858,15 +1115,29 @@ final class SceneHome {
 
                 float halfStroke = strokeW / 2f;
                 float cx = w / 2f;
-                android.graphics.Path path = buildTooltipPath(
-                        halfStroke, halfStroke, w - halfStroke, h, rad, cx, ptrW, ptrH);
-                canvas.drawPath(path, fillPaint);
-                canvas.drawPath(path, borderPaint);
+                float textW = 0f;
+                if (dockLabel != null && dockLabel.getText() != null) {
+                    CharSequence cs = dockLabel.getText();
+                    textW = dockLabel.getPaint().measureText(cs, 0, cs.length());
+                }
+                float bubbleW = Math.min(w - strokeW, Math.max(minBubbleW, textW + padX));
+                float left = Math.max(halfStroke, cx - bubbleW / 2f);
+                float right = Math.min(w - halfStroke, cx + bubbleW / 2f);
+
+                if (Math.abs(left - lastLeft) > 0.5f || Math.abs(right - lastRight) > 0.5f || Math.abs(h - lastH) > 0.5f) {
+                    lastLeft = left;
+                    lastRight = right;
+                    lastH = h;
+                    buildTooltipPath(cachedPath, left, halfStroke, right, h, rad, cx, ptrW, ptrH);
+                }
+                canvas.drawPath(cachedPath, fillPaint);
+                canvas.drawPath(cachedPath, borderPaint);
             }
 
-            private android.graphics.Path buildTooltipPath(
+            private void buildTooltipPath(
+                    android.graphics.Path p,
                     float l, float t, float r, float b, float radius, float cx, float pw, float ph) {
-                android.graphics.Path p = new android.graphics.Path();
+                p.reset();
                 float cr = Math.min(radius, Math.min((r - l) / 2f, (b - t) / 2f));
                 float pLeft = Math.max(l + cr, cx - pw / 2f);
                 float pRight = Math.min(r - cr, cx + pw / 2f);
@@ -884,7 +1155,6 @@ final class SceneHome {
                 p.lineTo(l, t + cr);
                 p.quadTo(l, t, l + cr, t);
                 p.close();
-                return p;
             }
 
             @Override
@@ -1111,6 +1381,7 @@ final class SceneHome {
         tile.setOnFocusChangeListener((v, has) -> {
             WatchPopup popup = isGear || isMore ? null : watchPopupFor(a.pkg);
             if (popup != null) popup.onTileFocus(v, a.pkg, has && moveDockIdx < 0);
+            onDockTileFocusForShelf(v, a, isGear, isMore, popup, has);
             v.setPivotX(v.getWidth() > 0 ? v.getWidth() / 2f : size / 2f);
             v.setPivotY(v.getHeight() > 0 ? v.getHeight() / 2f : size / 2f);
             v.setForeground(has ? focusRing : null);
@@ -1124,14 +1395,12 @@ final class SceneHome {
                 } else {
                     updateDockTooltip(v, a.label);
                 }
-                v.animate().withLayer().scaleX(1.13f).scaleY(1.13f)
+                v.animate().scaleX(1.13f).scaleY(1.13f)
                         .translationY(0f)
-                        .translationZ(isGear || isMore ? 0f : dp(8))
                         .setDuration(190).setInterpolator(MainActivity.LIFT).start();
             } else {
-                v.animate().withLayer().scaleX(1f).scaleY(1f)
+                v.animate().scaleX(1f).scaleY(1f)
                         .translationY(0f)
-                        .translationZ(0f)
                         .setDuration(150).setInterpolator(MainActivity.EASE).start();
                 overlay.post(() -> {
                     if (!isAnyDockTileFocused()) updateDockTooltip(null, "");
@@ -1199,8 +1468,8 @@ final class SceneHome {
 
     private void toggleMoreApps() {
         moreExpanded = !moreExpanded;
-        if (shelfBox != null) {
-            shelfBox.setVisibility((moreExpanded || !host.cwEnabled() || shelfCards.isEmpty()) ? View.GONE : View.VISIBLE);
+        if (moreExpanded) {
+            hideShelf();
         }
         rebuildDock();
         focusDock(Math.min(focusedDockIdx, dockTiles.size() - 1));
@@ -1287,6 +1556,7 @@ final class SceneHome {
 
     private void startDockMove(int index) {
         moveDockIdx = index;
+        hideShelf();
         focusDock(index);
         if (index >= 0 && index < dockTiles.size()) {
             startDockWiggle(dockTiles.get(index));
@@ -1316,6 +1586,7 @@ final class SceneHome {
         moveDockIdx = -1;
         if (idx >= 0 && idx < dockEntries.size() && idx < dockTiles.size()) {
             updateDockTooltip(dockTiles.get(idx), dockEntries.get(idx).label);
+            focusDock(idx);
         }
     }
 
@@ -1345,12 +1616,16 @@ final class SceneHome {
         View tile = dockTiles.get(clamped);
         boolean alreadyFocused = tile.isFocused();
         tile.requestFocus();
-        // Coming back to Home with focus still on the Nuvio/Stremio tile fires no focus change,
-        // so the popup (hidden when the launcher paused) has to be told directly.
+        // Coming back to Home with focus still on the same dock tile fires no focus change,
+        // so the popup/shelf has to be told directly.
         if (alreadyFocused && moveDockIdx < 0 && clamped < dockEntries.size()) {
-            String pkg = dockEntries.get(clamped).pkg;
-            WatchPopup popup = watchPopupFor(pkg);
+            MainActivity.AppEntry entry = dockEntries.get(clamped);
+            String pkg = entry.pkg;
+            boolean isGear = GEAR_KEY.equals(entry.key);
+            boolean isMore = MORE_KEY.equals(entry.key);
+            WatchPopup popup = isGear || isMore ? null : watchPopupFor(pkg);
             if (popup != null) popup.onTileFocus(tile, pkg, true);
+            onDockTileFocusForShelf(tile, entry, isGear, isMore, popup, true);
         }
     }
 
@@ -1626,9 +1901,6 @@ final class SceneHome {
                 dp(18), 0xBD1C181E, host.glassSource, host.screenW, host.screenH, host.unit);
         glass.lens = dp(7);
         card.setBackground(glass);
-        card.setOutlineProvider(host.roundedOutline(new float[]{dp(18)}));
-        card.setClipToOutline(true);
-        card.setElevation(dp(24));
 
         View btnHomeSettings = makeGearOptionRow(
                 "sliders",
@@ -1636,7 +1908,7 @@ final class SceneHome {
                 I18n.s(host, "Language, weather, scenes, apps and people",
                         "Dil, hava durumu, sahneler, uygulamalar ve kişiler"),
                 () -> {
-                    closeSheet();
+                    closeSheetImmediate();
                     host.returningFromSettings = true;
                     host.startActivity(new Intent(host, SettingsActivity.class));
                 });
@@ -1648,7 +1920,7 @@ final class SceneHome {
                 I18n.s(host, "Wi-Fi, picture, sound and the rest of the TV",
                         "Wi-Fi, görüntü, ses ve diğer TV ayarları"),
                 () -> {
-                    closeSheet();
+                    closeSheetImmediate();
                     host.startSafe(new Intent(Settings.ACTION_SETTINGS));
                 });
         LinearLayout.LayoutParams tvlp = new LinearLayout.LayoutParams(
@@ -1703,15 +1975,17 @@ final class SceneHome {
         row.setBackground(bg);
 
         FrameLayout iconBox = new FrameLayout(host);
+        int iconBoxSz = dp(28);
+        final float iconRad = iconBoxSz * 0.26f;
         GradientDrawable ibg = new GradientDrawable();
-        ibg.setCornerRadius(dp(8));
+        ibg.setCornerRadius(iconRad);
         ibg.setColor(0x1FFFFFFF);
         iconBox.setBackground(ibg);
         ImageView iconIv = new ImageView(host);
-        iconIv.setScaleType(ImageView.ScaleType.CENTER);
+        iconIv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         iconIv.setImageBitmap(Glyphs.get(glyphName, dp(16), 0xEBF4F4F6));
         iconBox.addView(iconIv, new FrameLayout.LayoutParams(dp(16), dp(16), Gravity.CENTER));
-        LinearLayout.LayoutParams iblp = new LinearLayout.LayoutParams(dp(28), dp(28));
+        LinearLayout.LayoutParams iblp = new LinearLayout.LayoutParams(iconBoxSz, iconBoxSz);
         iblp.rightMargin = dp(10);
         row.addView(iconBox, iblp);
 
@@ -1743,9 +2017,6 @@ final class SceneHome {
             iconIv.setImageBitmap(Glyphs.get(glyphName, dp(16), has ? 0xFF111114 : 0xEBF4F4F6));
             t.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             s.setTextColor(has ? 0x99000000 : 0x9EF4F4F6);
-            v.setElevation(0f);
-            v.animate().scaleX(1f).scaleY(1f)
-                    .setDuration(150).setInterpolator(MainActivity.EASE).start();
         });
         row.setOnClickListener(v -> onClick.run());
         return row;
@@ -1897,6 +2168,19 @@ final class SceneHome {
 
     boolean isSheetOpen() {
         return sheetLayer != null;
+    }
+
+    void closeSheetImmediate() {
+        if (sheetLayer == null) return;
+        FrameLayout l = sheetLayer;
+        sheetLayer = null;
+        sheetReturnFocus = null;
+        if (shelfBox != null && shelfBox.getVisibility() == View.VISIBLE) {
+            shelfBox.animate().cancel();
+            shelfBox.setAlpha(1f);
+        }
+        l.animate().cancel();
+        host.root.removeView(l);
     }
 
     void closeSheet() {
@@ -2063,8 +2347,7 @@ final class SceneHome {
                     } else if (dIdx >= cols) {
                         focusDock(dIdx - cols);
                     } else if (shelfBox.getVisibility() == View.VISIBLE && !shelfCards.isEmpty()) {
-                        int target = Math.min(shelfCards.size() - 1, dIdx * shelfCards.size() / cols);
-                        shelfCards.get(target).requestFocus();
+                        shelfCards.get(0).requestFocus();
                     } else {
                         moonBtn.requestFocus();
                     }

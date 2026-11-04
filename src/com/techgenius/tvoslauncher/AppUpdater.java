@@ -71,7 +71,7 @@ public final class AppUpdater {
     }
 
     public static String getCurrentVersion(Context c) {
-        if (c == null) return "2.1.0";
+        if (c == null) return "2.1.2";
         try {
             PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
             if (pi != null && pi.versionName != null && !pi.versionName.isEmpty()) {
@@ -79,7 +79,7 @@ public final class AppUpdater {
             }
         } catch (Throwable ignored) {
         }
-        return "2.1.0";
+        return "2.1.2";
     }
 
     public static String getCachedLatestVersion(Context c) {
