@@ -36,6 +36,10 @@ Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zaman
   - `LiquidGlass` cam efektleri ve shader'lar optimize edilerek gereksiz matris hesaplamaları ve tam ekran katmanları kaldırıldı.
   - Dock kartları ve menülerdeki gereksiz 3D gölge yükseklikleri (`translationZ`) temizlendi.
   - `dumpsys gfxinfo` ile doğrulandı: 99. yüzdelik GPU kare süreleri 14ms seviyesine düşürüldü (60 FPS için gereken 16.6ms sınırının oldukça altında).
+- **Yerel ADB ile Otomatik Güncelleme Düzeltmesi**:
+  - TV'de ADB açıkken başlatıcının varsayılan modu olan Güvenli Mod (`ADB_MODE_SECURE_CLOSE`) nedeniyle ADB üzerinden otomatik güncellemenin başlatılamaması sorunu giderildi.
+  - `/data/local/tmp` dizinine aktarılan güncelleme APK dosyasına `chmod 644` yetkisi verilerek Android `system_server` (UID 1000) servisinin izin hatası almadan APK'yı kurabilmesi sağlandı (Android 8–14 uyumluluğu).
+  - Arka plan `pm install` komutunda `stdin`, `stdout` ve `stderr` bağlantıları tam olarak ayrıldı, otomatik izin onaylama için `-g` bayrağı eklendi ve ADB kurulumu başarısız olursa paket yükleyiciye düşmeden önce kullanıcıya bilgilendirici toast bildirimi eklendi.
 
 ---
 

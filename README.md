@@ -36,6 +36,10 @@ A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Goo
   - Optimized `LiquidGlass` shaders (eliminated redundant matrix computations and full-screen offscreen layers).
   - Removed unnecessary 3D shadow meshes and elevation translations on dock cards and menus.
   - Validated via `dumpsys gfxinfo`: 99th percentile GPU frame times maintained under 14ms (well within the 16.6ms 60 FPS budget).
+- **Local ADB Auto-Update Fix**:
+  - Fixed an issue where in-app auto-update via Local ADB was inadvertently blocked when the launcher's default ADB mode was active (`ADB_MODE_SECURE_CLOSE`).
+  - Added `chmod 644` to the staged update APK in `/data/local/tmp` so Android's `system_server` (UID 1000) can parse and install the APK without permission denial across Android 8 through Android 14.
+  - Fully detached `stdin`, `stdout`, and `stderr` on the background `pm install` execution, added `-g` for automatic permission granting, and added user feedback if an ADB install fails before falling back to the package installer.
 
 ---
 

@@ -1202,7 +1202,7 @@ final class LocalAdb {
      * so updating self never crashes or leaves the launcher closed.
      */
     static boolean installApkViaAdb(Context c, File apkFile) {
-        if (c == null || getAdbMode(c) == ADB_MODE_SECURE_CLOSE || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
+        if (c == null || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
             return false;
         }
         String[] hosts = {"127.0.0.1", localLanIp()};
@@ -1219,21 +1219,27 @@ final class LocalAdb {
                     File dlDir = android.os.Environment.getExternalStoragePublicDirectory(
                             android.os.Environment.DIRECTORY_DOWNLOADS);
                     if (dlDir != null) {
-                        if (!dlDir.exists()) dlDir.mkdirs();
-                        File dlApk = new File(dlDir, "tvos-update.apk");
-                        copyLocalFile(apkFile, dlApk);
-                        dlApk.setReadable(true, false);
-                        cpCmd.append("cp \"").append(dlApk.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
+                        try {
+                            if (!dlDir.exists()) dlDir.mkdirs();
+                            File dlApk = new File(dlDir, "tvos-update.apk");
+                            copyLocalFile(apkFile, dlApk);
+                            dlApk.setReadable(true, false);
+                            cpCmd.append("cp \"").append(dlApk.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
+                        } catch (Throwable ignored) {
+                        }
                     }
                     File extDir = c.getExternalCacheDir();
                     if (extDir != null) {
-                        File extApk = new File(extDir, "tvos-update.apk");
-                        copyLocalFile(apkFile, extApk);
-                        extApk.setReadable(true, false);
-                        cpCmd.append("cp \"").append(extApk.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
+                        try {
+                            File extApk = new File(extDir, "tvos-update.apk");
+                            copyLocalFile(apkFile, extApk);
+                            extApk.setReadable(true, false);
+                            cpCmd.append("cp \"").append(extApk.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
+                        } catch (Throwable ignored) {
+                        }
                     }
                     cpCmd.append("cp \"").append(apkFile.getAbsolutePath()).append("\" ").append(remoteTmp).append(" 2>/dev/null; ");
-                    cpCmd.append("[ -s ").append(remoteTmp).append(" ] && echo STAGED_OK");
+                    cpCmd.append("chmod 644 ").append(remoteTmp).append(" 2>/dev/null; [ -s ").append(remoteTmp).append(" ] && echo STAGED_OK");
                     String cpOut = runShellCommandOutput(c, h, 5555, cpCmd.toString());
                     if (cpOut != null && cpOut.contains("STAGED_OK")) {
                         staged = true;
@@ -1257,15 +1263,15 @@ final class LocalAdb {
                 } catch (Throwable ignored) {
                 }
                 String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
-                String installCmd = "nohup sh -c '"
-                        + "sleep 1; "
-                        + "pm install -r -d " + remoteTmp + " || pm install -r " + remoteTmp + "; "
+                String installCmd = "(chmod 644 " + remoteTmp + " 2>/dev/null; "
+                        + "sleep 2; "
+                        + "pm install -r -d -g " + remoteTmp + " || pm install -r -g " + remoteTmp + " || pm install -r " + remoteTmp + "; "
                         + "rm -f " + remoteTmp + " /sdcard/Download/tvos-update.apk 2>/dev/null; "
                         + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
-                        + "settings put secure enabled_accessibility_services \"" + newAcc + "\"; "
-                        + "settings put secure accessibility_enabled 1; "
-                        + "am start -n " + pkg + "/" + pkg + ".MainActivity"
-                        + "' >/dev/null 2>&1 & echo STARTED";
+                        + "settings put secure enabled_accessibility_services '" + newAcc + "' 2>/dev/null; "
+                        + "settings put secure accessibility_enabled 1 2>/dev/null; "
+                        + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null || am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null"
+                        + ") </dev/null >/dev/null 2>&1 & echo STARTED";
                 String out = runShellCommandOutput(c, h, 5555, installCmd);
                 if (out != null && out.contains("STARTED")) {
                     portReachable = true;
@@ -1351,7 +1357,7 @@ final class LocalAdb {
                 }
                 sendPacket(out, A_CLSE, localId, remoteId, null);
             }
-            String check = runShellCommandOutput(c, host, port, "[ -s " + remotePath + " ] && echo STREAM_OK");
+            String check = runShellCommandOutput(c, host, port, "chmod 644 " + remotePath + " 2>/dev/null; [ -s " + remotePath + " ] && echo STREAM_OK");
             return check != null && check.contains("STREAM_OK");
         } catch (Throwable t) {
             return false;

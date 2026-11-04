@@ -620,6 +620,11 @@ public final class AppUpdater {
                         if (onUiRefresh != null) MAIN.post(onUiRefresh);
                         return;
                     }
+                    MAIN.post(() -> Toast.makeText(appCtx,
+                            I18n.s(appCtx,
+                                    "ADB install failed, opening package installer…",
+                                    "ADB kurulumu başarısız, paket yükleyici açılıyor…"),
+                            Toast.LENGTH_SHORT).show());
                 }
 
                 // 2. If ADB is disabled (Secure Mode) or ADB install was unavailable, use system PackageInstaller
