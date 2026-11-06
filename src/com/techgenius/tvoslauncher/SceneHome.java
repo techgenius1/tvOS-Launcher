@@ -161,10 +161,11 @@ final class SceneHome {
         return false;
     }
 
-    void onWatchPopupsResume() {
+    /** @param returnedFrom package of the app the launcher opened before this resume, or null. */
+    void onWatchPopupsResume(String returnedFrom) {
         // Home pressed / launcher resumed: rows reappear in place, without the entrance slide.
         suppressCwAnimUntil = android.os.SystemClock.uptimeMillis() + 700L;
-        for (WatchPopup p : watchPopups) p.onLauncherResume();
+        for (WatchPopup p : watchPopups) p.onLauncherResume(returnedFrom != null && p.owns(returnedFrom));
     }
 
     /** Uptime until which Continue Watching rows show/hide instantly (set on resume). */

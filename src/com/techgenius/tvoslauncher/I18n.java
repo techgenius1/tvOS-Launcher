@@ -516,6 +516,7 @@ public final class I18n {
         add("Update Available", "अपडेट उपलब्ध है", "Actualización disponible", "Mise à jour disponible", "Update verfügbar", "Aggiornamento disponibile", "Доступно обновление", "Atualização disponível", "يتوفر تحديث", "アップデートがあります", "发现新版本");
         add("Download & Install", "डाउनलोड और इंस्टॉल करें", "Descargar e instalar", "Télécharger et installer", "Herunterladen & installieren", "Scarica e installa", "Скачать и установить", "Transferir e instalar", "تنزيل وتثبيت", "ダウンロードしてインストール", "下载并安装");
         add("Up to Date", "अप टू डेट", "Actualizado", "À jour", "Auf dem neuesten Stand", "Aggiornato", "Установлена последняя версия", "Atualizado", "محدّث لأحدث إصدار", "最新の状態です", "已是最新版本");
+        add("Scroll for more ›", "और देखने के लिए स्क्रॉल करें ›", "Desplaza para ver más ›", "Faites défiler pour plus ›", "Für mehr scrollen ›", "Scorri per altro ›", "Прокрутите, чтобы увидеть больше ›", "Deslize para ver mais ›", "مرّر للمزيد ›", "スクロールしてもっと見る ›", "滚动查看更多 ›");
     }
 
     private static void sv(String en, String svVal) {
@@ -868,6 +869,7 @@ public final class I18n {
         sv("Backup settings to Download", "Säkerhetskopiera inställningar till Download");
         sv("Restore settings from folder…", "Återställ inställningar från mapp…");
         sv("Choose folder ›", "Välj mapp ›");
+        sv("Scroll for more ›", "Skrolla för mer ›");
     }
 
     private static void ko(String en, String koVal) {
@@ -1223,6 +1225,7 @@ public final class I18n {
         ko("Not done", "미완료");
         ko("apps", "개 앱");
         ko("packages", "개 패키지");
+        ko("Scroll for more ›", "더 보려면 스크롤 ›");
     }
 
     private I18n() { }

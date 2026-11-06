@@ -68,6 +68,12 @@ final class WatchPopup {
     private int rowInset;
     /** Height of the plain header text; the shelf's "Keep watching" header is the same size. */
     private int headerTextH;
+    /** "Scroll for more" at the header's right end, while a card is cut off on the right. */
+    private TextView moreHint;
+    private boolean moreHintShown;
+    /** The card row's scroller, and the hint's numbers in its content coordinates. */
+    private HorizontalScrollView moreScroll;
+    private int lastCardRight, visibleRowW;
 
     /** Profiles of the signed-in account; buttons show when there are 2 or more. */
     private List<WatchCloud.Profile> profiles;
@@ -86,6 +92,10 @@ final class WatchPopup {
     private List<WatchCloud.Item> items;  // null = never loaded
     private boolean loading, loadFailed;
     private long lastLoad;
+    /** When the last load started (elapsedRealtime), successful or not; throttles focus refreshes. */
+    private long lastLoadStartedAt;
+    /** Focusing the tile again reloads the row at most this often (e.g. something watched on a phone). */
+    private static final long FOCUS_REFRESH_MS = 30_000L;
 
     private WatchCloud.QrLogin qr;
     private Bitmap qrBitmap;
@@ -127,8 +137,13 @@ final class WatchPopup {
 
     // ------------------------------------------------------------------ lifecycle hooks
 
-    /** Launcher opened or came back to the front. Signed out: do nothing at all. */
-    void onLauncherResume() {
+    /**
+     * Launcher opened or came back to the front. Signed out: do nothing at all.
+     *
+     * @param returnedFromApp the user just left this popup's app (Nuvio / Stremio): reload now,
+     *                        skipping the usual refresh throttle, so the row shows what was just watched.
+     */
+    void onLauncherResume(boolean returnedFromApp) {
         if (!cloud.isSignedIn() && (items != null || !profiles.isEmpty())) {
             // Signed out in Settings while away: forget the old account's row and profiles,
             // and drop the result of any load still on its way.
@@ -148,11 +163,28 @@ final class WatchPopup {
             }
         }
         if (!cloud.popupEnabled() || !cloud.isSignedIn()) return;
-        if (!loading && System.currentTimeMillis() - lastLoad > REFRESH_AFTER_MS) load();
+        if (returnedFromApp) {
+            load();
+            // The app may still be uploading its last position when we come back; check once more.
+            host.handler.removeCallbacks(followUpLoad);
+            host.handler.postDelayed(followUpLoad, FOLLOW_UP_LOAD_MS);
+        } else if (!loading && System.currentTimeMillis() - lastLoad > REFRESH_AFTER_MS) {
+            load();
+        }
+    }
+
+    /** Second reload after returning from the app, for progress its cloud sync saved late. */
+    private static final long FOLLOW_UP_LOAD_MS = 5_000L;
+
+    private final Runnable followUpLoad = this::followUpLoad;
+
+    private void followUpLoad() {
+        if (cloud.popupEnabled() && cloud.isSignedIn()) load();
     }
 
     void onLauncherPause() {
         host.handler.removeCallbacks(applyFocusedProfile);
+        host.handler.removeCallbacks(followUpLoad);
         stopPolling();
         // Stay on screen (no hide/show cycle on Home); just settle any running animation.
         panel.animate().cancel();
@@ -211,6 +243,11 @@ final class WatchPopup {
             ensureQrLogin();
         } else if (items == null && !loading) {
             load();  // signed in, but nothing loaded yet (e.g. resume refresh failed)
+        } else if (!loading && android.os.SystemClock.elapsedRealtime() - lastLoadStartedAt >= FOCUS_REFRESH_MS) {
+            // Tile focused again: refresh in the background, so something watched elsewhere
+            // (another device, a phone) shows up without leaving the launcher. Moving back and
+            // forth across the tile loads at most once per FOCUS_REFRESH_MS.
+            load();
         }
         render();
         if (!wasVisible) {
@@ -287,7 +324,7 @@ final class WatchPopup {
         final int gen = ++loadGen;
         final int wanted = cloud.profile();
         loading = true;
-        if (visible) render();
+        lastLoadStartedAt = android.os.SystemClock.elapsedRealtime();        if (visible) render();
         exec.execute(() -> {
             List<WatchCloud.Profile> ps = null;
             List<WatchCloud.Item> result = null;
@@ -317,20 +354,26 @@ final class WatchPopup {
             final List<WatchCloud.Item> r = result;
             final boolean so = signedOut, fl = failed;
             host.handler.post(() -> {
+                String oldProfiles = profilesSig(profiles);
                 if (p != null) profiles = p;
                 if (gen != loadGen) return;  // a newer load (another profile) is already on its way
                 loading = false;
+                boolean redraw = true;
                 if (so) {
                     items = null;
                     if (visible) ensureQrLogin();
                 } else if (fl) {
+                    redraw = !loadFailed;
                     loadFailed = true;  // keep showing the cached row, if any
                 } else {
+                    // Nothing new (the usual focus refresh): leave the row alone, so cards the
+                    // user is moving through aren't rebuilt under them.
+                    redraw = loadFailed || !sameItems(items, r) || !oldProfiles.equals(profilesSig(profiles));
                     items = r;
                     loadFailed = false;
                     lastLoad = System.currentTimeMillis();
                 }
-                if (visible) render();
+                if (visible && redraw) render();
             });
         });
     }
@@ -353,6 +396,31 @@ final class WatchPopup {
         items = cloud.loadCache(index);
         loadFailed = false;
         load();
+    }
+
+    /** Whether two rows would draw the same cards. */
+    private static boolean sameItems(List<WatchCloud.Item> a, List<WatchCloud.Item> b) {
+        if (a == null || b == null || a.size() != b.size()) return a == b;
+        for (int i = 0; i < a.size(); i++) {
+            WatchCloud.Item x = a.get(i), y = b.get(i);
+            if (!java.util.Objects.equals(x.contentId, y.contentId)
+                    || !java.util.Objects.equals(x.videoId, y.videoId)
+                    || !java.util.Objects.equals(x.title, y.title)
+                    || !java.util.Objects.equals(x.poster, y.poster)
+                    || x.season != y.season || x.episode != y.episode
+                    || x.position != y.position || x.duration != y.duration
+                    || x.upNext != y.upNext) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static String profilesSig(List<WatchCloud.Profile> ps) {
+        if (ps == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (WatchCloud.Profile p : ps) sb.append(p.index).append(':').append(p.name).append(';');
+        return sb.toString();
     }
 
     private static WatchCloud.Profile find(List<WatchCloud.Profile> ps, int index) {
@@ -463,6 +531,8 @@ final class WatchPopup {
         statusBox = null;
         ghosts.clear();
         rowInset = 0;
+        moreHint = null;
+        moreScroll = null;
 
         String cw = I18n.s(host, "Continue watching", "İzlemeye devam et");
         if (!cloud.isSignedIn()) {
@@ -498,7 +568,25 @@ final class WatchPopup {
             if (target != null) target.requestFocus();
             panel.setFocusable(false);
         }
+        updateMoreHint(false);
         position();
+    }
+
+    /**
+     * Shows "Scroll for more" while at least one card is cut off or hidden on the right, and
+     * fades it out once the last card is fully on screen.
+     */
+    private void updateMoreHint(boolean animate) {
+        if (moreHint == null || moreScroll == null) return;
+        boolean show = lastCardRight > moreScroll.getScrollX() + visibleRowW + 1;
+        if (!animate) {
+            moreHint.animate().cancel();
+            moreHint.setAlpha(show ? 1f : 0f);
+        } else if (show != moreHintShown) {
+            moreHint.animate().cancel();
+            moreHint.animate().alpha(show ? 1f : 0f).setDuration(show ? 200 : 140).start();
+        }
+        moreHintShown = show;
     }
 
     /**
@@ -606,7 +694,7 @@ final class WatchPopup {
         int pad = dp(SceneHome.SHELF_HEADER_GAP_DP);
         rowInset = pad;
 
-        addHeader(header, pad);
+        LinearLayout headerRow = addHeader(header, pad);
 
         LinearLayout row = new LinearLayout(host);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -645,8 +733,43 @@ final class WatchPopup {
         int n = items.size();
         int contentW = n * cardW + (n - 1) * gap + 2 * pad;
         int maxW = host.screenW - 2 * dp(SceneHome.SHELF_LEFT_DP) + 2 * pad;
-        panel.addView(scroll, new LinearLayout.LayoutParams(Math.min(contentW, maxW),
+        int scrollW = Math.min(contentW, maxW);
+        panel.addView(scroll, new LinearLayout.LayoutParams(scrollW,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        if (contentW > maxW) {
+            addMoreHint(headerRow, scrollW - pad);
+            moreScroll = scroll;
+            lastCardRight = contentW - pad;  // the row has `pad` of room after its last card
+            // The part of the scroller that is on screen (it may run past the screen's right edge).
+            int scrollLeftOnScreen = dp(SceneHome.SHELF_LEFT_DP) - pad;
+            visibleRowW = Math.min(scrollW, host.screenW - scrollLeftOnScreen);
+            scroll.setOnScrollChangeListener((v, x, y, ox, oy) -> updateMoreHint(true));
+        }
+    }
+
+    /**
+     * Stretches the header row to the right edge of the visible cards and puts "Scroll for more"
+     * at its end, on the same line as the header.
+     *
+     * @param cardsRight x of the last visible card's right edge, in panel coordinates
+     */
+    private void addMoreHint(LinearLayout headerRow, int cardsRight) {
+        LinearLayout.LayoutParams hlp = (LinearLayout.LayoutParams) headerRow.getLayoutParams();
+        // Inset from the cards' right edge by as much as the header text is from their left edge.
+        hlp.width = cardsRight - hlp.leftMargin - dp(2);
+        headerRow.setLayoutParams(hlp);
+
+        headerRow.addView(new View(host), new LinearLayout.LayoutParams(0, 0, 1f));
+        TextView hint = label(I18n.s(host, "Scroll for more ›", "Daha fazlası için kaydır ›"),
+                10f, 0x99F4F4F6, "regular");
+        hint.setSingleLine(true);
+        hint.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = dp(12);
+        headerRow.addView(hint, lp);
+        moreHint = hint;
     }
 
     private SceneHome.WatchCardData cardData(WatchCloud.Item it, String pkg, String appName) {
@@ -705,10 +828,13 @@ final class WatchPopup {
         String pkg = anchorPkg != null ? anchorPkg : cloud.defaultPackage();
         PackageManager pm = host.getPackageManager();
         Intent i = Suggestions.view(cloud.deepLink(it), pkg);
-        if (i.resolveActivity(pm) != null && Suggestions.start(host, i)) return;
-        Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
-        if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
-        if (launch != null) Suggestions.start(host, launch);
+        boolean started = i.resolveActivity(pm) != null && Suggestions.start(host, i);
+        if (!started) {
+            Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
+            if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
+            started = launch != null && Suggestions.start(host, launch);
+        }
+        if (started) host.lastLaunchedPkg = pkg;  // reload the row when the user comes back
     }
 
     /**
@@ -747,7 +873,7 @@ final class WatchPopup {
      * Header in the same look as the shelf's "Keep watching" header, followed by the account's
      * profile buttons when the account has more than one profile.
      */
-    private void addHeader(String s, int indent) {
+    private LinearLayout addHeader(String s, int indent) {
         LinearLayout row = new LinearLayout(host);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -778,6 +904,7 @@ final class WatchPopup {
         int any = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         row.measure(any, any);
         headerTextH = h.getMeasuredHeight();  // same text style as the shelf's header
+        return row;
     }
 
     /**
