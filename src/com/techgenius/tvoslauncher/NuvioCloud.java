@@ -37,8 +37,7 @@ final class NuvioCloud extends WatchCloud {
     private static final String K_ACCESS = "access", K_REFRESH = "refresh", K_EXPIRES = "expires_at",
             K_PROFILE = "profile", K_META = "meta_cache", K_PROFILES = "profiles_cache";
     static final int MAX_PROFILES = MAX_CACHED_PROFILES;
-    /** Ignore titles opened for less than a minute; Nuvio itself marks >= 90% as watched. */
-    static final long MIN_POSITION_MS = 60_000L;
+    /** Nuvio marks >= 90% as watched (WatchProgress.COMPLETED_THRESHOLD). */
     static final double WATCHED_FRACTION = 0.90;
 
     NuvioCloud(Context c) {
@@ -175,36 +174,156 @@ final class NuvioCloud extends WatchCloud {
 
     // ------------------------------------------------------------------ continue watching
 
-    /** Newest in-progress titles, with title + poster filled in (see {@link #enrich}). */
+    /**
+     * The same row the Nuvio app shows, with title + poster filled in (see {@link #enrich}).
+     * Follows the app's rules (NuvioTV HomeViewModelContinueWatching):
+     * - Per title only its most recent entry counts (ties, e.g. a season marked watched at once:
+     *   the highest episode). An older half-watched episode never comes back once a later one
+     *   was finished.
+     * - That entry not finished (under 90%): a resume card.
+     * - A show whose latest entry is finished: an "Up next" card for the episode after the
+     *   furthest finished one, once it has aired. Finished movies and shows drop out.
+     */
     @Override List<Item> continueWatching(int profile, int max) throws Exception {
         JSONObject body = new JSONObject().put("p_profile_id", profile).put("p_limit", 200);
         JSONArray rows = new JSONArray(rpc("sync_pull_watch_progress", body));
 
-        // Rows arrive newest first; keep the newest episode per show.
         Map<String, Item> latest = new LinkedHashMap<>();
+        Map<String, Item> furthestFinished = new HashMap<>();
         for (int i = 0; i < rows.length(); i++) {
             JSONObject o = rows.getJSONObject(i);
             Item it = new Item();
             it.contentId = o.optString("content_id", "");
-            it.type = o.optString("content_type", "movie");
+            String type = o.optString("content_type", "movie");
+            it.type = "tv".equalsIgnoreCase(type) ? "series" : type.toLowerCase(java.util.Locale.ROOT);
             it.videoId = o.optString("video_id", it.contentId);
             it.season = o.isNull("season") ? -1 : o.optInt("season", -1);
             it.episode = o.isNull("episode") ? -1 : o.optInt("episode", -1);
             it.position = o.optLong("position");
             it.duration = o.optLong("duration");
             it.lastWatched = o.optLong("last_watched");
-            if (it.contentId.isEmpty() || it.duration <= 0 || it.position < MIN_POSITION_MS
-                    || it.fraction() >= WATCHED_FRACTION) continue;
+            if (it.contentId.isEmpty()) continue;
+
             Item prev = latest.get(it.contentId);
-            if (prev == null || it.lastWatched > prev.lastWatched) latest.put(it.contentId, it);
+            if (prev == null || it.lastWatched > prev.lastWatched
+                    || (it.lastWatched == prev.lastWatched && episodeOrder(it, prev) > 0)) {
+                latest.put(it.contentId, it);
+            }
+            if (it.isSeries() && it.season > 0 && it.episode >= 0 && finished(it)) {
+                Item f = furthestFinished.get(it.contentId);
+                if (f == null || episodeOrder(it, f) > 0) furthestFinished.put(it.contentId, it);
+            }
         }
-        List<Item> out = new ArrayList<>(latest.values());
-        out.sort((a, b) -> Long.compare(b.lastWatched, a.lastWatched));
-        if (out.size() > max) out = new ArrayList<>(out.subList(0, max));
+
+        List<Item> recent = new ArrayList<>(latest.values());
+        recent.sort((a, b) -> Long.compare(b.lastWatched, a.lastWatched));
+        List<Item> out = new ArrayList<>();
+        int lookups = 0;
+        for (Item it : recent) {
+            if (out.size() >= max) break;
+            if (!finished(it)) {
+                if (it.position > 0) out.add(it);
+                continue;
+            }
+            Item seed = furthestFinished.get(it.contentId);
+            if (seed == null || !seed.baseId().startsWith("tt") || lookups >= MAX_NEXT_UP_LOOKUPS) continue;
+            lookups++;
+            Item next = nextUp(seed, it.lastWatched);
+            if (next != null) out.add(next);
+        }
 
         enrich(profile, out);
         saveCache(profile, out);
         return out;
+    }
+
+    /** Next-up lookups per refresh: each one asks Cinemeta for the show's episode list. */
+    private static final int MAX_NEXT_UP_LOOKUPS = 8;
+
+    private static boolean finished(Item it) {
+        return it.duration > 0 && it.fraction() >= WATCHED_FRACTION;
+    }
+
+    private static int episodeOrder(Item a, Item b) {
+        if (a.season != b.season) return Integer.compare(a.season, b.season);
+        return Integer.compare(a.episode, b.episode);
+    }
+
+    /** Positive "next episode" lookups ("tt123:2:5" -> next item); an aired episode stays aired. */
+    private final Map<String, Item> nextUpCache = new HashMap<>();
+
+    /**
+     * The episode after {@code seed} (season 0 specials skipped), as an "Up next" card, or null
+     * when the show has no further episode that has aired yet.
+     */
+    private Item nextUp(Item seed, long lastWatched) {
+        String id = seed.baseId();
+        String key = id + ":" + seed.season + ":" + seed.episode;
+        Item cached;
+        synchronized (nextUpCache) {
+            cached = nextUpCache.get(key);
+        }
+        if (cached == null) {
+            try {
+                cached = fetchNextEpisode(id, seed.season, seed.episode);
+            } catch (Exception e) {
+                return null;  // offline / Cinemeta down: no card this time
+            }
+            if (cached == null) return null;
+            synchronized (nextUpCache) {
+                nextUpCache.put(key, cached);
+            }
+        }
+        Item it = new Item();
+        it.contentId = id;
+        it.type = "series";
+        it.videoId = cached.videoId;
+        it.season = cached.season;
+        it.episode = cached.episode;
+        it.title = cached.title;
+        it.poster = cached.poster;
+        it.upNext = true;
+        it.lastWatched = lastWatched;
+        return it;
+    }
+
+    private static Item fetchNextEpisode(String imdbId, int season, int episode) throws Exception {
+        String url = "https://v3-cinemeta.strem.io/meta/series/" + imdbId + ".json";
+        JSONObject meta = new JSONObject(get(url)).optJSONObject("meta");
+        if (meta == null) return null;
+        JSONArray videos = meta.optJSONArray("videos");
+        if (videos == null) return null;
+        // Release dates are ISO strings; comparing the "yyyy-MM-dd" part is enough.
+        java.text.SimpleDateFormat day = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT);
+        day.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        String today = day.format(new java.util.Date());
+
+        JSONObject best = null;
+        int bestS = 0, bestE = 0;
+        for (int i = 0; i < videos.length(); i++) {
+            JSONObject v = videos.optJSONObject(i);
+            if (v == null) continue;
+            int s = v.optInt("season", -1);
+            int e = v.has("episode") ? v.optInt("episode", -1) : v.optInt("number", -1);
+            if (s <= 0 || e < 0) continue;
+            boolean after = s > season || (s == season && e > episode);
+            if (!after) continue;
+            String released = v.optString("released", "");
+            if (released.length() < 10 || released.substring(0, 10).compareTo(today) > 0) continue;
+            if (best == null || s < bestS || (s == bestS && e < bestE)) {
+                best = v;
+                bestS = s;
+                bestE = e;
+            }
+        }
+        if (best == null) return null;
+        Item next = new Item();
+        next.videoId = best.optString("id", imdbId + ":" + bestS + ":" + bestE);
+        next.season = bestS;
+        next.episode = bestE;
+        next.title = meta.optString("name", "");
+        next.poster = meta.optString("poster", "");
+        return next;
     }
 
     /**

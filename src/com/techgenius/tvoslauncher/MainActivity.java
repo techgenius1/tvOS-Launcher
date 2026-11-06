@@ -217,6 +217,8 @@ public class MainActivity extends Activity {
     int moveIndex = -1;
     boolean folderMode;
     boolean resumed;
+    /** Package of the last app the launcher opened; read and cleared on the next resume. */
+    String lastLaunchedPkg;
     ObjectAnimator wiggle;
     AppEntry shelfEntry;
     BroadcastReceiver pkgReceiver;
@@ -445,7 +447,10 @@ public class MainActivity extends Activity {
         // Signed in to Nuvio/Stremio: refresh continue watching in the background. Signed out: no-op.
         ensureTvListingsPermission();
         MediaWatchService.ensureSessionTracking(this);
-        if (sceneHome != null) sceneHome.onWatchPopupsResume();
+        // Back from an app the launcher opened: Nuvio/Stremio reload their row right away.
+        String returnedFrom = lastLaunchedPkg;
+        lastLaunchedPkg = null;
+        if (sceneHome != null) sceneHome.onWatchPopupsResume(returnedFrom);
         if (Scenes.isScenesLook(this) && sceneHome != null) {
             sceneHome.sceneView.syncSettings();
             sceneHome.sceneView.start();
@@ -2735,6 +2740,7 @@ public class MainActivity extends Activity {
             startActivity(a.launch);
             overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
             final String pkg = a.pkg;
+            lastLaunchedPkg = pkg;
             io.execute(() -> noteLaunched(pkg));
         } catch (ActivityNotFoundException | SecurityException e) {
             if (Scenes.isScenesLook(this) && sceneHome != null) sceneHome.sceneView.start();
