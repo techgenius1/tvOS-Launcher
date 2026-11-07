@@ -147,7 +147,7 @@ final class Repo {
     synchronized Model.Playlist savePlaylist(List<Model.Slide> slides) {
         Model.Playlist p = playlist();
         List<Model.Slide> norm = Model.normalized(slides);
-        List<String> errors = Model.validate(PLAYLIST_NAME, norm);
+        List<String> errors = Model.validate(null, PLAYLIST_NAME, norm);
         if (!errors.isEmpty()) throw new IllegalArgumentException(String.join("; ", errors));
         p.name = PLAYLIST_NAME;
         p.slides = norm;

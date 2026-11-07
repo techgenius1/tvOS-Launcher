@@ -133,8 +133,9 @@ A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Goo
   - **Easy Setup (Auto via Local ADB)** connects to `127.0.0.1:5555` to automatically unlock `ACCESS_RESTRICTED_SETTINGS` (Android 13/14+) and grant Default Home, Accessibility Service, Device Admin, Notification Listener, Usage Stats, `WRITE_SECURE_SETTINGS`, and Background Activity Launch permissions in one click.
   - **Keep Alive (On by default)**: Lightly monitors permission status in the background with zero extra RAM/CPU load and automatically restores Accessibility or other permissions via Local ADB if the TV firmware disables them.
   - **Revoke All Permissions (`Settings → Advanced`)**: Removes Device Admin and revokes special permissions in one tap for easy uninstallation on any TV.
-- **13 Supported Languages**
-  - Fully localized UI across **English, Turkish, Swedish, Hindi, Spanish, French, German, Italian, Russian, Portuguese, Arabic, Japanese, and Chinese**.
+- **15 Supported Languages**
+  - Fully localized UI across **English, Turkish, Swedish, Hindi, Spanish, French, German, Italian, Russian, Portuguese, Arabic, Japanese, Chinese, Korean, and Hebrew**.
+  - Hebrew (עברית) mirrors Settings, the setup wizard, dialogs and the Presentation web page right-to-left, and adds a Hebrew on-screen search keyboard.
 - **Multi-User Profiles & Live Weather**
   - Up to 3 profiles, each with its own app order, hidden apps, and Continue Watching list.
   - Free 5-day weather forecast via Open-Meteo, MET Norway, or wttr.in (no API key required).

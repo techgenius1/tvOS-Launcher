@@ -880,7 +880,7 @@ public final class ButtonMapper {
         in.setHint(I18n.s(a, "e.g. 85 (Play/Pause), 164 (Mute), 178 (TV Input)", "örn. 85 (Oynat/Duraklat), 164 (Sessiz), 178 (TV Girişi)"));
         android.widget.FrameLayout box = new android.widget.FrameLayout(a);
         int pad = Math.round(16 * Ui.unit(a));
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         AlertDialog dlg = themedDialog(a, I18n.s(a, "Enter Android Key Code", "Android Tuş Kodunu Girin"))
                 .setView(box)

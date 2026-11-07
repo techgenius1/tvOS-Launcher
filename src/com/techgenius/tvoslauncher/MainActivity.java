@@ -240,6 +240,11 @@ public class MainActivity extends Activity {
     final Runnable reloadRun = () -> reload(currentKey());
 
     @Override
+    protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(I18n.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         activeInstance = this;
@@ -853,6 +858,7 @@ public class MainActivity extends Activity {
         root.addView(sceneHome.overlay, match());
         updateWeather();
 
+        I18n.keepLtr(this, root);
         setContentView(root);
     }
 
@@ -1121,7 +1127,7 @@ public class MainActivity extends Activity {
 
     static String wallName(Context c, int i) {
         if (i < 0 || i >= WALL_NAMES.length) return "";
-        return I18n.isTr(c) ? WALL_NAMES_TR[i] : WALL_NAMES[i];
+        return I18n.isTr(c) ? WALL_NAMES_TR[i] : I18n.t(c, WALL_NAMES[i]);
     }
 
     static final String CUSTOM_WALL_KEY = "custom";
@@ -1786,7 +1792,7 @@ public class MainActivity extends Activity {
         btnRow.addView(heroButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(32)));
         heroRemove = text(13, Ui.font(this, "semibold"), 1f);
         heroRemove.setShadowLayer(0, 0, 0, 0);
-        heroRemove.setText("\u2715  Remove");
+        heroRemove.setText("\u2715  " + I18n.t(this, "Remove"));
         heroRemove.setGravity(Gravity.CENTER);
         heroRemove.setPadding(dp(16), 0, dp(18), 0);
         heroRemoveBg = new GradientDrawable();
@@ -1941,8 +1947,8 @@ public class MainActivity extends Activity {
         switcher.setFocusable(true);
         tabSuggestBg = new GradientDrawable();
         tabContinueBg = new GradientDrawable();
-        tabSuggest = tab("Suggestions", tabSuggestBg);
-        tabContinue = tab("Continue Watching", tabContinueBg);
+        tabSuggest = tab(I18n.t(this, "Suggestions"), tabSuggestBg);
+        tabContinue = tab(I18n.t(this, "Continue Watching"), tabContinueBg);
         switcher.addView(tabSuggest, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, h - dp(6)));
         switcher.addView(tabContinue, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, h - dp(6)));
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, h,
@@ -2094,10 +2100,10 @@ public class MainActivity extends Activity {
         boolean show = continueMode() && heroItems.isEmpty() && !folderMode;
         if (show) {
             shelfEmpty.setText(MediaWatchService.granted(this)
-                    ? "Shows and movies you play will appear here."
+                    ? I18n.t(this, "Shows and movies you play will appear here.")
                     : !Perms.listenerSupported(this)
-                    ? "Continue Watching isn't available on this TV (Android limits it on low-memory TVs)."
-                    : "To see what you watch here, allow it in Settings \u2192 Permissions.");
+                    ? I18n.t(this, "Continue Watching isn't available on this TV (Android limits it on low-memory TVs).")
+                    : I18n.t(this, "To see what you watch here, allow it in Settings \u2192 Permissions."));
         }
         shelfEmpty.animate().alpha(show ? 0.75f : 0f).setDuration(250).start();
     }
@@ -2247,10 +2253,10 @@ public class MainActivity extends Activity {
             List<String> meta = new ArrayList<>();
             meta.add(appLabel(it.pkg));
             if (it.remainingMin > 0) meta.add(it.remainingMin >= 60
-                    ? (it.remainingMin / 60) + " h " + (it.remainingMin % 60) + " min left" : it.remainingMin + " min left");
+                    ? I18n.t(this, (it.remainingMin / 60) + " h " + (it.remainingMin % 60) + " min left") : I18n.t(this, it.remainingMin + " min left"));
             heroMeta.setText(String.join("  \u00B7  ", meta));
             heroOverview.setText(it.overview);
-            heroBtnText.setText("\u25B6  Resume");
+            heroBtnText.setText("\u25B6  " + I18n.t(this, "Resume"));
             try {
                 heroProvider.setImageDrawable(getPackageManager().getApplicationIcon(it.pkg));
                 heroProvider.setVisibility(View.VISIBLE);
@@ -2268,7 +2274,7 @@ public class MainActivity extends Activity {
         }
         if ("news".equals(it.type)) {
             // News: section and newsroom, how long ago. No button: stories are read on the shelf.
-            String age = News.age(it.published);
+            String age = I18n.t(this, News.age(it.published));
             heroMeta.setText(it.genres + (age.isEmpty() ? "" : "  \u00B7  " + age));
             heroOverview.setText(it.overview);
             // Stories are for reading: the summary stays visible, up to four lines.
@@ -2295,7 +2301,7 @@ public class MainActivity extends Activity {
         heroMeta.setText(String.join("  \u00B7  ", meta));
         heroOverview.setText(it.overview);
         Suggestions.Provider p = it.provider(this);
-        heroBtnText.setText(p != null && !Suggestions.installed(this, p.pkg) ? "Get" : "\u25B6  Open");
+        heroBtnText.setText(p != null && !Suggestions.installed(this, p.pkg) ? I18n.t(this, "Get") : "\u25B6  " + I18n.t(this, "Open"));
         int icon = p == null ? 0 : getResources().getIdentifier("provider_" + p.jwShort, "drawable", getPackageName());
         heroProvider.setImageResource(icon);
         heroProvider.setVisibility(icon == 0 ? View.GONE : View.VISIBLE);
@@ -2480,9 +2486,9 @@ public class MainActivity extends Activity {
                         Suggestions.Item it = heroItems.get(heroIndex);
                         List<String> l = new ArrayList<>();
                         List<Runnable> act = new ArrayList<>();
-                        l.add("Resume");
+                        l.add(I18n.t(this, "Resume"));
                         act.add(() -> openHeroItem(it));
-                        l.add("Remove from Continue Watching");
+                        l.add(I18n.t(this, "Remove from Continue Watching"));
                         act.add(() -> {
                             MediaWatchService.Store.remove(this, it.key);
                             heroItems = new ArrayList<>();
@@ -4194,7 +4200,7 @@ public class MainActivity extends Activity {
         netEthernet = eth;
         netBars = bars;
         netIcon.setImageBitmap(netGlyph(state, eth, bars, dp(20)));
-        netIcon.setContentDescription(state == 2 ? "Online" : state == 1 ? "No internet" : "Offline");
+        netIcon.setContentDescription(I18n.t(this, state == 2 ? "Online" : state == 1 ? "No internet" : "Offline"));
         // Back online: refresh what needs the internet.
         if (state == 2) AirPlayGuard.check(this, back);
         if (state == 2 && back) {
@@ -5105,11 +5111,11 @@ public class MainActivity extends Activity {
             String[] items = new String[free.size()];
             int cur = -1;
             for (int i = 0; i < free.size(); i++) {
-                items[i] = free.get(i) + "   " + Profiles.emojiName(free.get(i));
+                items[i] = free.get(i) + "   " + I18n.t(this, Profiles.emojiName(free.get(i)));
                 if (free.get(i).equals(prof.emoji)) cur = i;
             }
             new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle("Emoji")
+                    .setTitle(I18n.t(this, "Emoji"))
                     .setSingleChoiceItems(items, cur, (d, w) -> {
                         prof.emoji = free.get(w);
                         Profiles.update(this, prof);
@@ -5121,7 +5127,7 @@ public class MainActivity extends Activity {
         l.add(I18n.s(this, "Change Colour", "Rengi Değiştir"));
         act.add(() -> new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle(I18n.s(this, "Colour", "Renk"))
-                .setSingleChoiceItems(Profiles.COLOR_NAMES, prof.color, (d, w) -> {
+                .setSingleChoiceItems(I18n.tAll(this, Profiles.COLOR_NAMES), prof.color, (d, w) -> {
                     prof.color = w;
                     Profiles.update(this, prof);
                     refreshAvatar();
@@ -5461,6 +5467,6 @@ public class MainActivity extends Activity {
     }
 
     void toast(String s) {
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, I18n.t(this, s), Toast.LENGTH_SHORT).show();
     }
 }

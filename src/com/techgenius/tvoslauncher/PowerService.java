@@ -862,7 +862,8 @@ public class PowerService extends AccessibilityService {
                 AccessibilityNodeInfo stop = findButton(root,
                         "force stop", "force_stop", "forcestop",
                         "zorla durdur", "durdurmaya zorla",
-                        "arr\u00eater", "forzar detenci\u00f3n", "beenden erzwingen", "\u5f3a\u884c\u505c\u6b62");
+                        "arr\u00eater", "forzar detenci\u00f3n", "beenden erzwingen", "\u5f3a\u884c\u505c\u6b62",
+                        "\u05d0\u05d9\u05dc\u05d5\u05e5 \u05e2\u05e6\u05d9\u05e8\u05d4", "\u05e2\u05e6\u05d9\u05e8\u05d4 \u05d1\u05db\u05e4\u05d9\u05d9\u05d4", "\u05e2\u05e6\u05d9\u05e8\u05d4 \u05de\u05d0\u05d5\u05dc\u05e6\u05ea");
                 if (stop != null) {
                     if (!stop.isEnabled()) {
                         advance();
@@ -877,7 +878,7 @@ public class PowerService extends AccessibilityService {
             }
             if (clickedStop && !clickedOk) {
                 AccessibilityNodeInfo ok = findButton(root,
-                        "android:id/button1", "ok", "tamam", "force stop", "zorla durdur");
+                        "android:id/button1", "ok", "tamam", "force stop", "zorla durdur", "\u05d0\u05d9\u05e9\u05d5\u05e8");
                 if (ok != null && ok.isEnabled()) {
                     ok.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     clickedOk = true;

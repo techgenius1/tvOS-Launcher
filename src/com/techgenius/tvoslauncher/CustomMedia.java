@@ -265,7 +265,7 @@ public final class CustomMedia {
         root.setOrientation(LinearLayout.VERTICAL);
         int padH = Math.round(22 * u);
         int padV = Math.round(18 * u);
-        root.setPadding(padH, padV, padH, padV);
+        root.setPaddingRelative(padH, padV, padH, padV);
         GradientDrawable cardBg = new GradientDrawable();
         cardBg.setCornerRadius(20 * u);
         cardBg.setColor(0xFF1C1C22);
@@ -295,13 +295,13 @@ public final class CustomMedia {
         leftCol.setGravity(Gravity.CENTER_HORIZONTAL);
         LinearLayout.LayoutParams leftLp = new LinearLayout.LayoutParams(
                 Math.round(154 * u), ViewGroup.LayoutParams.WRAP_CONTENT);
-        leftLp.rightMargin = Math.round(20 * u);
+        leftLp.setMarginEnd(Math.round(20 * u));
 
         int prevSize = Math.round(112 * u);
         final float prevRad = 24f * u;
         FrameLayout previewFrame = new FrameLayout(activity);
         int framePad = Math.round(4 * u);
-        previewFrame.setPadding(framePad, framePad, framePad, framePad);
+        previewFrame.setPaddingRelative(framePad, framePad, framePad, framePad);
         GradientDrawable frameBg = new GradientDrawable();
         frameBg.setCornerRadius(prevRad + framePad);
         frameBg.setColor(0x18FFFFFF);
@@ -387,10 +387,10 @@ public final class CustomMedia {
         LinearLayout colorBadge = new LinearLayout(activity);
         colorBadge.setOrientation(LinearLayout.HORIZONTAL);
         colorBadge.setGravity(Gravity.CENTER_VERTICAL);
-        colorBadge.setPadding(Math.round(10 * u), Math.round(5 * u), Math.round(10 * u), Math.round(5 * u));
+        colorBadge.setPaddingRelative(Math.round(10 * u), Math.round(5 * u), Math.round(10 * u), Math.round(5 * u));
         int dotSz = Math.round(14 * u);
         LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(dotSz, dotSz);
-        dlp.rightMargin = Math.round(7 * u);
+        dlp.setMarginEnd(Math.round(7 * u));
         colorBadge.addView(colorDot, dlp);
         colorBadge.addView(colorValueTv);
         TextView nextColorBtn = createEditorButton(activity, u, "▶", () -> {
@@ -534,7 +534,7 @@ public final class CustomMedia {
         btn.setClickable(true);
         int ph = Math.round(11 * u);
         int pv = Math.round(6 * u);
-        btn.setPadding(ph, pv, ph, pv);
+        btn.setPaddingRelative(ph, pv, ph, pv);
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(10 * u);
@@ -551,7 +551,7 @@ public final class CustomMedia {
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.rightMargin = Math.round(6 * u);
+        lp.setMarginEnd(Math.round(6 * u));
         btn.setLayoutParams(lp);
         return btn;
     }
@@ -1359,7 +1359,7 @@ public final class CustomMedia {
         showDirectoryBrowser(activity, title, null, allowIco, maxW, maxH, resetLabel, onReset, callback);
     }
 
-    private static Map<String, File> getStorageRoots() {
+    private static Map<String, File> getStorageRoots(Context c) {
         Map<String, File> roots = new LinkedHashMap<>();
         File ext = Environment.getExternalStorageDirectory();
         if (ext == null || !ext.exists()) {
@@ -1370,12 +1370,12 @@ public final class CustomMedia {
         }
         if (ext.exists()) {
             File dl = new File(ext, "Download");
-            if (dl.exists() && dl.isDirectory()) roots.put("📥  Download (" + dl.getAbsolutePath() + ")", dl);
+            if (dl.exists() && dl.isDirectory()) roots.put("\ud83d\udce5  " + I18n.t(c, "Download") + " (" + dl.getAbsolutePath() + ")", dl);
             File pics = new File(ext, "Pictures");
-            if (pics.exists() && pics.isDirectory()) roots.put("🖼️  Pictures (" + pics.getAbsolutePath() + ")", pics);
+            if (pics.exists() && pics.isDirectory()) roots.put("\ud83d\uddbc\ufe0f  " + I18n.t(c, "Pictures") + " (" + pics.getAbsolutePath() + ")", pics);
             File dcim = new File(ext, "DCIM");
             if (dcim.exists() && dcim.isDirectory()) roots.put("📷  DCIM (" + dcim.getAbsolutePath() + ")", dcim);
-            roots.put("💾  Internal Storage (" + ext.getAbsolutePath() + ")", ext);
+            roots.put("\ud83d\udcbe  " + I18n.t(c, "Internal Storage") + " (" + ext.getAbsolutePath() + ")", ext);
         }
         // Check USB drives in /storage and /mnt/media_rw
         String[] mountParents = {"/storage", "/mnt/media_rw", "/mnt/usb", "/mnt/usb_storage"};
@@ -1387,7 +1387,7 @@ public final class CustomMedia {
                 String n = ch.getName();
                 if ("emulated".equals(n) || "self".equals(n) || "enc_emulated".equals(n)) continue;
                 if (ch.isDirectory() && ch.canRead()) {
-                    roots.put("🔌  USB / Storage (" + ch.getAbsolutePath() + ")", ch);
+                    roots.put("\ud83d\udd0c  " + I18n.t(c, "USB / Storage") + " (" + ch.getAbsolutePath() + ")", ch);
                 }
             }
         }
@@ -1420,7 +1420,7 @@ public final class CustomMedia {
                 labels.add("↺  " + resetLabel);
                 actions.add(onReset);
             }
-            Map<String, File> roots = getStorageRoots();
+            Map<String, File> roots = getStorageRoots(activity);
             for (Map.Entry<String, File> entry : roots.entrySet()) {
                 final File dir = entry.getValue();
                 labels.add(entry.getKey());
@@ -1568,7 +1568,7 @@ public final class CustomMedia {
         List<Runnable> actions = new ArrayList<>();
 
         if (currentDir == null) {
-            Map<String, File> roots = getStorageRoots();
+            Map<String, File> roots = getStorageRoots(activity);
             for (Map.Entry<String, File> entry : roots.entrySet()) {
                 final File dir = entry.getValue();
                 labels.add(entry.getKey());
@@ -1923,7 +1923,7 @@ public final class CustomMedia {
                         "Download/" + SETTINGS_BACKUP_FILENAME + " dosyasından geri yükle"));
                 actions.add(() -> restoreSettingsFromFile(activity, defaultBackup, onRestored));
             }
-            Map<String, File> roots = getStorageRoots();
+            Map<String, File> roots = getStorageRoots(activity);
             for (Map.Entry<String, File> entry : roots.entrySet()) {
                 final File dir = entry.getValue();
                 labels.add(entry.getKey());

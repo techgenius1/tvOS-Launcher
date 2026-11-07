@@ -88,7 +88,7 @@ Assistant/mic button on most Android TV remotes is taken by Google Assistant bef
 it, so it can't open tvOS Launcher's Search.)
 
 - **Keyboard**: a–z, space, delete, **123** (digits and punctuation), **अआ** (Hindi letters) and
-  clear. A USB/Bluetooth keyboard and the remote's number keys type too.
+  clear. In Hebrew the keyboard starts with Hebrew letters and **abc** switches to Latin letters. A USB/Bluetooth keyboard and the remote's number keys type too.
 - **Dictation**: the **mic** beside the search field (Up from the keyboard), or the remote's
   search/mic button on Home or in Search. Where the TV has Google's voice service, the words appear
   in the field as you speak and results follow; the microphone is asked for on screen the first
@@ -238,6 +238,11 @@ Back, at 60% of the normal level. Settings → Home → Navigation sounds.
 Opened from the gear in Control Center. A main list opens a page per section (Back returns):
 Profiles, Top Shelf, Presentation, Inputs, Weather, Continue Watching, Home, Permissions, About, and
 the TV's own settings.
+
+**Language**: 15 languages, including Hebrew. In Hebrew, Settings, first-time setup, dialogs and the
+Presentation web page are mirrored right to left; the Home screen keeps its layout (dock order, clock
+position) and shows Hebrew text right to left. The reading direction follows the in-app language,
+not the TV's system language.
 
 | | |
 |---|---|

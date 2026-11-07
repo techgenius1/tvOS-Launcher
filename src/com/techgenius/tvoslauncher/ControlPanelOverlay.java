@@ -258,6 +258,7 @@ public final class ControlPanelOverlay {
                 PixelFormat.TRANSLUCENT);
         wlp.gravity = Gravity.TOP | Gravity.END;
 
+        I18n.keepLtr(svcCtx, layer);
         wm.addView(layer, wlp);
         activeWm = wm;
         activeRoot = layer;
