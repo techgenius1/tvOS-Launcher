@@ -48,10 +48,11 @@ Settings → Home → **Run setup again** repeats it. If Home is pressed mid-way
 - **Home font**: Settings → Look & Scenes → Home Font picks the typeface for the whole home
   screen — clock, date and greeting, dock names, shelf titles and the weather card — from five
   bundled Google Fonts (Inter, Poppins, Barlow, Nunito, Space Grotesk). The same section sets
-  the **font color** (White, Gold, Sky, Mint, Rose, Lavender) and **font opacity** (100–50%).
-  The glass clock keeps its glass look; a color tints its frost fill and rim, and opacity fades
-  the whole clock. Fonts are bundled OFL files in `assets/fonts/`, so this works offline with
-  no new library or network call.
+  the **font color** (White, Gold, Sky, Mint, Rose, Lavender), **font opacity** (100–50%),
+  **text shadow** (Off, Soft, Strong) and **clock fill** (Glass or Solid). The glass clock
+  keeps its glass look; a color tints its frost fill and rim, and opacity fades the whole
+  clock. Solid fills the clock with the font color so it reads over any wallpaper. Fonts are
+  bundled OFL files in `assets/fonts/`, so this works offline with no new library or network call.
 
 ### Remote controls
 

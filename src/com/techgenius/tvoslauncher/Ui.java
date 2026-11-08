@@ -144,6 +144,16 @@ public final class Ui {
                 android.graphics.Color.blue(base));
     }
 
+    /** Home text shadow radius for a TextView: 0 when shadows are off, larger when strong. */
+    public static float homeShadowRadius(Context c, float softPx) {
+        return Scenes.shadowRadius(c, softPx);
+    }
+
+    /** Home text shadow colour for a TextView: transparent when shadows are off. */
+    public static int homeShadowColor(Context c, int softAlpha) {
+        return Scenes.shadowColor(c, softAlpha);
+    }
+
     /**
      * Small, heavily blurred copy of an image (box blur, several passes). Used as the backdrop
      * that Liquid Glass surfaces sample; at this size it costs a few milliseconds.

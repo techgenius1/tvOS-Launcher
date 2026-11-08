@@ -720,7 +720,7 @@ public class MainActivity extends Activity {
         chipGlass.lens = dp(4);
         timeChip.setBackground(chipGlass);
         timeChipView = timeChip;
-        time.setShadowLayer(dp(8), 0, dp(1), 0x99000000);
+        time.setShadowLayer(Ui.homeShadowRadius(this, dp(8)), 0, dp(1), Ui.homeShadowColor(this, 0x99));
         timeChip.addView(netIcon, nlp);
         timeChip.addView(time);
         clockBox.addView(timeChip, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, btn));
@@ -3869,12 +3869,12 @@ public class MainActivity extends Activity {
             TextView tt = text(square ? 13.5f : 13f, Ui.homeFont(this, "medium"), 1f);
             titleRef[0] = tt;
             tt.setText(title);
-            tt.setShadowLayer(dp(4), 0, dp(1), 0x99000000);
+            tt.setShadowLayer(Ui.homeShadowRadius(this, dp(4)), 0, dp(1), Ui.homeShadowColor(this, 0x99));
             tt.setMaxLines(2);
             texts.addView(tt);
             if (status != null) {
                 sub = text(11.5f, Ui.homeFont(this, "regular"), 0.85f);
-                sub.setShadowLayer(dp(4), 0, dp(1), 0x99000000);
+                sub.setShadowLayer(Ui.homeShadowRadius(this, dp(4)), 0, dp(1), Ui.homeShadowColor(this, 0x99));
                 sub.setText(status.get());
                 sub.setSingleLine(true);
                 sub.setEllipsize(TextUtils.TruncateAt.END);
@@ -3898,11 +3898,11 @@ public class MainActivity extends Activity {
             TextView tt = titleRef[0];
             if (tt != null) {
                 tt.setTextColor(has ? 0xFF111114 : Ui.homeTextColor(this));
-                tt.setShadowLayer(has ? 0 : dp(4), 0, has ? 0 : dp(1), 0x99000000);
+                tt.setShadowLayer(has ? 0 : Ui.homeShadowRadius(this, dp(4)), 0, has ? 0 : dp(1), Ui.homeShadowColor(this, 0x99));
             }
             if (subRef != null) {
                 subRef.setTextColor(has ? 0xB3111114 : Ui.homeTextColor(this));
-                subRef.setShadowLayer(has ? 0 : dp(4), 0, has ? 0 : dp(1), 0x99000000);
+                subRef.setShadowLayer(has ? 0 : Ui.homeShadowRadius(this, dp(4)), 0, has ? 0 : dp(1), Ui.homeShadowColor(this, 0x99));
             }
             if (memBarFill != null && memBarFill.getParent() != null && v == ((View) memBarFill.getParent()).getParent().getParent()) {
                 ((GradientDrawable) ((View) memBarFill.getParent()).getBackground()).setColor(has ? 0x33111114 : 0x40FFFFFF);
@@ -5450,7 +5450,7 @@ public class MainActivity extends Activity {
         t.setTypeface(tf);
         t.setTextColor(Ui.homeTextColor(this));
         t.setAlpha(alpha);
-        t.setShadowLayer(10, 0, 2, 0x99000000);
+        t.setShadowLayer(Ui.homeShadowRadius(this, 10), 0, 2, Ui.homeShadowColor(this, 0x99));
         return t;
     }
 

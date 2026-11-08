@@ -1039,8 +1039,20 @@ public class SettingsActivity extends Activity {
                     Scenes.cycleHomeFontOpacity(this);
                     refreshAll();
                 });
-        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The glass clock keeps its glass look; a color tints its frost and rim.",
-                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Cam saat cam g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc korur; renk, buzlu dolguyu ve \u00e7er\u00e7eveyi renklendirir."));
+        row(tr("Text shadow", "Yaz\u0131 tipi g\u00f6lgesi"),
+                () -> Scenes.homeFontShadowLabel(this),
+                () -> {
+                    Scenes.cycleHomeFontShadow(this);
+                    refreshAll();
+                });
+        row(tr("Clock fill", "Saat dolgusu"),
+                () -> Scenes.homeClockFillLabel(this),
+                () -> {
+                    Scenes.cycleHomeClockFill(this);
+                    refreshAll();
+                });
+        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The glass clock keeps its glass look; a color tints its frost and rim. Solid fills the clock with the font color so it reads over any wallpaper.",
+                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Cam saat cam g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc korur; renk, buzlu dolguyu ve \u00e7er\u00e7eveyi renklendirir. D\u00fcz, saati yaz\u0131 tipi rengiyle doldurur."));
 
         section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
         String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");

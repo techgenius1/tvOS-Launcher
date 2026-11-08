@@ -431,7 +431,7 @@ final class SceneHome {
         Ui.textSize(shelfHeader, 11.5f);
         shelfHeader.setTypeface(Ui.homeFont(host, "semibold"));
         shelfHeader.setTextColor(Ui.homeTextColor(host, 0.78f));
-        shelfHeader.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
+        shelfHeader.setShadowLayer(Ui.homeShadowRadius(host, dp(6)), 0, dp(1), Ui.homeShadowColor(host, 0x80));
         shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
