@@ -832,13 +832,25 @@ public class PowerService extends AccessibilityService {
             RecentAppsOverlay.recordAppUsed(this, fgPkg);
             MediaWatchService.pollActiveSessionsAsync(this);
 
-            // Fire TV Stick ("Home on Fire" style) & OEM Home Button Fix:
-            // On Fire OS 7/8, Amazon intercepts KEYCODE_HOME before onKeyEvent and launches com.amazon.tv.launcher
-            // or com.amazon.firehomestarter. When Home Button Fix is enabled, intercept its window immediately!
-            if (ButtonMapper.isHomeFixEnabled(this)
-                    && ("com.amazon.tv.launcher".equals(fgPkg) || "com.amazon.firehomestarter".equals(fgPkg))) {
-                BootReceiver.launchHomeImmediately(this);
-                return;
+            // OEM Home Button Fix (Fire TV, Google TV, Android TV):
+            // On Google TV & Fire OS, the OS intercepts KEYCODE_HOME before onKeyEvent and launches the stock launcher.
+            // When Home Button Fix is enabled, intercept its window immediately!
+            if (ButtonMapper.isHomeFixEnabled(this)) {
+                boolean isStockHome = "com.amazon.tv.launcher".equals(fgPkg)
+                        || "com.amazon.firehomestarter".equals(fgPkg)
+                        || "com.google.android.tvlauncher".equals(fgPkg)
+                        || "com.google.android.leanbacklauncher".equals(fgPkg);
+                if (!isStockHome && "com.google.android.apps.tv.launcherx".equals(fgPkg)) {
+                    CharSequence cls = e.getClassName();
+                    // Intercept Google TV HomeActivity, but allow Dashboard / Quick Settings through!
+                    if (cls == null || !cls.toString().contains("Dashboard")) {
+                        isStockHome = true;
+                    }
+                }
+                if (isStockHome) {
+                    BootReceiver.launchHomeImmediately(this);
+                    return;
+                }
             }
 
             // Fast boot guard: during the first 40s after system boot, if "Launch on System Boot" is enabled
