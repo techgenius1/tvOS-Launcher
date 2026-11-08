@@ -1034,6 +1034,9 @@ public class SettingsActivity extends Activity {
                     Scenes.cycleHomeFontColor(this);
                     refreshAll();
                 });
+        row(tr("Custom color", "Özel renk"),
+                () -> Scenes.homeFontColorHex(this),
+                () -> openCustomColorDialog());
         row(tr("Font opacity", "Yaz\u0131 tipi saydaml\u0131\u011f\u0131"),
                 () -> Scenes.getHomeFontOpacity(this) + "%",
                 () -> {
@@ -1064,8 +1067,8 @@ public class SettingsActivity extends Activity {
                     Scenes.cycleHomeClockWeight(this);
                     refreshAll();
                 });
-        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The font color tints the glass clock, and Solid fills it with the color so it reads over any wallpaper. Clock size and weight apply to the main clock; weight applies when a Google Font family is picked (Inter keeps its three legacy clock faces).",
-                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Yaz\u0131 tipi rengi cam saati renklendirir; D\u00fcz, saati renkle doldurur. Saat boyutu ve kal\u0131nl\u0131\u011f\u0131 ana saate uygulan\u0131r; kal\u0131nl\u0131k yaln\u0131zca bir Google yaz\u0131 tipi se\u00e7iliyken ge\u00e7erlidir (Inter, \u00fc\u00e7 eski saat y\u00fcz\u00fcn\u00fc korur)."));
+        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The font color tints the glass clock, and Solid fills it with the color so it reads over any wallpaper. Custom color takes any hex color, e.g. #FF5733. Clock size and weight apply to the main clock; weight applies when a Google Font family is picked (Inter keeps its three legacy clock faces).",
+                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Yaz\u0131 tipi rengi cam saati renklendirir; D\u00fcz, saati renkle doldurur. \u00d6zel renk, #FF5733 gibi herhangi bir hex rengi kabul eder. Saat boyutu ve kal\u0131nl\u0131\u011f\u0131 ana saate uygulan\u0131r; kal\u0131nl\u0131k yaln\u0131zca bir Google yaz\u0131 tipi se\u00e7iliyken ge\u00e7erlidir (Inter, \u00fc\u00e7 eski saat y\u00fcz\u00fcn\u00fc korur)."));
 
         section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
         String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
@@ -1085,6 +1088,41 @@ public class SettingsActivity extends Activity {
         }, () -> openSubMenu("ambient_themes"));
         customClassicPhotoRow("custom".equals(curWall));
         folderShuffleClassicRow(MainActivity.FOLDER_SHUFFLE_WALL_KEY.equals(curWall));
+    }
+
+    // Hex colour entry for the home font: type a colour like #FF5733 and it becomes the
+    // active font colour (the Font color row then shows it as Custom). Save only dismisses
+    // on a valid hex code, so a typo cannot save a broken colour.
+    void openCustomColorDialog() {
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setText(Scenes.homeFontColorHex(this));
+        input.setHint("#RRGGBB");
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+        input.setSingleLine(true);
+        final android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle(tr("Custom color", "Özel renk"))
+                .setMessage(tr("Enter a hex color, e.g. #FF5733", "Hex renk girin, örn. #FF5733"))
+                .setView(input)
+                .setPositiveButton(tr("Save", "Kaydet"), null)
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    String hex = input.getText().toString().trim();
+                    if (!hex.startsWith("#")) hex = "#" + hex;
+                    try {
+                        int color = android.graphics.Color.parseColor(hex);
+                        Scenes.setHomeFontColorCustom(this, color);
+                        dialog.dismiss();
+                        refreshAll();
+                    } catch (IllegalArgumentException e) {
+                        android.widget.Toast.makeText(this,
+                                tr("Enter a 6-digit hex color, e.g. #FF5733",
+                                        "6 haneli bir hex renk girin, örn. #FF5733"),
+                                android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                }));
+        dialog.show();
     }
 
     void pageApps() {

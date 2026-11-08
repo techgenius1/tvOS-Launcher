@@ -48,8 +48,10 @@ Settings → Home → **Run setup again** repeats it. If Home is pressed mid-way
 - **Home font**: Settings → Look & Scenes → Home Font is the one place for all font controls.
   It picks the typeface for the whole home screen — clock, date and greeting, dock names,
   shelf titles and the weather card — from five bundled Google Fonts (Inter, Poppins, Barlow,
-  Nunito, Space Grotesk), and sets the **font color** (White, Gold, Sky, Mint, Rose, Lavender),
-  **font opacity** (100–50%) and **text shadow** (Off, Soft, Strong). The same section defines
+  Nunito, Space Grotesk), and sets the **font color** (White, Gold, Yellow, Orange, Rose, Pink,
+  Lavender, Purple, Sky, Teal, Mint, Lime) and **font opacity** (100–50%) and **text shadow**
+  (Off, Soft, Strong). **Custom color** takes any hex color (e.g. #FF5733) and makes it the
+  active font color. The same section defines
   the main clock: **clock style** (the three legacy faces), **clock fill** (Glass or Solid),
   **clock size** (Small, Standard, Large) and **clock weight** (Light, Regular, Bold; Google
   Font families only — Inter keeps its legacy faces). The font color tints the glass clock, so

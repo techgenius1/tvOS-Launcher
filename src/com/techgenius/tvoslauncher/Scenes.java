@@ -683,8 +683,11 @@ public final class Scenes {
     public static final String[] HOME_FONT_LABELS =
             {"Inter", "Poppins", "Barlow", "Nunito", "Space Grotesk"};
     // Light presets only, so text stays legible over dark scene photos at every opacity.
+    // Index HOME_FONT_COLORS.length is the custom colour, set from a hex code in Settings.
     public static final int[] HOME_FONT_COLORS =
-            {0xFFF4F4F6, 0xFFFFD98A, 0xFF9ED8FF, 0xFFA8E6CF, 0xFFFFB3C1, 0xFFD6C2FF};
+            {0xFFF4F4F6, 0xFFFFD98A, 0xFFFFF59D, 0xFFFFB74D, 0xFFFFB3C1, 0xFFFF9ECF,
+             0xFFD6C2FF, 0xFFCE93D8, 0xFF9ED8FF, 0xFF80DEEA, 0xFFA8E6CF, 0xFFDCE775};
+    public static final int HOME_FONT_COLOR_CUSTOM = HOME_FONT_COLORS.length;
     public static final int[] HOME_FONT_OPACITIES = {100, 90, 80, 70, 60, 50};
 
     public static String getHomeFontFamily(Context c) {
@@ -722,27 +725,53 @@ public final class Scenes {
 
     public static int getHomeFontColorIndex(Context c) {
         int idx = prefs(c).getInt("home_font_color", 0);
-        if (idx < 0 || idx >= HOME_FONT_COLORS.length) return 0;
+        if (idx < 0 || idx > HOME_FONT_COLORS.length) return 0;
         return idx;
     }
 
     /** The chosen colour preset, fully opaque - opacity is folded in by the caller. */
     public static int getHomeFontColor(Context c) {
-        return HOME_FONT_COLORS[getHomeFontColorIndex(c)];
+        int idx = getHomeFontColorIndex(c);
+        if (idx == HOME_FONT_COLOR_CUSTOM) return getHomeFontColorCustom(c);
+        return HOME_FONT_COLORS[idx];
+    }
+
+    /** The custom colour, set from a hex code (e.g. #FF5733) in Settings. */
+    public static int getHomeFontColorCustom(Context c) {
+        return prefs(c).getInt("home_font_color_custom", 0xFFF4F4F6) | 0xFF000000;
+    }
+
+    /** Stores a custom colour (alpha forced opaque) and selects it. */
+    public static void setHomeFontColorCustom(Context c, int color) {
+        prefs(c).edit().putInt("home_font_color_custom", color | 0xFF000000)
+                .putInt("home_font_color", HOME_FONT_COLOR_CUSTOM).apply();
+    }
+
+    /** The custom colour as a hex string, e.g. "#FF5733". */
+    public static String homeFontColorHex(Context c) {
+        return String.format(Locale.US, "#%06X", getHomeFontColorCustom(c) & 0xFFFFFF);
     }
 
     public static void cycleHomeFontColor(Context c) {
-        int next = (getHomeFontColorIndex(c) + 1) % HOME_FONT_COLORS.length;
+        int next = (getHomeFontColorIndex(c) + 1) % (HOME_FONT_COLORS.length + 1);
         prefs(c).edit().putInt("home_font_color", next).apply();
     }
 
     public static String homeFontColorLabel(Context c) {
-        switch (getHomeFontColorIndex(c)) {
+        int idx = getHomeFontColorIndex(c);
+        if (idx == HOME_FONT_COLOR_CUSTOM) return homeFontColorHex(c);
+        switch (idx) {
             case 1: return I18n.s(c, "Gold", "Alt\u0131n");
-            case 2: return I18n.s(c, "Sky", "G\u00f6k");
-            case 3: return I18n.s(c, "Mint", "Nane");
+            case 2: return I18n.s(c, "Yellow", "Sar\u0131");
+            case 3: return I18n.s(c, "Orange", "Turuncu");
             case 4: return I18n.s(c, "Rose", "G\u00fcl");
-            case 5: return I18n.s(c, "Lavender", "Lavanta");
+            case 5: return I18n.s(c, "Pink", "Pembe");
+            case 6: return I18n.s(c, "Lavender", "Lavanta");
+            case 7: return I18n.s(c, "Purple", "Mor");
+            case 8: return I18n.s(c, "Sky", "G\u00f6k");
+            case 9: return I18n.s(c, "Teal", "Turkuaz");
+            case 10: return I18n.s(c, "Mint", "Nane");
+            case 11: return I18n.s(c, "Lime", "Limon");
             default: return I18n.s(c, "White", "Beyaz");
         }
     }
@@ -769,7 +798,8 @@ public final class Scenes {
 
     /** Everything that changes how home text looks, so MainActivity can rebuild on return. */
     public static String homeFontSignature(Context c) {
-        return getHomeFontFamily(c) + "|" + getHomeFontColorIndex(c) + "|" + getHomeFontOpacity(c)
+        return getHomeFontFamily(c) + "|" + getHomeFontColorIndex(c) + "|" + getHomeFontColorCustom(c)
+                + "|" + getHomeFontOpacity(c)
                 + "|" + getHomeFontShadow(c) + "|" + getHomeClockFill(c)
                 + "|" + getHomeClockSize(c) + "|" + getHomeClockWeight(c);
     }
@@ -1402,6 +1432,7 @@ public final class Scenes {
                             + (lockScreenMode ? "" : (weatherDesc != null ? weatherDesc : "")) + "|"
                             + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
                             + getHomeFontFamily(ctx) + "|" + getHomeFontColorIndex(ctx) + "|"
+                            + getHomeFontColorCustom(ctx) + "|"
                             + getHomeFontOpacity(ctx) + "|" + getHomeFontShadow(ctx) + "|"
                             + getHomeClockFill(ctx) + "|" + getHomeClockSize(ctx) + "|"
                             + getHomeClockWeight(ctx) + "|"
