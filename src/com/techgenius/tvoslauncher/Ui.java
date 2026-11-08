@@ -79,10 +79,14 @@ public final class Ui {
     public static android.graphics.Typeface homeFont(Context c, String weight) {
         String family = Scenes.getHomeFontFamily(c);
         if (Scenes.HOME_FONT_INTER.equals(family)) return font(c, weight);
-        String key = "home:" + family + ":" + weight;
+        // The clock ("display") honours the clock weight setting; other uses keep their
+        // fixed weights. The resolved weight is part of the cache key, or switching the
+        // weight would keep returning the face cached first.
+        int wght = "display".equals(weight) ? Scenes.getHomeClockWeight(c) : homeFontWeight(weight);
+        String key = "home:" + family + ":" + weight + ":" + wght;
         android.graphics.Typeface t = FONTS.get(key);
         if (t != null) return t;
-        String file = homeFontFile(family, weight);
+        String file = homeFontFile(family, weight, wght);
         if (file == null) {
             t = font(c, weight);
             FONTS.put(key, t);
@@ -93,7 +97,7 @@ public final class Ui {
                     android.graphics.Typeface.createFromAsset(c.getAssets(), "fonts/" + file);
             if (file.contains("[wght]") && android.os.Build.VERSION.SDK_INT >= 28) {
                 android.graphics.Typeface weighted =
-                        android.graphics.Typeface.create(base, homeFontWeight(weight), false);
+                        android.graphics.Typeface.create(base, wght, false);
                 t = weighted != null ? weighted : base;
             } else {
                 t = base;
@@ -105,10 +109,10 @@ public final class Ui {
         return t;
     }
 
-    private static String homeFontFile(String family, String weight) {
+    private static String homeFontFile(String family, String weight, int wght) {
         if ("poppins".equals(family) || "barlow".equals(family)) {
             String cap = "poppins".equals(family) ? "Poppins" : "Barlow";
-            String w = weight.equals("display") ? "Bold"
+            String w = "display".equals(weight) ? (wght >= 700 ? "Bold" : "Regular")
                     : weight.equals("medium") ? "Medium"
                     : weight.equals("semibold") ? "SemiBold" : "Regular";
             return cap + "-" + w + ".ttf";

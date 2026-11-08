@@ -45,14 +45,17 @@ Settings → Home → **Run setup again** repeats it. If Home is pressed mid-way
 - **More Apps**: hidden apps live in a folder card at the end of the grid.
 - **System apps** (Settings, Play Store…) get tvOS-style cards: a gradient with a white glyph.
 - **Background**: Aurora, Midnight, Sunset, Ocean or Graphite (per profile).
-- **Home font**: Settings → Look & Scenes → Home Font picks the typeface for the whole home
-  screen — clock, date and greeting, dock names, shelf titles and the weather card — from five
-  bundled Google Fonts (Inter, Poppins, Barlow, Nunito, Space Grotesk). The same section sets
-  the **font color** (White, Gold, Sky, Mint, Rose, Lavender), **font opacity** (100–50%),
-  **text shadow** (Off, Soft, Strong) and **clock fill** (Glass or Solid). The glass clock
-  keeps its glass look; a color tints its frost fill and rim, and opacity fades the whole
-  clock. Solid fills the clock with the font color so it reads over any wallpaper. Fonts are
-  bundled OFL files in `assets/fonts/`, so this works offline with no new library or network call.
+- **Home font**: Settings → Look & Scenes → Home Font is the one place for all font controls.
+  It picks the typeface for the whole home screen — clock, date and greeting, dock names,
+  shelf titles and the weather card — from five bundled Google Fonts (Inter, Poppins, Barlow,
+  Nunito, Space Grotesk), and sets the **font color** (White, Gold, Sky, Mint, Rose, Lavender),
+  **font opacity** (100–50%) and **text shadow** (Off, Soft, Strong). The same section defines
+  the main clock: **clock style** (the three legacy faces), **clock fill** (Glass or Solid),
+  **clock size** (Small, Standard, Large) and **clock weight** (Light, Regular, Bold; Google
+  Font families only — Inter keeps its legacy faces). The font color tints the glass clock, so
+  the numerals themselves change colour; Solid fills the clock with the font color so it reads
+  over any wallpaper. Fonts are bundled OFL files in `assets/fonts/`, so this works offline with
+  no new library or network call.
 
 ### Remote controls
 

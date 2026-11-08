@@ -770,7 +770,8 @@ public final class Scenes {
     /** Everything that changes how home text looks, so MainActivity can rebuild on return. */
     public static String homeFontSignature(Context c) {
         return getHomeFontFamily(c) + "|" + getHomeFontColorIndex(c) + "|" + getHomeFontOpacity(c)
-                + "|" + getHomeFontShadow(c) + "|" + getHomeClockFill(c);
+                + "|" + getHomeFontShadow(c) + "|" + getHomeClockFill(c)
+                + "|" + getHomeClockSize(c) + "|" + getHomeClockWeight(c);
     }
 
     // ---- Home text shadow (0 = off, 1 = soft, 2 = strong) ----
@@ -842,6 +843,53 @@ public final class Scenes {
             return I18n.s(c, "Solid", "D\u00fcz");
         }
         return I18n.s(c, "Glass", "Cam");
+    }
+
+    // ---- Clock size (0 = small, 1 = standard, 2 = large) ----
+    public static int getHomeClockSize(Context c) {
+        int s = prefs(c).getInt("home_clock_size", 1);
+        if (s < 0 || s > 2) return 1;
+        return s;
+    }
+
+    public static void cycleHomeClockSize(Context c) {
+        prefs(c).edit().putInt("home_clock_size", (getHomeClockSize(c) + 1) % 3).apply();
+    }
+
+    public static String homeClockSizeLabel(Context c) {
+        switch (getHomeClockSize(c)) {
+            case 0: return I18n.s(c, "Small", "K\u00fc\u00e7\u00fck");
+            case 2: return I18n.s(c, "Large", "B\u00fcy\u00fck");
+            default: return I18n.s(c, "Standard", "Standart");
+        }
+    }
+
+    public static float homeClockSizeScale(Context c) {
+        int s = getHomeClockSize(c);
+        return s == 0 ? 0.85f : s == 2 ? 1.15f : 1f;
+    }
+
+    // ---- Clock weight: 300 light, 400 regular, 700 bold (the default, as before) ----
+    // Applies to the clock only when a Google Font family is picked; Inter keeps its
+    // three legacy clock faces and their own weights.
+    public static int getHomeClockWeight(Context c) {
+        int w = prefs(c).getInt("home_clock_weight", 700);
+        if (w != 300 && w != 400 && w != 700) return 700;
+        return w;
+    }
+
+    public static void cycleHomeClockWeight(Context c) {
+        int cur = getHomeClockWeight(c);
+        int next = cur == 700 ? 300 : cur == 300 ? 400 : 700;
+        prefs(c).edit().putInt("home_clock_weight", next).apply();
+    }
+
+    public static String homeClockWeightLabel(Context c) {
+        switch (getHomeClockWeight(c)) {
+            case 300: return I18n.s(c, "Light", "Hafif");
+            case 400: return I18n.s(c, "Regular", "Normal");
+            default: return I18n.s(c, "Bold", "Kal\u0131n");
+        }
     }
 
     /**
@@ -1355,7 +1403,8 @@ public final class Scenes {
                             + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
                             + getHomeFontFamily(ctx) + "|" + getHomeFontColorIndex(ctx) + "|"
                             + getHomeFontOpacity(ctx) + "|" + getHomeFontShadow(ctx) + "|"
-                            + getHomeClockFill(ctx) + "|"
+                            + getHomeClockFill(ctx) + "|" + getHomeClockSize(ctx) + "|"
+                            + getHomeClockWeight(ctx) + "|"
                             + getCustomClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
                             + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
                             + CustomMedia.getCustomLockTimestamp(ctx) + "|"
@@ -1448,7 +1497,7 @@ public final class Scenes {
             clockShadowPaint.setPathEffect(cornerFx);
 
             String timeStr = formatTime(ctx);
-            float clockPx = (isRounded ? sp.clockSizeU * 0.78f : isDuo ? sp.clockSizeU * 0.84f : sp.clockSizeU) * u;
+            float clockPx = (isRounded ? sp.clockSizeU * 0.78f : isDuo ? sp.clockSizeU * 0.84f : sp.clockSizeU) * u * homeClockSizeScale(ctx);
             float scaleY = isRounded ? 1.24f : isDuo ? 1.24f : 1.0f;
             float letterSp = isDuo ? 0.01f : isRounded ? -0.01f : -0.02f;
 
@@ -1515,6 +1564,20 @@ public final class Scenes {
                 clockWetPaint.setShader(null);
                 clockWetPaint.setColor(solidColor);
                 clockFrostPaint.setShader(null);
+            }
+            // Glass mode: the wallpaper shader overrides the paint colour, so a chosen colour
+            // never reached the numerals — only the frost and rim showed it, and the clock
+            // stayed grey. A Multiply filter tints the glass toward the colour instead
+            // (white leaves it untouched, as before).
+            if (!solidClock && getHomeFontColorIndex(ctx) != 0) {
+                android.graphics.PorterDuffColorFilter tint =
+                        new android.graphics.PorterDuffColorFilter(
+                                getHomeFontColor(ctx), android.graphics.PorterDuff.Mode.MULTIPLY);
+                clockFillPaint.setColorFilter(tint);
+                clockWetPaint.setColorFilter(tint);
+            } else {
+                clockFillPaint.setColorFilter(null);
+                clockWetPaint.setColorFilter(null);
             }
 
             // Frosted vertical gradient fill + crisp outer rim matching duo.png.
