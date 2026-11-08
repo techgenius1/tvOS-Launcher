@@ -51,13 +51,11 @@ Settings → Home → **Run setup again** repeats it. If Home is pressed mid-way
   Nunito, Space Grotesk), and sets the **font color** (White, Gold, Yellow, Orange, Rose, Pink,
   Lavender, Purple, Sky, Teal, Mint, Lime) and **font opacity** (100–50%) and **text shadow**
   (Off, Soft, Strong). **Custom color** takes any hex color (e.g. #FF5733) and makes it the
-  active font color. The same section defines
-  the main clock: **clock style** (the three legacy faces), **clock fill** (Glass or Solid),
-  **clock size** (Small, Standard, Large) and **clock weight** (Light, Regular, Bold; Google
-  Font families only — Inter keeps its legacy faces). The font color tints the glass clock, so
-  the numerals themselves change colour; Solid fills the clock with the font color so it reads
-  over any wallpaper. Fonts are bundled OFL files in `assets/fonts/`, so this works offline with
-  no new library or network call.
+  active font color. The same section defines the main clock: **clock size** (Small, Standard,
+  Large) and **clock weight** (Light, Regular, Bold; Google Font families only — Inter keeps
+  the Tall Glass face). The clock face is always Tall Glass; the font color tints the glass
+  clock, so the numerals themselves change colour. Fonts are bundled OFL files in
+  `assets/fonts/`, so this works offline with no new library or network call.
 
 ### Remote controls
 
