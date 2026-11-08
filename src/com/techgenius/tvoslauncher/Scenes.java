@@ -51,11 +51,6 @@ public final class Scenes {
     public static final String CLOCK_POS_RIGHT = "right";
     public static final String[] CLOCK_POSITIONS = {CLOCK_POS_LEFT, CLOCK_POS_CENTER, CLOCK_POS_RIGHT};
 
-    public static final String CLOCK_STYLE_DUO = "duo";
-    public static final String CLOCK_STYLE_ROUNDED = "rounded";
-    public static final String CLOCK_STYLE_TALL = "tall";
-    public static final String[] CLOCK_STYLES = {CLOCK_STYLE_DUO, CLOCK_STYLE_ROUNDED, CLOCK_STYLE_TALL};
-
     public static final int[] STAY_OPTIONS = {10, 15, 20, 30, 45, 60, 120};
     public static final int[] LOCK_IDLE_OPTIONS = {0, 2, 5, 10, 15, 30, 60};
 
@@ -643,32 +638,279 @@ public final class Scenes {
         prefs(c).edit().putBoolean("clock_24h", is24h).apply();
     }
 
-    public static String getClockStyle(Context c) {
-        return prefs(c).getString("clock_style", CLOCK_STYLE_DUO);
+    // ---- Home font (Google Fonts) ----
+    // The family applies to the whole home screen - the glass clock, the date/greeting lines,
+    // dock names, shelf titles and the weather card. All families are OFL fonts bundled in
+    // assets/fonts/ (see Ui.homeFont), so picking one needs no network and adds no library.
+    // "inter" is the default and keeps the Tall Glass clock face exactly as before.
+    public static final String HOME_FONT_INTER = "inter";
+    public static final String[] HOME_FONT_FAMILIES =
+            {HOME_FONT_INTER, "poppins", "barlow", "nunito", "spacegrotesk"};
+    public static final String[] HOME_FONT_LABELS =
+            {"Inter", "Poppins", "Barlow", "Nunito", "Space Grotesk"};
+    // Light presets only, so text stays legible over dark scene photos at every opacity.
+    // Index HOME_FONT_COLORS.length is the custom colour, set from a hex code in Settings.
+    public static final int[] HOME_FONT_COLORS =
+            {0xFFF4F4F6, 0xFFFFD98A, 0xFFFFF59D, 0xFFFFB74D, 0xFFFFB3C1, 0xFFFF9ECF,
+             0xFFD6C2FF, 0xFFCE93D8, 0xFF9ED8FF, 0xFF80DEEA, 0xFFA8E6CF, 0xFFDCE775};
+    public static final int HOME_FONT_COLOR_CUSTOM = HOME_FONT_COLORS.length;
+    public static final int[] HOME_FONT_OPACITIES = {100, 90, 80, 70, 60, 50};
+
+    public static String getHomeFontFamily(Context c) {
+        String f = prefs(c).getString("home_font_family", HOME_FONT_INTER);
+        for (String known : HOME_FONT_FAMILIES) {
+            if (known.equals(f)) return f;
+        }
+        return HOME_FONT_INTER;
     }
 
-    public static void setClockStyle(Context c, String style) {
-        prefs(c).edit().putString("clock_style", style).apply();
+    public static void setHomeFontFamily(Context c, String family) {
+        prefs(c).edit().putString("home_font_family", family).apply();
     }
 
-    public static String cycleClockStyle(Context c) {
-        String cur = getClockStyle(c);
-        String next = CLOCK_STYLES[0];
-        for (int i = 0; i < CLOCK_STYLES.length; i++) {
-            if (CLOCK_STYLES[i].equals(cur)) {
-                next = CLOCK_STYLES[(i + 1) % CLOCK_STYLES.length];
+    public static String cycleHomeFontFamily(Context c) {
+        String cur = getHomeFontFamily(c);
+        String next = HOME_FONT_FAMILIES[0];
+        for (int i = 0; i < HOME_FONT_FAMILIES.length; i++) {
+            if (HOME_FONT_FAMILIES[i].equals(cur)) {
+                next = HOME_FONT_FAMILIES[(i + 1) % HOME_FONT_FAMILIES.length];
                 break;
             }
         }
-        setClockStyle(c, next);
+        setHomeFontFamily(c, next);
         return next;
     }
 
-    public static String clockStyleLabel(Context c) {
-        String st = getClockStyle(c);
-        if (CLOCK_STYLE_ROUNDED.equals(st)) return I18n.s(c, "iPhone Rounded", "iPhone Yuvarlak");
-        if (CLOCK_STYLE_TALL.equals(st)) return I18n.s(c, "Tall Glass", "Uzun Cam");
-        return I18n.s(c, "iPhone Duo", "iPhone Duo");
+    public static String homeFontLabel(Context c) {
+        String cur = getHomeFontFamily(c);
+        for (int i = 0; i < HOME_FONT_FAMILIES.length; i++) {
+            if (HOME_FONT_FAMILIES[i].equals(cur)) return HOME_FONT_LABELS[i];
+        }
+        return HOME_FONT_LABELS[0];
+    }
+
+    public static int getHomeFontColorIndex(Context c) {
+        int idx = prefs(c).getInt("home_font_color", 0);
+        if (idx < 0 || idx > HOME_FONT_COLORS.length) return 0;
+        return idx;
+    }
+
+    /** The chosen colour preset, fully opaque - opacity is folded in by the caller. */
+    public static int getHomeFontColor(Context c) {
+        int idx = getHomeFontColorIndex(c);
+        if (idx == HOME_FONT_COLOR_CUSTOM) return getHomeFontColorCustom(c);
+        return HOME_FONT_COLORS[idx];
+    }
+
+    /** The custom colour, set from a hex code (e.g. #FF5733) in Settings. */
+    public static int getHomeFontColorCustom(Context c) {
+        return prefs(c).getInt("home_font_color_custom", 0xFFF4F4F6) | 0xFF000000;
+    }
+
+    /** Stores a custom colour (alpha forced opaque) and selects it. */
+    public static void setHomeFontColorCustom(Context c, int color) {
+        prefs(c).edit().putInt("home_font_color_custom", color | 0xFF000000)
+                .putInt("home_font_color", HOME_FONT_COLOR_CUSTOM).apply();
+    }
+
+    /** The custom colour as a hex string, e.g. "#FF5733". */
+    public static String homeFontColorHex(Context c) {
+        return String.format(Locale.US, "#%06X", getHomeFontColorCustom(c) & 0xFFFFFF);
+    }
+
+    public static void cycleHomeFontColor(Context c) {
+        int next = (getHomeFontColorIndex(c) + 1) % (HOME_FONT_COLORS.length + 1);
+        prefs(c).edit().putInt("home_font_color", next).apply();
+    }
+
+    public static String homeFontColorLabel(Context c) {
+        int idx = getHomeFontColorIndex(c);
+        if (idx == HOME_FONT_COLOR_CUSTOM) return homeFontColorHex(c);
+        switch (idx) {
+            case 1: return I18n.s(c, "Gold", "Alt\u0131n");
+            case 2: return I18n.s(c, "Yellow", "Sar\u0131");
+            case 3: return I18n.s(c, "Orange", "Turuncu");
+            case 4: return I18n.s(c, "Rose", "G\u00fcl");
+            case 5: return I18n.s(c, "Pink", "Pembe");
+            case 6: return I18n.s(c, "Lavender", "Lavanta");
+            case 7: return I18n.s(c, "Purple", "Mor");
+            case 8: return I18n.s(c, "Sky", "G\u00f6k");
+            case 9: return I18n.s(c, "Teal", "Turkuaz");
+            case 10: return I18n.s(c, "Mint", "Nane");
+            case 11: return I18n.s(c, "Lime", "Limon");
+            default: return I18n.s(c, "White", "Beyaz");
+        }
+    }
+
+    public static int getHomeFontOpacity(Context c) {
+        int pct = prefs(c).getInt("home_font_opacity", 100);
+        for (int known : HOME_FONT_OPACITIES) {
+            if (known == pct) return pct;
+        }
+        return 100;
+    }
+
+    public static void cycleHomeFontOpacity(Context c) {
+        int cur = getHomeFontOpacity(c);
+        int next = HOME_FONT_OPACITIES[0];
+        for (int i = 0; i < HOME_FONT_OPACITIES.length; i++) {
+            if (HOME_FONT_OPACITIES[i] == cur) {
+                next = HOME_FONT_OPACITIES[(i + 1) % HOME_FONT_OPACITIES.length];
+                break;
+            }
+        }
+        prefs(c).edit().putInt("home_font_opacity", next).apply();
+    }
+
+    /** Everything that changes how home text looks, so MainActivity can rebuild on return. */
+    public static String homeFontSignature(Context c) {
+        return getHomeFontFamily(c) + "|" + getHomeFontColorIndex(c) + "|" + getHomeFontColorCustom(c)
+                + "|" + getHomeFontOpacity(c)
+                + "|" + getHomeFontShadow(c) + "|" + getHomeClockFill(c)
+                + "|" + getHomeClockSize(c) + "|" + getHomeClockWeight(c);
+    }
+
+    // ---- Home text shadow (0 = off, 1 = soft, 2 = strong) ----
+    public static int getHomeFontShadow(Context c) {
+        int level = prefs(c).getInt("home_font_shadow", 1);
+        if (level < 0 || level > 2) return 1;
+        return level;
+    }
+
+    public static void cycleHomeFontShadow(Context c) {
+        int next = (getHomeFontShadow(c) + 1) % 3;
+        prefs(c).edit().putInt("home_font_shadow", next).apply();
+    }
+
+    public static String homeFontShadowLabel(Context c) {
+        switch (getHomeFontShadow(c)) {
+            case 0: return I18n.s(c, "Off", "Kapal\u0131");
+            case 2: return I18n.s(c, "Strong", "G\u00fc\u00e7l\u00fc");
+            default: return I18n.s(c, "Soft", "Yumu\u015fak");
+        }
+    }
+
+    /** Shadow radius for home text: 0 when shadows are off, larger when strong. */
+    public static float shadowRadius(Context c, float softPx) {
+        int level = getHomeFontShadow(c);
+        if (level <= 0) return 0f;
+        return softPx * (level >= 2 ? 1.5f : 1f);
+    }
+
+    /** Shadow colour for home text: transparent when shadows are off, darker when strong. */
+    public static int shadowColor(Context c, int softAlpha) {
+        int level = getHomeFontShadow(c);
+        if (level <= 0) return 0;
+        int a = level >= 2 ? Math.min(255, Math.round(softAlpha * 1.3f)) : softAlpha;
+        return Color.argb(a, 0, 0, 0);
+    }
+
+    /** Shadow alpha for the clock drop shadow: 0 when shadows are off, stronger when strong. */
+    public static int shadowAlpha(Context c, int softAlpha) {
+        int level = getHomeFontShadow(c);
+        if (level <= 0) return 0;
+        int a = level >= 2 ? Math.min(255, Math.round(softAlpha * 1.5f)) : softAlpha;
+        return Math.round(a * getHomeFontOpacity(c) / 100f);
+    }
+
+    /** Shadow level as a multiplier for a paint alpha (opacity is already in the paint colour). */
+    public static float shadowLevelFactor(Context c) {
+        int level = getHomeFontShadow(c);
+        if (level <= 0) return 0f;
+        return level >= 2 ? 1.5f : 1f;
+    }
+
+    // ---- Clock fill: glass (wallpaper shader + frost, the default) or solid font colour ----
+    public static final String CLOCK_FILL_GLASS = "glass";
+    public static final String CLOCK_FILL_SOLID = "solid";
+
+    public static String getHomeClockFill(Context c) {
+        String f = prefs(c).getString("home_clock_fill", CLOCK_FILL_GLASS);
+        return CLOCK_FILL_SOLID.equals(f) ? CLOCK_FILL_SOLID : CLOCK_FILL_GLASS;
+    }
+
+    public static void cycleHomeClockFill(Context c) {
+        String next = CLOCK_FILL_SOLID.equals(getHomeClockFill(c)) ? CLOCK_FILL_GLASS : CLOCK_FILL_SOLID;
+        prefs(c).edit().putString("home_clock_fill", next).apply();
+    }
+
+    public static String homeClockFillLabel(Context c) {
+        if (CLOCK_FILL_SOLID.equals(getHomeClockFill(c))) {
+            return I18n.s(c, "Solid", "D\u00fcz");
+        }
+        return I18n.s(c, "Glass", "Cam");
+    }
+
+    // ---- Clock size (0 = small, 1 = standard, 2 = large) ----
+    public static int getHomeClockSize(Context c) {
+        int s = prefs(c).getInt("home_clock_size", 1);
+        if (s < 0 || s > 2) return 1;
+        return s;
+    }
+
+    public static void cycleHomeClockSize(Context c) {
+        prefs(c).edit().putInt("home_clock_size", (getHomeClockSize(c) + 1) % 3).apply();
+    }
+
+    public static String homeClockSizeLabel(Context c) {
+        switch (getHomeClockSize(c)) {
+            case 0: return I18n.s(c, "Small", "K\u00fc\u00e7\u00fck");
+            case 2: return I18n.s(c, "Large", "B\u00fcy\u00fck");
+            default: return I18n.s(c, "Standard", "Standart");
+        }
+    }
+
+    public static float homeClockSizeScale(Context c) {
+        int s = getHomeClockSize(c);
+        return s == 0 ? 0.85f : s == 2 ? 1.15f : 1f;
+    }
+
+    // ---- Clock weight: 300 light, 400 regular, 700 bold (the default, as before) ----
+    // Applies to the clock only when a Google Font family is picked; Inter keeps its
+    // three legacy clock faces and their own weights.
+    public static int getHomeClockWeight(Context c) {
+        int w = prefs(c).getInt("home_clock_weight", 700);
+        if (w != 300 && w != 400 && w != 700) return 700;
+        return w;
+    }
+
+    public static void cycleHomeClockWeight(Context c) {
+        int cur = getHomeClockWeight(c);
+        int next = cur == 700 ? 300 : cur == 300 ? 400 : 700;
+        prefs(c).edit().putInt("home_clock_weight", next).apply();
+    }
+
+    public static String homeClockWeightLabel(Context c) {
+        switch (getHomeClockWeight(c)) {
+            case 300: return I18n.s(c, "Light", "Hafif");
+            case 400: return I18n.s(c, "Regular", "Normal");
+            default: return I18n.s(c, "Bold", "Kal\u0131n");
+        }
+    }
+
+    /**
+     * Home text colour for a Paint: the chosen preset at baseAlpha, scaled by the chosen
+     * opacity. On light scenes (darkDate) the text is dark, so the preset is darkened instead
+     * of used as-is - a gold preset becomes a dark olive that still reads on a bright photo.
+     */
+    public static int homeTextArgb(Context c, int baseAlpha, boolean dark) {
+        int color = getHomeFontColor(c);
+        if (dark) {
+            color = Color.rgb(
+                    Math.round(Color.red(color) * 0.16f),
+                    Math.round(Color.green(color) * 0.16f),
+                    Math.round(Color.blue(color) * 0.16f));
+        }
+        int a = Math.round(baseAlpha * getHomeFontOpacity(c) / 100f);
+        return Color.argb(a, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    /** Blends a glass-clock gradient stop toward the chosen font colour, keeping its alpha. */
+    static int tintToward(int baseArgb, int color, float amt) {
+        return Color.argb(Color.alpha(baseArgb),
+                Math.round(Color.red(baseArgb) + (Color.red(color) - Color.red(baseArgb)) * amt),
+                Math.round(Color.green(baseArgb) + (Color.green(color) - Color.green(baseArgb)) * amt),
+                Math.round(Color.blue(baseArgb) + (Color.blue(color) - Color.blue(baseArgb)) * amt));
     }
 
     private static InputStream openAssetStream(Context c, String assetPath) throws java.io.IOException {
@@ -809,8 +1051,8 @@ public final class Scenes {
 
             clockShadowPaint.setStyle(Paint.Style.FILL);
 
-            datePaint.setTypeface(Ui.font(c, "semibold"));
-            greetPaint.setTypeface(Ui.font(c, "semibold"));
+            datePaint.setTypeface(Ui.homeFont(c, "semibold"));
+            greetPaint.setTypeface(Ui.homeFont(c, "semibold"));
             if (isScenesLook(c)) {
                 syncSettings();
             }
@@ -1154,7 +1396,12 @@ public final class Scenes {
                             + I18n.formatSceneDate(ctx, new Date()) + "|"
                             + (lockScreenMode ? "" : (weatherTemp != null ? weatherTemp : "")) + "|"
                             + (lockScreenMode ? "" : (weatherDesc != null ? weatherDesc : "")) + "|"
-                            + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
+                            + (lockScreenMode ? -1 : weatherCode) + "|"
+                            + getHomeFontFamily(ctx) + "|" + getHomeFontColorIndex(ctx) + "|"
+                            + getHomeFontColorCustom(ctx) + "|"
+                            + getHomeFontOpacity(ctx) + "|" + getHomeFontShadow(ctx) + "|"
+                            + getHomeClockFill(ctx) + "|" + getHomeClockSize(ctx) + "|"
+                            + getHomeClockWeight(ctx) + "|"
                             + getCustomClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
                             + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
                             + CustomMedia.getCustomLockTimestamp(ctx) + "|"
@@ -1204,18 +1451,15 @@ public final class Scenes {
             }
             canvas.drawRect(0, 0, w, h, shadePaint);
 
-            // 3. Giant Glass Clock (iPhone Duo / Rounded / Tall Glass)
+            // 3. Giant Glass Clock (Tall Glass - the only face; the Clock style setting was removed)
             float u = Math.min(w / 960f, h / 540f);
             Context ctx = getContext();
-            String style = getClockStyle(ctx);
-            boolean isDuo = CLOCK_STYLE_DUO.equals(style);
-            boolean isRounded = CLOCK_STYLE_ROUNDED.equals(style);
 
-            // Duo uses Bahnschrift Condensed ('wght' 345, 'wdth' 75) with rounded corners matching screen_duo12.png
-            android.graphics.Typeface tf = isDuo
-                    ? Ui.font(ctx, "clock_duo")
-                    : isRounded
-                    ? Ui.font(ctx, "clock_rounded")
+            // A Google Font family renders the clock in its display weight;
+            // Inter keeps the Tall Glass face exactly as before.
+            boolean googleClock = !HOME_FONT_INTER.equals(getHomeFontFamily(ctx));
+            android.graphics.Typeface tf = googleClock
+                    ? Ui.homeFont(ctx, "display")
                     : Ui.font(ctx, "clock");
             clockFillPaint.setTypeface(tf);
             clockWetPaint.setTypeface(tf);
@@ -1223,28 +1467,9 @@ public final class Scenes {
             clockStrokePaint.setTypeface(tf);
             clockShadowPaint.setTypeface(tf);
 
-            if (android.os.Build.VERSION.SDK_INT >= 26) {
-                String varSettings = isDuo ? "'wght' 345, 'wdth' 75" : null;
-                clockFillPaint.setFontVariationSettings(varSettings);
-                clockWetPaint.setFontVariationSettings(varSettings);
-                clockFrostPaint.setFontVariationSettings(varSettings);
-                clockStrokePaint.setFontVariationSettings(varSettings);
-                clockShadowPaint.setFontVariationSettings(varSettings);
-            }
-
-            android.graphics.PathEffect cornerFx = isDuo
-                    ? new android.graphics.CornerPathEffect(3.8f * u)
-                    : null;
-            clockFillPaint.setPathEffect(cornerFx);
-            clockWetPaint.setPathEffect(cornerFx);
-            clockFrostPaint.setPathEffect(cornerFx);
-            clockStrokePaint.setPathEffect(cornerFx);
-            clockShadowPaint.setPathEffect(cornerFx);
-
             String timeStr = formatTime(ctx);
-            float clockPx = (isRounded ? sp.clockSizeU * 0.78f : isDuo ? sp.clockSizeU * 0.84f : sp.clockSizeU) * u;
-            float scaleY = isRounded ? 1.24f : isDuo ? 1.24f : 1.0f;
-            float letterSp = isDuo ? 0.01f : isRounded ? -0.01f : -0.02f;
+            float clockPx = sp.clockSizeU * u * homeClockSizeScale(ctx);
+            float letterSp = -0.02f;
 
             clockFillPaint.setTextSize(clockPx);
             clockFillPaint.setLetterSpacing(letterSp);
@@ -1273,12 +1498,12 @@ public final class Scenes {
 
             clockFillPaint.getTextBounds("0847", 0, 4, digitBounds);
             float rawCapH = Math.max(clockPx * 0.68f, -digitBounds.top);
-            float visualCapH = rawCapH * scaleY;
+            float visualCapH = rawCapH;
             float minClockTopY = dateBaselineY + (14f * u);
             float clockVisualTopY = Math.max((sp.clockTopU + topOffsetU) * u, minClockTopY);
             float baselineY = clockVisualTopY + visualCapH;
 
-            float textW = measureClockWidth(timeStr, clockFillPaint, u, isDuo || isRounded);
+            float textW = clockFillPaint.measureText(timeStr);
             float clockX;
             if (useUserClockPos) {
                 if (CLOCK_POS_LEFT.equals(activeClockPos)) {
@@ -1298,51 +1523,101 @@ public final class Scenes {
                 ls.glassShader.setLocalMatrix(shaderMatrix);
                 clockFillPaint.setShader(ls.glassShader);
             }
+            // Solid clock: drop the wallpaper shader and frost entirely and fill the
+            // numerals with the chosen font colour, so the clock reads over any wallpaper.
+            // The paints are reused across draws, so the shader must be cleared, not just left unset.
+            boolean solidClock = CLOCK_FILL_SOLID.equals(getHomeClockFill(ctx));
+            if (solidClock) {
+                int solidColor = homeTextArgb(ctx, 255, false);
+                clockFillPaint.setShader(null);
+                clockFillPaint.setColor(solidColor);
+                clockWetPaint.setShader(null);
+                clockWetPaint.setColor(solidColor);
+                clockFrostPaint.setShader(null);
+            }
+            // The wallpaper shader overrides the paint colour, so a chosen colour never
+            // reached the numerals - only the frost and rim showed it, and the clock stayed
+            // grey. A Multiply filter tints the glass toward the colour instead
+            // (white leaves it untouched, as before).
+            if (!solidClock && getHomeFontColorIndex(ctx) != 0) {
+                android.graphics.PorterDuffColorFilter tint =
+                        new android.graphics.PorterDuffColorFilter(
+                                getHomeFontColor(ctx), android.graphics.PorterDuff.Mode.MULTIPLY);
+                clockFillPaint.setColorFilter(tint);
+                clockWetPaint.setColorFilter(tint);
+            } else {
+                clockFillPaint.setColorFilter(null);
+                clockWetPaint.setColorFilter(null);
+            }
 
-            // Frosted vertical gradient fill + crisp outer rim matching duo.png
+            // Frosted vertical gradient fill + crisp outer rim.
+            // The glass clock keeps its wallpaper shader; a non-white font colour tints its
+            // frost fill and rim toward that colour, and the font opacity scales every layer.
+            // A solid clock skips the frost entirely (its fill is the font colour itself).
+            int fontColor = getHomeFontColor(ctx);
+            boolean tintClock = getHomeFontColorIndex(ctx) != 0;
+            float fontOpacity = getHomeFontOpacity(ctx) / 100f;
             float topGradY = baselineY - visualCapH;
-            clockFrostPaint.setShader(new LinearGradient(
-                    0, topGradY, 0, baselineY,
-                    sp.darkClock
-                            ? new int[]{Color.argb(38, 255, 255, 255), Color.argb(68, 255, 255, 255), Color.argb(118, 255, 255, 255)}
-                            : new int[]{Color.argb(52, 218, 224, 255), Color.argb(86, 236, 232, 255), Color.argb(138, 255, 242, 252)},
-                    new float[]{0f, 0.52f, 1f},
-                    Shader.TileMode.CLAMP));
+            if (!solidClock) {
+                int[] frostStops = sp.darkClock
+                        ? new int[]{Color.argb(38, 255, 255, 255), Color.argb(68, 255, 255, 255), Color.argb(118, 255, 255, 255)}
+                        : new int[]{Color.argb(52, 218, 224, 255), Color.argb(86, 236, 232, 255), Color.argb(138, 255, 242, 252)};
+                if (tintClock) {
+                    for (int i = 0; i < frostStops.length; i++) {
+                        frostStops[i] = tintToward(frostStops[i], fontColor, 0.55f);
+                    }
+                }
+                clockFrostPaint.setShader(new LinearGradient(
+                        0, topGradY, 0, baselineY,
+                        frostStops,
+                        new float[]{0f, 0.52f, 1f},
+                        Shader.TileMode.CLAMP));
+            } else {
+                clockFrostPaint.setAlpha(0);
+            }
 
-            clockStrokePaint.setStrokeWidth(Math.max(1.7f, (isDuo ? 2.1f : 1.2f) * u));
+            clockStrokePaint.setStrokeWidth(Math.max(1.7f, 1.2f * u));
+            int[] strokeStops = sp.darkClock
+                    ? new int[]{Color.argb(210, 255, 255, 255), Color.argb(160, 255, 255, 255), Color.argb(230, 255, 255, 255)}
+                    : new int[]{Color.argb(228, 244, 248, 255), Color.argb(185, 232, 236, 255), Color.argb(250, 255, 255, 255)};
+            if (tintClock) {
+                for (int i = 0; i < strokeStops.length; i++) {
+                    strokeStops[i] = tintToward(strokeStops[i], fontColor, 0.7f);
+                }
+            }
             clockStrokePaint.setShader(new LinearGradient(
                     0, topGradY, 0, baselineY,
-                    sp.darkClock
-                            ? new int[]{Color.argb(210, 255, 255, 255), Color.argb(160, 255, 255, 255), Color.argb(230, 255, 255, 255)}
-                            : new int[]{Color.argb(228, 244, 248, 255), Color.argb(185, 232, 236, 255), Color.argb(250, 255, 255, 255)},
+                    strokeStops,
                     new float[]{0f, 0.5f, 1f},
                     Shader.TileMode.CLAMP));
-            clockShadowPaint.setColor(Color.argb(42, 0, 0, 0));
+            int clockAlpha = Math.round(255 * fontOpacity);
+            clockFillPaint.setAlpha(clockAlpha);
+            clockWetPaint.setAlpha(clockAlpha);
+            clockFrostPaint.setAlpha(clockAlpha);
+            clockStrokePaint.setAlpha(clockAlpha);
+            clockShadowPaint.setColor(Color.argb(shadowAlpha(ctx, 42), 0, 0, 0));
 
             if (sp.waterSplit) {
                 float waterY = h * 0.55f;
                 // Above waterline: sharp glass clock
                 canvas.save();
                 canvas.clipRect(0, 0, w, waterY);
-                drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, false, ls, sp.darkClock);
+                drawStylizedClock(canvas, timeStr, clockX, baselineY, u, false);
                 canvas.restore();
 
-                // Below waterline: blurred wet reflection clock
+                // Below waterline: blurred wet reflection clock (solid in solid mode).
                 canvas.save();
                 canvas.clipRect(0, waterY, w, h);
-                if (ls.glassWetShader != null && ls.glassWetBaked != null) {
+                if (!solidClock && ls.glassWetShader != null && ls.glassWetBaked != null) {
                     shaderMatrix.reset();
                     shaderMatrix.setScale((float) w / ls.glassWetBaked.getWidth(), (float) h / ls.glassWetBaked.getHeight());
                     ls.glassWetShader.setLocalMatrix(shaderMatrix);
                     clockWetPaint.setShader(ls.glassWetShader);
                 }
-                drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, true, ls, sp.darkClock);
+                drawStylizedClock(canvas, timeStr, clockX, baselineY, u, true);
                 canvas.restore();
             } else {
-                drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, false, ls, sp.darkClock);
+                drawStylizedClock(canvas, timeStr, clockX, baselineY, u, false);
             }
 
             // 4. Foreground cutout (mountain ridge / volcano / fog hills / rainforest canopy)
@@ -1352,14 +1627,15 @@ public final class Scenes {
 
             // 5. Line 1 (Greeting with person name) + Line 2 (Date & Weather) above the clock
             String greeting = buildGreeting(ctx);
+            greetPaint.setTypeface(Ui.homeFont(ctx, "semibold"));
             greetPaint.setTextSize(greetPx);
             greetPaint.setLetterSpacing(0.015f);
             if (sp.darkDate) {
-                greetPaint.setColor(Color.argb(185, 22, 32, 29));
+                greetPaint.setColor(homeTextArgb(ctx, 185, true));
                 greetPaint.clearShadowLayer();
             } else {
-                greetPaint.setColor(Color.argb(215, 240, 242, 248));
-                greetPaint.setShadowLayer(7f * u, 0f, 1.5f * u, Color.argb(135, 0, 0, 0));
+                greetPaint.setColor(homeTextArgb(ctx, 215, false));
+                greetPaint.setShadowLayer(shadowRadius(ctx, 7f * u), 0f, 1.5f * u, shadowColor(ctx, 135));
             }
             float greetW = greetPaint.measureText(greeting);
             float greetX;
@@ -1383,14 +1659,15 @@ public final class Scenes {
                         ? " " + I18n.t(ctx, weatherDesc) : "";
                 fullHeader = dateStr + "   ·   " + weatherTemp + wxDesc;
             }
+            datePaint.setTypeface(Ui.homeFont(ctx, "semibold"));
             datePaint.setTextSize(datePx);
             datePaint.setLetterSpacing(0.01f);
             if (sp.darkDate) {
-                datePaint.setColor(Color.argb(225, 22, 32, 29));
+                datePaint.setColor(homeTextArgb(ctx, 225, true));
                 datePaint.clearShadowLayer();
             } else {
-                datePaint.setColor(Color.argb(246, 248, 248, 252));
-                datePaint.setShadowLayer(8f * u, 0f, 1.5f * u, Color.argb(145, 0, 0, 0));
+                datePaint.setColor(homeTextArgb(ctx, 246, false));
+                datePaint.setShadowLayer(shadowRadius(ctx, 8f * u), 0f, 1.5f * u, shadowColor(ctx, 145));
             }
             float dateW = datePaint.measureText(fullHeader);
             float dateX;
@@ -1436,187 +1713,28 @@ public final class Scenes {
             return greet;
         }
 
-        private final android.graphics.Path duoClockPath = new android.graphics.Path();
-        private final android.graphics.Path duoSubPath = new android.graphics.Path();
-        private final android.graphics.Path duoCharPath = new android.graphics.Path();
-        private final Matrix duoScaleMatrix = new Matrix();
-
-        private static final float DUO_SCALE_X = 0.86f;
-
-        private void appendDuoTextPath(TextPaint paint, String str, float destX, float baselineY,
-                                       float scaleY, android.graphics.Path outPath) {
-            duoSubPath.reset();
-            int len = str.length();
-            RectF cBounds = new RectF();
-            for (int i = 0; i < len; i++) {
-                float advX = i == 0 ? 0f : paint.measureText(str, 0, i);
-                char ch = str.charAt(i);
-                duoCharPath.reset();
-                paint.getTextPath(str, i, i + 1, advX, baselineY, duoCharPath);
-                if (ch != '0' && ch != '8') {
-                    try {
-                        android.graphics.PathMeasure pm = new android.graphics.PathMeasure(duoCharPath, false);
-                        List<android.graphics.Path> contours = new ArrayList<>();
-                        int smallestIdx = -1;
-                        float smallestArea = Float.MAX_VALUE;
-                        do {
-                            android.graphics.Path cp = new android.graphics.Path();
-                            if (pm.getSegment(0f, pm.getLength(), cp, true)) {
-                                cp.close();
-                                cp.computeBounds(cBounds, true);
-                                float area = cBounds.width() * cBounds.height();
-                                if (area > 0f && area < smallestArea) {
-                                    smallestArea = area;
-                                    smallestIdx = contours.size();
-                                }
-                                contours.add(cp);
-                            }
-                        } while (pm.nextContour());
-
-                        if (contours.size() > 1) {
-                            boolean hasHole = (ch == '6' || ch == '9');
-                            android.graphics.Path merged = new android.graphics.Path();
-                            boolean first = true;
-                            for (int c = 0; c < contours.size(); c++) {
-                                if (hasHole && c == smallestIdx) continue;
-                                if (first) {
-                                    merged.set(contours.get(c));
-                                    first = false;
-                                } else {
-                                    merged.op(contours.get(c), android.graphics.Path.Op.UNION);
-                                }
-                            }
-                            if (hasHole && smallestIdx >= 0) {
-                                merged.op(contours.get(smallestIdx), android.graphics.Path.Op.DIFFERENCE);
-                            }
-                            if (!first) {
-                                duoCharPath.set(merged);
-                            }
-                        }
-                    } catch (Exception ignored) { }
-                }
-                duoSubPath.addPath(duoCharPath);
-            }
-            duoScaleMatrix.reset();
-            duoScaleMatrix.setScale(DUO_SCALE_X, scaleY, 0f, baselineY);
-            duoScaleMatrix.postTranslate(destX, 0f);
-            duoSubPath.transform(duoScaleMatrix);
-            outPath.addPath(duoSubPath);
-        }
-
-        private float measureClockWidth(String timeStr, TextPaint paint, float u, boolean customColon) {
-            if (!customColon) return paint.measureText(timeStr);
-            int colonIdx = timeStr.indexOf(':');
-            if (colonIdx < 0) return paint.measureText(timeStr);
-            String hrs = timeStr.substring(0, colonIdx);
-            String mins = timeStr.substring(colonIdx + 1);
-            boolean isDuo = paint.getPathEffect() != null;
-            float sx = isDuo ? DUO_SCALE_X : 1f;
-            float colonSpace = (isDuo ? 20f : 22f) * u;
-            return (paint.measureText(hrs) + paint.measureText(mins)) * sx + colonSpace;
-        }
-
         /**
-         * Renders the clock in iPhone Duo (frosted translucent glass slab + crisp specular rim matching duo.png),
-         * iPhone Rounded, or Tall Glass style, with solid circular frosted-glass colon dots.
+         * Renders the Tall Glass clock: plain glass numerals with a drop shadow, a
+         * frosted fill and a crisp rim. The Duo and Rounded faces were removed with
+         * the Clock style setting; the clock look is now customized through the home
+         * font family, colour, opacity, shadow, size and weight.
          */
         private void drawStylizedClock(Canvas canvas, String timeStr, float startX, float baselineY,
-                                       float scaleY, float rawCapH, float clockPx, float u,
-                                       boolean isDuo, boolean isRounded, boolean wet,
-                                       LoadedScene ls, boolean darkClock) {
+                                       float u, boolean wet) {
             TextPaint fillP = wet ? clockWetPaint : clockFillPaint;
-            int colonIdx = (isDuo || isRounded) ? timeStr.indexOf(':') : -1;
+            // Font opacity scales the clock layers too: the hardcoded alphas below used to
+            // override it, so the opacity setting never actually faded the clock.
+            Context sctx = getContext();
+            float fontOpacity = getHomeFontOpacity(sctx) / 100f;
+            boolean solid = CLOCK_FILL_SOLID.equals(getHomeClockFill(sctx));
 
-            if (isDuo && colonIdx >= 0) {
-                // iPhone Duo Lock Screen Clock (matching duo.png 12:08):
-                // Bahnschrift Condensed ('wght' 345, 'wdth' 75) unified via Path.Op.UNION, scaled to tall narrow
-                // iOS Duo proportions, with rounded corners and true-circle colon dots.
-                String hrs = timeStr.substring(0, colonIdx);
-                String mins = timeStr.substring(colonIdx + 1);
-                float hrsW = fillP.measureText(hrs) * DUO_SCALE_X;
-                float colonSpace = 20f * u;
-                float colonCx = startX + hrsW + colonSpace * 0.5f;
-                float minsX = startX + hrsW + colonSpace;
-
-                duoClockPath.reset();
-                appendDuoTextPath(fillP, hrs, startX, baselineY, scaleY, duoClockPath);
-                appendDuoTextPath(fillP, mins, minsX, baselineY, scaleY, duoClockPath);
-
-                float visualCapH = rawCapH * scaleY;
-                float dotR = visualCapH * 0.048f;
-                float dotY1 = baselineY - visualCapH * 0.65f;
-                float dotY2 = baselineY - visualCapH * 0.36f;
-                duoClockPath.addCircle(colonCx, dotY1, dotR, android.graphics.Path.Direction.CW);
-                duoClockPath.addCircle(colonCx, dotY2, dotR, android.graphics.Path.Direction.CW);
-
-                if (!wet) {
-                    clockShadowPaint.setAlpha(38);
-                    canvas.save();
-                    canvas.translate(0f, 3f * u);
-                    canvas.drawPath(duoClockPath, clockShadowPaint);
-                    canvas.restore();
-                }
-
-                // 1. Refractive blurred background glass fill inside the numerals & colon dots
-                fillP.setAlpha(wet ? 155 : 215);
-                canvas.drawPath(duoClockPath, fillP);
-
-                // 2. Frosted translucent vertical gradient fill (milky near bottom, airy near top, matching screen_duo12.png)
-                //    with white outer outline removed for cleaner iPhone Duo similarity.
-                clockFrostPaint.setAlpha(wet ? 120 : 235);
-                canvas.drawPath(duoClockPath, clockFrostPaint);
-                return;
-            }
-
-            canvas.save();
-            if (scaleY != 1f) {
-                canvas.scale(1f, scaleY, startX, baselineY);
-            }
-
-            if (colonIdx < 0) {
-                // Tall Glass mode
-                if (!wet) {
-                    canvas.drawText(timeStr, startX, baselineY + 4f * u, clockShadowPaint);
-                }
-                fillP.setAlpha(wet ? 158 : 255);
-                canvas.drawText(timeStr, startX, baselineY, fillP);
-                clockStrokePaint.setAlpha(wet ? 60 : 140);
-                canvas.drawText(timeStr, startX, baselineY, clockStrokePaint);
-                canvas.restore();
-                return;
-            }
-
-            String hrs = timeStr.substring(0, colonIdx);
-            String mins = timeStr.substring(colonIdx + 1);
-            float hrsW = fillP.measureText(hrs);
-            float colonSpace = 24f * u;
-            float colonCx = startX + hrsW + colonSpace * 0.5f;
-            float minsX = startX + hrsW + colonSpace;
-
-            float dotR = clockPx * 0.048f;
-            float dotY1 = baselineY - rawCapH * 0.68f;
-            float dotY2 = baselineY - rawCapH * 0.42f;
-
-            // iPhone Rounded Lock Screen Clock
             if (!wet) {
-                clockShadowPaint.setAlpha(46);
-                canvas.drawText(hrs, startX, baselineY + 3.5f * u, clockShadowPaint);
-                canvas.drawText(mins, minsX, baselineY + 3.5f * u, clockShadowPaint);
+                canvas.drawText(timeStr, startX, baselineY + 4f * u, clockShadowPaint);
             }
-            fillP.setAlpha(wet ? 158 : 255);
-            canvas.drawText(hrs, startX, baselineY, fillP);
-            canvas.drawText(mins, minsX, baselineY, fillP);
-            canvas.drawCircle(colonCx, dotY1, dotR, fillP);
-            canvas.drawCircle(colonCx, dotY2, dotR, fillP);
-
-            clockStrokePaint.setStrokeWidth(Math.max(1.5f, 1.4f * u));
-            clockStrokePaint.setAlpha(wet ? 65 : 165);
-            canvas.drawText(hrs, startX, baselineY, clockStrokePaint);
-            canvas.drawText(mins, minsX, baselineY, clockStrokePaint);
-            canvas.drawCircle(colonCx, dotY1, dotR, clockStrokePaint);
-            canvas.drawCircle(colonCx, dotY2, dotR, clockStrokePaint);
-
-            canvas.restore();
+            fillP.setAlpha(Math.round((solid ? 255 : wet ? 158 : 255) * fontOpacity));
+            canvas.drawText(timeStr, startX, baselineY, fillP);
+            clockStrokePaint.setAlpha(Math.round((wet ? 60 : 140) * fontOpacity));
+            canvas.drawText(timeStr, startX, baselineY, clockStrokePaint);
         }
 
         private void drawCenterCrop(Canvas canvas, Bitmap bmp, int viewW, int viewH) {

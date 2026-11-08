@@ -67,6 +67,98 @@ public final class Ui {
     }
 
     /**
+     * Home-screen typeface: the Google Font family the user picked in Settings (Look &amp; Scenes),
+     * in the requested weight. Families are OFL fonts bundled in assets/fonts/ (see
+     * Scenes.HOME_FONT_FAMILIES) - no download, no network, no new library, so the home screen
+     * keeps working offline exactly like the bundled Inter does. "inter" (the default) just
+     * reuses {@link #font}, so every existing weight file stays in play. Poppins and Barlow ship
+     * one static file per weight; Nunito and Space Grotesk ship a single variable
+     * "[wght]" file, whose weight is selected with Typeface.create on API 28+ and falls back to
+     * the regular instance on older TVs. A missing file falls back to Inter rather than crashing.
+     */
+    public static android.graphics.Typeface homeFont(Context c, String weight) {
+        String family = Scenes.getHomeFontFamily(c);
+        if (Scenes.HOME_FONT_INTER.equals(family)) return font(c, weight);
+        // The clock ("display") honours the clock weight setting; other uses keep their
+        // fixed weights. The resolved weight is part of the cache key, or switching the
+        // weight would keep returning the face cached first.
+        int wght = "display".equals(weight) ? Scenes.getHomeClockWeight(c) : homeFontWeight(weight);
+        String key = "home:" + family + ":" + weight + ":" + wght;
+        android.graphics.Typeface t = FONTS.get(key);
+        if (t != null) return t;
+        String file = homeFontFile(family, weight, wght);
+        if (file == null) {
+            t = font(c, weight);
+            FONTS.put(key, t);
+            return t;
+        }
+        try {
+            android.graphics.Typeface base =
+                    android.graphics.Typeface.createFromAsset(c.getAssets(), "fonts/" + file);
+            if (file.contains("[wght]") && android.os.Build.VERSION.SDK_INT >= 28) {
+                android.graphics.Typeface weighted =
+                        android.graphics.Typeface.create(base, wght, false);
+                t = weighted != null ? weighted : base;
+            } else {
+                t = base;
+            }
+        } catch (RuntimeException e) {
+            t = font(c, weight);
+        }
+        FONTS.put(key, t);
+        return t;
+    }
+
+    private static String homeFontFile(String family, String weight, int wght) {
+        if ("poppins".equals(family) || "barlow".equals(family)) {
+            String cap = "poppins".equals(family) ? "Poppins" : "Barlow";
+            String w = "display".equals(weight) ? (wght >= 700 ? "Bold" : "Regular")
+                    : weight.equals("medium") ? "Medium"
+                    : weight.equals("semibold") ? "SemiBold" : "Regular";
+            return cap + "-" + w + ".ttf";
+        }
+        if ("nunito".equals(family)) return "Nunito[wght].ttf";
+        if ("spacegrotesk".equals(family)) return "SpaceGrotesk[wght].ttf";
+        return null;
+    }
+
+    private static int homeFontWeight(String weight) {
+        return weight.equals("display") ? 700
+                : weight.equals("medium") ? 500
+                : weight.equals("semibold") ? 600 : 400;
+    }
+
+    /**
+     * Home-screen text colour: the colour preset the user picked in Settings, with the chosen
+     * opacity folded into its alpha channel, so it composes correctly with a view's own fade
+     * alpha (the two alphas multiply). extraAlpha scales it further for secondary text
+     * (dock subtitles, shelf headers) that used to hard-code a dimmer white.
+     */
+    public static int homeTextColor(Context c) {
+        return homeTextColor(c, 1f);
+    }
+
+    public static int homeTextColor(Context c, float extraAlpha) {
+        int base = Scenes.getHomeFontColor(c);
+        float opacity = Scenes.getHomeFontOpacity(c) / 100f * extraAlpha;
+        int a = Math.round(255 * Math.max(0f, Math.min(1f, opacity)));
+        return android.graphics.Color.argb(a,
+                android.graphics.Color.red(base),
+                android.graphics.Color.green(base),
+                android.graphics.Color.blue(base));
+    }
+
+    /** Home text shadow radius for a TextView: 0 when shadows are off, larger when strong. */
+    public static float homeShadowRadius(Context c, float softPx) {
+        return Scenes.shadowRadius(c, softPx);
+    }
+
+    /** Home text shadow colour for a TextView: transparent when shadows are off. */
+    public static int homeShadowColor(Context c, int softAlpha) {
+        return Scenes.shadowColor(c, softAlpha);
+    }
+
+    /**
      * Small, heavily blurred copy of an image (box blur, several passes). Used as the backdrop
      * that Liquid Glass surfaces sample; at this size it costs a few milliseconds.
      */

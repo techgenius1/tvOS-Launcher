@@ -1013,12 +1013,57 @@ public class SettingsActivity extends Activity {
                     refreshAll();
                 });
 
-        row(tr("Clock font", "Saat yazı tipi"),
-                () -> Scenes.clockStyleLabel(this),
+        section(tr("HOME FONT", "ANA EKRAN YAZI T\u0130P\u0130"));
+        // All font controls live in this one section: the family, colour, opacity and shadow
+        // apply to the whole home screen, and the clock rows below define the main clock.
+        // The clock face is always Tall Glass now; there is no Clock style setting anymore.
+        row(tr("Home font", "Ana ekran yaz\u0131 tipi"),
+                () -> Scenes.homeFontLabel(this),
                 () -> {
-                    Scenes.cycleClockStyle(this);
+                    Scenes.cycleHomeFontFamily(this);
                     refreshAll();
                 });
+        row(tr("Font color", "Yaz\u0131 tipi rengi"),
+                () -> Scenes.homeFontColorLabel(this),
+                () -> {
+                    Scenes.cycleHomeFontColor(this);
+                    refreshAll();
+                });
+        row(tr("Custom color", "Özel renk"),
+                () -> Scenes.homeFontColorHex(this),
+                () -> openCustomColorDialog());
+        row(tr("Font opacity", "Yaz\u0131 tipi saydaml\u0131\u011f\u0131"),
+                () -> Scenes.getHomeFontOpacity(this) + "%",
+                () -> {
+                    Scenes.cycleHomeFontOpacity(this);
+                    refreshAll();
+                });
+        row(tr("Text shadow", "Yaz\u0131 tipi g\u00f6lgesi"),
+                () -> Scenes.homeFontShadowLabel(this),
+                () -> {
+                    Scenes.cycleHomeFontShadow(this);
+                    refreshAll();
+                });
+        row(tr("Clock fill", "Saat dolgusu"),
+                () -> Scenes.homeClockFillLabel(this),
+                () -> {
+                    Scenes.cycleHomeClockFill(this);
+                    refreshAll();
+                });
+        row(tr("Clock size", "Saat boyutu"),
+                () -> Scenes.homeClockSizeLabel(this),
+                () -> {
+                    Scenes.cycleHomeClockSize(this);
+                    refreshAll();
+                });
+        row(tr("Clock weight", "Saat kal\u0131nl\u0131\u011f\u0131"),
+                () -> Scenes.homeClockWeightLabel(this),
+                () -> {
+                    Scenes.cycleHomeClockWeight(this);
+                    refreshAll();
+                });
+        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The font color tints the glass clock, and Solid fills it with the color so it reads over any wallpaper. Custom color takes any hex color, e.g. #FF5733. Clock size and weight apply to the main clock; weight applies when a Google Font family is picked (Inter keeps the Tall Glass face).",
+                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Yaz\u0131 tipi rengi cam saati renklendirir; D\u00fcz, saati renkle doldurur. \u00d6zel renk, #FF5733 gibi herhangi bir hex rengi kabul eder. Saat boyutu ve kal\u0131nl\u0131\u011f\u0131 ana saate uygulan\u0131r; kal\u0131nl\u0131k yaln\u0131zca bir Google yaz\u0131 tipi se\u00e7iliyken ge\u00e7erlidir (Inter, Uzun Cam y\u00fcz\u00fcn\u00fc korur)."));
 
         section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
         String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
@@ -1038,6 +1083,41 @@ public class SettingsActivity extends Activity {
         }, () -> openSubMenu("ambient_themes"));
         customClassicPhotoRow("custom".equals(curWall));
         folderShuffleClassicRow(MainActivity.FOLDER_SHUFFLE_WALL_KEY.equals(curWall));
+    }
+
+    // Hex colour entry for the home font: type a colour like #FF5733 and it becomes the
+    // active font colour (the Font color row then shows it as Custom). Save only dismisses
+    // on a valid hex code, so a typo cannot save a broken colour.
+    void openCustomColorDialog() {
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setText(Scenes.homeFontColorHex(this));
+        input.setHint("#RRGGBB");
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+        input.setSingleLine(true);
+        final android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle(tr("Custom color", "Özel renk"))
+                .setMessage(tr("Enter a hex color, e.g. #FF5733", "Hex renk girin, örn. #FF5733"))
+                .setView(input)
+                .setPositiveButton(tr("Save", "Kaydet"), null)
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    String hex = input.getText().toString().trim();
+                    if (!hex.startsWith("#")) hex = "#" + hex;
+                    try {
+                        int color = android.graphics.Color.parseColor(hex);
+                        Scenes.setHomeFontColorCustom(this, color);
+                        dialog.dismiss();
+                        refreshAll();
+                    } catch (IllegalArgumentException e) {
+                        android.widget.Toast.makeText(this,
+                                tr("Enter a 6-digit hex color, e.g. #FF5733",
+                                        "6 haneli bir hex renk girin, örn. #FF5733"),
+                                android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                }));
+        dialog.show();
     }
 
     void pageApps() {

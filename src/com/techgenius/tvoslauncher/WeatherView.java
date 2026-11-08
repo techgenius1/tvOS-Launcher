@@ -30,9 +30,9 @@ final class WeatherView extends View {
         super(c);
         this.full = full;
         this.u = unit;
-        regular = Ui.font(c, "regular");
-        medium = Ui.font(c, "medium");
-        semibold = Ui.font(c, "semibold");
+        regular = Ui.homeFont(c, "regular");
+        medium = Ui.homeFont(c, "medium");
+        semibold = Ui.homeFont(c, "semibold");
     }
 
     void setData(Weather.Data d) {

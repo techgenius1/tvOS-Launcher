@@ -12,5 +12,7 @@ This product includes third-party components under their own licences:
 
 - Inter typeface — Copyright the Inter Project Authors — SIL Open Font License 1.1
   (assets/fonts/Inter-LICENSE.txt)
+- Poppins, Barlow, Nunito and Space Grotesk typefaces — Copyright their respective authors
+  (see google/fonts) — SIL Open Font License 1.1 (assets/fonts/OFL.txt)
 - QR Code generator library (Java) — Copyright (c) Project Nayuki — MIT License
   (src/io/nayuki/qrcodegen)

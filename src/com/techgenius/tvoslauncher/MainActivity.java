@@ -228,6 +228,7 @@ public class MainActivity extends Activity {
     SceneHome sceneHome;
     String activeLang;
     String activeLook;
+    String activeHomeFontSig;
 
     final Runnable shelfUpdate = () -> {
         if (focusedIndex >= 0 && focusedIndex < shown.size()) {
@@ -254,6 +255,7 @@ public class MainActivity extends Activity {
         focusedIndex = Math.max(0, prefs.getInt("last_classic_idx", 0));
         activeLang = I18n.getLang(this);
         activeLook = Scenes.getLook(this);
+        activeHomeFontSig = Scenes.homeFontSignature(this);
 
         android.graphics.Point size = Ui.screen(this);
         screenW = size.x;
@@ -419,7 +421,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!I18n.getLang(this).equals(activeLang) || !Scenes.getLook(this).equals(activeLook)) {
+        if (!I18n.getLang(this).equals(activeLang) || !Scenes.getLook(this).equals(activeLook)
+                || !Scenes.homeFontSignature(this).equals(activeHomeFontSig)) {
             recreate();
             return;
         }
@@ -657,10 +660,10 @@ public class MainActivity extends Activity {
         titleBox = new LinearLayout(this);
         titleBox.setOrientation(LinearLayout.VERTICAL);
         titleBox.setPadding(side, 0, side, dp(26));
-        shelfTitle = text(46, Ui.font(this, "display"), 1f);
+        shelfTitle = text(46, Ui.homeFont(this, "display"), 1f);
         shelfTitle.setSingleLine(true);
         shelfTitle.setEllipsize(TextUtils.TruncateAt.END);
-        shelfHint = text(15, Ui.font(this, "regular"), 0.6f);
+        shelfHint = text(15, Ui.homeFont(this, "regular"), 0.6f);
         titleBox.addView(shelfTitle);
         titleBox.addView(shelfHint);
         shelf.addView(titleBox, new FrameLayout.LayoutParams(
@@ -699,8 +702,8 @@ public class MainActivity extends Activity {
         TextClock time = new TextClock(this);
         statusClock = time;
         Ui.textSize(time, 16);
-        time.setTypeface(Ui.font(this, "medium"));
-        time.setTextColor(Color.WHITE);
+        time.setTypeface(Ui.homeFont(this, "medium"));
+        time.setTextColor(Ui.homeTextColor(this));
         time.setShadowLayer(dp(6), 0, dp(1), 0x66000000);
         updateStatusClockFormat();
         time.setAllCaps(true);
@@ -717,7 +720,7 @@ public class MainActivity extends Activity {
         chipGlass.lens = dp(4);
         timeChip.setBackground(chipGlass);
         timeChipView = timeChip;
-        time.setShadowLayer(dp(8), 0, dp(1), 0x99000000);
+        time.setShadowLayer(Ui.homeShadowRadius(this, dp(8)), 0, dp(1), Ui.homeShadowColor(this, 0x99));
         timeChip.addView(netIcon, nlp);
         timeChip.addView(time);
         clockBox.addView(timeChip, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, btn));
@@ -1013,7 +1016,7 @@ public class MainActivity extends Activity {
         topSheen.setAlpha(0f);
         tile.addView(topSheen, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, cardH / 2, Gravity.TOP));
 
-        TextView label = text(15, Ui.font(this, "medium"), 0f);
+        TextView label = text(15, Ui.homeFont(this, "medium"), 0f);
         label.setText(a.label);
         label.setSingleLine(true);
         label.setEllipsize(TextUtils.TruncateAt.END);
@@ -1744,17 +1747,17 @@ public class MainActivity extends Activity {
         heroLogo.setMaxWidth(dp(260));
         heroLogo.setMaxHeight(dp(90));
         heroInfo.addView(heroLogo, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        heroTitle = text(36, Ui.font(this, "display"), 1f);
+        heroTitle = text(36, Ui.homeFont(this, "display"), 1f);
         heroTitle.setLetterSpacing(-0.02f);
         heroTitle.setIncludeFontPadding(false);
         heroTitle.setMaxLines(2);
         heroTitle.setEllipsize(TextUtils.TruncateAt.END);
         heroInfo.addView(heroTitle, new LinearLayout.LayoutParams(dp(420), ViewGroup.LayoutParams.WRAP_CONTENT));
-        heroMeta = text(12.5f, Ui.font(this, "medium"), 0.8f);
+        heroMeta = text(12.5f, Ui.homeFont(this, "medium"), 0.8f);
         LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mlp.topMargin = dp(10);
         heroInfo.addView(heroMeta, mlp);
-        heroOverview = text(12.5f, Ui.font(this, "regular"), 0.8f);
+        heroOverview = text(12.5f, Ui.homeFont(this, "regular"), 0.8f);
         heroOverview.setMaxLines(2);
         heroOverview.setEllipsize(TextUtils.TruncateAt.END);
         heroOverview.setLineSpacing(0, 1.15f);
@@ -1769,7 +1772,7 @@ public class MainActivity extends Activity {
         heroBtnBg.setCornerRadius(dp(16));
         heroBtnBg.setColor(0x47FFFFFF);
         heroButton.setBackground(heroBtnBg);
-        heroBtnText = text(13, Ui.font(this, "semibold"), 1f);
+        heroBtnText = text(13, Ui.homeFont(this, "semibold"), 1f);
         heroBtnText.setShadowLayer(0, 0, 0, 0);
         heroButton.addView(heroBtnText);
         heroBtnIcon = new ImageView(this);
@@ -1784,7 +1787,7 @@ public class MainActivity extends Activity {
         btnRow.setOrientation(LinearLayout.HORIZONTAL);
         btnRow.setClipChildren(false);
         btnRow.addView(heroButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(32)));
-        heroRemove = text(13, Ui.font(this, "semibold"), 1f);
+        heroRemove = text(13, Ui.homeFont(this, "semibold"), 1f);
         heroRemove.setShadowLayer(0, 0, 0, 0);
         heroRemove.setText("\u2715  Remove");
         heroRemove.setGravity(Gravity.CENTER);
@@ -1834,7 +1837,7 @@ public class MainActivity extends Activity {
         heroInfo.addView(heroStrip, slp);
 
         // Empty state for Continue Watching.
-        shelfEmpty = text(15, Ui.font(this, "medium"), 0f);
+        shelfEmpty = text(15, Ui.homeFont(this, "medium"), 0f);
         shelfEmpty.setGravity(Gravity.CENTER);
         FrameLayout.LayoutParams elp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
@@ -1958,7 +1961,7 @@ public class MainActivity extends Activity {
     }
 
     TextView tab(String label, GradientDrawable bg) {
-        TextView t = text(12.5f, Ui.font(this, "medium"), 1f);
+        TextView t = text(12.5f, Ui.homeFont(this, "medium"), 1f);
         t.setText(label);
         t.setShadowLayer(0, 0, 0, 0);
         t.setGravity(Gravity.CENTER);
@@ -3863,15 +3866,15 @@ public class MainActivity extends Activity {
             LinearLayout texts = new LinearLayout(this);
             texts.setOrientation(LinearLayout.VERTICAL);
             texts.setGravity(square ? Gravity.CENTER_HORIZONTAL : Gravity.START);
-            TextView tt = text(square ? 13.5f : 13f, Ui.font(this, "medium"), 1f);
+            TextView tt = text(square ? 13.5f : 13f, Ui.homeFont(this, "medium"), 1f);
             titleRef[0] = tt;
             tt.setText(title);
-            tt.setShadowLayer(dp(4), 0, dp(1), 0x99000000);
+            tt.setShadowLayer(Ui.homeShadowRadius(this, dp(4)), 0, dp(1), Ui.homeShadowColor(this, 0x99));
             tt.setMaxLines(2);
             texts.addView(tt);
             if (status != null) {
-                sub = text(11.5f, Ui.font(this, "regular"), 0.85f);
-                sub.setShadowLayer(dp(4), 0, dp(1), 0x99000000);
+                sub = text(11.5f, Ui.homeFont(this, "regular"), 0.85f);
+                sub.setShadowLayer(Ui.homeShadowRadius(this, dp(4)), 0, dp(1), Ui.homeShadowColor(this, 0x99));
                 sub.setText(status.get());
                 sub.setSingleLine(true);
                 sub.setEllipsize(TextUtils.TruncateAt.END);
@@ -3894,12 +3897,12 @@ public class MainActivity extends Activity {
             gi.setImageBitmap(Glyphs.get(glyph, gs, has ? (glyph.equals("wifi") ? 0xFF0A84FF : 0xFF111114) : glyphColor));
             TextView tt = titleRef[0];
             if (tt != null) {
-                tt.setTextColor(has ? 0xFF111114 : Color.WHITE);
-                tt.setShadowLayer(has ? 0 : dp(4), 0, has ? 0 : dp(1), 0x99000000);
+                tt.setTextColor(has ? 0xFF111114 : Ui.homeTextColor(this));
+                tt.setShadowLayer(has ? 0 : Ui.homeShadowRadius(this, dp(4)), 0, has ? 0 : dp(1), Ui.homeShadowColor(this, 0x99));
             }
             if (subRef != null) {
-                subRef.setTextColor(has ? 0xB3111114 : Color.WHITE);
-                subRef.setShadowLayer(has ? 0 : dp(4), 0, has ? 0 : dp(1), 0x99000000);
+                subRef.setTextColor(has ? 0xB3111114 : Ui.homeTextColor(this));
+                subRef.setShadowLayer(has ? 0 : Ui.homeShadowRadius(this, dp(4)), 0, has ? 0 : dp(1), Ui.homeShadowColor(this, 0x99));
             }
             if (memBarFill != null && memBarFill.getParent() != null && v == ((View) memBarFill.getParent()).getParent().getParent()) {
                 ((GradientDrawable) ((View) memBarFill.getParent()).getBackground()).setColor(has ? 0x33111114 : 0x40FFFFFF);
@@ -4118,7 +4121,7 @@ public class MainActivity extends Activity {
         FrameLayout panel = new FrameLayout(this);
         panel.setClipChildren(false);
         List<View> cells = new ArrayList<>();
-        TextView title = text(13, Ui.font(this, "semibold"), 0.75f);
+        TextView title = text(13, Ui.homeFont(this, "semibold"), 0.75f);
         title.setText(I18n.s(this, "Inputs", "Girişler"));
         panel.addView(title, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(20)));
         int top = dp(26);
@@ -4710,7 +4713,7 @@ public class MainActivity extends Activity {
         col.setGravity(Gravity.CENTER_HORIZONTAL);
         col.setClipChildren(false);
         col.setClipToPadding(false);
-        TextView title = text(30, Ui.font(this, "display"), 1f);
+        TextView title = text(30, Ui.homeFont(this, "display"), 1f);
         title.setText(onWake
                 ? I18n.s(this, "Who\u2019s Watching?", "Kim İzliyor?")
                 : I18n.s(this, "Switch Profile", "Profil Değiştir"));
@@ -4996,7 +4999,7 @@ public class MainActivity extends Activity {
         picBox.setClipChildren(false);
         View pic;
         if (isAdd) {
-            TextView plus = text(34, Ui.font(this, "regular"), 0.9f);
+            TextView plus = text(34, Ui.homeFont(this, "regular"), 0.9f);
             plus.setText("+");
             plus.setGravity(Gravity.CENTER);
             plus.setShadowLayer(0, 0, 0, 0);
@@ -5027,7 +5030,7 @@ public class MainActivity extends Activity {
             picBox.addView(check, clp);
         }
         cell.addView(picBox, new LinearLayout.LayoutParams(size, size));
-        TextView label = text(big > 0 ? 15 : 12.5f, Ui.font(this, big > 0 ? "medium" : "regular"), 0.7f);
+        TextView label = text(big > 0 ? 15 : 12.5f, Ui.homeFont(this, big > 0 ? "medium" : "regular"), 0.7f);
         label.setText(name);
         label.setGravity(Gravity.CENTER);
         label.setSingleLine(true);
@@ -5245,7 +5248,7 @@ public class MainActivity extends Activity {
         panel.setClipChildren(false);
         panel.setClipToPadding(false);
 
-        TextView head = text(11, Ui.font(this, "semibold"), 0.55f);
+        TextView head = text(11, Ui.homeFont(this, "semibold"), 0.55f);
         head.setText(title);
         head.setShadowLayer(0, 0, 0, 0);
         head.setPadding(dp(12), 0, dp(12), dp(8));
@@ -5256,7 +5259,7 @@ public class MainActivity extends Activity {
         List<View> rows = new ArrayList<>();
         for (int i = 0; i < labels.size(); i++) {
             int idx = i;
-            TextView row = text(14, Ui.font(this, "medium"), 1f);
+            TextView row = text(14, Ui.homeFont(this, "medium"), 1f);
             row.setText(labels.get(i));
             row.setShadowLayer(0, 0, 0, 0);
             row.setGravity(Gravity.CENTER_VERTICAL);
@@ -5445,9 +5448,9 @@ public class MainActivity extends Activity {
         TextView t = new TextView(this);
         Ui.textSize(t, sp);
         t.setTypeface(tf);
-        t.setTextColor(Color.WHITE);
+        t.setTextColor(Ui.homeTextColor(this));
         t.setAlpha(alpha);
-        t.setShadowLayer(10, 0, 2, 0x99000000);
+        t.setShadowLayer(Ui.homeShadowRadius(this, 10), 0, 2, Ui.homeShadowColor(this, 0x99));
         return t;
     }
 
