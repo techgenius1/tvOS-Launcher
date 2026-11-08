@@ -1044,6 +1044,12 @@ public class SettingsActivity extends Activity {
                     Scenes.cycleHomeFontShadow(this);
                     refreshAll();
                 });
+        row(tr("Clock fill", "Saat dolgusu"),
+                () -> Scenes.homeClockFillLabel(this),
+                () -> {
+                    Scenes.cycleHomeClockFill(this);
+                    refreshAll();
+                });
         row(tr("Clock size", "Saat boyutu"),
                 () -> Scenes.homeClockSizeLabel(this),
                 () -> {
@@ -1056,8 +1062,8 @@ public class SettingsActivity extends Activity {
                     Scenes.cycleHomeClockWeight(this);
                     refreshAll();
                 });
-        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The font color tints the glass clock. Custom color takes any hex color, e.g. #FF5733. Clock size and weight apply to the main clock; weight applies when a Google Font family is picked (Inter keeps the Tall Glass face).",
-                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Yaz\u0131 tipi rengi cam saati renklendirir. \u00d6zel renk, #FF5733 gibi herhangi bir hex rengi kabul eder. Saat boyutu ve kal\u0131nl\u0131\u011f\u0131 ana saate uygulan\u0131r; kal\u0131nl\u0131k yaln\u0131zca bir Google yaz\u0131 tipi se\u00e7iliyken ge\u00e7erlidir (Inter, Uzun Cam y\u00fcz\u00fcn\u00fc korur)."));
+        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The font color tints the glass clock, and Solid fills it with the color so it reads over any wallpaper. Custom color takes any hex color, e.g. #FF5733. Clock size and weight apply to the main clock; weight applies when a Google Font family is picked (Inter keeps the Tall Glass face).",
+                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Yaz\u0131 tipi rengi cam saati renklendirir; D\u00fcz, saati renkle doldurur. \u00d6zel renk, #FF5733 gibi herhangi bir hex rengi kabul eder. Saat boyutu ve kal\u0131nl\u0131\u011f\u0131 ana saate uygulan\u0131r; kal\u0131nl\u0131k yaln\u0131zca bir Google yaz\u0131 tipi se\u00e7iliyken ge\u00e7erlidir (Inter, Uzun Cam y\u00fcz\u00fcn\u00fc korur)."));
 
         section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
         String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");

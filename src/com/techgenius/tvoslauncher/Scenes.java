@@ -766,7 +766,7 @@ public final class Scenes {
     public static String homeFontSignature(Context c) {
         return getHomeFontFamily(c) + "|" + getHomeFontColorIndex(c) + "|" + getHomeFontColorCustom(c)
                 + "|" + getHomeFontOpacity(c)
-                + "|" + getHomeFontShadow(c)
+                + "|" + getHomeFontShadow(c) + "|" + getHomeClockFill(c)
                 + "|" + getHomeClockSize(c) + "|" + getHomeClockWeight(c);
     }
 
@@ -818,6 +818,27 @@ public final class Scenes {
         int level = getHomeFontShadow(c);
         if (level <= 0) return 0f;
         return level >= 2 ? 1.5f : 1f;
+    }
+
+    // ---- Clock fill: glass (wallpaper shader + frost, the default) or solid font colour ----
+    public static final String CLOCK_FILL_GLASS = "glass";
+    public static final String CLOCK_FILL_SOLID = "solid";
+
+    public static String getHomeClockFill(Context c) {
+        String f = prefs(c).getString("home_clock_fill", CLOCK_FILL_GLASS);
+        return CLOCK_FILL_SOLID.equals(f) ? CLOCK_FILL_SOLID : CLOCK_FILL_GLASS;
+    }
+
+    public static void cycleHomeClockFill(Context c) {
+        String next = CLOCK_FILL_SOLID.equals(getHomeClockFill(c)) ? CLOCK_FILL_GLASS : CLOCK_FILL_SOLID;
+        prefs(c).edit().putString("home_clock_fill", next).apply();
+    }
+
+    public static String homeClockFillLabel(Context c) {
+        if (CLOCK_FILL_SOLID.equals(getHomeClockFill(c))) {
+            return I18n.s(c, "Solid", "D\u00fcz");
+        }
+        return I18n.s(c, "Glass", "Cam");
     }
 
     // ---- Clock size (0 = small, 1 = standard, 2 = large) ----
@@ -1379,7 +1400,7 @@ public final class Scenes {
                             + getHomeFontFamily(ctx) + "|" + getHomeFontColorIndex(ctx) + "|"
                             + getHomeFontColorCustom(ctx) + "|"
                             + getHomeFontOpacity(ctx) + "|" + getHomeFontShadow(ctx) + "|"
-                            + getHomeClockSize(ctx) + "|"
+                            + getHomeClockFill(ctx) + "|" + getHomeClockSize(ctx) + "|"
                             + getHomeClockWeight(ctx) + "|"
                             + getCustomClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
                             + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
@@ -1502,11 +1523,23 @@ public final class Scenes {
                 ls.glassShader.setLocalMatrix(shaderMatrix);
                 clockFillPaint.setShader(ls.glassShader);
             }
+            // Solid clock: drop the wallpaper shader and frost entirely and fill the
+            // numerals with the chosen font colour, so the clock reads over any wallpaper.
+            // The paints are reused across draws, so the shader must be cleared, not just left unset.
+            boolean solidClock = CLOCK_FILL_SOLID.equals(getHomeClockFill(ctx));
+            if (solidClock) {
+                int solidColor = homeTextArgb(ctx, 255, false);
+                clockFillPaint.setShader(null);
+                clockFillPaint.setColor(solidColor);
+                clockWetPaint.setShader(null);
+                clockWetPaint.setColor(solidColor);
+                clockFrostPaint.setShader(null);
+            }
             // The wallpaper shader overrides the paint colour, so a chosen colour never
             // reached the numerals - only the frost and rim showed it, and the clock stayed
             // grey. A Multiply filter tints the glass toward the colour instead
             // (white leaves it untouched, as before).
-            if (getHomeFontColorIndex(ctx) != 0) {
+            if (!solidClock && getHomeFontColorIndex(ctx) != 0) {
                 android.graphics.PorterDuffColorFilter tint =
                         new android.graphics.PorterDuffColorFilter(
                                 getHomeFontColor(ctx), android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -1520,11 +1553,12 @@ public final class Scenes {
             // Frosted vertical gradient fill + crisp outer rim.
             // The glass clock keeps its wallpaper shader; a non-white font colour tints its
             // frost fill and rim toward that colour, and the font opacity scales every layer.
+            // A solid clock skips the frost entirely (its fill is the font colour itself).
             int fontColor = getHomeFontColor(ctx);
             boolean tintClock = getHomeFontColorIndex(ctx) != 0;
             float fontOpacity = getHomeFontOpacity(ctx) / 100f;
             float topGradY = baselineY - visualCapH;
-            {
+            if (!solidClock) {
                 int[] frostStops = sp.darkClock
                         ? new int[]{Color.argb(38, 255, 255, 255), Color.argb(68, 255, 255, 255), Color.argb(118, 255, 255, 255)}
                         : new int[]{Color.argb(52, 218, 224, 255), Color.argb(86, 236, 232, 255), Color.argb(138, 255, 242, 252)};
@@ -1538,6 +1572,8 @@ public final class Scenes {
                         frostStops,
                         new float[]{0f, 0.52f, 1f},
                         Shader.TileMode.CLAMP));
+            } else {
+                clockFrostPaint.setAlpha(0);
             }
 
             clockStrokePaint.setStrokeWidth(Math.max(1.7f, 1.2f * u));
@@ -1569,10 +1605,10 @@ public final class Scenes {
                 drawStylizedClock(canvas, timeStr, clockX, baselineY, u, false);
                 canvas.restore();
 
-                // Below waterline: blurred wet reflection clock
+                // Below waterline: blurred wet reflection clock (solid in solid mode).
                 canvas.save();
                 canvas.clipRect(0, waterY, w, h);
-                if (ls.glassWetShader != null && ls.glassWetBaked != null) {
+                if (!solidClock && ls.glassWetShader != null && ls.glassWetBaked != null) {
                     shaderMatrix.reset();
                     shaderMatrix.setScale((float) w / ls.glassWetBaked.getWidth(), (float) h / ls.glassWetBaked.getHeight());
                     ls.glassWetShader.setLocalMatrix(shaderMatrix);
@@ -1690,11 +1726,12 @@ public final class Scenes {
             // override it, so the opacity setting never actually faded the clock.
             Context sctx = getContext();
             float fontOpacity = getHomeFontOpacity(sctx) / 100f;
+            boolean solid = CLOCK_FILL_SOLID.equals(getHomeClockFill(sctx));
 
             if (!wet) {
                 canvas.drawText(timeStr, startX, baselineY + 4f * u, clockShadowPaint);
             }
-            fillP.setAlpha(Math.round((wet ? 158 : 255) * fontOpacity));
+            fillP.setAlpha(Math.round((solid ? 255 : wet ? 158 : 255) * fontOpacity));
             canvas.drawText(timeStr, startX, baselineY, fillP);
             clockStrokePaint.setAlpha(Math.round((wet ? 60 : 140) * fontOpacity));
             canvas.drawText(timeStr, startX, baselineY, clockStrokePaint);
