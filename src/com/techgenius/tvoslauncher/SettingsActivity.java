@@ -1020,6 +1020,28 @@ public class SettingsActivity extends Activity {
                     refreshAll();
                 });
 
+        section(tr("HOME FONT", "ANA EKRAN YAZI T\u0130P\u0130"));
+        row(tr("Home font", "Ana ekran yaz\u0131 tipi"),
+                () -> Scenes.homeFontLabel(this),
+                () -> {
+                    Scenes.cycleHomeFontFamily(this);
+                    refreshAll();
+                });
+        row(tr("Font color", "Yaz\u0131 tipi rengi"),
+                () -> Scenes.homeFontColorLabel(this),
+                () -> {
+                    Scenes.cycleHomeFontColor(this);
+                    refreshAll();
+                });
+        row(tr("Font opacity", "Yaz\u0131 tipi saydaml\u0131\u011f\u0131"),
+                () -> Scenes.getHomeFontOpacity(this) + "%",
+                () -> {
+                    Scenes.cycleHomeFontOpacity(this);
+                    refreshAll();
+                });
+        infoNote(tr("Applies to the clock, date, dock names and titles on the home screen. The glass clock keeps its glass look; a color tints its frost and rim.",
+                "Saate, tarihe, dock adlar\u0131na ve ana ekran ba\u015fl\u0131klar\u0131na uygulan\u0131r. Cam saat cam g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc korur; renk, buzlu dolguyu ve \u00e7er\u00e7eveyi renklendirir."));
+
         section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
         String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
         for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {

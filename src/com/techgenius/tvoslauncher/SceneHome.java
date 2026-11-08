@@ -321,8 +321,8 @@ final class SceneHome {
 
         moonText = new TextView(host);
         Ui.textSize(moonText, 11f);
-        moonText.setTypeface(Ui.font(host, "semibold"));
-        moonText.setTextColor(0xFFF4F4F6);
+        moonText.setTypeface(Ui.homeFont(host, "semibold"));
+        moonText.setTextColor(Ui.homeTextColor(host));
         moonText.setVisibility(View.GONE);
         LinearLayout.LayoutParams mtlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -372,7 +372,7 @@ final class SceneHome {
             boolean active = p.id.equals(curId);
             TextView pill = new TextView(host);
             Ui.textSize(pill, 11f);
-            pill.setTypeface(Ui.font(host, "semibold"));
+            pill.setTypeface(Ui.homeFont(host, "semibold"));
             pill.setText(I18n.profileName(host, p.name));
             pill.setPadding(dp(13), dp(6), dp(13), dp(6));
             pill.setSingleLine(true);
@@ -383,7 +383,7 @@ final class SceneHome {
                 pill.setBackground(abg);
                 pill.setTextColor(0xFF111114);
             } else {
-                pill.setTextColor(0xB8F4F4F6);
+                pill.setTextColor(Ui.homeTextColor(host, 0.72f));
             }
             whoBar.addView(pill, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -429,8 +429,8 @@ final class SceneHome {
 
         shelfHeader = new TextView(host);
         Ui.textSize(shelfHeader, 11.5f);
-        shelfHeader.setTypeface(Ui.font(host, "semibold"));
-        shelfHeader.setTextColor(0xC7F4F4F6);
+        shelfHeader.setTypeface(Ui.homeFont(host, "semibold"));
+        shelfHeader.setTextColor(Ui.homeTextColor(host, 0.78f));
         shelfHeader.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
         shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
@@ -837,8 +837,8 @@ final class SceneHome {
         }
         TextView appTxt = new TextView(host);
         Ui.textSize(appTxt, 8f);
-        appTxt.setTypeface(Ui.font(host, "semibold"));
-        appTxt.setTextColor(0xB8F4F4F6);
+        appTxt.setTypeface(Ui.homeFont(host, "semibold"));
+        appTxt.setTextColor(Ui.homeTextColor(host, 0.72f));
         appTxt.setLetterSpacing(0.06f);
         appTxt.setSingleLine(true);
         appTxt.setEllipsize(TextUtils.TruncateAt.END);
@@ -849,8 +849,8 @@ final class SceneHome {
         // Title
         TextView titleTxt = new TextView(host);
         Ui.textSize(titleTxt, 11.5f);
-        titleTxt.setTypeface(Ui.font(host, "semibold"));
-        titleTxt.setTextColor(0xFFF4F4F6);
+        titleTxt.setTypeface(Ui.homeFont(host, "semibold"));
+        titleTxt.setTextColor(Ui.homeTextColor(host));
         titleTxt.setSingleLine(true);
         titleTxt.setEllipsize(TextUtils.TruncateAt.END);
         titleTxt.setText(d.title);
@@ -862,8 +862,8 @@ final class SceneHome {
         // Subtitle
         TextView subTxt = new TextView(host);
         Ui.textSize(subTxt, 9.2f);
-        subTxt.setTypeface(Ui.font(host, "regular"));
-        subTxt.setTextColor(0xB8F4F4F6);
+        subTxt.setTypeface(Ui.homeFont(host, "regular"));
+        subTxt.setTextColor(Ui.homeTextColor(host, 0.72f));
         subTxt.setSingleLine(true);
         subTxt.setEllipsize(TextUtils.TruncateAt.END);
         subTxt.setText(d.subtitle);
@@ -1050,8 +1050,8 @@ final class SceneHome {
         int ptrH = dp(5f);
         dockLabel = new TextView(host);
         Ui.textSize(dockLabel, 11.5f);
-        dockLabel.setTypeface(Ui.font(host, "medium"));
-        dockLabel.setTextColor(0xF5F5F5F7);
+        dockLabel.setTypeface(Ui.homeFont(host, "medium"));
+        dockLabel.setTextColor(Ui.homeTextColor(host));
         dockLabel.setGravity(Gravity.CENTER);
         dockLabel.setSingleLine(true);
         dockLabel.setEllipsize(TextUtils.TruncateAt.END);
@@ -2068,7 +2068,7 @@ final class SceneHome {
             final int m = mins[i];
             TextView pill = new TextView(host);
             Ui.textSize(pill, 11.5f);
-            pill.setTypeface(Ui.font(host, "semibold"));
+            pill.setTypeface(Ui.homeFont(host, "semibold"));
             pill.setGravity(Gravity.CENTER);
             pill.setPadding(dp(12), dp(9), dp(12), dp(9));
             pill.setFocusable(true);

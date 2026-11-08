@@ -45,6 +45,13 @@ Settings → Home → **Run setup again** repeats it. If Home is pressed mid-way
 - **More Apps**: hidden apps live in a folder card at the end of the grid.
 - **System apps** (Settings, Play Store…) get tvOS-style cards: a gradient with a white glyph.
 - **Background**: Aurora, Midnight, Sunset, Ocean or Graphite (per profile).
+- **Home font**: Settings → Look & Scenes → Home Font picks the typeface for the whole home
+  screen — clock, date and greeting, dock names, shelf titles and the weather card — from five
+  bundled Google Fonts (Inter, Poppins, Barlow, Nunito, Space Grotesk). The same section sets
+  the **font color** (White, Gold, Sky, Mint, Rose, Lavender) and **font opacity** (100–50%).
+  The glass clock keeps its glass look; a color tints its frost fill and rim, and opacity fades
+  the whole clock. Fonts are bundled OFL files in `assets/fonts/`, so this works offline with
+  no new library or network call.
 
 ### Remote controls
 
