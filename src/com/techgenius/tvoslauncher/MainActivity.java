@@ -1473,7 +1473,7 @@ public class MainActivity extends Activity {
         if (e.icon == null) return null;
         Drawable d = e.icon;
         float zoom = 1f;
-        if (d instanceof android.graphics.drawable.AdaptiveIconDrawable) {
+        if (Build.VERSION.SDK_INT >= 26 && d instanceof android.graphics.drawable.AdaptiveIconDrawable) {
             Drawable fg = ((android.graphics.drawable.AdaptiveIconDrawable) d).getForeground();
             if (fg != null) {
                 d = fg;

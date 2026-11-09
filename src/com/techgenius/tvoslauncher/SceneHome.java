@@ -1964,7 +1964,7 @@ final class SceneHome {
             p.setShader(null);
         }
 
-        if (a.icon instanceof android.graphics.drawable.AdaptiveIconDrawable) {
+        if (android.os.Build.VERSION.SDK_INT >= 26 && a.icon instanceof android.graphics.drawable.AdaptiveIconDrawable) {
             android.graphics.drawable.AdaptiveIconDrawable aid = (android.graphics.drawable.AdaptiveIconDrawable) a.icon;
             Drawable bgD = aid.getBackground();
             Drawable fgD = aid.getForeground();
