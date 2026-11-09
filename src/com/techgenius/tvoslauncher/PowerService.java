@@ -1069,7 +1069,6 @@ public class PowerService extends AccessibilityService {
                     return;
                 }
             }
-            }
 
             // Fast boot guard: during the first 40s after system boot, if "Launch on System Boot" is enabled
             // and a stock OEM/Chinese TV launcher pops to the foreground, immediately bring tvOS Launcher to front!
