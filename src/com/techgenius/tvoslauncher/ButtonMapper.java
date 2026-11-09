@@ -35,6 +35,7 @@ public final class ButtonMapper {
 
     public static final String TARGET_CONTROL_PANEL = "control_panel";
     public static final String TARGET_RECENT_APPS = "recent_apps";
+    public static final String TARGET_INPUTS_OVERLAY = "inputs_overlay";
     public static final String TARGET_AMBIENT = "ambient";
     public static final String TARGET_LOCK_SCREEN = "lock_screen";
     public static final String TARGET_STANDBY = "standby";
@@ -103,6 +104,8 @@ public final class ButtonMapper {
     public static final int VOLUME_FIX_MODE_1 = 1;
     /** Mode 2 (HY320 / Projector): AudioService dump watcher (Android 9-14) + IR pulse-burst handling. */
     public static final int VOLUME_FIX_MODE_2 = 2;
+    /** Mode 3 (Onn TV Box): Fast key-release polling & zero-overshoot stop on release (ADB & Secure Mode). */
+    public static final int VOLUME_FIX_MODE_3 = 3;
 
     private static final long MULTI_TAP_WINDOW_MS = 300L;
     private static final String PREFS = "button_mapper";
@@ -148,12 +151,13 @@ public final class ButtonMapper {
     public static int getVolumeHoldFixMode(Context c) {
         if (c == null) return VOLUME_FIX_MODE_1;
         int m = prefs(c).getInt(KEY_VOLUME_HOLD_FIX_MODE, VOLUME_FIX_MODE_1);
-        return (m == VOLUME_FIX_MODE_2) ? VOLUME_FIX_MODE_2 : VOLUME_FIX_MODE_1;
+        if (m == VOLUME_FIX_MODE_2 || m == VOLUME_FIX_MODE_3) return m;
+        return VOLUME_FIX_MODE_1;
     }
 
     public static void setVolumeHoldFixMode(Context c, int mode) {
         if (c == null) return;
-        int valid = (mode == VOLUME_FIX_MODE_2) ? VOLUME_FIX_MODE_2 : VOLUME_FIX_MODE_1;
+        int valid = (mode == VOLUME_FIX_MODE_2 || mode == VOLUME_FIX_MODE_3) ? mode : VOLUME_FIX_MODE_1;
         prefs(c).edit().putInt(KEY_VOLUME_HOLD_FIX_MODE, valid).apply();
         if (PowerService.instance != null) {
             PowerService.instance.syncVolumeHoldFix();
@@ -443,6 +447,9 @@ public final class ButtonMapper {
         if (TARGET_RECENT_APPS.equals(target)) {
             return I18n.s(c, "Recent Apps Switcher", "Son Uygulamalar");
         }
+        if (TARGET_INPUTS_OVERLAY.equals(target)) {
+            return I18n.t(c, "bm_inputs_overlay");
+        }
         if (TARGET_AMBIENT.equals(target) || TARGET_STANDBY.equals(target)) {
             return I18n.s(c, "Ambient Mode / StandBy", "Ortam Modu / StandBy");
         }
@@ -628,6 +635,11 @@ public final class ButtonMapper {
             RecentAppsOverlay.toggle(c);
             return;
         }
+        if (TARGET_INPUTS_OVERLAY.equals(target)) {
+            RecentAppsOverlay.dismiss();
+            ControlPanelOverlay.toggleInputsOverlay(c);
+            return;
+        }
         if (TARGET_AMBIENT.equals(target) || TARGET_STANDBY.equals(target)) {
             ControlPanelOverlay.dismiss();
             RecentAppsOverlay.dismiss();
@@ -789,6 +801,10 @@ public final class ButtonMapper {
         // 2. Recent Apps Switcher (Overlay)
         labels.add("🗂  " + I18n.s(a, "Recent Apps Switcher (Overlay)", "Son Uygulamalar Değiştiricisi (Ekran Üstü)"));
         targets.add(TARGET_RECENT_APPS);
+
+        // 2b. Inputs Panel (Overlay)
+        labels.add("📺  " + I18n.t(a, "bm_inputs_overlay"));
+        targets.add(TARGET_INPUTS_OVERLAY);
 
         // 3. Ambient Mode / StandBy
         labels.add("🌙  " + I18n.s(a, "Ambient Mode / StandBy", "Ortam Modu / StandBy"));

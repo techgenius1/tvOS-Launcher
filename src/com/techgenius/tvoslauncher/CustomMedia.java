@@ -55,10 +55,28 @@ public final class CustomMedia {
     private static final String KEY_CLASSIC_WALL_TS = "classic_wall_ts";
 
     private static final Map<String, Bitmap> ICON_CACHE = new HashMap<>();
-    private static final Bitmap[] cachedSceneWalls = new Bitmap[6];
-    private static final long[] cachedSceneWallTs = {-1L, -1L, -1L, -1L, -1L, -1L};
+    private static final Map<Integer, Bitmap> cachedSceneWalls = new HashMap<>();
+    private static final Map<Integer, Long> cachedSceneWallTs = new HashMap<>();
+    private static final Map<Integer, Bitmap> cachedClassicWalls = new HashMap<>();
+    private static final Map<Integer, Long> cachedClassicWallTsMap = new HashMap<>();
     private static Bitmap cachedClassicWall;
     private static long cachedClassicWallTs = -1L;
+
+    public static final int CUSTOM_MODE_SINGLE_MULTI = 0;
+    public static final int CUSTOM_MODE_FOLDER_SHUFFLE = 1;
+    public static final int CUSTOM_MODE_REDDIT = 2;
+
+    public static final String[] DEFAULT_REDDIT_SUBS = {
+        "wallpapers", "EarthPorn", "CityPorn", "SkyPorn",
+        "amoledbackgrounds", "MinimalWallpaper", "SpacePorn", "ArchitecturePorn"
+    };
+    public static final int[] REDDIT_INTERVAL_MINS = { 1, 5, 15, 30, 60, 180 };
+
+    private static final Map<String, Bitmap> redditBmpMap = new HashMap<>();
+    private static final Map<String, Long> redditLastFetchMap = new HashMap<>();
+    private static final Map<String, List<String>> redditUrlDeckMap = new HashMap<>();
+    private static final Map<String, Integer> redditDeckIdxMap = new HashMap<>();
+    private static final Map<String, Boolean> redditFetchingMap = new HashMap<>();
 
     private static PendingSystemPick pendingSystemPick;
 
@@ -722,21 +740,155 @@ public final class CustomMedia {
         return out;
     }
 
-    // ---------------------------------------------------------------- Custom Wallpapers
+    // ---------------------------------------------------------------- Custom Wallpapers (Unlimited Slots + 3 Modes)
+
+    public static boolean isCustomWallpaperEnabled(Context c, String scope) {
+        if (c == null || scope == null) return false;
+        SharedPreferences sp = prefs(c);
+        String key = "custom_wall_enabled_" + scope;
+        if (sp.contains(key)) {
+            return sp.getBoolean(key, false);
+        }
+        // Migrate existing custom wallpaper state automatically
+        if (SCOPE_SCENE.equals(scope)) {
+            return Scenes.isCustomWallpaperSelected(c) || Scenes.isFolderShuffleSelected(c);
+        } else if (SCOPE_CLASSIC.equals(scope)) {
+            int cw = c.getSharedPreferences("classic_prefs", Context.MODE_PRIVATE).getInt("classic_wall", 0);
+            return cw == -1 || cw == -2;
+        }
+        return false;
+    }
+
+    public static void setCustomWallpaperEnabled(Context c, String scope, boolean enabled) {
+        if (c == null || scope == null) return;
+        prefs(c).edit().putBoolean("custom_wall_enabled_" + scope, enabled).apply();
+        if (SCOPE_SCENE.equals(scope)) {
+            if (enabled) {
+                int sub = getCustomWallpaperSubMode(c, scope);
+                if (sub == CUSTOM_MODE_FOLDER_SHUFFLE) {
+                    Scenes.setSelected(c, Scenes.FOLDER_SHUFFLE_ID);
+                } else if (sub == CUSTOM_MODE_REDDIT) {
+                    Scenes.setSelected(c, Scenes.REDDIT_WALLPAPER_ID);
+                } else {
+                    int activeSlot = getActiveCustomSlot(c, scope);
+                    Scenes.setSelected(c, Scenes.customSlotToId(activeSlot));
+                }
+            } else if (Scenes.isCustomWallpaperSelected(c)
+                    || Scenes.isFolderShuffleSelected(c)
+                    || Scenes.isRedditWallpaperSelected(c)) {
+                Scenes.setSelected(c, 0);
+            }
+        } else if (SCOPE_CLASSIC.equals(scope)) {
+            SharedPreferences cp = c.getSharedPreferences("classic_prefs", Context.MODE_PRIVATE);
+            if (enabled) {
+                int sub = getCustomWallpaperSubMode(c, scope);
+                if (sub == CUSTOM_MODE_FOLDER_SHUFFLE) {
+                    cp.edit().putInt("classic_wall", -2).apply();
+                } else if (sub == CUSTOM_MODE_REDDIT) {
+                    cp.edit().putInt("classic_wall", -3).apply();
+                } else {
+                    cp.edit().putInt("classic_wall", -1).apply();
+                }
+            } else {
+                int cur = cp.getInt("classic_wall", 0);
+                if (cur < 0) cp.edit().putInt("classic_wall", 0).apply();
+            }
+        }
+    }
+
+    public static int getCustomWallpaperSubMode(Context c, String scope) {
+        if (c == null || scope == null) return CUSTOM_MODE_SINGLE_MULTI;
+        SharedPreferences sp = prefs(c);
+        String key = "custom_wall_submode_" + scope;
+        if (sp.contains(key)) {
+            return sp.getInt(key, CUSTOM_MODE_SINGLE_MULTI);
+        }
+        if (SCOPE_SCENE.equals(scope) && Scenes.isFolderShuffleSelected(c)) {
+            return CUSTOM_MODE_FOLDER_SHUFFLE;
+        }
+        if (SCOPE_CLASSIC.equals(scope)) {
+            int cw = c.getSharedPreferences("classic_prefs", Context.MODE_PRIVATE).getInt("classic_wall", 0);
+            if (cw == -2) return CUSTOM_MODE_FOLDER_SHUFFLE;
+            if (cw == -3) return CUSTOM_MODE_REDDIT;
+        }
+        return CUSTOM_MODE_SINGLE_MULTI;
+    }
+
+    public static void setCustomWallpaperSubMode(Context c, String scope, int mode) {
+        if (c == null || scope == null) return;
+        int m = Math.max(0, Math.min(2, mode));
+        prefs(c).edit().putInt("custom_wall_submode_" + scope, m).apply();
+        if (isCustomWallpaperEnabled(c, scope)) {
+            setCustomWallpaperEnabled(c, scope, true);
+        }
+    }
+
+    public static String getCustomWallpaperModeLabel(Context c, String scope) {
+        int m = getCustomWallpaperSubMode(c, scope);
+        if (m == CUSTOM_MODE_FOLDER_SHUFFLE) {
+            return I18n.s(c, "Shuffle Folder", "Klasörü Karıştır");
+        } else if (m == CUSTOM_MODE_REDDIT) {
+            return I18n.s(c, "Reddit Wallpapers", "Reddit Duvar Kağıtları");
+        }
+        return I18n.s(c, "Single / Multi Wallpapers", "Tekli / Çoklu Duvar Kağıdı");
+    }
+
+    public static int getActiveCustomSlot(Context c, String scope) {
+        if (c == null || scope == null) return 1;
+        return Math.max(1, prefs(c).getInt("custom_active_slot_" + scope, 1));
+    }
+
+    public static void setActiveCustomSlot(Context c, String scope, int slot) {
+        if (c == null || scope == null) return;
+        int s = Math.max(1, slot);
+        prefs(c).edit().putInt("custom_active_slot_" + scope, s).apply();
+        if (SCOPE_SCENE.equals(scope) && isCustomWallpaperEnabled(c, scope)
+                && getCustomWallpaperSubMode(c, scope) == CUSTOM_MODE_SINGLE_MULTI) {
+            Scenes.setSelected(c, Scenes.customSlotToId(s));
+        }
+    }
+
+    public static int getCustomSlotCount(Context c, String scope) {
+        if (c == null || scope == null) return 0;
+        int stored = prefs(c).getInt("custom_slot_count_" + scope, -1);
+        if (stored >= 0) return stored;
+        // Migrate existing slots on disk
+        int maxFound = 0;
+        if (SCOPE_SCENE.equals(scope)) {
+            for (int i = 1; i <= 20; i++) {
+                if (hasCustomSceneWallpaper(c, i)) maxFound = i;
+            }
+        } else if (SCOPE_CLASSIC.equals(scope)) {
+            if (hasCustomClassicWallpaper(c, 1)) maxFound = 1;
+        }
+        prefs(c).edit().putInt("custom_slot_count_" + scope, maxFound).apply();
+        return maxFound;
+    }
 
     private static File sceneWallFile(Context c, int slot) {
-        int s = Math.max(1, Math.min(5, slot));
+        int s = Math.max(1, slot);
         String name = (s == 1) ? "custom_scene_wallpaper.jpg" : ("custom_scene_wallpaper_" + s + ".jpg");
         return new File(c.getFilesDir(), name);
     }
 
     private static String sceneWallTsKey(int slot) {
-        int s = Math.max(1, Math.min(5, slot));
+        int s = Math.max(1, slot);
         return (s == 1) ? KEY_SCENE_WALL_TS : (KEY_SCENE_WALL_TS + "_" + s);
     }
 
     private static File classicWallFile(Context c) {
-        return new File(c.getFilesDir(), "custom_classic_wallpaper.jpg");
+        return classicWallFile(c, 1);
+    }
+
+    private static File classicWallFile(Context c, int slot) {
+        int s = Math.max(1, slot);
+        String name = (s == 1) ? "custom_classic_wallpaper.jpg" : ("custom_classic_wallpaper_" + s + ".jpg");
+        return new File(c.getFilesDir(), name);
+    }
+
+    private static String classicWallTsKey(int slot) {
+        int s = Math.max(1, slot);
+        return (s == 1) ? KEY_CLASSIC_WALL_TS : (KEY_CLASSIC_WALL_TS + "_" + s);
     }
 
     public static boolean hasCustomSceneWallpaper(Context c) {
@@ -763,19 +915,88 @@ public final class CustomMedia {
 
     public static boolean setCustomSceneWallpaper(Context c, int slot, Bitmap raw) {
         if (c == null || raw == null) return false;
-        int s = Math.max(1, Math.min(5, slot));
+        int s = Math.max(1, slot);
         Bitmap cropped = scaleCenterCropOrFit(raw, 1920, 1080, true);
         File f = sceneWallFile(c, s);
         try (FileOutputStream fos = new FileOutputStream(f)) {
             cropped.compress(Bitmap.CompressFormat.JPEG, 92, fos);
             fos.flush();
             long ts = System.currentTimeMillis();
-            prefs(c).edit().putLong(sceneWallTsKey(s), ts).apply();
-            cachedSceneWalls[s] = cropped;
-            cachedSceneWallTs[s] = ts;
+            int curCount = getCustomSlotCount(c, SCOPE_SCENE);
+            SharedPreferences.Editor ed = prefs(c).edit().putLong(sceneWallTsKey(s), ts);
+            if (s > curCount) ed.putInt("custom_slot_count_" + SCOPE_SCENE, s);
+            ed.apply();
+            synchronized (cachedSceneWalls) {
+                cachedSceneWalls.put(s, cropped);
+                cachedSceneWallTs.put(s, ts);
+            }
             return true;
         } catch (Throwable t) {
             return false;
+        }
+    }
+
+    public static int addCustomWallpaperSlot(Context c, String scope, Bitmap raw) {
+        if (c == null || raw == null) return 1;
+        int nextSlot = getCustomSlotCount(c, scope) + 1;
+        // Reuse any empty slot first
+        for (int i = 1; i < nextSlot; i++) {
+            boolean exists = SCOPE_SCENE.equals(scope)
+                    ? hasCustomSceneWallpaper(c, i)
+                    : hasCustomClassicWallpaper(c, i);
+            if (!exists) {
+                nextSlot = i;
+                break;
+            }
+        }
+        if (SCOPE_SCENE.equals(scope)) {
+            setCustomSceneWallpaper(c, nextSlot, raw);
+        } else {
+            setCustomClassicWallpaper(c, nextSlot, raw);
+        }
+        setActiveCustomSlot(c, scope, nextSlot);
+        return nextSlot;
+    }
+
+    public static void removeCustomWallpaperSlot(Context c, String scope, int slot) {
+        if (c == null || slot < 1) return;
+        File f = SCOPE_SCENE.equals(scope) ? sceneWallFile(c, slot) : classicWallFile(c, slot);
+        if (f.exists()) f.delete();
+        if (SCOPE_SCENE.equals(scope)) {
+            synchronized (cachedSceneWalls) {
+                cachedSceneWalls.remove(slot);
+                cachedSceneWallTs.remove(slot);
+            }
+        } else {
+            synchronized (cachedClassicWalls) {
+                cachedClassicWalls.remove(slot);
+                cachedClassicWallTsMap.remove(slot);
+            }
+            if (slot == 1) {
+                cachedClassicWall = null;
+                cachedClassicWallTs = -1L;
+            }
+        }
+        // Recalculate highest existing slot
+        int count = getCustomSlotCount(c, scope);
+        int highest = 0;
+        for (int i = 1; i <= count; i++) {
+            boolean ex = SCOPE_SCENE.equals(scope)
+                    ? hasCustomSceneWallpaper(c, i)
+                    : hasCustomClassicWallpaper(c, i);
+            if (ex) highest = i;
+        }
+        prefs(c).edit().putInt("custom_slot_count_" + scope, highest).apply();
+        if (getActiveCustomSlot(c, scope) == slot && highest > 0) {
+            for (int i = 1; i <= highest; i++) {
+                boolean ex = SCOPE_SCENE.equals(scope)
+                        ? hasCustomSceneWallpaper(c, i)
+                        : hasCustomClassicWallpaper(c, i);
+                if (ex) {
+                    setActiveCustomSlot(c, scope, i);
+                    break;
+                }
+            }
         }
     }
 
@@ -785,18 +1006,24 @@ public final class CustomMedia {
 
     public static Bitmap getCustomSceneWallpaper(Context c, int slot, int reqW, int reqH) {
         if (c == null) return null;
-        int s = Math.max(1, Math.min(5, slot));
+        int s = Math.max(1, slot);
         long ts = getCustomSceneTimestamp(c, s);
-        if (cachedSceneWalls[s] != null && !cachedSceneWalls[s].isRecycled() && cachedSceneWallTs[s] == ts) {
-            return cachedSceneWalls[s];
+        synchronized (cachedSceneWalls) {
+            Bitmap cached = cachedSceneWalls.get(s);
+            Long cTs = cachedSceneWallTs.get(s);
+            if (cached != null && !cached.isRecycled() && cTs != null && cTs == ts) {
+                return cached;
+            }
         }
         File f = sceneWallFile(c, s);
         if (!f.exists() || f.length() == 0) return null;
         try {
             Bitmap b = decodeBitmapFromFile(f, Math.max(1280, reqW), Math.max(720, reqH));
             if (b != null) {
-                cachedSceneWalls[s] = b;
-                cachedSceneWallTs[s] = ts;
+                synchronized (cachedSceneWalls) {
+                    cachedSceneWalls.put(s, b);
+                    cachedSceneWallTs.put(s, ts);
+                }
             }
             return b;
         } catch (Throwable t) {
@@ -805,22 +1032,40 @@ public final class CustomMedia {
     }
 
     public static boolean hasCustomClassicWallpaper(Context c) {
+        return hasCustomClassicWallpaper(c, getActiveCustomSlot(c, SCOPE_CLASSIC));
+    }
+
+    public static boolean hasCustomClassicWallpaper(Context c, int slot) {
         if (c == null) return false;
-        File f = classicWallFile(c);
+        File f = classicWallFile(c, slot);
         return f.exists() && f.length() > 0;
     }
 
     public static boolean setCustomClassicWallpaper(Context c, Bitmap raw) {
+        return setCustomClassicWallpaper(c, getActiveCustomSlot(c, SCOPE_CLASSIC), raw);
+    }
+
+    public static boolean setCustomClassicWallpaper(Context c, int slot, Bitmap raw) {
         if (c == null || raw == null) return false;
+        int s = Math.max(1, slot);
         Bitmap cropped = scaleCenterCropOrFit(raw, 1920, 1080, true);
-        File f = classicWallFile(c);
+        File f = classicWallFile(c, s);
         try (FileOutputStream fos = new FileOutputStream(f)) {
             cropped.compress(Bitmap.CompressFormat.JPEG, 92, fos);
             fos.flush();
             long ts = System.currentTimeMillis();
-            prefs(c).edit().putLong(KEY_CLASSIC_WALL_TS, ts).apply();
-            cachedClassicWall = cropped;
-            cachedClassicWallTs = ts;
+            int curCount = getCustomSlotCount(c, SCOPE_CLASSIC);
+            SharedPreferences.Editor ed = prefs(c).edit().putLong(classicWallTsKey(s), ts);
+            if (s > curCount) ed.putInt("custom_slot_count_" + SCOPE_CLASSIC, s);
+            ed.apply();
+            synchronized (cachedClassicWalls) {
+                cachedClassicWalls.put(s, cropped);
+                cachedClassicWallTsMap.put(s, ts);
+            }
+            if (s == 1) {
+                cachedClassicWall = cropped;
+                cachedClassicWallTs = ts;
+            }
             return true;
         } catch (Throwable t) {
             return false;
@@ -828,18 +1073,32 @@ public final class CustomMedia {
     }
 
     public static Bitmap getCustomClassicWallpaper(Context c) {
+        return getCustomClassicWallpaper(c, getActiveCustomSlot(c, SCOPE_CLASSIC));
+    }
+
+    public static Bitmap getCustomClassicWallpaper(Context c, int slot) {
         if (c == null) return null;
-        long ts = prefs(c).getLong(KEY_CLASSIC_WALL_TS, 0L);
-        if (cachedClassicWall != null && !cachedClassicWall.isRecycled() && cachedClassicWallTs == ts) {
-            return cachedClassicWall;
+        int s = Math.max(1, slot);
+        long ts = prefs(c).getLong(classicWallTsKey(s), 0L);
+        synchronized (cachedClassicWalls) {
+            Bitmap cached = cachedClassicWalls.get(s);
+            Long cTs = cachedClassicWallTsMap.get(s);
+            if (cached != null && !cached.isRecycled() && cTs != null && cTs == ts) {
+                return cached;
+            }
         }
-        File f = classicWallFile(c);
-        if (!f.exists() || f.length() == 0) return null;
+        File f = classicWallFile(c, s);
+        if (!f.exists() || f.length() == 0) {
+            if (s != 1) f = classicWallFile(c, 1);
+            if (!f.exists() || f.length() == 0) return null;
+        }
         try {
             Bitmap b = decodeBitmapFromFile(f, 1280, 720);
             if (b != null) {
-                cachedClassicWall = b;
-                cachedClassicWallTs = ts;
+                synchronized (cachedClassicWalls) {
+                    cachedClassicWalls.put(s, b);
+                    cachedClassicWallTsMap.put(s, ts);
+                }
             }
             return b;
         } catch (Throwable t) {
@@ -940,6 +1199,45 @@ public final class CustomMedia {
         return listFolderImages(dir).size();
     }
 
+    public static boolean isFolderImageDisabled(Context c, String scope, String absPath) {
+        if (c == null || scope == null || absPath == null) return false;
+        java.util.Set<String> set = prefs(c).getStringSet("disabled_folder_imgs_" + scope, null);
+        return set != null && set.contains(absPath);
+    }
+
+    public static void setFolderImageDisabled(Context c, String scope, String absPath, boolean disabled) {
+        if (c == null || scope == null || absPath == null) return;
+        SharedPreferences sp = prefs(c);
+        String key = "disabled_folder_imgs_" + scope;
+        java.util.Set<String> cur = sp.getStringSet(key, null);
+        java.util.Set<String> next = cur != null ? new java.util.HashSet<>(cur) : new java.util.HashSet<>();
+        if (disabled) next.add(absPath);
+        else next.remove(absPath);
+        sp.edit()
+                .putStringSet(key, next)
+                .putLong("shuffle_folder_ts_" + scope, System.currentTimeMillis())
+                .apply();
+        synchronized (folderDeckMap) {
+            folderDeckMap.remove(scope);
+            folderIndexMap.remove(scope);
+            folderCurrentBmpMap.remove(scope);
+        }
+    }
+
+    public static List<File> listEnabledFolderImages(Context c, String scope, File dir) {
+        List<File> all = listFolderImages(dir);
+        if (c == null || scope == null || all.isEmpty()) return all;
+        java.util.Set<String> disabled = prefs(c).getStringSet("disabled_folder_imgs_" + scope, null);
+        if (disabled == null || disabled.isEmpty()) return all;
+        List<File> enabled = new ArrayList<>();
+        for (File f : all) {
+            if (!disabled.contains(f.getAbsolutePath())) {
+                enabled.add(f);
+            }
+        }
+        return enabled.isEmpty() ? all : enabled;
+    }
+
     public static List<File> listFolderImages(File dir) {
         List<File> out = new ArrayList<>();
         if (dir == null || !dir.exists() || !dir.isDirectory()) return out;
@@ -972,9 +1270,14 @@ public final class CustomMedia {
             return I18n.s(c, "Not selected", "Seçilmedi");
         }
         File dir = new File(path);
-        int count = countImagesInFolder(dir);
+        List<File> all = listFolderImages(dir);
+        int count = all.size();
         if (count <= 0) {
             return dir.getName();
+        }
+        List<File> enabled = listEnabledFolderImages(c, scope, dir);
+        if (enabled.size() < count) {
+            return dir.getName() + " (" + enabled.size() + "/" + count + " " + I18n.s(c, "images", "görsel") + ")";
         }
         return dir.getName() + " (" + count + " " + I18n.s(c, "images", "görsel") + ")";
     }
@@ -994,7 +1297,7 @@ public final class CustomMedia {
             List<File> deck = folderDeckMap.get(scope);
             String cachedPath = folderPathCacheMap.get(scope);
             if (deck == null || deck.isEmpty() || !path.equals(cachedPath)) {
-                deck = listFolderImages(new File(path));
+                deck = listEnabledFolderImages(c, scope, new File(path));
                 if (deck.isEmpty()) return null;
                 Collections.shuffle(deck);
                 folderDeckMap.put(scope, deck);
@@ -1028,6 +1331,400 @@ public final class CustomMedia {
             folderCurrentFileMap.put(scope, targetFile.getAbsolutePath());
         }
         return cropped;
+    }
+
+    // ---------------------------------------------------------------- Reddit Wallpapers Engine
+
+    public static java.util.Set<String> getRedditSubreddits(Context c, String scope) {
+        if (c == null || scope == null) return Collections.singleton("wallpapers");
+        java.util.Set<String> raw = prefs(c).getStringSet("reddit_subs_" + scope, null);
+        if (raw == null || raw.isEmpty()) {
+            java.util.Set<String> def = new java.util.HashSet<>();
+            def.add("wallpapers");
+            def.add("EarthPorn");
+            return def;
+        }
+        return new java.util.HashSet<>(raw);
+    }
+
+    public static List<String> getAllKnownRedditSubreddits(Context c, String scope) {
+        List<String> out = new ArrayList<>(Arrays.asList(DEFAULT_REDDIT_SUBS));
+        java.util.Set<String> selected = getRedditSubreddits(c, scope);
+        for (String s : selected) {
+            boolean exists = false;
+            for (String d : out) {
+                if (d.equalsIgnoreCase(s)) { exists = true; break; }
+            }
+            if (!exists) out.add(s);
+        }
+        return out;
+    }
+
+    public static void toggleRedditSubreddit(Context c, String scope, String sub) {
+        if (c == null || scope == null || sub == null) return;
+        String clean = sub.trim().replaceFirst("^r/", "");
+        if (clean.isEmpty()) return;
+        java.util.Set<String> cur = getRedditSubreddits(c, scope);
+        String match = null;
+        for (String s : cur) {
+            if (s.equalsIgnoreCase(clean)) { match = s; break; }
+        }
+        if (match != null) {
+            if (cur.size() > 1) cur.remove(match);
+        } else {
+            cur.add(clean);
+        }
+        prefs(c).edit().putStringSet("reddit_subs_" + scope, cur).apply();
+        synchronized (redditUrlDeckMap) {
+            redditUrlDeckMap.remove(scope);
+            redditDeckIdxMap.remove(scope);
+        }
+    }
+
+    public static void addCustomRedditSubreddit(Context c, String scope, String sub) {
+        if (c == null || scope == null || sub == null) return;
+        String clean = sub.trim().replaceFirst("^/?r/", "").replaceAll("[^a-zA-Z0-9_]", "");
+        if (clean.isEmpty()) return;
+        java.util.Set<String> cur = getRedditSubreddits(c, scope);
+        cur.add(clean);
+        prefs(c).edit().putStringSet("reddit_subs_" + scope, cur).apply();
+        synchronized (redditUrlDeckMap) {
+            redditUrlDeckMap.remove(scope);
+            redditDeckIdxMap.remove(scope);
+        }
+    }
+
+    public static String getRedditSubredditsSummary(Context c, String scope) {
+        java.util.Set<String> subs = getRedditSubreddits(c, scope);
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (String s : subs) {
+            if (i > 0) sb.append(", ");
+            sb.append("r/").append(s);
+            i++;
+            if (i >= 3 && subs.size() > 3) {
+                sb.append(" +").append(subs.size() - 3);
+                break;
+            }
+        }
+        return sb.toString();
+    }
+
+    public static int getRedditIntervalMinutes(Context c, String scope) {
+        if (c == null || scope == null) return 15;
+        return prefs(c).getInt("reddit_interval_min_" + scope, 15);
+    }
+
+    public static void setRedditIntervalMinutes(Context c, String scope, int mins) {
+        if (c == null || scope == null) return;
+        prefs(c).edit().putInt("reddit_interval_min_" + scope, mins).apply();
+    }
+
+    public static void cycleRedditIntervalMinutes(Context c, String scope) {
+        int cur = getRedditIntervalMinutes(c, scope);
+        int next = REDDIT_INTERVAL_MINS[0];
+        for (int i = 0; i < REDDIT_INTERVAL_MINS.length; i++) {
+            if (REDDIT_INTERVAL_MINS[i] == cur) {
+                next = REDDIT_INTERVAL_MINS[(i + 1) % REDDIT_INTERVAL_MINS.length];
+                break;
+            }
+        }
+        setRedditIntervalMinutes(c, scope, next);
+    }
+
+    public static String getRedditIntervalLabel(Context c, String scope) {
+        int mins = getRedditIntervalMinutes(c, scope);
+        if (mins >= 60 && mins % 60 == 0) {
+            int hrs = mins / 60;
+            return hrs + " " + I18n.s(c, hrs == 1 ? "hour" : "hours", "saat");
+        }
+        return mins + " " + I18n.s(c, mins == 1 ? "minute" : "minutes", "dakika");
+    }
+
+    public static boolean isRedditChangeDue(Context c, String scope) {
+        if (c == null || scope == null) return false;
+        long last = prefs(c).getLong("reddit_wall_ts_" + scope, 0L);
+        long intervalMs = Math.max(1, getRedditIntervalMinutes(c, scope)) * 60_000L;
+        return (System.currentTimeMillis() - last) >= intervalMs;
+    }
+
+    public static long getRedditWallpaperTimestamp(Context c, String scope) {
+        if (c == null || scope == null) return 0L;
+        return prefs(c).getLong("reddit_wall_ts_" + scope, 0L);
+    }
+
+    private static File redditCacheFile(Context c, String scope) {
+        File dir = new File(c.getFilesDir(), "reddit_wallpapers");
+        if (!dir.exists()) dir.mkdirs();
+        return new File(dir, "reddit_wall_" + scope + ".jpg");
+    }
+
+    private static final java.util.Map<String, List<Runnable>> redditCallbacksMap = new java.util.HashMap<>();
+
+    public static Bitmap getRedditWallpaperBitmap(Context c, String scope, int reqW, int reqH) {
+        if (c == null || scope == null) return null;
+        long now = System.currentTimeMillis();
+        int intervalMin = getRedditIntervalMinutes(c, scope);
+        long intervalMs = Math.max(1, intervalMin) * 60_000L;
+        Long lastFetch;
+        Bitmap mem;
+        synchronized (redditBmpMap) {
+            mem = redditBmpMap.get(scope);
+            lastFetch = redditLastFetchMap.get(scope);
+        }
+        if (mem == null || mem.isRecycled()) {
+            File f = redditCacheFile(c, scope);
+            if (f.exists() && f.length() > 0) {
+                Bitmap disk = decodeBitmapFromFile(f, Math.max(1280, reqW), Math.max(720, reqH));
+                if (disk != null) {
+                    long diskTs = prefs(c).getLong("reddit_wall_ts_" + scope, f.lastModified());
+                    synchronized (redditBmpMap) {
+                        redditBmpMap.put(scope, disk);
+                        if (lastFetch == null) redditLastFetchMap.put(scope, diskTs);
+                    }
+                    mem = disk;
+                    lastFetch = diskTs;
+                }
+            }
+        }
+        if (mem == null || lastFetch == null || (now - lastFetch >= intervalMs)) {
+            fetchNextRedditWallpaperAsync(c, scope, null);
+        }
+        return mem;
+    }
+
+    public static void fetchNextRedditWallpaperAsync(final Context c, final String scope, final Runnable onLoaded) {
+        if (c == null || scope == null) return;
+        synchronized (redditFetchingMap) {
+            if (onLoaded != null) {
+                List<Runnable> q = redditCallbacksMap.get(scope);
+                if (q == null) {
+                    q = new ArrayList<>();
+                    redditCallbacksMap.put(scope, q);
+                }
+                q.add(onLoaded);
+            }
+            if (Boolean.TRUE.equals(redditFetchingMap.get(scope))) return;
+            redditFetchingMap.put(scope, true);
+        }
+        final Context appCtx = c.getApplicationContext();
+        new Thread(() -> {
+            try {
+                List<String> deck;
+                int idx;
+                synchronized (redditUrlDeckMap) {
+                    deck = redditUrlDeckMap.get(scope);
+                    idx = redditDeckIdxMap.containsKey(scope) ? redditDeckIdxMap.get(scope) : 0;
+                }
+                if (deck == null || deck.isEmpty() || idx >= deck.size()) {
+                    deck = fetchRedditImageUrls(appCtx, scope);
+                    Collections.shuffle(deck);
+                    idx = 0;
+                    synchronized (redditUrlDeckMap) {
+                        redditUrlDeckMap.put(scope, deck);
+                        redditDeckIdxMap.put(scope, 0);
+                    }
+                }
+                Bitmap downloaded = null;
+                int attempts = 0;
+                while (deck != null && idx < deck.size() && attempts < 8) {
+                    String imgUrl = deck.get(idx);
+                    idx++;
+                    attempts++;
+                    synchronized (redditUrlDeckMap) {
+                        redditDeckIdxMap.put(scope, idx);
+                    }
+                    downloaded = downloadWallpaperUrl(imgUrl);
+                    if (downloaded != null) break;
+                }
+                if (downloaded == null) {
+                    // Fallback to curated 1080p landscape wallpapers if deck URLs failed
+                    List<String> fallbackUrls = getFallbackRedditWallpaperUrls();
+                    Collections.shuffle(fallbackUrls);
+                    for (int i = 0; i < Math.min(4, fallbackUrls.size()); i++) {
+                        downloaded = downloadWallpaperUrl(fallbackUrls.get(i));
+                        if (downloaded != null) break;
+                    }
+                }
+                if (downloaded != null) {
+                    Bitmap cropped = scaleCenterCropOrFit(downloaded, 1920, 1080, true);
+                    if (cropped != downloaded) downloaded.recycle();
+                    File out = redditCacheFile(appCtx, scope);
+                    try (FileOutputStream fos = new FileOutputStream(out)) {
+                        cropped.compress(Bitmap.CompressFormat.JPEG, 92, fos);
+                        fos.flush();
+                    }
+                    long ts = System.currentTimeMillis();
+                    prefs(appCtx).edit().putLong("reddit_wall_ts_" + scope, ts).apply();
+                    synchronized (redditBmpMap) {
+                        redditBmpMap.put(scope, cropped);
+                        redditLastFetchMap.put(scope, ts);
+                    }
+                    final List<Runnable> toRun;
+                    synchronized (redditFetchingMap) {
+                        List<Runnable> q = redditCallbacksMap.remove(scope);
+                        toRun = q != null ? new ArrayList<>(q) : Collections.emptyList();
+                    }
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        for (Runnable r : toRun) {
+                            try { r.run(); } catch (Throwable ignored) {}
+                        }
+                        MainActivity act = MainActivity.activeInstance;
+                        if (act != null) {
+                            if (SCOPE_SCENE.equals(scope) && Scenes.isScenesLook(act) && act.sceneHome != null) {
+                                act.sceneHome.sceneView.onRedditWallpaperUpdated();
+                            } else if (SCOPE_CLASSIC.equals(scope) && !Scenes.isScenesLook(act)) {
+                                act.setWallpaper(act.wallStyle);
+                            }
+                        }
+                    });
+                }
+            } catch (Throwable ignored) {
+            } finally {
+                synchronized (redditFetchingMap) {
+                    redditFetchingMap.put(scope, false);
+                }
+            }
+        }, "reddit-wallpaper-fetch").start();
+    }
+
+    private static List<String> fetchRedditImageUrls(Context c, String scope) {
+        List<String> urls = new ArrayList<>();
+        java.util.Set<String> subs = getRedditSubreddits(c, scope);
+        StringBuilder joined = new StringBuilder();
+        for (String s : subs) {
+            if (joined.length() > 0) joined.append("+");
+            joined.append(s.trim());
+        }
+        if (joined.length() == 0) joined.append("wallpapers+EarthPorn");
+        String[] endpoints = {
+            "https://www.reddit.com/r/" + joined + "/hot.json?raw_json=1&limit=75",
+            "https://old.reddit.com/r/" + joined + "/top.json?t=month&raw_json=1&limit=75",
+            "https://api.reddit.com/r/" + joined + "/hot?raw_json=1&limit=75"
+        };
+        for (String apiUrl : endpoints) {
+            if (!urls.isEmpty()) break;
+            java.net.HttpURLConnection conn = null;
+            try {
+                conn = (java.net.HttpURLConnection) new java.net.URL(apiUrl).openConnection();
+                conn.setInstanceFollowRedirects(true);
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                conn.setRequestProperty("User-Agent",
+                        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+                conn.setRequestProperty("Accept", "application/json,text/plain,*/*");
+                byte[] bytes;
+                try (InputStream in = conn.getInputStream()) {
+                    bytes = Suggestions.readAll(in);
+                }
+                String raw = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+                org.json.JSONObject root = new org.json.JSONObject(raw);
+                org.json.JSONObject data = root.optJSONObject("data");
+                if (data == null) continue;
+                org.json.JSONArray children = data.optJSONArray("children");
+                if (children == null) continue;
+                for (int i = 0; i < children.length(); i++) {
+                    org.json.JSONObject postWrap = children.optJSONObject(i);
+                    if (postWrap == null) continue;
+                    org.json.JSONObject post = postWrap.optJSONObject("data");
+                    if (post == null || post.optBoolean("over_18", false)) continue;
+                    String candidate = null;
+                    org.json.JSONObject preview = post.optJSONObject("preview");
+                    if (preview != null) {
+                        org.json.JSONArray imgs = preview.optJSONArray("images");
+                        if (imgs != null && imgs.length() > 0) {
+                            org.json.JSONObject firstImg = imgs.optJSONObject(0);
+                            if (firstImg != null) {
+                                org.json.JSONObject source = firstImg.optJSONObject("source");
+                                if (source != null) {
+                                    int w = source.optInt("width", 0);
+                                    int h = source.optInt("height", 0);
+                                    if (w >= 1000 && w >= h) {
+                                        candidate = source.optString("url", "");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (candidate == null || candidate.isEmpty()) {
+                        String directUrl = post.optString("url_overridden_by_dest", post.optString("url", ""));
+                        String lower = directUrl.toLowerCase(java.util.Locale.US);
+                        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp")
+                                || lower.contains("i.redd.it/") || lower.contains("i.imgur.com/")) {
+                            candidate = directUrl;
+                        }
+                    }
+                    if (candidate != null && !candidate.isEmpty()) {
+                        urls.add(candidate.replace("&amp;", "&"));
+                    }
+                }
+            } catch (Throwable ignored) {
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }
+        if (urls.isEmpty()) {
+            urls.addAll(getFallbackRedditWallpaperUrls());
+        }
+        return urls;
+    }
+
+    private static List<String> getFallbackRedditWallpaperUrls() {
+        return new ArrayList<>(Arrays.asList(
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=1920&q=85&fit=crop",
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=85&fit=crop"
+        ));
+    }
+
+    private static Bitmap downloadWallpaperUrl(String urlStr) {
+        java.net.HttpURLConnection conn = null;
+        try {
+            conn = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
+            conn.setInstanceFollowRedirects(true);
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(10000);
+            conn.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+            byte[] data;
+            try (InputStream in = conn.getInputStream()) {
+                data = Suggestions.readAll(in);
+            }
+            if (data == null || data.length < 1024) return null;
+            BitmapFactory.Options bounds = new BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(data, 0, data.length, bounds);
+            int sample = 1;
+            while (bounds.outWidth / sample > 2560 || bounds.outHeight / sample > 1440) {
+                sample *= 2;
+            }
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inSampleSize = sample;
+            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            return BitmapFactory.decodeByteArray(data, 0, data.length, opts);
+        } catch (Throwable t) {
+            return null;
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+    }
+
+    public static boolean isRedditWallpaperActiveOnCurrentLook(Context c) {
+        if (c == null) return false;
+        String scope = Scenes.isScenesLook(c) ? SCOPE_SCENE : SCOPE_CLASSIC;
+        return isCustomWallpaperEnabled(c, scope)
+                && getCustomWallpaperSubMode(c, scope) == CUSTOM_MODE_REDDIT;
+    }
+
+    public static void skipToNextRedditWallpaperOnCurrentLook(Context c, Runnable onUpdated) {
+        if (c == null) return;
+        String scope = Scenes.isScenesLook(c) ? SCOPE_SCENE : SCOPE_CLASSIC;
+        fetchNextRedditWallpaperAsync(c, scope, onUpdated);
     }
 
     private static Bitmap scaleCenterCropOrFit(Bitmap src, int targetW, int targetH, boolean centerCrop) {

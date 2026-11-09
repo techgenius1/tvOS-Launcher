@@ -960,6 +960,30 @@ public class SettingsActivity extends Activity {
      */
     void pageLookAndScenes() {
         boolean scenesLook = Scenes.isScenesLook(this);
+
+        section(tr("LOOK", "GÖRÜNÜM"));
+        choiceRow(
+                tr("Night scenes", "Gece sahneleri"),
+                tr("A big glass clock, scenes taking turns", "Büyük cam saat, sırayla değişen sahneler"),
+                scenesLook,
+                () -> {
+                    Scenes.setLook(this, Scenes.LOOK_SCENES);
+                    selectSection(LOOK_SCENES, true, 0);
+                });
+        choiceRow(
+                tr("Classic", "Klasik"),
+                tr("One photo and a grid of app banners", "Tek fotoğraf ve uygulama afişleri ızgarası"),
+                !scenesLook,
+                () -> {
+                    Scenes.setLook(this, Scenes.LOOK_CLASSIC);
+                    selectSection(LOOK_SCENES, true, 1);
+                });
+
+        section(tr("HOME SCREEN WIDGETS", "ANA EKRAN WIDGET'LARI"));
+        row(tr("Home screen widget settings", "Ana ekran widget ayarları"),
+                () -> (HomeDashboard.isEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı")) + "  ›",
+                () -> openSubMenu("home_dashboard"));
+
         if (scenesLook) {
             section(tr("DOCK", "DOCK"));
             row(tr("Dock size", "Dock boyutu"),
@@ -971,91 +995,142 @@ public class SettingsActivity extends Activity {
                         Scenes.setDockNamesShown(this, !Scenes.isDockNamesShown(this));
                         refreshAll();
                     });
-        }
 
-        section(tr("LOOK", "GÖRÜNÜM"));
-        choiceRow(
-                tr("Night scenes", "Gece sahneleri"),
-                tr("A big glass clock, scenes taking turns", "Büyük cam saat, sırayla değişen sahneler"),
-                scenesLook,
-                () -> {
-                    Scenes.setLook(this, Scenes.LOOK_SCENES);
-                    selectSection(LOOK_SCENES, true, 1);
-                });
-        choiceRow(
-                tr("Classic", "Klasik"),
-                tr("One photo and a grid of app banners", "Tek fotoğraf ve uygulama afişleri ızgarası"),
-                !scenesLook,
-                () -> {
-                    Scenes.setLook(this, Scenes.LOOK_CLASSIC);
-                    selectSection(LOOK_SCENES, true, 1);
-                });
-
-        section(tr("SCENES", "SAHNELER"));
-        List<String> order = Scenes.getSceneOrder(this);
-        for (int i = 0; i < order.size(); i++) {
-            String id = order.get(i);
-            if (Scenes.isCustomId(id)) continue;
-            final int sceneIdx = i;
-            Scenes.Spec spec = Scenes.byId(id);
-            sceneCheckRow(spec, sceneIdx, order);
-        }
-        for (int slot = 1; slot <= Scenes.MAX_CUSTOM_SCENES; slot++) {
-            customSceneRow(slot);
-            if (!Scenes.isSceneEnabled(this, Scenes.customId(slot))) {
-                break;
-            }
-        }
-        folderShuffleSceneRow();
-
-        if (Scenes.isAnyCustomSceneEnabled(this)) {
-            row(tr("Clock position", "Saat konumu"),
-                    () -> Scenes.customClockPosLabel(this),
+            section(tr("NIGHT SCENES CLOCK", "GECE SAHNELERİ SAATİ"));
+            row(tr("Clock", "Saat"),
+                    () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
                     () -> {
-                        Scenes.cycleCustomClockPos(this);
+                        Scenes.setClock24h(this, !Scenes.isClock24h(this));
                         refreshAll();
                     });
+            row(tr("Clock font", "Saat yazı tipi"),
+                    () -> Scenes.clockStyleLabel(this),
+                    () -> {
+                        Scenes.cycleClockStyle(this);
+                        refreshAll();
+                    });
+            row(tr("Default wallpaper clock alignment", "Varsayılan duvar kağıdı saat hizalaması"),
+                    () -> Scenes.defaultClockPosLabel(this),
+                    () -> {
+                        Scenes.cycleDefaultClockPos(this);
+                        refreshAll();
+                    });
+            boolean customSceneOn = CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE);
+            if (customSceneOn || Scenes.isAnyCustomSceneEnabled(this)) {
+                row(tr("Custom wallpaper clock alignment", "Özel duvar kağıdı saat hizalaması"),
+                        () -> Scenes.customClockPosLabel(this),
+                        () -> {
+                            Scenes.cycleCustomClockPos(this);
+                            refreshAll();
+                        });
+            }
+            row(tr("Each scene stays", "Her sahne süresi"),
+                    () -> Scenes.getStaySeconds(this) + tr(" seconds", " saniye"),
+                    () -> {
+                        Scenes.cycleStaySeconds(this);
+                        refreshAll();
+                    });
+
+            section(tr("CUSTOM WALLPAPER", "ÖZEL DUVAR KAĞIDI"));
+            row(tr("Custom wallpaper mode", "Özel duvar kağıdı modu"),
+                    () -> CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE)
+                            ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        boolean next = !CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE);
+                        CustomMedia.setCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE, next);
+                        rebuildMainRows();
+                    });
+            if (customSceneOn) {
+                row(tr("Custom wallpaper settings…", "Özel duvar kağıdı ayarları…"),
+                        () -> CustomMedia.getCustomWallpaperModeLabel(this, CustomMedia.SCOPE_SCENE),
+                        () -> openSubMenu("custom_wall:" + CustomMedia.SCOPE_SCENE));
+            } else {
+                section(tr("SCENES", "SAHNELER"));
+                List<String> order = Scenes.getSceneOrder(this);
+                for (int i = 0; i < order.size(); i++) {
+                    String id = order.get(i);
+                    if (Scenes.isCustomId(id)) continue;
+                    final int sceneIdx = i;
+                    Scenes.Spec spec = Scenes.byId(id);
+                    sceneCheckRow(spec, sceneIdx, order);
+                }
+            }
+        } else {
+            section(tr("CLASSIC CLOCK & WEATHER", "KLASİK SAAT VE HAVA DURUMU"));
+            boolean bigClock = Scenes.isClassicBigClockEnabled(this);
+            row(tr("Big Clock (Night Scene style)", "Büyük Saat (Gece Sahnesi stili)"),
+                    () -> bigClock ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        Scenes.setClassicBigClockEnabled(this, !Scenes.isClassicBigClockEnabled(this));
+                        rebuildMainRows();
+                    });
+            if (bigClock) {
+                row(tr("Clock alignment", "Saat hizalaması"),
+                        () -> Scenes.classicClockPosLabel(this),
+                        () -> {
+                            Scenes.cycleClassicClockPos(this);
+                            refreshAll();
+                        });
+                row(tr("Clock", "Saat"),
+                        () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
+                        () -> {
+                            Scenes.setClock24h(this, !Scenes.isClock24h(this));
+                            refreshAll();
+                        });
+                row(tr("Clock font", "Saat yazı tipi"),
+                        () -> Scenes.clockStyleLabel(this),
+                        () -> {
+                            Scenes.cycleClockStyle(this);
+                            refreshAll();
+                        });
+                row(tr("Top-right weather shortcut", "Sağ üst hava durumu kısayolu"),
+                        () -> SceneHome.isWeatherShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                        () -> {
+                            SceneHome.setWeatherShortcutEnabled(this, !SceneHome.isWeatherShortcutEnabled(this));
+                            refreshAll();
+                        });
+            } else {
+                row(tr("Clock", "Saat"),
+                        () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
+                        () -> {
+                            Scenes.setClock24h(this, !Scenes.isClock24h(this));
+                            refreshAll();
+                        });
+            }
+
+            section(tr("CUSTOM WALLPAPER", "ÖZEL DUVAR KAĞIDI"));
+            boolean customClassicOn = CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC);
+            row(tr("Custom wallpaper mode", "Özel duvar kağıdı modu"),
+                    () -> CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC)
+                            ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> {
+                        boolean next = !CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC);
+                        CustomMedia.setCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC, next);
+                        rebuildMainRows();
+                    });
+            if (customClassicOn) {
+                row(tr("Custom wallpaper settings…", "Özel duvar kağıdı ayarları…"),
+                        () -> CustomMedia.getCustomWallpaperModeLabel(this, CustomMedia.SCOPE_CLASSIC),
+                        () -> openSubMenu("custom_wall:" + CustomMedia.SCOPE_CLASSIC));
+            } else {
+                section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
+                String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
+                for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
+                    final String photoFile = Scenes.CLASSIC_PHOTOS[i][0];
+                    final String wallKey = "photo:" + photoFile;
+                    final String label = I18n.s(this, Scenes.CLASSIC_PHOTOS[i][1], Scenes.CLASSIC_PHOTOS[i][2]);
+                    classicPhotoRow(label, "backgrounds/" + photoFile, wallKey.equals(curWall), () -> {
+                        Profiles.homePrefs(this).edit().putString("wallpaper", wallKey).apply();
+                        rebuildMainRows();
+                    });
+                }
+                row(tr("Ambient colour themes…", "Ortam renk temaları…"), () -> {
+                    String k = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
+                    int idx = Arrays.asList(MainActivity.WALL_KEYS).indexOf(k);
+                    return MainActivity.wallName(this, Math.max(0, idx));
+                }, () -> openSubMenu("ambient_themes"));
+            }
         }
-
-        row(tr("Each scene stays", "Her sahne süresi"),
-                () -> Scenes.getStaySeconds(this) + tr(" seconds", " saniye"),
-                () -> {
-                    Scenes.cycleStaySeconds(this);
-                    refreshAll();
-                });
-
-        row(tr("Clock", "Saat"),
-                () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
-                () -> {
-                    Scenes.setClock24h(this, !Scenes.isClock24h(this));
-                    refreshAll();
-                });
-
-        row(tr("Clock font", "Saat yazı tipi"),
-                () -> Scenes.clockStyleLabel(this),
-                () -> {
-                    Scenes.cycleClockStyle(this);
-                    refreshAll();
-                });
-
-        section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
-        String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
-        for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
-            final String photoFile = Scenes.CLASSIC_PHOTOS[i][0];
-            final String wallKey = "photo:" + photoFile;
-            final String label = I18n.s(this, Scenes.CLASSIC_PHOTOS[i][1], Scenes.CLASSIC_PHOTOS[i][2]);
-            classicPhotoRow(label, "backgrounds/" + photoFile, wallKey.equals(curWall), () -> {
-                Profiles.homePrefs(this).edit().putString("wallpaper", wallKey).apply();
-                rebuildMainRows();
-            });
-        }
-        row(tr("Ambient colour themes…", "Ortam renk temaları…"), () -> {
-            String k = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
-            int idx = Arrays.asList(MainActivity.WALL_KEYS).indexOf(k);
-            return MainActivity.wallName(this, Math.max(0, idx));
-        }, () -> openSubMenu("ambient_themes"));
-        customClassicPhotoRow("custom".equals(curWall));
-        folderShuffleClassicRow(MainActivity.FOLDER_SHUFFLE_WALL_KEY.equals(curWall));
     }
 
     void pageApps() {
@@ -1097,14 +1172,6 @@ public class SettingsActivity extends Activity {
                     SceneHome.setWeatherShortcutEnabled(this, next);
                     refreshAll();
                 });
-        row(tr("Classic Top Shelf suggestions", "Klasik Üst Raf önerileri"), () -> {
-            switch (Suggestions.shelf(this)) {
-                case Suggestions.SHELF_RECS: return tr("Recommendations", "Öneriler");
-                case Suggestions.SHELF_NEWS: return tr("News", "Haberler");
-                case Suggestions.SHELF_NONE: return tr("Off", "Kapalı");
-                default: return tr("Recommendations & News", "Öneriler ve Haberler");
-            }
-        }, () -> openSubMenu("top_shelf"));
         row(tr("Clear Continue Watching history", "İzlemeye Devam Et geçmişini temizle"),
                 () -> "",
                 () -> {
@@ -1399,6 +1466,16 @@ public class SettingsActivity extends Activity {
     }
 
     void pageControlPanel() {
+        section(tr("BACKGROUND MODE", "ARKA PLAN MODU"));
+        row(I18n.t(this, "cp_bg_mode"),
+                () -> ControlPanelOverlay.getBgModeLabel(this),
+                () -> {
+                    ControlPanelOverlay.cycleBgMode(this);
+                    refreshAll();
+                });
+        infoNote(tr("Tip: Blur can't be shown while a video is playing. Android can't blur live video (and DRM video can't be captured), so the video keeps playing behind the panel with a soft shade instead.",
+                "İpucu: Video oynatılırken bulanıklık gösterilemez. Android canlı videoyu bulanıklaştıramaz (DRM'li videolar da yakalanamaz), bu yüzden video panelin arkasında hafif bir gölgeyle oynamaya devam eder."));
+
         section(tr("UNIVERSAL SHORTCUT ACTIONS", "EVRENSEL KISAYOL EYLEMLERİ"));
         row(tr("Wi-Fi", "Wi-Fi"),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_WIFI),
@@ -1551,7 +1628,7 @@ public class SettingsActivity extends Activity {
                 () -> Clicks.enabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
                 () -> Clicks.setEnabled(this, !Clicks.enabled(this)));
 
-        section(tr("PRESENTATION &CLASSIC SHELF", "SUNUM VE KLASİK ÜST RAF"));
+        section(tr("PRESENTATION & SYSTEM", "SUNUM VE SİSTEM"));
         row(tr("Presentation mode", "Sunum modu"),
                 () -> com.techgenius.tvoslauncher.present.Presenter.enabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
                 () -> {
@@ -1563,14 +1640,6 @@ public class SettingsActivity extends Activity {
                         ? com.techgenius.tvoslauncher.present.Presenter.address().replace("http://", "")
                         : tr("Turn on first", "Önce etkinleştirin"),
                 this::showPresentInfo);
-        row(tr("Classic Top Shelf content", "Klasik Üst Raf içeriği"), () -> {
-            switch (Suggestions.shelf(this)) {
-                case Suggestions.SHELF_RECS: return tr("Recommendations", "Öneriler");
-                case Suggestions.SHELF_NEWS: return tr("News", "Haberler");
-                case Suggestions.SHELF_NONE: return tr("Off", "Kapalı");
-                default: return tr("Recommendations & News", "Öneriler ve Haberler");
-            }
-        }, () -> openSubMenu("top_shelf"));
         row(tr("Run first-time setup again…", "İlk kurulumu tekrar çalıştır…"),
                 () -> chev(),
                 () -> {
@@ -1629,6 +1698,18 @@ public class SettingsActivity extends Activity {
         row(tr("Keep Alive (Auto-repair Accessibility)", "Keep Alive (Erişilebilirliği otomatik onar)"),
                 () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On (Default)", "Açık (Varsayılan)") : tr("Off", "Kapalı"),
                 this::toggleKeepAliveWithWarning);
+        row(I18n.t(this, "caffeine_title"),
+                () -> PowerService.isCaffeineEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    boolean next = !PowerService.isCaffeineEnabled(this);
+                    PowerService.setCaffeineEnabled(this, next);
+                    refreshAll();
+                    showStatusMsg(next
+                            ? tr("Caffeine enabled — TV will stay awake and block automatic Ambient / sleep mode.",
+                                 "Caffeine etkinleştirildi — TV uyanık kalacak ve otomatik Ortam / uyku modunu engelleyecek.")
+                            : tr("Caffeine disabled.", "Caffeine devre dışı bırakıldı."));
+                });
+        infoNote(I18n.t(this, "caffeine_desc"));
 
         infoNote(tr("Security Note: Keep Alive is enabled by default. In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly in-process without touching ADB (even if ADB is enabled on the TV). In Persistent ADB Mode, Keep Alive can also use Local ADB on port 5555.",
                 "Güvenlik Notu: Keep Alive varsayılan olarak açıktır. Güvenli Mod'da tvOS Launcher, ADB'yi hiç kullanmadan (TV'de ADB açık olsa bile) Erişilebilirliği doğrudan WRITE_SECURE_SETTINGS ile onarır. Kalıcı ADB Modu'nda ise port 5555 üzerinden yerel ADB'yi de kullanabilir."));
@@ -1776,19 +1857,32 @@ public class SettingsActivity extends Activity {
                          "Mod 1 — Standart (Varsayılan, çoğu Android TV ve IR kumanda için)"),
             (curMode == ButtonMapper.VOLUME_FIX_MODE_2 ? "✓ " : "   ")
                     + tr("Mode 2 — HY320 / Projector (AudioService & IR pulse-burst mode)",
-                         "Mod 2 — HY320 / Projeksiyon (AudioService ve IR darbe modu)")
+                         "Mod 2 — HY320 / Projeksiyon (AudioService ve IR darbe modu)"),
+            (curMode == ButtonMapper.VOLUME_FIX_MODE_3 ? "✓ " : "   ")
+                    + tr("Mode 3 — Onn TV Box (Fast release stop, 0 extra steps on release, ADB & Secure mode)",
+                         "Mod 3 — Onn TV Box (Tuşu bırakınca anında durur, fazladan ses artışı yapmaz, ADB ve Güvenli mod)")
         };
         dialog(tr("Volume Button Fix Mode", "Ses Tuşu Düzeltme Modu"))
                 .setItems(opts, (d, which) -> {
-                    int nextMode = (which == 1) ? ButtonMapper.VOLUME_FIX_MODE_2 : ButtonMapper.VOLUME_FIX_MODE_1;
+                    int nextMode;
+                    if (which == 2) {
+                        nextMode = ButtonMapper.VOLUME_FIX_MODE_3;
+                    } else if (which == 1) {
+                        nextMode = ButtonMapper.VOLUME_FIX_MODE_2;
+                    } else {
+                        nextMode = ButtonMapper.VOLUME_FIX_MODE_1;
+                    }
                     ButtonMapper.setVolumeHoldFixMode(this, nextMode);
                     refreshAll();
                     if (nextMode == ButtonMapper.VOLUME_FIX_MODE_1) {
                         showStatusMsg(tr("Volume Fix Mode 1 (Standard) selected.",
                                 "Ses Tuşu Düzeltme Modu 1 (Standart) seçildi."));
-                    } else {
+                    } else if (nextMode == ButtonMapper.VOLUME_FIX_MODE_2) {
                         showStatusMsg(tr("Volume Fix Mode 2 (HY320 / Projector) selected.",
                                 "Ses Tuşu Düzeltme Modu 2 (HY320 / Projeksiyon) seçildi."));
+                    } else {
+                        showStatusMsg(tr("Volume Fix Mode 3 (Onn TV Box) selected.",
+                                "Ses Tuşu Düzeltme Modu 3 (Onn TV Box) seçildi."));
                     }
                 })
                 .setNegativeButton(tr("Cancel", "İptal"), null)
@@ -2196,6 +2290,12 @@ public class SettingsActivity extends Activity {
         if (subId == null) return;
         if ("dock_size".equals(subId)) {
             subMenuDockSize();
+        } else if ("home_dashboard".equals(subId)) {
+            subMenuHomeDashboard();
+        } else if ("releases_countries".equals(subId)) {
+            subMenuReleasesCountries();
+        } else if (subId.startsWith("custom_wall:")) {
+            subMenuCustomWallpaper(subId.substring("custom_wall:".length()));
         } else if ("ambient_themes".equals(subId)) {
             subMenuAmbientThemes();
         } else if ("lock_screen_settings".equals(subId)) {
@@ -2284,6 +2384,350 @@ public class SettingsActivity extends Activity {
                 showStatusMsg(tr("Dock size set to " + pct + "%.", "Dock boyutu %" + pct + " olarak ayarlandı."));
             });
         }
+    }
+
+    private void subMenuHomeDashboard() {
+        mainHeadView.setText(tr("Home screen widget settings", "Ana ekran widget ayarları"));
+        backSubMenuRow();
+        section(tr("HOME SCREEN WIDGETS", "ANA EKRAN WIDGET'LARI"));
+        row(tr("Enable Home Dashboard", "Ana Ekran Panelini Etkinleştir"),
+                () -> HomeDashboard.isEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    HomeDashboard.setEnabled(this, !HomeDashboard.isEnabled(this));
+                    rebuildMainRows();
+                });
+        row(tr("Show widgets when selected app has no Continue Watching", "Seçili uygulamada İzlemeye Devam Et yoksa widget'ları göster"),
+                () -> HomeDashboard.isShowWhenNoCw(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    HomeDashboard.setShowWhenNoCw(this, !HomeDashboard.isShowWhenNoCw(this));
+                    refreshAll();
+                });
+
+        section(tr("DASHBOARD WIDGETS (4 HORIZONTAL TILES)", "PANEL WIDGET'LARI (4 YATAY KUTU)"));
+        row("🕌  " + I18n.t(this, "dash_prayer_times"),
+                () -> HomeDashboard.isWidgetPrayerEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    HomeDashboard.setWidgetPrayerEnabled(this, !HomeDashboard.isWidgetPrayerEnabled(this));
+                    refreshAll();
+                });
+        row("⚽  " + I18n.t(this, "dash_football"),
+                () -> HomeDashboard.isWidgetFootballEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    HomeDashboard.setWidgetFootballEnabled(this, !HomeDashboard.isWidgetFootballEnabled(this));
+                    refreshAll();
+                });
+        row("🎬  " + I18n.t(this, "dash_latest_releases"),
+                () -> HomeDashboard.isWidgetReleasesEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    HomeDashboard.setWidgetReleasesEnabled(this, !HomeDashboard.isWidgetReleasesEnabled(this));
+                    refreshAll();
+                });
+        row("⛅  " + I18n.t(this, "weather"),
+                () -> HomeDashboard.isWidgetWeatherEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    HomeDashboard.setWidgetWeatherEnabled(this, !HomeDashboard.isWidgetWeatherEnabled(this));
+                    refreshAll();
+                });
+
+        section(tr("WIDGET SETTINGS", "WIDGET AYARLARI"));
+        row("🌍  " + I18n.t(this, "releases_country_setting") + "…",
+                () -> HomeDashboard.getReleasesCountriesSummary(this),
+                () -> openSubMenu("releases_countries"));
+        row(tr("Prayer calculation method", "Namaz vakti hesaplama yöntemi"),
+                () -> HomeDashboard.getPrayerMethodName(this),
+                this::promptPrayerMethodDialog);
+        row(tr("Add favorite football team…", "Favori futbol takımı ekle…"),
+                () -> "＋",
+                this::promptAddFavoriteTeamDialog);
+        infoNote(tr("Displayed when no app is focused, when focus is on Settings / non-app elements, or when the focused app has no Continue Watching items.",
+                "Hiçbir uygulama seçili olmadığında, odak Ayarlar veya uygulama dışı öğelerde olduğunda ya da seçili uygulamanın İzlemeye Devam Et içeriği olmadığında görüntülenir."));
+    }
+
+    private void subMenuReleasesCountries() {
+        mainHeadView.setText(I18n.t(this, "releases_country_setting"));
+        backSubMenuRow();
+
+        boolean autoMode = HomeDashboard.isReleasesCountryAuto(this);
+        String autoCode = HomeDashboard.defaultCountryForUiLang(this);
+        String autoCountryLabel = autoCode;
+        for (int i = 0; i < HomeDashboard.RELEASES_COUNTRIES.length; i++) {
+            if (autoCode.equals(HomeDashboard.RELEASES_COUNTRIES[i][0])) {
+                autoCountryLabel = HomeDashboard.RELEASES_COUNTRIES[i][1] + " " + HomeDashboard.RELEASES_COUNTRIES[i][2];
+                break;
+            }
+        }
+
+        section(tr("REGION MODE", "BÖLGE MODU"));
+        choiceRow(I18n.t(this, "releases_country_auto"),
+                tr("Currently synced to: ", "Şu anda eşitlenen ülke: ") + autoCountryLabel,
+                autoMode,
+                () -> {
+                    HomeDashboard.setReleasesCountryAuto(this, !HomeDashboard.isReleasesCountryAuto(this));
+                    HomeDashboard.fetchLatestReleases(this, true, null);
+                    rebuildMainRows();
+                });
+
+        section(tr("COUNTRIES (SELECT ONE OR MULTIPLE)", "ÜLKELER (BİR VEYA BİRDEN FAZLA SEÇİN)"));
+        for (int i = 0; i < HomeDashboard.RELEASES_COUNTRIES.length; i++) {
+            final String code = HomeDashboard.RELEASES_COUNTRIES[i][0];
+            final String flag = HomeDashboard.RELEASES_COUNTRIES[i][1];
+            final String name = HomeDashboard.RELEASES_COUNTRIES[i][2];
+            boolean selected = HomeDashboard.isReleasesCountrySelected(this, code);
+            choiceRow(flag + "  " + name + " (" + code + ")",
+                    selected ? tr("Selected — press OK to toggle", "Seçili — değiştirmek için OK'a basın")
+                             : tr("Press OK to include releases from this country", "Bu ülkenin içeriklerini dahil etmek için OK'a basın"),
+                    selected,
+                    () -> {
+                        HomeDashboard.toggleReleasesCountry(this, code);
+                        HomeDashboard.fetchLatestReleases(this, true, null);
+                        rebuildMainRows();
+                    });
+        }
+        infoNote(tr("By default, Most Watched automatically syncs with your selected UI language. Selecting any country above switches to custom multi-country mode.",
+                "Varsayılan olarak Çok İzlenenler widget'ı seçili arayüz diliyle otomatik eşitlenir. Yukarıdan ülke seçtiğinizde özel çoklu ülke moduna geçilir."));
+    }
+
+    private void promptPrayerMethodDialog() {
+        int cur = HomeDashboard.getPrayerMethod(this);
+        String[] opts = new String[HomeDashboard.PRAYER_METHOD_IDS.length];
+        for (int i = 0; i < opts.length; i++) {
+            opts[i] = (HomeDashboard.PRAYER_METHOD_IDS[i] == cur ? "✓ " : "   ")
+                    + HomeDashboard.PRAYER_METHOD_NAMES[i];
+        }
+        dialog(tr("Prayer Calculation Method", "Namaz Vakti Hesaplama Yöntemi"))
+                .setItems(opts, (d, which) -> {
+                    if (which >= 0 && which < HomeDashboard.PRAYER_METHOD_IDS.length) {
+                        HomeDashboard.setPrayerMethod(this, HomeDashboard.PRAYER_METHOD_IDS[which]);
+                        refreshAll();
+                    }
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+    }
+
+    private void promptAddFavoriteTeamDialog() {
+        android.widget.EditText in = new android.widget.EditText(this);
+        in.setSingleLine(true);
+        in.setHint("e.g. Qarabağ, Galatasaray, Real Madrid");
+        AlertDialog dlg = dialog(tr("Add Favorite Football Team", "Favori Futbol Takımı Ekle"))
+                .setView(in)
+                .setPositiveButton(tr("Add", "Ekle"), (d, w) -> {
+                    String name = in.getText().toString().trim();
+                    if (!name.isEmpty()) {
+                        HomeDashboard.addCustomFavoriteTeam(this, name);
+                        showStatusMsg(tr("Added favorite team: " + name, "Favori takım eklendi: " + name));
+                    }
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+        Ui.setupDialogEditText(in, dlg);
+        in.requestFocus();
+    }
+
+    private void subMenuCustomWallpaper(final String scope) {
+        boolean isScene = CustomMedia.SCOPE_SCENE.equals(scope);
+        mainHeadView.setText(isScene
+                ? tr("Night Scenes Custom Wallpaper", "Gece Sahneleri Özel Duvar Kağıdı")
+                : tr("Classic Custom Wallpaper", "Klasik Özel Duvar Kağıdı"));
+        backSubMenuRow();
+
+        int subMode = CustomMedia.getCustomWallpaperSubMode(this, scope);
+        section(tr("CUSTOM WALLPAPER MODE", "ÖZEL DUVAR KAĞIDI MODU"));
+        choiceRow(tr("Single / Multi Wallpapers", "Tekli / Çoklu Duvar Kağıdı"),
+                tr("Add as many custom wallpapers as you want without any limit",
+                   "Herhangi bir sınır olmadan istediğiniz kadar özel duvar kağıdı ekleyin"),
+                subMode == CustomMedia.CUSTOM_MODE_SINGLE_MULTI,
+                () -> {
+                    CustomMedia.setCustomWallpaperSubMode(this, scope, CustomMedia.CUSTOM_MODE_SINGLE_MULTI);
+                    rebuildMainRows();
+                });
+        choiceRow(tr("Shuffle Folder", "Klasörü Karıştır"),
+                tr("Select a folder and enable or disable individual wallpapers inside it",
+                   "Bir klasör seçin ve içindeki duvar kağıtlarını tek tek açıp kapatın"),
+                subMode == CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE,
+                () -> {
+                    CustomMedia.setCustomWallpaperSubMode(this, scope, CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE);
+                    rebuildMainRows();
+                });
+        choiceRow(tr("Reddit Wallpapers", "Reddit Duvar Kağıtları"),
+                tr("Auto-changing 1080p/4K wallpapers from your selected subreddits",
+                   "Seçtiğiniz subreddit'lerden otomatik değişen 1080p/4K duvar kağıtları"),
+                subMode == CustomMedia.CUSTOM_MODE_REDDIT,
+                () -> {
+                    CustomMedia.setCustomWallpaperSubMode(this, scope, CustomMedia.CUSTOM_MODE_REDDIT);
+                    CustomMedia.fetchNextRedditWallpaperAsync(this, scope, null);
+                    rebuildMainRows();
+                });
+
+        if (subMode == CustomMedia.CUSTOM_MODE_SINGLE_MULTI) {
+            section(tr("CUSTOM WALLPAPERS (UNLIMITED)", "ÖZEL DUVAR KAĞITLARI (SINIRSIZ)"));
+            row("＋  " + tr("Add new wallpaper…", "Yeni duvar kağıdı ekle…"),
+                    () -> tr("Choose image ›", "Görsel seç ›"),
+                    () -> CustomMedia.showImageFilePicker(
+                            this,
+                            tr("Select Wallpaper Image", "Duvar Kağıdı Görseli Seçin"),
+                            false,
+                            1920,
+                            1080,
+                            null,
+                            null,
+                            bmp -> {
+                                int slot = CustomMedia.addCustomWallpaperSlot(this, scope, bmp);
+                                if (isScene) {
+                                    Scenes.enableCustomScene(this, slot, true);
+                                }
+                                rebuildMainRows();
+                                showStatusMsg(tr("Added custom wallpaper #" + slot + ".",
+                                        "Özel duvar kağıdı #" + slot + " eklendi."));
+                            }));
+
+            int totalSlots = CustomMedia.getCustomSlotCount(this, scope);
+            int activeSlot = CustomMedia.getActiveCustomSlot(this, scope);
+            for (int s = 1; s <= totalSlots; s++) {
+                final int slot = s;
+                boolean exists = isScene
+                        ? CustomMedia.hasCustomSceneWallpaper(this, slot)
+                        : CustomMedia.hasCustomClassicWallpaper(this, slot);
+                if (!exists) continue;
+                final String slotTitle = tr("Custom Wallpaper #", "Özel Duvar Kağıdı #") + slot;
+                boolean isSelected = isScene
+                        ? Scenes.isSceneEnabled(this, Scenes.customSlotToId(slot))
+                        : (activeSlot == slot);
+                choiceRow(slotTitle,
+                        isScene
+                                ? tr("Tap to toggle in scene rotation · Long-press or use actions below",
+                                     "Sahne döngüsünde açıp kapatmak için dokunun")
+                                : tr("Tap to set as active wallpaper",
+                                     "Etkin duvar kağıdı yapmak için dokunun"),
+                        isSelected,
+                        () -> {
+                            CustomMedia.setActiveCustomSlot(this, scope, slot);
+                            if (isScene) {
+                                String cid = Scenes.customSlotToId(slot);
+                                Scenes.enableCustomScene(this, slot, !Scenes.isSceneEnabled(this, cid));
+                            }
+                            rebuildMainRows();
+                        });
+                row("   ↻  " + tr("Replace Wallpaper #", "Duvar Kağıdını Değiştir #") + slot,
+                        () -> tr("Choose image ›", "Görsel seç ›"),
+                        () -> CustomMedia.showImageFilePicker(
+                                this,
+                                slotTitle,
+                                false,
+                                1920,
+                                1080,
+                                tr("Remove this wallpaper", "Bu duvar kağıdını kaldır"),
+                                () -> {
+                                    CustomMedia.removeCustomWallpaperSlot(this, scope, slot);
+                                    rebuildMainRows();
+                                },
+                                bmp -> {
+                                    if (isScene) {
+                                        CustomMedia.setCustomSceneWallpaper(this, slot, bmp);
+                                    } else {
+                                        CustomMedia.setCustomClassicWallpaper(this, slot, bmp);
+                                    }
+                                    CustomMedia.setActiveCustomSlot(this, scope, slot);
+                                    rebuildMainRows();
+                                }));
+                row("   🗑  " + tr("Remove Wallpaper #", "Duvar Kağıdını Kaldır #") + slot,
+                        () -> "",
+                        () -> {
+                            CustomMedia.removeCustomWallpaperSlot(this, scope, slot);
+                            rebuildMainRows();
+                        });
+            }
+        } else if (subMode == CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE) {
+            section(tr("SHUFFLE FOLDER", "KARIŞTIRMA KLASÖRÜ"));
+            row("📁  " + tr("Select wallpaper folder…", "Duvar kağıdı klasörü seçin…"),
+                    () -> CustomMedia.getWallpaperShuffleFolderSummary(this, scope),
+                    () -> CustomMedia.showFolderPicker(
+                            this,
+                            scope,
+                            tr("Select Wallpaper Folder", "Duvar Kağıdı Klasörü Seçin"),
+                            folder -> rebuildMainRows()));
+
+            String folderPath = CustomMedia.getWallpaperShuffleFolder(this, scope);
+            if (!folderPath.isEmpty()) {
+                java.io.File dir = new java.io.File(folderPath);
+                List<java.io.File> files = CustomMedia.listFolderImages(dir);
+                if (!files.isEmpty()) {
+                    section(tr("WALLPAPERS IN FOLDER (TAP TO ENABLE / DISABLE)", "KLASÖRDEKİ DUVAR KAĞITLARI (AÇMAK / KAPATMAK İÇİN DOKUNUN)"));
+                    for (final java.io.File imgFile : files) {
+                        final String abs = imgFile.getAbsolutePath();
+                        boolean enabled = !CustomMedia.isFolderImageDisabled(this, scope, abs);
+                        choiceRow("🖼️  " + imgFile.getName(),
+                                enabled ? tr("Enabled in shuffle", "Karıştırmada etkin")
+                                        : tr("Disabled", "Devre dışı"),
+                                enabled,
+                                () -> {
+                                    boolean nowDisabled = !CustomMedia.isFolderImageDisabled(this, scope, abs);
+                                    CustomMedia.setFolderImageDisabled(this, scope, abs, nowDisabled);
+                                    rebuildMainRows();
+                                });
+                    }
+                }
+            }
+        } else if (subMode == CustomMedia.CUSTOM_MODE_REDDIT) {
+            section(tr("REDDIT WALLPAPER OPTIONS", "REDDIT DUVAR KAĞIDI SEÇENEKLERİ"));
+            row(tr("Auto-change interval", "Otomatik değişim süresi"),
+                    () -> CustomMedia.getRedditIntervalLabel(this, scope),
+                    () -> {
+                        CustomMedia.cycleRedditIntervalMinutes(this, scope);
+                        refreshAll();
+                    });
+            row("⏭  " + I18n.t(this, "next_wallpaper"),
+                    () -> tr("Skip now ›", "Şimdi geç ›"),
+                    () -> {
+                        showStatusMsg(tr("Fetching next Reddit wallpaper…", "Sonraki Reddit duvar kağıdı indiriliyor…"));
+                        CustomMedia.fetchNextRedditWallpaperAsync(this, scope, () ->
+                                showStatusMsg(tr("Reddit wallpaper updated.", "Reddit duvar kağıdı güncellendi.")));
+                    });
+            row("＋  " + tr("Add custom subreddit…", "Özel subreddit ekle…"),
+                    () -> "r/…",
+                    () -> promptAddCustomSubredditDialog(scope));
+
+            section(tr("SUBREDDITS (SELECT SINGLE OR MULTIPLE)", "SUBREDDIT'LER (TEKLİ VEYA ÇOKLU SEÇİM)"));
+            java.util.Set<String> activeSubs = CustomMedia.getRedditSubreddits(this, scope);
+            List<String> allSubs = CustomMedia.getAllKnownRedditSubreddits(this, scope);
+            for (final String sub : allSubs) {
+                boolean on = false;
+                for (String a : activeSubs) {
+                    if (a.equalsIgnoreCase(sub)) {
+                        on = true;
+                        break;
+                    }
+                }
+                choiceRow("r/" + sub,
+                        on ? tr("Selected", "Seçili") : tr("Tap to include", "Dahil etmek için dokunun"),
+                        on,
+                        () -> {
+                            CustomMedia.toggleRedditSubreddit(this, scope, sub);
+                            CustomMedia.fetchNextRedditWallpaperAsync(this, scope, null);
+                            rebuildMainRows();
+                        });
+            }
+        }
+    }
+
+    private void promptAddCustomSubredditDialog(final String scope) {
+        android.widget.EditText in = new android.widget.EditText(this);
+        in.setSingleLine(true);
+        in.setHint("e.g. WallpaperDump, ImaginaryLandscapes");
+        AlertDialog dlg = dialog(tr("Add Subreddit", "Subreddit Ekle"))
+                .setView(in)
+                .setPositiveButton(tr("Add", "Ekle"), (d, w) -> {
+                    String sub = in.getText().toString().trim();
+                    if (!sub.isEmpty()) {
+                        CustomMedia.addCustomRedditSubreddit(this, scope, sub);
+                        CustomMedia.fetchNextRedditWallpaperAsync(this, scope, null);
+                        rebuildMainRows();
+                    }
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+        Ui.setupDialogEditText(in, dlg);
+        in.requestFocus();
     }
 
     private void subMenuAmbientThemes() {
@@ -2581,6 +3025,14 @@ public class SettingsActivity extends Activity {
                 ButtonMapper.TARGET_RECENT_APPS.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_RECENT_APPS);
+                    closeSubMenu();
+                });
+        choiceRow("📺  " + I18n.t(this, "bm_inputs_overlay"),
+                tr("Switch TV / HDMI inputs on screen even if Google TV Launcher is disabled",
+                   "Google TV Launcher devre dışı olsa bile ekran üstü panelden TV / HDMI girişlerini değiştirin"),
+                ButtonMapper.TARGET_INPUTS_OVERLAY.equals(current),
+                () -> {
+                    ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_INPUTS_OVERLAY);
                     closeSubMenu();
                 });
         choiceRow("🌙  " + tr("Ambient Mode / StandBy", "Ortam Modu / StandBy"),
@@ -5186,7 +5638,7 @@ public class SettingsActivity extends Activity {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception e) {
-            return "2.1.2";
+            return "2.1.5";
         }
     }
 

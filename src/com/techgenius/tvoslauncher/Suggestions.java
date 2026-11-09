@@ -89,6 +89,7 @@ final class Suggestions {
     static final class Item {
         int id, providerId;
         String type, title, overview, backdrop, logo, year, genres;
+        String country = "";
         /** Exact title page on the service (JustWatch), opened directly in the app when it supports it. */
         String link = "";
         /** Continue Watching entries: the app that played it, its store key, and progress. */
@@ -103,7 +104,7 @@ final class Suggestions {
             return new JSONObject().put("id", id).put("providerId", providerId).put("type", type)
                     .put("title", title).put("overview", overview).put("backdrop", backdrop)
                     .put("logo", logo == null ? "" : logo).put("year", year).put("genres", genres).put("rating", rating)
-                    .put("link", link).put("pub", published);
+                    .put("link", link).put("pub", published).put("country", country == null ? "" : country);
         }
 
         static Item fromJson(JSONObject o) {
@@ -121,6 +122,7 @@ final class Suggestions {
             i.rating = o.optDouble("rating", 0);
             i.link = o.optString("link");
             i.published = o.optLong("pub");
+            i.country = o.optString("country", "");
             return i;
         }
 
@@ -357,6 +359,93 @@ final class Suggestions {
             }
         }
         return sources;
+    }
+
+    /**
+     * Fetches popular & recently released movies and TV series for one or more countries
+     * (used by the Home Dashboard Latest Releases widget).
+     */
+    static List<Item> fetchReleasesForCountries(Context c, List<String> countries) {
+        List<String> effCountries = (countries == null || countries.isEmpty())
+                ? Arrays.asList("US") : countries;
+        String uiLang = I18n.getLang(c);
+        String jwLang = "az".equals(uiLang) ? "tr" : uiLang;
+        if (jwLang == null || jwLang.length() != 2) jwLang = "en";
+
+        List<List<Item>> perCountryLists = new ArrayList<>();
+        for (String rawCountry : effCountries) {
+            if (rawCountry == null || rawCountry.trim().isEmpty()) continue;
+            String cc = rawCountry.trim().toUpperCase( java.util.Locale.US);
+            // JustWatch GraphQL uses TR storefront for AZ if AZ is not a standalone storefront
+            String[] queryCountries = "AZ".equals(cc) ? new String[]{"AZ", "TR"} : new String[]{cc};
+            List<Item> countryItems = new ArrayList<>();
+            for (String qCountry : queryCountries) {
+                if (!countryItems.isEmpty()) break;
+                for (String kind : new String[]{"movie", "tv"}) {
+                    try {
+                        JSONObject filter = new JSONObject()
+                                .put("objectTypes", new JSONArray().put(kind.equals("tv") ? "SHOW" : "MOVIE"))
+                                .put("monetizationTypes", new JSONArray().put("FLATRATE").put("FREE").put("ADS"));
+                        JSONObject vars = new JSONObject()
+                                .put("country", qCountry)
+                                .put("language", jwLang)
+                                .put("first", 12)
+                                .put("filter", filter);
+                        JSONObject body = new JSONObject().put("query", JW_QUERY).put("variables", vars);
+                        JSONObject res = post("https://apis.justwatch.com/graphql", body.toString());
+                        JSONArray edges = res.getJSONObject("data").getJSONObject("popularTitles").getJSONArray("edges");
+                        for (int i = 0; i < edges.length() && countryItems.size() < 20; i++) {
+                            JSONObject n = edges.getJSONObject(i).getJSONObject("node");
+                            JSONObject ct = n.getJSONObject("content");
+                            JSONArray bds = ct.optJSONArray("backdrops");
+                            if (bds == null || bds.length() == 0) continue;
+                            Item it = new Item();
+                            it.id = Math.abs(n.optString("id").hashCode());
+                            it.type = kind;
+                            it.country = cc;
+                            it.title = ct.optString("title");
+                            it.overview = ct.optString("shortDescription");
+                            it.backdrop = "https://images.justwatch.com" + bds.getJSONObject(0).getString("backdropUrl")
+                                    .replace("{profile}", "s1440").replace("{format}", "jpg");
+                            it.logo = "";
+                            int y = ct.optInt("originalReleaseYear", 0);
+                            it.year = y > 0 ? String.valueOf(y) : "";
+                            JSONObject sc = ct.optJSONObject("scoring");
+                            it.rating = sc == null ? 0 : sc.optDouble("imdbScore", 0);
+                            it.genres = jwGenres(ct.optJSONArray("genres"));
+                            JSONArray offers = n.optJSONArray("offers");
+                            if (offers != null && offers.length() > 0) {
+                                it.link = offers.getJSONObject(0).optString("standardWebURL", "");
+                            }
+                            countryItems.add(it);
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+            if (!countryItems.isEmpty()) {
+                perCountryLists.add(countryItems);
+            }
+        }
+
+        List<Item> out = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (int round = 0; round < 20 && out.size() < 20; round++) {
+            for (List<Item> list : perCountryLists) {
+                if (round < list.size() && out.size() < 20) {
+                    Item it = list.get(round);
+                    if (it.title != null && !it.title.isEmpty() && seen.add(it.title.toLowerCase(java.util.Locale.ROOT))) {
+                        out.add(it);
+                    }
+                }
+            }
+        }
+        if (out.isEmpty()) {
+            try {
+                out = fetchRecs(c);
+            } catch (Throwable ignored) {}
+        }
+        return out;
     }
 
     static String jwGenres(JSONArray g) {
