@@ -1059,8 +1059,9 @@ public class PowerService extends AccessibilityService {
                         || "com.google.android.leanbacklauncher".equals(fgPkg);
                 if (!isStockHome && "com.google.android.apps.tv.launcherx".equals(fgPkg)) {
                     CharSequence cls = e.getClassName();
-                    // Intercept Google TV HomeActivity, but allow Dashboard / Quick Settings through!
-                    if (cls == null || !cls.toString().contains("Dashboard")) {
+                    // Intercept Google TV HomeActivity only.
+                    // Allow Dashboard / Quick Settings and ReauthActivity (e.g. Google Photos identity verification) through!
+                    if (cls != null && cls.toString().contains("HomeActivity")) {
                         isStockHome = true;
                     }
                 }
@@ -1077,6 +1078,11 @@ public class PowerService extends AccessibilityService {
                     && BootReceiver.isLaunchOnBootEnabled(this)) {
                 for (String stockLauncher : Perms.getStockTvHomePackages()) {
                     if (stockLauncher.equals(fgPkg)) {
+                        CharSequence cls = e.getClassName();
+                        if ("com.google.android.apps.tv.launcherx".equals(fgPkg)
+                                && (cls == null || !cls.toString().contains("HomeActivity"))) {
+                            continue;
+                        }
                         BootReceiver.launchHomeImmediately(this);
                         break;
                     }
