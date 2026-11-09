@@ -2,9 +2,15 @@ $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
 if (-not $env:JAVA_HOME) {
-    $jdkCandidate = "C:\Users\asen4\AppData\Local\Programs\Microsoft\jdk-17.0.10.7-hotspot"
-    if (Test-Path $jdkCandidate) {
-        $env:JAVA_HOME = $jdkCandidate
+    $jdkCandidates = @(
+        "C:\Program Files\Java\jdk-17",
+        "C:\Users\asen4\AppData\Local\Programs\Microsoft\jdk-17.0.10.7-hotspot"
+    )
+    foreach ($cand in $jdkCandidates) {
+        if (Test-Path $cand) {
+            $env:JAVA_HOME = $cand
+            break
+        }
     }
 }
 if ($env:JAVA_HOME) {
