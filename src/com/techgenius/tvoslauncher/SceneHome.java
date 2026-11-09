@@ -2077,7 +2077,7 @@ final class SceneHome {
                 if ("com.google.android.youtube.tv.png".equals(assetName)) {
                     // Official YouTube squircle look: crisp white tile with centered red YouTube badge
                     cv.drawColor(0xFFFFFFFF);
-                    int padX = Math.round(s * 0.16f);
+                    int padX = Math.round(s * 0.22f);
                     int badgeW = s - padX * 2;
                     int badgeH = Math.round(badgeW * ((float) raw.getHeight() / Math.max(1, raw.getWidth())));
                     int topY = (s - badgeH) / 2;
