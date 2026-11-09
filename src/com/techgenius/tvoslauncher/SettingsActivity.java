@@ -885,13 +885,14 @@ public class SettingsActivity extends Activity {
                     Weather.changed(this);
                 });
         row(tr("Temperature", "Sıcaklık birimi"), () -> {
-            String u = Weather.prefs(this).getString(Weather.K_UNITS, "c");
+            String u = Weather.units(this);
             return u.equals("f") ? "°F (Fahrenheit)" : "°C (Celsius)";
         }, () -> {
-            String cur = Weather.prefs(this).getString(Weather.K_UNITS, "c");
+            String cur = Weather.units(this);
             String next = "f".equals(cur) ? "c" : "f";
             Weather.prefs(this).edit().putString(Weather.K_UNITS, next).apply();
             Weather.changed(this);
+            Weather.refresh(this, true, null);
         });
         row(tr("Update every", "Güncelleme sıklığı"),
                 () -> Weather.refreshMinutes(this) + tr(" minutes", " dakika"),
