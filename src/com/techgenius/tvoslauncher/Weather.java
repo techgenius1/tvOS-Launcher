@@ -620,4 +620,92 @@ final class Weather {
             con.disconnect();
         }
     }
+
+    static final int ICON_SUN = 0;
+    static final int ICON_PARTLY = 1;
+    static final int ICON_CLOUD = 2;
+    static final int ICON_RAIN = 3;
+    static final int ICON_SNOW = 4;
+    static final int ICON_STORM = 5;
+
+    static int iconType(int code) {
+        switch (code) {
+            case 0:
+            case 1:
+                return ICON_SUN;
+            case 2:
+                return ICON_PARTLY;
+            case 3:
+            case 45:
+            case 48:
+                return ICON_CLOUD;
+            case 51: case 53: case 55: case 56: case 57:
+            case 61: case 63: case 65: case 80: case 81: case 82:
+                return ICON_RAIN;
+            case 66: case 67: case 71: case 73: case 75: case 77: case 85: case 86:
+                return ICON_SNOW;
+            case 95: case 96: case 99:
+                return ICON_STORM;
+            default:
+                return ICON_PARTLY;
+        }
+    }
+
+    static String formatTemp(Context c, int temp) {
+        return temp + "°";
+    }
+
+    static String codeText(Context c, int code) {
+        return describe(c, code, true);
+    }
+
+    static final class WeatherIconView extends android.view.View {
+        private int type = ICON_PARTLY;
+        private final android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+
+        WeatherIconView(Context c) {
+            super(c);
+        }
+
+        void setType(int t) {
+            this.type = t;
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(android.graphics.Canvas cv) {
+            super.onDraw(cv);
+            float w = getWidth(), h = getHeight();
+            if (w <= 0 || h <= 0) return;
+            float cx = w * 0.5f, cy = h * 0.5f;
+            float r = Math.min(w, h) * 0.28f;
+            p.setStyle(android.graphics.Paint.Style.FILL);
+            if (type == ICON_SUN) {
+                p.setColor(0xFFFFCC00);
+                cv.drawCircle(cx, cy, r * 1.15f, p);
+            } else if (type == ICON_PARTLY) {
+                p.setColor(0xFFFFCC00);
+                cv.drawCircle(cx - r * 0.35f, cy - r * 0.25f, r * 0.85f, p);
+                p.setColor(0xFFE5E7EB);
+                cv.drawRoundRect(cx - r * 0.9f, cy - r * 0.1f, cx + r * 1.1f, cy + r * 0.85f, r * 0.5f, r * 0.5f, p);
+            } else {
+                p.setColor(type == ICON_STORM ? 0xFF9CA3AF : 0xFFE5E7EB);
+                cv.drawRoundRect(cx - r * 1.05f, cy - r * 0.45f, cx + r * 1.05f, cy + r * 0.45f, r * 0.5f, r * 0.5f, p);
+                cv.drawCircle(cx - r * 0.3f, cy - r * 0.35f, r * 0.55f, p);
+                cv.drawCircle(cx + r * 0.3f, cy - r * 0.25f, r * 0.45f, p);
+                if (type == ICON_RAIN || type == ICON_STORM) {
+                    p.setColor(type == ICON_STORM ? 0xFFFBBF24 : 0xFF38BDF8);
+                    p.setStrokeWidth(Math.max(2f, r * 0.18f));
+                    cv.drawLine(cx - r * 0.4f, cy + r * 0.55f, cx - r * 0.55f, cy + r * 1.0f, p);
+                    cv.drawLine(cx + r * 0.1f, cy + r * 0.55f, cx - r * 0.05f, cy + r * 1.0f, p);
+                    cv.drawLine(cx + r * 0.6f, cy + r * 0.55f, cx + r * 0.45f, cy + r * 1.0f, p);
+                } else if (type == ICON_SNOW) {
+                    p.setColor(0xFFFFFFFF);
+                    cv.drawCircle(cx - r * 0.4f, cy + r * 0.78f, r * 0.15f, p);
+                    cv.drawCircle(cx + r * 0.1f, cy + r * 0.82f, r * 0.15f, p);
+                    cv.drawCircle(cx + r * 0.6f, cy + r * 0.78f, r * 0.15f, p);
+                }
+            }
+        }
+    }
 }

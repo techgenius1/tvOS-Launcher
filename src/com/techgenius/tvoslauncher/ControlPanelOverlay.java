@@ -128,6 +128,10 @@ public final class ControlPanelOverlay {
         }
     }
 
+    private interface LiveBlurCallback {
+        void onResult(android.graphics.Bitmap blurred);
+    }
+
     private static android.graphics.Bitmap getOverlayGlassBitmap(Context svcCtx, int screenW, int screenH) {
         try {
             if (MainActivity.activeInstance != null
@@ -145,24 +149,61 @@ public final class ControlPanelOverlay {
             }
         } catch (Throwable ignored) {
         }
-        if (cachedSceneBlur != null && !cachedSceneBlur.isRecycled()) {
-            return cachedSceneBlur;
+        return null;
+    }
+
+    private static void captureLiveScreenBlurAsync(
+            android.accessibilityservice.AccessibilityService svc,
+            final int screenW,
+            final int screenH,
+            final LiveBlurCallback cb) {
+        if (android.os.Build.VERSION.SDK_INT < 30 || svc == null) {
+            cb.onResult(null);
+            return;
         }
         try {
-            int w = Math.max(1, screenW / 4), h = Math.max(1, screenH / 4);
-            List<String> ids = Scenes.getEnabledSceneIds(svcCtx);
-            String bgAsset = (ids != null && !ids.isEmpty())
-                    ? Scenes.byId(ids.get(0)).bgAsset
-                    : "backgrounds/scene-night.jpg";
-            android.graphics.Bitmap raw = Scenes.loadAssetBitmap(svcCtx, bgAsset, w, h);
-            if (raw != null) {
-                cachedSceneBlur = Ui.blur(raw, w / 2, h / 2, 4, 3);
-                raw.recycle();
-                return cachedSceneBlur;
-            }
-        } catch (Throwable ignored) {
+            svc.takeScreenshot(
+                    android.view.Display.DEFAULT_DISPLAY,
+                    java.util.concurrent.Executors.newSingleThreadExecutor(),
+                    new android.accessibilityservice.AccessibilityService.TakeScreenshotCallback() {
+                        @Override
+                        public void onSuccess(android.accessibilityservice.AccessibilityService.ScreenshotResult res) {
+                            android.graphics.Bitmap blurred = null;
+                            try {
+                                android.hardware.HardwareBuffer hb = res.getHardwareBuffer();
+                                if (hb != null) {
+                                    android.graphics.Bitmap hwBmp = android.graphics.Bitmap.wrapHardwareBuffer(
+                                            hb, res.getColorSpace());
+                                    hb.close();
+                                    if (hwBmp != null) {
+                                        int w = Math.max(1, screenW / 4);
+                                        int h = Math.max(1, screenH / 4);
+                                        android.graphics.Bitmap sw = hwBmp.copy(
+                                                android.graphics.Bitmap.Config.ARGB_8888, false);
+                                        hwBmp.recycle();
+                                        if (sw != null) {
+                                            android.graphics.Bitmap scaled = android.graphics.Bitmap.createScaledBitmap(
+                                                    sw, w, h, true);
+                                            if (scaled != sw) sw.recycle();
+                                            blurred = Ui.blur(scaled, w / 2, h / 2, 4, 3);
+                                            scaled.recycle();
+                                        }
+                                    }
+                                }
+                            } catch (Throwable ignored) {
+                            }
+                            final android.graphics.Bitmap finalBlurred = blurred;
+                            MAIN.post(() -> cb.onResult(finalBlurred));
+                        }
+
+                        @Override
+                        public void onFailure(int errorCode) {
+                            MAIN.post(() -> cb.onResult(null));
+                        }
+                    });
+        } catch (Throwable t) {
+            cb.onResult(null);
         }
-        return null;
     }
 
     private static void showWindowOverlay(Context svcCtx) {
@@ -172,6 +213,7 @@ public final class ControlPanelOverlay {
         Point screen = Ui.screen(svcCtx);
         int screenW = screen.x, screenH = screen.y;
         float unit = Ui.unit(svcCtx);
+        boolean blurryMode = isBlurryBgMode(svcCtx);
 
         FrameLayout layer = new FrameLayout(svcCtx) {
             @Override
@@ -196,28 +238,50 @@ public final class ControlPanelOverlay {
         layer.setClipToPadding(false);
         layer.setOnClickListener(v -> dismiss());
 
-        final android.graphics.Bitmap glassBmp = getOverlayGlassBitmap(svcCtx, screenW, screenH);
-        if (glassBmp != null) {
-            ImageView blurBg = new ImageView(svcCtx);
+        final android.graphics.Bitmap[] liveBlurHolder = new android.graphics.Bitmap[]{
+                getOverlayGlassBitmap(svcCtx, screenW, screenH)
+        };
+        // Video is playing underneath (or will be): a static screenshot would freeze it, and DRM /
+        // hardware-overlay video captures as pure black. Keep the live video visible instead.
+        final boolean videoPlaying = liveBlurHolder[0] == null && isMediaPlaying(svcCtx);
+        final ImageView blurBg;
+        if (blurryMode && !videoPlaying) {
+            blurBg = new ImageView(svcCtx);
             blurBg.setScaleType(ImageView.ScaleType.FIT_XY);
-            blurBg.setImageBitmap(glassBmp);
-            blurBg.setColorFilter(0x8C000000, android.graphics.PorterDuff.Mode.SRC_OVER);
+            if (liveBlurHolder[0] != null) {
+                blurBg.setImageBitmap(liveBlurHolder[0]);
+            } else {
+                blurBg.setBackgroundColor(0x780B0D14);
+            }
+            blurBg.setColorFilter(0x74000000, android.graphics.PorterDuff.Mode.SRC_OVER);
             layer.addView(blurBg, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        } else {
+        } else if (blurryMode) {
+            // Live video stays playing behind; a soft scrim toward the panel keeps tiles legible.
+            // FLAG_BLUR_BEHIND (below) additionally blurs the live video on devices that support it.
+            blurBg = null;
             View shade = new View(svcCtx);
-            shade.setBackgroundColor(0xB3000000);
+            shade.setBackground(new GradientDrawable(
+                    GradientDrawable.Orientation.RIGHT_LEFT,
+                    new int[]{0x8C000000, 0x4D000000, 0x26000000}));
+            layer.addView(shade, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        } else {
+            blurBg = null;
+            View shade = new View(svcCtx);
+            shade.setBackgroundColor(0x36000000);
             layer.addView(shade, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
 
         MainActivity.LiquidGlass.Backdrop overlayBackdrop = () -> {
             if (MainActivity.activeInstance != null
+                    && MainActivity.activeInstance.resumed
                     && MainActivity.activeInstance.glassSource != null
                     && MainActivity.activeInstance.glassSource.get() != null) {
                 return MainActivity.activeInstance.glassSource.get();
             }
-            return glassBmp;
+            return liveBlurHolder[0];
         };
 
         List<View> cells = new ArrayList<>();
@@ -225,8 +289,7 @@ public final class ControlPanelOverlay {
                 svcCtx, screenW, screenH, unit, overlayBackdrop, cells,
                 () -> {
                     dismiss();
-                    openInputs(svcCtx, () -> startExternal(svcCtx, new Intent(Settings.ACTION_CAST_SETTINGS),
-                            new Intent(Settings.ACTION_SETTINGS)));
+                    openInputs(svcCtx, () -> showInputsOverlay(svcCtx));
                 },
                 () -> {
                     dismiss();
@@ -235,7 +298,7 @@ public final class ControlPanelOverlay {
                 },
                 () -> {
                     dismiss();
-                    startExternal(svcCtx, new Intent(svcCtx, SettingsActivity.class));
+                    showSettingsGearPopupOverlay(svcCtx);
                 },
                 () -> {
                     dismiss();
@@ -249,14 +312,23 @@ public final class ControlPanelOverlay {
         plp.rightMargin = dp(unit, 24);
         layer.addView(panel, plp);
 
+        int flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+        if (blurryMode && android.os.Build.VERSION.SDK_INT >= 31) {
+            flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+        }
         WindowManager.LayoutParams wlp = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                        | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                flags,
                 PixelFormat.TRANSLUCENT);
         wlp.gravity = Gravity.TOP | Gravity.END;
+        if (blurryMode && android.os.Build.VERSION.SDK_INT >= 31) {
+            try {
+                wlp.setBlurBehindRadius(dp(unit, 48));
+            } catch (Throwable ignored) {}
+        }
 
         wm.addView(layer, wlp);
         activeWm = wm;
@@ -265,9 +337,88 @@ public final class ControlPanelOverlay {
 
         layer.setAlpha(0f);
         panel.setTranslationY(-Math.round(10 * unit));
-        layer.animate().alpha(1f).setDuration(180).start();
-        panel.animate().translationY(0).setDuration(240).setInterpolator(MainActivity.EASE).start();
         if (!cells.isEmpty()) cells.get(0).requestFocus();
+
+        final boolean[] revealed = {false};
+        final Runnable revealNow = () -> {
+            if (revealed[0] || activeRoot != layer) return;
+            revealed[0] = true;
+            layer.animate().alpha(1f).setDuration(180).start();
+            panel.animate().translationY(0).setDuration(240).setInterpolator(MainActivity.EASE).start();
+        };
+
+        if (blurryMode
+                && !videoPlaying
+                && liveBlurHolder[0] == null
+                && android.os.Build.VERSION.SDK_INT >= 30
+                && svcCtx instanceof android.accessibilityservice.AccessibilityService) {
+            MAIN.postDelayed(revealNow, 85);
+            captureLiveScreenBlurAsync((android.accessibilityservice.AccessibilityService) svcCtx, screenW, screenH, blurred -> {
+                if (activeRoot != layer) return;
+                if (blurred != null && blurBg != null && !isMostlyBlack(blurred)) {
+                    liveBlurHolder[0] = blurred;
+                    blurBg.setBackgroundColor(Color.TRANSPARENT);
+                    blurBg.setImageBitmap(blurred);
+                    for (int i = 0; i < cells.size(); i++) {
+                        cells.get(i).invalidate();
+                    }
+                } else if (blurBg != null) {
+                    // Protected / hardware-overlay video captures as black: show the live video
+                    // through a soft scrim instead of covering it with a black frame.
+                    if (blurred != null) blurred.recycle();
+                    blurBg.setImageDrawable(null);
+                    blurBg.clearColorFilter();
+                    blurBg.setBackground(new GradientDrawable(
+                            GradientDrawable.Orientation.RIGHT_LEFT,
+                            new int[]{0x8C000000, 0x4D000000, 0x26000000}));
+                }
+                revealNow.run();
+            });
+        } else {
+            revealNow.run();
+        }
+    }
+
+    /** True when the screen is likely showing video (media session / audio playback active). */
+    private static boolean isMediaPlaying(Context c) {
+        try {
+            AudioManager am = (AudioManager) c.getSystemService(Context.AUDIO_SERVICE);
+            if (am != null && am.isMusicActive()) return true;
+        } catch (Throwable ignored) { }
+        return false;
+    }
+
+    /** Screenshots of DRM / secure video surfaces come back black. */
+    private static boolean isMostlyBlack(android.graphics.Bitmap b) {
+        try {
+            int w = b.getWidth(), h = b.getHeight();
+            int dark = 0, total = 0;
+            for (int y = h / 10; y < h; y += Math.max(1, h / 12)) {
+                for (int x = w / 10; x < w; x += Math.max(1, w / 16)) {
+                    int p = b.getPixel(x, y);
+                    int lum = (Color.red(p) * 2126 + Color.green(p) * 7152 + Color.blue(p) * 722) / 10000;
+                    if (lum < 10) dark++;
+                    total++;
+                }
+            }
+            return total > 0 && dark >= total * 0.9f;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private static android.graphics.drawable.Drawable createControlTileBg(
+            Context c,
+            float radius,
+            float unit,
+            MainActivity.LiquidGlass.Backdrop glassSource,
+            int screenW,
+            int screenH) {
+        MainActivity.LiquidGlass.Backdrop bgSrc = glassSource != null ? glassSource : () -> null;
+        MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
+                radius, 0x24FFFFFF, bgSrc, screenW, screenH, unit).adaptive().darker(0x59);
+        glass.lens = dp(unit, 7);
+        return glass;
     }
 
     /**
@@ -291,6 +442,7 @@ public final class ControlPanelOverlay {
         int cap = dp(unit, 56);
         int small = (2 * col + gap - 3 * gap) / 4;
         int w = 2 * col + gap;
+        int pad = 0;
 
         FrameLayout panel = new FrameLayout(c);
         panel.setClipChildren(false);
@@ -368,8 +520,8 @@ public final class ControlPanelOverlay {
             CapsuleSpec cs = capsules.get(i);
             int colIdx = i % 2;
             int rowIdx = i / 2;
-            int x = colIdx * (col + gap);
-            int y = rowIdx * (cap + gap);
+            int x = pad + colIdx * (col + gap);
+            int y = pad + rowIdx * (cap + gap);
             View tile = makeTile(c, panel, x, y, col, cap, unit, screenW, screenH, glassSource,
                     cs.glyph, cs.title, cs.status, cs.click);
             if (cs.isMemory) {
@@ -397,7 +549,7 @@ public final class ControlPanelOverlay {
         for (int sIdx = 0; sIdx < enabledSmallIdx.size(); sIdx++) {
             int i = enabledSmallIdx.get(sIdx);
             final Runnable act = actions[i];
-            outCells.add(makeTile(c, panel, sIdx * (small + gap), y4, small, small, unit, screenW, screenH, glassSource,
+            outCells.add(makeTile(c, panel, pad + sIdx * (small + gap), pad + y4, small, small, unit, screenW, screenH, glassSource,
                     icons[i], null, null, v -> {
                         if (act != null) act.run();
                     }));
@@ -405,12 +557,300 @@ public final class ControlPanelOverlay {
 
         int totalH = !enabledSmallIdx.isEmpty()
                 ? (y4 + small)
-                : Math.max(cap, capsuleRows * (cap + gap) - gap);
-        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(w, totalH, Gravity.TOP | Gravity.END);
+                : Math.max(0, capsuleRows * (cap + gap) - gap);
+
+        if (isItemEnabled(c, ITEM_WEATHER_PANEL)) {
+            int yWeather = totalH > 0 ? (totalH + gap) : 0;
+            int weatherH = dp(unit, 66);
+            View weatherTile = makeWeatherPanelTile(c, panel, pad, pad + yWeather, w, weatherH, unit, screenW, screenH, glassSource);
+            outCells.add(weatherTile);
+            totalH = yWeather + weatherH;
+        }
+        if (totalH <= 0) totalH = cap;
+
+        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(w + 2 * pad, totalH + 2 * pad, Gravity.TOP | Gravity.END);
         plp.topMargin = dp(unit, 36);
         plp.rightMargin = dp(unit, 28);
         panel.setLayoutParams(plp);
         return panel;
+    }
+
+    private static View makeWeatherPanelTile(
+            final Context c,
+            FrameLayout panel,
+            int x,
+            int y,
+            int w,
+            int h,
+            final float unit,
+            int screenW,
+            int screenH,
+            MainActivity.LiquidGlass.Backdrop glassSource) {
+
+        float radius = dp(unit, 18);
+        final android.graphics.drawable.Drawable idleBg =
+                createControlTileBg(c, radius, unit, glassSource, screenW, screenH);
+
+        final LinearLayout bar = new LinearLayout(c);
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.setBackground(idleBg);
+        bar.setFocusable(true);
+        bar.setClickable(true);
+        bar.setPadding(dp(unit, 14), dp(unit, 8), dp(unit, 14), dp(unit, 8));
+
+        // Left half: Current weather
+        LinearLayout leftBox = new LinearLayout(c);
+        leftBox.setOrientation(LinearLayout.HORIZONTAL);
+        leftBox.setGravity(Gravity.CENTER_VERTICAL);
+
+        final Weather.WeatherIconView curIcon = new Weather.WeatherIconView(c);
+        leftBox.addView(curIcon, new LinearLayout.LayoutParams(dp(unit, 32), dp(unit, 32)));
+
+        LinearLayout leftTexts = new LinearLayout(c);
+        leftTexts.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams ltlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        ltlp.leftMargin = dp(unit, 8);
+
+        final TextView curTitleTv = new TextView(c);
+        Ui.textSize(curTitleTv, 13f);
+        curTitleTv.setTypeface(Ui.font(c, "semibold"));
+        curTitleTv.setTextColor(Color.WHITE);
+        curTitleTv.setSingleLine(true);
+        curTitleTv.setEllipsize(TextUtils.TruncateAt.END);
+        leftTexts.addView(curTitleTv);
+
+        final TextView curSubTv = new TextView(c);
+        Ui.textSize(curSubTv, 10f);
+        curSubTv.setTypeface(Ui.font(c, "regular"));
+        curSubTv.setTextColor(0xD9FFFFFF);
+        curSubTv.setSingleLine(true);
+        curSubTv.setEllipsize(TextUtils.TruncateAt.END);
+        leftTexts.addView(curSubTv);
+
+        leftBox.addView(leftTexts, ltlp);
+        bar.addView(leftBox, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        // Vertical divider
+        final View div = new View(c);
+        div.setBackgroundColor(0x2EFFFFFF);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(Math.max(1, dp(unit, 1)), dp(unit, 36));
+        dlp.leftMargin = dp(unit, 10);
+        dlp.rightMargin = dp(unit, 10);
+        bar.addView(div, dlp);
+
+        // Right half: Tomorrow's weather
+        LinearLayout rightBox = new LinearLayout(c);
+        rightBox.setOrientation(LinearLayout.HORIZONTAL);
+        rightBox.setGravity(Gravity.CENTER_VERTICAL);
+
+        final Weather.WeatherIconView tomIcon = new Weather.WeatherIconView(c);
+        rightBox.addView(tomIcon, new LinearLayout.LayoutParams(dp(unit, 28), dp(unit, 28)));
+
+        LinearLayout rightTexts = new LinearLayout(c);
+        rightTexts.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams rtlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        rtlp.leftMargin = dp(unit, 8);
+
+        final TextView tomTitleTv = new TextView(c);
+        Ui.textSize(tomTitleTv, 11.5f);
+        tomTitleTv.setTypeface(Ui.font(c, "semibold"));
+        tomTitleTv.setTextColor(Color.WHITE);
+        tomTitleTv.setSingleLine(true);
+        tomTitleTv.setEllipsize(TextUtils.TruncateAt.END);
+        rightTexts.addView(tomTitleTv);
+
+        final TextView tomSubTv = new TextView(c);
+        Ui.textSize(tomSubTv, 10f);
+        tomSubTv.setTypeface(Ui.font(c, "regular"));
+        tomSubTv.setTextColor(0xD9FFFFFF);
+        tomSubTv.setSingleLine(true);
+        tomSubTv.setEllipsize(TextUtils.TruncateAt.END);
+        rightTexts.addView(tomSubTv);
+
+        rightBox.addView(rightTexts, rtlp);
+        bar.addView(rightBox, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        final Runnable bindWeatherData = () -> {
+            Weather.Data d = Weather.cached(c);
+            if (d == null) {
+                curIcon.setType(Weather.ICON_PARTLY);
+                curTitleTv.setText("--°");
+                curSubTv.setText(I18n.t(c, "weather_updating"));
+                tomIcon.setType(Weather.ICON_PARTLY);
+                tomTitleTv.setText(I18n.t(c, "tomorrow_short"));
+                tomSubTv.setText("--° / --°");
+                return;
+            }
+            curIcon.setType(Weather.iconType(d.code));
+            String citySuffix = (d.place != null && !d.place.isEmpty()) ? (" · " + d.place) : "";
+            curTitleTv.setText(Weather.formatTemp(c, d.temp) + citySuffix);
+            curSubTv.setText(Weather.codeText(c, d.code));
+
+            if (d.days != null && d.days.size() > 1 && d.days.get(1) != null) {
+                Weather.Day tm = d.days.get(1);
+                tomIcon.setType(Weather.iconType(tm.code));
+                tomTitleTv.setText(I18n.t(c, "tomorrow_short") + "  "
+                        + Weather.formatTemp(c, tm.max) + "/" + Weather.formatTemp(c, tm.min));
+                tomSubTv.setText(Weather.codeText(c, tm.code));
+            } else {
+                tomIcon.setType(Weather.iconType(d.code));
+                tomTitleTv.setText(I18n.t(c, "tomorrow_short"));
+                tomSubTv.setText(Weather.codeText(c, d.code));
+            }
+        };
+        bindWeatherData.run();
+        if (Weather.cached(c) == null) {
+            Weather.refresh(c, false, () -> MAIN.post(bindWeatherData));
+        }
+
+        final GradientDrawable whiteFocus = new GradientDrawable();
+        whiteFocus.setCornerRadius(radius);
+        whiteFocus.setColor(0xF7FFFFFF);
+
+        bar.setOnFocusChangeListener((v, has) -> {
+            bar.setBackground(has ? whiteFocus : idleBg);
+            curTitleTv.setTextColor(has ? 0xFF111114 : Color.WHITE);
+            curSubTv.setTextColor(has ? 0xB3111114 : 0xD9FFFFFF);
+            tomTitleTv.setTextColor(has ? 0xFF111114 : Color.WHITE);
+            tomSubTv.setTextColor(has ? 0xB3111114 : 0xD9FFFFFF);
+            div.setBackgroundColor(has ? 0x26111114 : 0x2EFFFFFF);
+            v.animate().scaleX(has ? 1.035f : 1f).scaleY(has ? 1.035f : 1f)
+                    .setDuration(180).setInterpolator(MainActivity.LIFT).start();
+        });
+
+        bar.setOnClickListener(v -> {
+            dismissAll(c);
+            openFiveDayWeather(c);
+        });
+
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w, h);
+        lp.leftMargin = x;
+        lp.topMargin = y;
+        panel.addView(bar, lp);
+        return bar;
+    }
+
+    private static WindowManager weatherOverlayWm;
+    private static FrameLayout weatherOverlayRoot;
+
+    public static void dismissWeatherOverlay() {
+        if (weatherOverlayRoot != null && weatherOverlayWm != null) {
+            FrameLayout r = weatherOverlayRoot;
+            WindowManager wm = weatherOverlayWm;
+            weatherOverlayRoot = null;
+            weatherOverlayWm = null;
+            try {
+                wm.removeViewImmediate(r);
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public static void openFiveDayWeather(Context c) {
+        if (MainActivity.activeInstance != null && MainActivity.activeInstance.resumed) {
+            MainActivity.activeInstance.runOnUiThread(() -> MainActivity.activeInstance.showWeather());
+            return;
+        }
+        if (showWeatherOverlay(c)) {
+            return;
+        }
+        Intent i = new Intent(c, MainActivity.class)
+                .putExtra("panel", "weather")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        try {
+            c.startActivity(i);
+        } catch (Exception ignored) {}
+    }
+
+    public static boolean showWeatherOverlay(final Context c) {
+        dismiss();
+        dismissWeatherOverlay();
+        final Context hostCtx = PowerService.instance != null ? PowerService.instance
+                : (c instanceof android.app.Activity ? c : null);
+        if (hostCtx == null) return false;
+        final WindowManager wm = (WindowManager) hostCtx.getSystemService(Context.WINDOW_SERVICE);
+        if (wm == null) return false;
+        Point screen = Ui.screen(hostCtx);
+        final int screenW = screen.x, screenH = screen.y;
+        final float u = Ui.unit(hostCtx);
+
+        FrameLayout layer = new FrameLayout(hostCtx) {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent ev) {
+                MainActivity.navSound(hostCtx, ev);
+                int k = ev.getKeyCode();
+                if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_ESCAPE
+                        || k == KeyEvent.KEYCODE_DPAD_CENTER || k == KeyEvent.KEYCODE_ENTER) {
+                    if (ev.getAction() == KeyEvent.ACTION_UP) dismissWeatherOverlay();
+                    return true;
+                }
+                return super.dispatchKeyEvent(ev);
+            }
+        };
+        layer.setClickable(true);
+        layer.setClipChildren(false);
+        layer.setOnClickListener(v -> dismissWeatherOverlay());
+
+        View shade = new View(hostCtx);
+        shade.setBackground(new GradientDrawable(
+                GradientDrawable.Orientation.RIGHT_LEFT,
+                new int[]{0xA6000000, 0x4D000000, 0x00000000}));
+        layer.addView(shade, new FrameLayout.LayoutParams(
+                screenW * 3 / 5, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.END));
+
+        final WeatherView panel = new WeatherView(hostCtx, true, u);
+        GradientDrawable glass = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                isBlurryBgMode(hostCtx)
+                        ? new int[]{0xEA222634, 0xDE161924}
+                        : new int[]{0x9412141E, 0x800E1018});
+        glass.setCornerRadius(dp(u, 26));
+        glass.setStroke(Math.max(1, dp(u, 1)), 0x38FFFFFF);
+        panel.setBackground(glass);
+        panel.setFocusable(true);
+        Weather.Data cached = Weather.cached(hostCtx);
+        if (cached != null) panel.setData(cached);
+
+        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(
+                dp(u, WeatherView.FULL_W), dp(u, WeatherView.FULL_H), Gravity.TOP | Gravity.END);
+        plp.topMargin = dp(u, 24);
+        plp.rightMargin = dp(u, 62);
+        layer.addView(panel, plp);
+
+        int winType = (hostCtx instanceof PowerService)
+                ? WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+                : WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
+        int flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+        if (isBlurryBgMode(hostCtx) && android.os.Build.VERSION.SDK_INT >= 31) {
+            flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+        }
+        WindowManager.LayoutParams wlp = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                winType,
+                flags,
+                PixelFormat.TRANSLUCENT);
+        if (isBlurryBgMode(hostCtx) && android.os.Build.VERSION.SDK_INT >= 31) {
+            try { wlp.setBlurBehindRadius(dp(u, 36)); } catch (Throwable ignored) {}
+        }
+        try {
+            wm.addView(layer, wlp);
+            weatherOverlayWm = wm;
+            weatherOverlayRoot = layer;
+            layer.setAlpha(0f);
+            panel.setTranslationY(-dp(u, 10));
+            layer.animate().alpha(1f).setDuration(200).start();
+            panel.animate().translationY(0).setDuration(260).setInterpolator(MainActivity.EASE).start();
+            panel.requestFocus();
+            Weather.refresh(hostCtx, false, () -> MAIN.post(() -> {
+                Weather.Data nd = Weather.cached(hostCtx);
+                if (nd != null && panel.isAttachedToWindow()) panel.setData(nd);
+            }));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static View makeTile(
@@ -432,19 +872,8 @@ public final class ControlPanelOverlay {
         boolean iconOnly = title == null;
         float radius = iconOnly ? dp(unit, 16) : h / 2f;
 
-        final android.graphics.drawable.Drawable idleBg;
-        if (glassSource != null) {
-            MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
-                    radius, 0x24FFFFFF, glassSource, screenW, screenH, unit).adaptive().darker(0x59);
-            glass.lens = dp(unit, 7);
-            idleBg = glass;
-        } else {
-            GradientDrawable darkGlass = new GradientDrawable();
-            darkGlass.setCornerRadius(radius);
-            darkGlass.setColor(0xD81E1E26);
-            darkGlass.setStroke(Math.max(1, dp(unit, 1)), 0x33FFFFFF);
-            idleBg = darkGlass;
-        }
+        final android.graphics.drawable.Drawable idleBg =
+                createControlTileBg(c, radius, unit, glassSource, screenW, screenH);
 
         LinearLayout t = new LinearLayout(c);
         t.setOrientation(LinearLayout.HORIZONTAL);
@@ -769,6 +1198,37 @@ public final class ControlPanelOverlay {
     public static final String AMBIENT_MODE_LOCK_SCREEN = "lock_screen";
     public static final String AMBIENT_MODE_CUSTOM = "custom";
 
+    public static final String BG_MODE_BLURRY = "blur";
+    public static final String BG_MODE_TRANSPARENT = "transparent";
+
+    public static String getBgMode(Context c) {
+        if (c == null) return BG_MODE_BLURRY;
+        String m = cpPrefs(c).getString("cp_bg_mode", BG_MODE_BLURRY);
+        return BG_MODE_TRANSPARENT.equals(m) ? BG_MODE_TRANSPARENT : BG_MODE_BLURRY;
+    }
+
+    public static void setBgMode(Context c, String mode) {
+        if (c == null) return;
+        cpPrefs(c).edit().putString("cp_bg_mode",
+                BG_MODE_TRANSPARENT.equals(mode) ? BG_MODE_TRANSPARENT : BG_MODE_BLURRY).apply();
+    }
+
+    public static String cycleBgMode(Context c) {
+        String next = isBlurryBgMode(c) ? BG_MODE_TRANSPARENT : BG_MODE_BLURRY;
+        setBgMode(c, next);
+        return next;
+    }
+
+    public static boolean isBlurryBgMode(Context c) {
+        return BG_MODE_BLURRY.equals(getBgMode(c));
+    }
+
+    public static String getBgModeLabel(Context c) {
+        return isBlurryBgMode(c)
+                ? I18n.t(c, "cp_bg_blurry")
+                : I18n.t(c, "cp_bg_transparent");
+    }
+
     public static final String ITEM_WIFI = "wifi";
     public static final String ITEM_BLUETOOTH = "bluetooth";
     public static final String ITEM_MEMORY = "memory";
@@ -781,6 +1241,7 @@ public final class ControlPanelOverlay {
     public static final String ITEM_MAPPER = "mapper";
     public static final String ITEM_SETTINGS = "settings";
     public static final String ITEM_SEARCH = "search";
+    public static final String ITEM_WEATHER_PANEL = "weather_panel";
 
     public static final String[][] ALL_CP_ITEMS = {
         {ITEM_WIFI, "Wi-Fi", "Wi-Fi"},
@@ -794,7 +1255,8 @@ public final class ControlPanelOverlay {
         {ITEM_INPUTS, "TV Inputs Shortcut", "TV Girişleri Kısayolu"},
         {ITEM_MAPPER, "Button Mapper Shortcut", "Tuş Atayıcı Kısayolu"},
         {ITEM_SETTINGS, "Settings Shortcut", "Ayarlar Kısayolu"},
-        {ITEM_SEARCH, "Search / Assistant Shortcut", "Arama / Asistan Kısayolu"}
+        {ITEM_SEARCH, "Search / Assistant Shortcut", "Arama / Asistan Kısayolu"},
+        {ITEM_WEATHER_PANEL, "Weather Panel (Current & Tomorrow)", "Hava Durumu Paneli (Şimdi ve Yarın)"}
     };
 
     public static android.content.SharedPreferences cpPrefs(Context c) {
@@ -954,6 +1416,482 @@ public final class ControlPanelOverlay {
     public static void openInputs(Context c, Runnable defaultFallback) {
         if (launchCustomAction(c, ACTION_INPUTS)) return;
         if (defaultFallback != null) defaultFallback.run();
+    }
+
+    // ---------------------------------------------------------------- Settings Gear Popup Overlay (Feature 8 & 10)
+
+    public static void showSettingsGearPopupOverlay(Context c) {
+        if (MainActivity.activeInstance != null && MainActivity.activeInstance.resumed) {
+            MainActivity.activeInstance.runOnUiThread(() -> MainActivity.activeInstance.showSettingsSheet());
+            return;
+        }
+        PowerService svc = PowerService.instance;
+        if (svc == null) {
+            startExternal(c, new Intent(c, SettingsActivity.class));
+            return;
+        }
+        WindowManager wm = (WindowManager) svc.getSystemService(Context.WINDOW_SERVICE);
+        if (wm == null) {
+            startExternal(c, new Intent(c, SettingsActivity.class));
+            return;
+        }
+        final float u = Ui.unit(svc);
+        final FrameLayout[] rootRef = new FrameLayout[1];
+        final List<View> rows = new ArrayList<>();
+        final Runnable closeSheet = () -> {
+            if (rootRef[0] != null) {
+                try { wm.removeViewImmediate(rootRef[0]); } catch (Exception ignored) {}
+                rootRef[0] = null;
+            }
+        };
+
+        FrameLayout backdrop = new FrameLayout(svc) {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent ev) {
+                MainActivity.navSound(svc, ev);
+                if (ev.getKeyCode() == KeyEvent.KEYCODE_BACK || ev.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
+                    if (ev.getAction() == KeyEvent.ACTION_UP) closeSheet.run();
+                    return true;
+                }
+                return super.dispatchKeyEvent(ev);
+            }
+        };
+        backdrop.setBackgroundColor(isBlurryBgMode(svc) ? 0x66000000 : 0x33000000);
+        backdrop.setClickable(true);
+        backdrop.setOnClickListener(v -> closeSheet.run());
+        rootRef[0] = backdrop;
+
+        LinearLayout card = new LinearLayout(svc);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setClipChildren(true);
+        card.setClipToPadding(true);
+        int pad = dp(u, 8);
+        card.setPadding(pad, pad, pad, pad);
+        GradientDrawable sbg = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                isBlurryBgMode(svc)
+                        ? new int[]{0xED242028, 0xE61A171E}
+                        : new int[]{0xC81C181E, 0xB816141A});
+        sbg.setCornerRadius(dp(u, 18));
+        sbg.setStroke(Math.max(1, dp(u, 1)), 0x38FFFFFF);
+        card.setBackground(sbg);
+
+        View btnHomeSettings = makeOverlayGearOptionRow(
+                svc,
+                u,
+                "sliders",
+                I18n.s(svc, "Home settings", "Ana ekran ayarları"),
+                I18n.s(svc, "Language, weather, scenes, apps and people",
+                        "Dil, hava durumu, sahneler, uygulamalar ve kişiler"),
+                () -> {
+                    closeSheet.run();
+                    startExternal(svc, new Intent(svc, SettingsActivity.class));
+                });
+        card.addView(btnHomeSettings);
+        rows.add(btnHomeSettings);
+
+        View btnTvSettings = makeOverlayGearOptionRow(
+                svc,
+                u,
+                "gear",
+                I18n.s(svc, "TV settings", "TV ayarları"),
+                I18n.s(svc, "Wi-Fi, picture, sound and the rest of the TV",
+                        "Wi-Fi, görüntü, ses ve diğer TV ayarları"),
+                () -> {
+                    closeSheet.run();
+                    startExternal(svc, new Intent(Settings.ACTION_SETTINGS));
+                });
+        LinearLayout.LayoutParams tvlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        tvlp.topMargin = dp(u, 2);
+        card.addView(btnTvSettings, tvlp);
+        rows.add(btnTvSettings);
+
+        if (CustomMedia.isRedditWallpaperActiveOnCurrentLook(svc)) {
+            View btnNextWall = makeOverlayGearOptionRow(
+                    svc,
+                    u,
+                    "refresh",
+                    I18n.s(svc, "Next wallpaper", "Sonraki duvar kağıdı"),
+                    I18n.s(svc, "Skip to the next Reddit wallpaper", "Sonraki Reddit duvar kağıdına geç"),
+                    () -> {
+                        closeSheet.run();
+                        Toast.makeText(svc,
+                                I18n.s(svc, "Loading next Reddit wallpaper…", "Sonraki Reddit duvar kağıdı yükleniyor…"),
+                                Toast.LENGTH_SHORT).show();
+                        CustomMedia.skipToNextRedditWallpaperOnCurrentLook(svc, null);
+                    });
+            LinearLayout.LayoutParams nwlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            nwlp.topMargin = dp(u, 2);
+            card.addView(btnNextWall, nwlp);
+            rows.add(btnNextWall);
+        }
+
+        for (int i = 0; i < rows.size(); i++) {
+            final int idx = i;
+            View r = rows.get(i);
+            r.setOnKeyListener((v, kc, ev) -> {
+                if (ev.getAction() != KeyEvent.ACTION_DOWN) return false;
+                if (kc == KeyEvent.KEYCODE_DPAD_UP) {
+                    rows.get((idx - 1 + rows.size()) % rows.size()).requestFocus();
+                    return true;
+                }
+                if (kc == KeyEvent.KEYCODE_DPAD_DOWN) {
+                    rows.get((idx + 1) % rows.size()).requestFocus();
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
+                dp(u, 330), ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        backdrop.addView(card, slp);
+
+        int flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+        if (isBlurryBgMode(svc) && android.os.Build.VERSION.SDK_INT >= 31) {
+            flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+        }
+        WindowManager.LayoutParams wlp = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                flags,
+                PixelFormat.TRANSLUCENT);
+        if (isBlurryBgMode(svc) && android.os.Build.VERSION.SDK_INT >= 31) {
+            try { wlp.setBlurBehindRadius(dp(u, 32)); } catch (Throwable ignored) {}
+        }
+        wm.addView(backdrop, wlp);
+        backdrop.setAlpha(0f);
+        card.setScaleX(0.94f);
+        card.setScaleY(0.94f);
+        backdrop.animate().alpha(1f).setDuration(180).start();
+        card.animate().scaleX(1f).scaleY(1f).setDuration(220).setInterpolator(MainActivity.LIFT).start();
+        btnHomeSettings.requestFocus();
+    }
+
+    private static View makeOverlayGearOptionRow(
+            Context c, float u, String glyphName, String title, String sub, Runnable onClick) {
+        LinearLayout row = new LinearLayout(c);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(u, 7), dp(u, 7), dp(u, 14), dp(u, 7));
+        row.setFocusable(true);
+        row.setClickable(true);
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(u, 12));
+        bg.setColor(Color.TRANSPARENT);
+        row.setBackground(bg);
+
+        FrameLayout iconBox = new FrameLayout(c);
+        int iconBoxSz = dp(u, 28);
+        final float iconRad = iconBoxSz * 0.26f;
+        GradientDrawable ibg = new GradientDrawable();
+        ibg.setCornerRadius(iconRad);
+        ibg.setColor(0x1FFFFFFF);
+        iconBox.setBackground(ibg);
+        ImageView iconIv = new ImageView(c);
+        iconIv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iconIv.setImageBitmap(Glyphs.get(glyphName, dp(u, 16), 0xEBF4F4F6));
+        iconBox.addView(iconIv, new FrameLayout.LayoutParams(dp(u, 16), dp(u, 16), Gravity.CENTER));
+        LinearLayout.LayoutParams iblp = new LinearLayout.LayoutParams(iconBoxSz, iconBoxSz);
+        iblp.rightMargin = dp(u, 10);
+        row.addView(iconBox, iblp);
+
+        LinearLayout texts = new LinearLayout(c);
+        texts.setOrientation(LinearLayout.VERTICAL);
+
+        TextView t = new TextView(c);
+        Ui.textSize(t, 13.5f);
+        t.setTypeface(Ui.font(c, "semibold"));
+        t.setTextColor(0xEBF4F4F6);
+        t.setText(title);
+        texts.addView(t);
+
+        TextView s = new TextView(c);
+        Ui.textSize(s, 9.5f);
+        s.setTypeface(Ui.font(c, "regular"));
+        s.setTextColor(0x9EF4F4F6);
+        s.setText(sub);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        slp.topMargin = dp(u, 1);
+        texts.addView(s, slp);
+
+        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        row.setOnFocusChangeListener((v, has) -> {
+            bg.setColor(has ? Color.WHITE : Color.TRANSPARENT);
+            ibg.setColor(has ? 0x12000000 : 0x1FFFFFFF);
+            iconIv.setImageBitmap(Glyphs.get(glyphName, dp(u, 16), has ? 0xFF111114 : 0xEBF4F4F6));
+            t.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+            s.setTextColor(has ? 0x99000000 : 0x9EF4F4F6);
+        });
+        row.setOnClickListener(v -> onClick.run());
+        return row;
+    }
+
+    // ---------------------------------------------------------------- System-Wide Input Panel Overlay (Feature 1 & 10)
+
+    private static WindowManager inputsOverlayWm;
+    private static FrameLayout inputsOverlayRoot;
+    private static List<View> inputsOverlayCells = new ArrayList<>();
+
+    public static boolean isInputsOverlayShowing() {
+        return inputsOverlayRoot != null;
+    }
+
+    public static void toggleInputsOverlay(Context c) {
+        if (isInputsOverlayShowing()) {
+            dismissInputsOverlay();
+            return;
+        }
+        showInputsOverlay(c);
+    }
+
+    public static void dismissInputsOverlay() {
+        if (inputsOverlayRoot != null && inputsOverlayWm != null) {
+            FrameLayout r = inputsOverlayRoot;
+            WindowManager wm = inputsOverlayWm;
+            inputsOverlayRoot = null;
+            inputsOverlayWm = null;
+            inputsOverlayCells.clear();
+            try {
+                wm.removeViewImmediate(r);
+            } catch (Exception ignored) {}
+        }
+    }
+
+    private static Inputs.Input makeFallbackInput(String id, String label, int type) {
+        Inputs.Input in = new Inputs.Input();
+        in.id = id;
+        in.label = label;
+        in.type = type;
+        in.passthrough = !"tv_channels".equals(id);
+        in.disconnected = false;
+        return in;
+    }
+
+    public static void showInputsOverlay(final Context c) {
+        dismiss();
+        dismissInputsOverlay();
+        final Context hostCtx = PowerService.instance != null ? PowerService.instance
+                : (MainActivity.activeInstance != null && MainActivity.activeInstance.resumed ? MainActivity.activeInstance : c);
+        if (!(hostCtx instanceof PowerService) && !(hostCtx instanceof android.app.Activity)) {
+            Intent i = new Intent(c, MainActivity.class)
+                    .putExtra("panel", "inputs")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            try {
+                c.startActivity(i);
+            } catch (Exception ignored) {}
+            return;
+        }
+
+        final WindowManager wm = (WindowManager) hostCtx.getSystemService(Context.WINDOW_SERVICE);
+        if (wm == null) return;
+        Point screen = Ui.screen(hostCtx);
+        final int screenW = screen.x, screenH = screen.y;
+        final float u = Ui.unit(hostCtx);
+
+        FrameLayout layer = new FrameLayout(hostCtx) {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent ev) {
+                MainActivity.navSound(hostCtx, ev);
+                int k = ev.getKeyCode();
+                boolean down = ev.getAction() == KeyEvent.ACTION_DOWN;
+                if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_ESCAPE) {
+                    if (!down) dismissInputsOverlay();
+                    return true;
+                }
+                if (k == KeyEvent.KEYCODE_DPAD_UP || k == KeyEvent.KEYCODE_DPAD_DOWN
+                        || k == KeyEvent.KEYCODE_DPAD_LEFT || k == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    if (down) moveFocusInCellList(inputsOverlayCells, k);
+                    return true;
+                }
+                return super.dispatchKeyEvent(ev);
+            }
+        };
+        layer.setClickable(true);
+        layer.setClipChildren(false);
+        layer.setOnClickListener(v -> dismissInputsOverlay());
+
+        View shade = new View(hostCtx);
+        shade.setBackground(new GradientDrawable(
+                GradientDrawable.Orientation.RIGHT_LEFT,
+                new int[]{0x99000000, 0x40000000, 0x00000000}));
+        layer.addView(shade, new FrameLayout.LayoutParams(
+                screenW * 3 / 5, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.END));
+
+        List<Inputs.Input> list = new ArrayList<>(Inputs.list(hostCtx));
+        if (list.isEmpty()) {
+            // Direct hardware/passthrough fallbacks so inputs work with the exact same UI even when Google TV Launcher is disabled
+            list.add(makeFallbackInput("com.droidlogic.tvinput/.services.Hdmi1InputService/HW5", "HDMI 1", android.media.tv.TvInputInfo.TYPE_HDMI));
+            list.add(makeFallbackInput("com.droidlogic.tvinput/.services.Hdmi2InputService/HW6", "HDMI 2", android.media.tv.TvInputInfo.TYPE_HDMI));
+            list.add(makeFallbackInput("com.droidlogic.tvinput/.services.Hdmi3InputService/HW7", "HDMI 3", android.media.tv.TvInputInfo.TYPE_HDMI));
+            list.add(makeFallbackInput("com.droidlogic.tvinput/.services.Hdmi4InputService/HW8", "HDMI 4", android.media.tv.TvInputInfo.TYPE_HDMI));
+            list.add(makeFallbackInput("tv_channels", I18n.s(hostCtx, "Channels", "Kanallar"), android.media.tv.TvInputInfo.TYPE_TUNER));
+            list.add(makeFallbackInput("com.droidlogic.tvinput/.services.Av1InputService/HW1", "AV", android.media.tv.TvInputInfo.TYPE_COMPOSITE));
+        }
+
+        int col = dp(u, 141);
+        int gap = dp(u, 13);
+        int cap = (col - gap) / 2;
+        int top = dp(u, 26);
+
+        FrameLayout panel = new FrameLayout(hostCtx);
+        panel.setClipChildren(false);
+
+        TextView title = new TextView(hostCtx);
+        Ui.textSize(title, 13f);
+        title.setTypeface(Ui.font(hostCtx, "semibold"));
+        title.setTextColor(0xBFFFFFFF);
+        title.setShadowLayer(dp(u, 8), 0, dp(u, 2), 0xB3000000);
+        title.setText(I18n.s(hostCtx, "Inputs", "Girişler"));
+        panel.addView(title, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(u, 20)));
+
+        MainActivity.LiquidGlass.Backdrop glassSrc = (isBlurryBgMode(hostCtx)
+                && MainActivity.activeInstance != null
+                && MainActivity.activeInstance.resumed)
+                ? MainActivity.activeInstance.glassSource
+                : null;
+
+        final List<View> cells = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            final Inputs.Input in = list.get(i);
+            int x = (i % 2) * (col + gap);
+            int y = top + (i / 2) * (cap + gap);
+            Status st = in.disconnected ? () -> I18n.s(hostCtx, "Not connected", "Bağlı değil") : null;
+            View tile = makeTile(
+                    hostCtx, panel, x, y, col, cap, u, screenW, screenH, glassSrc,
+                    Inputs.glyph(in), in.label, st, v -> {
+                        dismissInputsOverlay();
+                        if (!Inputs.open(hostCtx, in)) {
+                            switchInputFallback(hostCtx, in.id, in.label);
+                        }
+                    });
+            cells.add(tile);
+        }
+
+        int rowsCount = (list.size() + 1) / 2;
+        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(
+                2 * col + gap,
+                top + rowsCount * cap + Math.max(0, rowsCount - 1) * gap,
+                Gravity.TOP | Gravity.END);
+        plp.topMargin = dp(u, 72);
+        plp.rightMargin = dp(u, 62);
+        layer.addView(panel, plp);
+
+        int winType = (hostCtx instanceof PowerService)
+                ? WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+                : WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
+        int flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+        if (isBlurryBgMode(hostCtx) && android.os.Build.VERSION.SDK_INT >= 31) {
+            flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+        }
+        WindowManager.LayoutParams wlp = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                winType,
+                flags,
+                PixelFormat.TRANSLUCENT);
+        if (isBlurryBgMode(hostCtx) && android.os.Build.VERSION.SDK_INT >= 31) {
+            try { wlp.setBlurBehindRadius(dp(u, 28)); } catch (Throwable ignored) {}
+        }
+        try {
+            wm.addView(layer, wlp);
+            inputsOverlayWm = wm;
+            inputsOverlayRoot = layer;
+            inputsOverlayCells = cells;
+            layer.setAlpha(0f);
+            panel.setTranslationY(-dp(u, 10));
+            layer.animate().alpha(1f).setDuration(200).start();
+            panel.animate().translationY(0).setDuration(260).setInterpolator(MainActivity.EASE).start();
+            if (!cells.isEmpty()) cells.get(0).requestFocus();
+        } catch (Exception ignored) {}
+    }
+
+    private static void moveFocusInCellList(List<View> cellList, int keyCode) {
+        if (cellList == null || cellList.isEmpty()) return;
+        View cur = null;
+        for (View v : cellList) {
+            if (v.isFocused()) {
+                cur = v;
+                break;
+            }
+        }
+        if (cur == null) {
+            cellList.get(0).requestFocus();
+            return;
+        }
+        int[] a = new int[2];
+        cur.getLocationOnScreen(a);
+        float ax = a[0] + cur.getWidth() / 2f, ay = a[1] + cur.getHeight() / 2f;
+        View best = null;
+        float bestScore = Float.MAX_VALUE;
+        for (View v : cellList) {
+            if (v == cur) continue;
+            int[] b = new int[2];
+            v.getLocationOnScreen(b);
+            float dx = b[0] + v.getWidth() / 2f - ax, dy = b[1] + v.getHeight() / 2f - ay;
+            float main, cross;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT: main = -dx; cross = dy; break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT: main = dx; cross = dy; break;
+                case KeyEvent.KEYCODE_DPAD_UP: main = -dy; cross = dx; break;
+                default: main = dy; cross = dx; break;
+            }
+            if (main <= 8) continue;
+            float score = main + Math.abs(cross) * 2.2f;
+            if (score < bestScore) {
+                bestScore = score;
+                best = v;
+            }
+        }
+        if (best != null) best.requestFocus();
+    }
+
+    private static void switchInputFallback(Context c, String inputId, String label) {
+        if (inputId != null && !inputId.isEmpty() && !"tv_channels".equals(inputId)) {
+            try {
+                android.net.Uri uri = android.media.tv.TvContract.buildChannelUriForPassthroughInput(inputId);
+                if (startExternal(c, new Intent(Intent.ACTION_VIEW, uri))) return;
+            } catch (Throwable ignored) {}
+        }
+        Intent tvView = new Intent(Intent.ACTION_VIEW, android.media.tv.TvContract.Channels.CONTENT_URI);
+        Intent setupInputs = new Intent("android.media.tv.action.SETUP_INPUTS");
+        Intent oemInputs = new Intent("com.android.tv.action.VIEW_INPUT");
+        Intent castSettings = new Intent(Settings.ACTION_CAST_SETTINGS);
+        if (!startExternal(c, oemInputs, setupInputs, tvView, castSettings)) {
+            ButtonMapper.sendKeyCode(c, KeyEvent.KEYCODE_TV_INPUT);
+        }
+    }
+
+    private static View buildOverlayPopupRow(Context c, float u, String label, Runnable onClick) {
+        TextView tv = new TextView(c);
+        tv.setText(label);
+        tv.setTextColor(0xEBF4F4F6);
+        tv.setTypeface(Ui.font(c, "medium"));
+        Ui.textSize(tv, 13.5f);
+        tv.setPadding(dp(u, 14), dp(u, 11), dp(u, 14), dp(u, 11));
+        tv.setFocusable(true);
+        tv.setClickable(true);
+        GradientDrawable rbg = new GradientDrawable();
+        rbg.setCornerRadius(dp(u, 11));
+        rbg.setColor(0x00FFFFFF);
+        tv.setBackground(rbg);
+        tv.setOnFocusChangeListener((v, has) -> {
+            rbg.setColor(has ? 0xFFF4F4F6 : 0x00FFFFFF);
+            tv.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
+        });
+        tv.setOnClickListener(v -> onClick.run());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(u, 4);
+        tv.setLayoutParams(lp);
+        return tv;
     }
 
     /** Returns true if any dedicated Ambient Mode / Backdrop / Dream app is installed on this TV. */
