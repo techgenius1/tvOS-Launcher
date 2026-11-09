@@ -48,6 +48,8 @@ public class PowerService extends AccessibilityService {
     private volatile int lastDownDir = 0;
     private volatile long lastPulseDuration = 999L;
     private volatile long lastStepTime = 0L;
+    private volatile long mode3LastReleaseMs = 0L;
+    private volatile android.os.IBinder cachedInputBinder = null;
     private volatile boolean volWatchActive = false;
     private volatile boolean volLongPressRegistered = false;
     private Object volLongPressProxy;
@@ -57,6 +59,74 @@ public class PowerService extends AccessibilityService {
     private volatile long serviceConnectedElapsedMs = 0L;
     private static final long VOL_REPEAT_INITIAL_MS = 280L;
     private static final long VOL_REPEAT_INTERVAL_MS = 85L;
+
+    // Caffeine Mode (denies Android TV idle / sleep / automatic ambient mode)
+    private static android.os.PowerManager.WakeLock caffeineWakeLock;
+    private static final Runnable caffeineHeartbeat = new Runnable() {
+        @Override
+        public void run() {
+            Context ctx = instance != null ? instance : MainActivity.activeInstance;
+            if (ctx != null && isCaffeineEnabled(ctx)) {
+                ensureCaffeineWakeLock(ctx, true);
+                handler.postDelayed(this, 45_000L);
+            }
+        }
+    };
+
+    public static boolean isCaffeineEnabled(Context c) {
+        if (c == null) return false;
+        return c.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                .getBoolean("caffeine_mode", false);
+    }
+
+    public static void setCaffeineEnabled(Context c, boolean enabled) {
+        if (c == null) return;
+        c.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                .edit().putBoolean("caffeine_mode", enabled).apply();
+        syncCaffeine(c);
+    }
+
+    public static void syncCaffeine(Context c) {
+        if (c == null) return;
+        boolean en = isCaffeineEnabled(c);
+        ensureCaffeineWakeLock(c.getApplicationContext(), en);
+        handler.removeCallbacks(caffeineHeartbeat);
+        if (en) {
+            handler.postDelayed(caffeineHeartbeat, 45_000L);
+        }
+        if (MainActivity.activeInstance != null) {
+            MainActivity.activeInstance.runOnUiThread(() -> {
+                if (MainActivity.activeInstance != null) {
+                    MainActivity.activeInstance.syncCaffeineWindowFlag();
+                }
+            });
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static synchronized void ensureCaffeineWakeLock(Context appCtx, boolean acquire) {
+        try {
+            if (acquire) {
+                if (caffeineWakeLock == null) {
+                    android.os.PowerManager pm = (android.os.PowerManager) appCtx.getSystemService(Context.POWER_SERVICE);
+                    if (pm != null) {
+                        caffeineWakeLock = pm.newWakeLock(
+                                android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+                                        | android.os.PowerManager.ON_AFTER_RELEASE,
+                                "tvoslauncher:CaffeineWakeLock");
+                        caffeineWakeLock.setReferenceCounted(false);
+                    }
+                }
+                if (caffeineWakeLock != null && !caffeineWakeLock.isHeld()) {
+                    caffeineWakeLock.acquire();
+                }
+            } else {
+                if (caffeineWakeLock != null && caffeineWakeLock.isHeld()) {
+                    caffeineWakeLock.release();
+                }
+            }
+        } catch (Throwable ignored) {}
+    }
 
     private void stepVolume(int dir) {
         if (dir == 0) return;
@@ -103,11 +173,25 @@ public class PowerService extends AccessibilityService {
         public void run() {
             int d = volDir;
             if (d == 0) return;
+            int mode = ButtonMapper.getVolumeHoldFixMode(PowerService.this);
+            if (mode == ButtonMapper.VOLUME_FIX_MODE_3) {
+                if (SystemClock.uptimeMillis() - mode3LastReleaseMs < 240L) {
+                    volDir = 0;
+                    return;
+                }
+                android.os.IBinder ib = cachedInputBinder;
+                if (ib != null && checkHardwareKeyDownState(ib) == 0) {
+                    volDir = 0;
+                    mode3LastReleaseMs = SystemClock.uptimeMillis();
+                    return;
+                }
+            }
             long activeRef = Math.max(volDownTime, lastKeyActiveTime);
             if (SystemClock.uptimeMillis() - activeRef > 4500L) {
                 volDir = 0;
                 return;
             }
+            if (volDir != d) return;
             stepVolume(d);
             if (volDir == d) {
                 handler.postDelayed(this, VOL_REPEAT_INTERVAL_MS);
@@ -122,6 +206,31 @@ public class PowerService extends AccessibilityService {
             return;
         }
         int mode = ButtonMapper.getVolumeHoldFixMode(this);
+        if (mode == ButtonMapper.VOLUME_FIX_MODE_3) {
+            // Mode 3 (Onn TV Box): Zero-overshoot release speed for both ADB and Secure modes
+            if (isRepeat) {
+                return;
+            }
+            if (!down) {
+                volDir = 0;
+                mode3LastReleaseMs = SystemClock.uptimeMillis();
+                handler.removeCallbacks(volRepeatRunnable);
+                return;
+            }
+            long now = SystemClock.uptimeMillis();
+            if (now - mode3LastReleaseMs < 180L) {
+                return;
+            }
+            if (volDir == dir) {
+                return;
+            }
+            handler.removeCallbacks(volRepeatRunnable);
+            volDir = dir;
+            volDownTime = now;
+            lastKeyActiveTime = now;
+            handler.postDelayed(volRepeatRunnable, 270L);
+            return;
+        }
         if (mode == ButtonMapper.VOLUME_FIX_MODE_1) {
             // Mode 1 (Standard - Default): Original v2.0.5 timing & behavior (320ms initial delay, no pulse-burst/repeat injection)
             if (isRepeat) {
@@ -208,6 +317,7 @@ public class PowerService extends AccessibilityService {
         } catch (Throwable ignored) {
         }
         syncVolumeHoldFix();
+        syncCaffeine(this);
         LocalAdb.ensureKeepAliveWatchdog(this);
         MediaWatchService.ensureSessionTracking(this);
 
@@ -369,7 +479,12 @@ public class PowerService extends AccessibilityService {
                 : (code == KeyEvent.KEYCODE_VOLUME_DOWN ? -1 : 0);
         if (dir == 0) return;
         int action = event.getAction();
+        int mode = ButtonMapper.getVolumeHoldFixMode(this);
         if (action == KeyEvent.ACTION_DOWN) {
+            if (mode == ButtonMapper.VOLUME_FIX_MODE_3
+                    && SystemClock.uptimeMillis() - mode3LastReleaseMs < 180L) {
+                return;
+            }
             volDownTime = SystemClock.uptimeMillis();
             if (volDir != dir) {
                 volDir = dir;
@@ -379,6 +494,9 @@ public class PowerService extends AccessibilityService {
             }
         } else if (action == KeyEvent.ACTION_UP) {
             volDir = 0;
+            if (mode == ButtonMapper.VOLUME_FIX_MODE_3) {
+                mode3LastReleaseMs = SystemClock.uptimeMillis();
+            }
             handler.removeCallbacks(volRepeatRunnable);
         }
     }
@@ -392,11 +510,19 @@ public class PowerService extends AccessibilityService {
         volWatchThread = new Thread(() -> {
             LocalAdb.watchVolumeKeys(
                     appCtx,
-                    (dir, down, isRepeat) -> handler.post(() -> onVolumeKeyState(dir, down, isRepeat)),
+                    (dir, down, isRepeat) -> {
+                        if (!down && ButtonMapper.getVolumeHoldFixMode(appCtx) == ButtonMapper.VOLUME_FIX_MODE_3) {
+                            volDir = 0;
+                            mode3LastReleaseMs = SystemClock.uptimeMillis();
+                            handler.removeCallbacks(volRepeatRunnable);
+                        }
+                        handler.post(() -> onVolumeKeyState(dir, down, isRepeat));
+                    },
                     () -> instance == this && volWatchActive
                             && LocalAdb.getAdbMode(appCtx) == LocalAdb.ADB_MODE_PERSISTENT
                             && ButtonMapper.isVolumeHoldFixEnabled(appCtx)
                             && (ButtonMapper.getVolumeHoldFixMode(appCtx) == ButtonMapper.VOLUME_FIX_MODE_1
+                                || ButtonMapper.getVolumeHoldFixMode(appCtx) == ButtonMapper.VOLUME_FIX_MODE_3
                                 || !LocalAdb.hasDumpPermission(appCtx))
             );
         }, "vol-hold-watch");
@@ -480,6 +606,8 @@ public class PowerService extends AccessibilityService {
      *   for instant, deterministic key-hold and key-release detection.
      * - Mode 2 (HY320 / Projector): Active in both Secure Mode and Persistent ADB Mode, matching
      *   "volume changes" plus IR pulse-burst handling.
+     * - Mode 3 (Onn TV Box): Ultra-fast 10ms InputReader release polling while held + 260ms post-release
+     *   cooldown so releasing the button stops volume steps immediately with 0 extra taps.
      */
     private synchronized void startAudioDumpVolumeWatcher() {
         if (audioDumpWatchActive && audioDumpWatchThread != null && audioDumpWatchThread.isAlive()) {
@@ -501,10 +629,13 @@ public class PowerService extends AccessibilityService {
             while (instance == this && audioDumpWatchActive && ButtonMapper.isVolumeHoldFixEnabled(appCtx)) {
                 try {
                     int mode = ButtonMapper.getVolumeHoldFixMode(appCtx);
-                    // In Mode 1 (Standard), when Persistent ADB Mode is active and getevent stream is connected, let getevent handle it
-                    if (mode == ButtonMapper.VOLUME_FIX_MODE_1 && LocalAdb.volWatchConnected) {
+                    // In Mode 1 or Mode 3, when Persistent ADB Mode is active and getevent stream is connected, let getevent handle it
+                    if ((mode == ButtonMapper.VOLUME_FIX_MODE_1 || mode == ButtonMapper.VOLUME_FIX_MODE_3)
+                            && LocalAdb.volWatchConnected) {
                         if (wmKeyIsDown) {
                             wmKeyIsDown = false;
+                            volDir = 0;
+                            handler.removeCallbacks(volRepeatRunnable);
                             handler.post(() -> onVolumeKeyState(0, false, false));
                         }
                         prevLastWmLine = null;
@@ -516,6 +647,8 @@ public class PowerService extends AccessibilityService {
                     if (!LocalAdb.hasDumpPermission(appCtx) || (pm != null && !pm.isInteractive())) {
                         if (wmKeyIsDown) {
                             wmKeyIsDown = false;
+                            volDir = 0;
+                            handler.removeCallbacks(volRepeatRunnable);
                             handler.post(() -> onVolumeKeyState(0, false, false));
                         }
                         prevLastWmLine = null;
@@ -532,11 +665,32 @@ public class PowerService extends AccessibilityService {
                             }
                             if (inputBinder == null) {
                                 inputBinder = (android.os.IBinder) getService.invoke(null, Context.INPUT_SERVICE);
+                                cachedInputBinder = inputBinder;
                             }
                         } catch (Throwable ignored) {
                         }
                         if (audioBinder == null) {
                             Thread.sleep(2000L);
+                            continue;
+                        }
+                    }
+
+                    // Mode 3 (Onn TV Box) fast release loop: while key is down, skip AudioService dump completely
+                    // and poll InputReader KeyDowns every 10ms so release stops volume steps with 0 overshoot!
+                    if (mode == ButtonMapper.VOLUME_FIX_MODE_3 && (wmKeyIsDown || volDir != 0)) {
+                        int kd = checkHardwareKeyDownState(inputBinder);
+                        if (kd == 0) {
+                            wmKeyIsDown = false;
+                            zeroKeyDownTicks = 0;
+                            volDir = 0;
+                            mode3LastReleaseMs = SystemClock.uptimeMillis();
+                            handler.removeCallbacks(volRepeatRunnable);
+                            handler.post(() -> onVolumeKeyState(0, false, false));
+                            Thread.sleep(25L);
+                            continue;
+                        } else if (kd == 1) {
+                            lastKeyActiveTime = SystemClock.uptimeMillis();
+                            Thread.sleep(10L);
                             continue;
                         }
                     }
@@ -601,7 +755,41 @@ public class PowerService extends AccessibilityService {
                         } else if (lastWmLine.contains("dir:ADJUST_LOWER")) {
                             dir = -1;
                         }
-                        if (mode == ButtonMapper.VOLUME_FIX_MODE_1) {
+                        if (mode == ButtonMapper.VOLUME_FIX_MODE_3) {
+                            // Mode 3 (Onn TV Box): Ignore trailing AudioService lines during 260ms cooldown after release,
+                            // and require live hardware KeyDowns == 1 before starting repeat
+                            if (SystemClock.uptimeMillis() - mode3LastReleaseMs < 260L) {
+                                prevLastWmLine = lastWmLine;
+                            } else if (dir != 0) {
+                                int kd = checkHardwareKeyDownState(inputBinder);
+                                if (kd == 1) {
+                                    wmKeyIsDown = true;
+                                    zeroKeyDownTicks = 0;
+                                    lastKeyActiveTime = SystemClock.uptimeMillis();
+                                    prevLastWmLine = lastWmLine;
+                                    final int d = dir;
+                                    handler.post(() -> onVolumeKeyState(d, true, false));
+                                } else {
+                                    prevLastWmLine = lastWmLine;
+                                    if (wmKeyIsDown || volDir != 0) {
+                                        wmKeyIsDown = false;
+                                        volDir = 0;
+                                        mode3LastReleaseMs = SystemClock.uptimeMillis();
+                                        handler.removeCallbacks(volRepeatRunnable);
+                                        handler.post(() -> onVolumeKeyState(0, false, false));
+                                    }
+                                }
+                            } else {
+                                prevLastWmLine = lastWmLine;
+                                if (wmKeyIsDown || volDir != 0) {
+                                    wmKeyIsDown = false;
+                                    volDir = 0;
+                                    mode3LastReleaseMs = SystemClock.uptimeMillis();
+                                    handler.removeCallbacks(volRepeatRunnable);
+                                    handler.post(() -> onVolumeKeyState(0, false, false));
+                                }
+                            }
+                        } else if (mode == ButtonMapper.VOLUME_FIX_MODE_1) {
                             // Mode 1 (Standard): Use InputReader hardware key-down state to distinguish active hold vs released tap
                             boolean singleNewEvent = (prevLastWmLine == null && secondLastWmLine == null)
                                     || (prevLastWmLine != null && secondLastWmLine != null && secondLastWmLine.equals(prevLastWmLine));
@@ -693,13 +881,20 @@ public class PowerService extends AccessibilityService {
                         }
                     }
 
-                    // While wmKeyIsDown is true (both Mode 1 & Mode 2), poll InputReader hardware KeyDowns every 45ms
+                    // While wmKeyIsDown is true (Mode 1, Mode 2, Mode 3), poll InputReader hardware KeyDowns
                     // so releasing the button after a short or long hold always stops volume adjustment immediately.
                     if (wmKeyIsDown) {
                         int kd = checkHardwareKeyDownState(inputBinder);
                         if (kd == 0) {
                             zeroKeyDownTicks++;
-                            if (mode == ButtonMapper.VOLUME_FIX_MODE_1 || zeroKeyDownTicks >= 2) {
+                            if (mode == ButtonMapper.VOLUME_FIX_MODE_3) {
+                                wmKeyIsDown = false;
+                                zeroKeyDownTicks = 0;
+                                volDir = 0;
+                                mode3LastReleaseMs = SystemClock.uptimeMillis();
+                                handler.removeCallbacks(volRepeatRunnable);
+                                handler.post(() -> onVolumeKeyState(0, false, false));
+                            } else if (mode == ButtonMapper.VOLUME_FIX_MODE_1 || zeroKeyDownTicks >= 2) {
                                 wmKeyIsDown = false;
                                 zeroKeyDownTicks = 0;
                                 handler.post(() -> onVolumeKeyState(0, false, false));
@@ -710,7 +905,10 @@ public class PowerService extends AccessibilityService {
                         }
                     }
 
-                    Thread.sleep(wmKeyIsDown ? 45L : 60L);
+                    long sleepMs = (mode == ButtonMapper.VOLUME_FIX_MODE_3)
+                            ? (wmKeyIsDown ? 12L : 35L)
+                            : (wmKeyIsDown ? 45L : 60L);
+                    Thread.sleep(sleepMs);
                 } catch (InterruptedException ie) {
                     break;
                 } catch (Throwable t) {
@@ -754,9 +952,12 @@ public class PowerService extends AccessibilityService {
                     || code == KeyEvent.KEYCODE_DPAD_CENTER)) {
             MediaWatchService.pollActiveSessionsImmediate(this);
         }
-        // Fallback when LocalAdb getevent watcher is not connected (Mode 1 or when DUMP permission is not active)
+        // Fallback when LocalAdb getevent watcher is not connected (Mode 1, Mode 3, or when DUMP permission is not active)
+        int vMode = ButtonMapper.getVolumeHoldFixMode(this);
         if (!LocalAdb.volWatchConnected
-                && (ButtonMapper.getVolumeHoldFixMode(this) == ButtonMapper.VOLUME_FIX_MODE_1 || !LocalAdb.hasDumpPermission(this))
+                && (vMode == ButtonMapper.VOLUME_FIX_MODE_1
+                    || vMode == ButtonMapper.VOLUME_FIX_MODE_3
+                    || !LocalAdb.hasDumpPermission(this))
                 && (code == KeyEvent.KEYCODE_VOLUME_UP || code == KeyEvent.KEYCODE_VOLUME_DOWN)
                 && ButtonMapper.isVolumeHoldFixEnabled(this)
                 && !ButtonMapper.isKeyCustomMapped(this, code)) {
@@ -765,6 +966,11 @@ public class PowerService extends AccessibilityService {
             if (action == KeyEvent.ACTION_DOWN) {
                 onVolumeKeyState(dir, true, event.getRepeatCount() > 0);
             } else if (action == KeyEvent.ACTION_UP) {
+                if (vMode == ButtonMapper.VOLUME_FIX_MODE_3) {
+                    volDir = 0;
+                    mode3LastReleaseMs = SystemClock.uptimeMillis();
+                    handler.removeCallbacks(volRepeatRunnable);
+                }
                 onVolumeKeyState(dir, false, false);
             }
             return false;
@@ -829,8 +1035,19 @@ public class PowerService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent e) {
         if (e != null && e.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && e.getPackageName() != null) {
             String fgPkg = e.getPackageName().toString();
+            String clsName = e.getClassName() != null ? e.getClassName().toString() : "";
             RecentAppsOverlay.recordAppUsed(this, fgPkg);
             MediaWatchService.pollActiveSessionsAsync(this);
+
+            // Caffeine Mode: deny Android TV's automatic Ambient Mode / Backdrop / Dream screensaver
+            if (isCaffeineEnabled(this)
+                    && ("com.google.android.backdrop".equals(fgPkg)
+                        || clsName.contains("Somnambulator")
+                        || clsName.contains("DreamService"))) {
+                ensureCaffeineWakeLock(getApplicationContext(), true);
+                performGlobalAction(GLOBAL_ACTION_BACK);
+                return;
+            }
 
             // OEM Home Button Fix (Fire TV, Google TV, Android TV):
             // On Google TV & Fire OS, the OS intercepts KEYCODE_HOME before onKeyEvent and launches the stock launcher.
@@ -851,6 +1068,7 @@ public class PowerService extends AccessibilityService {
                     BootReceiver.launchHomeImmediately(this);
                     return;
                 }
+            }
             }
 
             // Fast boot guard: during the first 40s after system boot, if "Launch on System Boot" is enabled

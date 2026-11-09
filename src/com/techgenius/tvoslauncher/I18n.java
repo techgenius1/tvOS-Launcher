@@ -20,6 +20,7 @@ import java.util.Set;
 public final class I18n {
     public static final String LANG_EN = "en";
     public static final String LANG_TR = "tr";
+    public static final String LANG_AZ = "az";
     public static final String LANG_SV = "sv";
     public static final String LANG_HI = "hi";
     public static final String LANG_ES = "es";
@@ -36,6 +37,7 @@ public final class I18n {
     public static final String[][] LANGUAGES = {
         {LANG_EN, "English", "Use tvOS Launcher in English"},
         {LANG_TR, "Türkçe", "tvOS Launcher'ı Türkçe kullanın"},
+        {LANG_AZ, "Azərbaycan dili", "tvOS Launcher-i Azərbaycan dilində istifadə edin"},
         {LANG_SV, "Svenska", "Använd tvOS Launcher på svenska"},
         {LANG_HI, "हिन्दी (Indian)", "tvOS Launcher का उपयोग हिन्दी में करें"},
         {LANG_ES, "Español", "Usar tvOS Launcher en español"},
@@ -51,11 +53,12 @@ public final class I18n {
     };
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
-            LANG_EN, LANG_TR, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
+            LANG_EN, LANG_TR, LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
             LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO
     ));
 
     private static String cachedLang;
+    private static final Map<String, String> EN_MAP = new HashMap<>();
     private static final Map<String, String> TR_MAP = new HashMap<>();
     private static final Map<String, Map<String, String>> LANG_MAPS = new HashMap<>();
 
@@ -127,7 +130,86 @@ public final class I18n {
         TR_MAP.put("Showers", "Sağanak");
         TR_MAP.put("Thunderstorms", "Fırtına");
 
-        String[] langs = {LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO};
+        // Symbolic keys for Dashboard, Control Panel, Caffeine, Alignment, Wallpaper & Inputs Overlay
+        EN_MAP.put("dash_prayer_times", "Prayer Times");
+        EN_MAP.put("dash_football", "Football Matches");
+        EN_MAP.put("dash_latest_releases", "Most Watched");
+        EN_MAP.put("weather", "Weather");
+        EN_MAP.put("prayer_fajr", "Fajr");
+        EN_MAP.put("prayer_sunrise", "Sunrise");
+        EN_MAP.put("prayer_dhuhr", "Dhuhr");
+        EN_MAP.put("prayer_asr", "Asr");
+        EN_MAP.put("prayer_maghrib", "Maghrib");
+        EN_MAP.put("prayer_isha", "Isha");
+        EN_MAP.put("prayer_remaining", "remaining");
+        EN_MAP.put("prayer_method_label", "Calculation Method");
+        EN_MAP.put("football_loading", "Loading matches…");
+        EN_MAP.put("football_fav_teams", "Favorite Teams");
+        EN_MAP.put("football_no_matches", "No matches scheduled right now");
+        EN_MAP.put("releases_loading", "Loading titles…");
+        EN_MAP.put("weather_updating", "Updating…");
+        EN_MAP.put("tomorrow_short", "Tomorrow");
+        EN_MAP.put("tomorrow", "Tomorrow");
+        EN_MAP.put("now", "Now");
+        EN_MAP.put("bm_inputs_overlay", "TV Inputs Panel (Overlay)");
+        EN_MAP.put("caffeine_title", "Caffeine (Prevent Sleep & Ambient Mode)");
+        EN_MAP.put("caffeine_desc", "Caffeine denies Android's idle mode and prevents Android TV's automatic Ambient Mode from turning on, keeping your TV awake and preventing it from going to sleep.");
+        EN_MAP.put("cp_bg_mode", "Control Panel background");
+        EN_MAP.put("cp_bg_blurry", "Blurry (Current content blur)");
+        EN_MAP.put("cp_bg_transparent", "Transparent");
+        EN_MAP.put("next_wallpaper", "Next Wallpaper");
+        EN_MAP.put("align_dynamic", "Dynamic");
+        EN_MAP.put("align_left", "Left");
+        EN_MAP.put("align_center", "Center");
+        EN_MAP.put("align_right", "Right");
+        EN_MAP.put("settings", "Settings");
+        EN_MAP.put("home_settings", "Home Settings");
+        EN_MAP.put("tv_settings", "TV Settings");
+        EN_MAP.put("sleep_timer", "Sleep Timer");
+        EN_MAP.put("keep_watching", "Keep watching");
+        EN_MAP.put("releases_country_setting", "Most Watched countries");
+        EN_MAP.put("releases_country_auto", "Automatic (Sync with UI language)");
+
+        TR_MAP.put("dash_prayer_times", "Namaz Vakitleri");
+        TR_MAP.put("dash_football", "Futbol Maçları");
+        TR_MAP.put("dash_latest_releases", "Çok İzlenenler");
+        TR_MAP.put("weather", "Hava Durumu");
+        TR_MAP.put("prayer_fajr", "İmsak");
+        TR_MAP.put("prayer_sunrise", "Güneş");
+        TR_MAP.put("prayer_dhuhr", "Öğle");
+        TR_MAP.put("prayer_asr", "İkindi");
+        TR_MAP.put("prayer_maghrib", "Akşam");
+        TR_MAP.put("prayer_isha", "Yatsı");
+        TR_MAP.put("prayer_remaining", "kaldı");
+        TR_MAP.put("prayer_method_label", "Hesaplama Yöntemi");
+        TR_MAP.put("football_loading", "Maçlar yükleniyor…");
+        TR_MAP.put("football_fav_teams", "Favori Takımlar");
+        TR_MAP.put("football_no_matches", "Şu anda planlanmış maç yok");
+        TR_MAP.put("releases_loading", "İçerikler yükleniyor…");
+        TR_MAP.put("weather_updating", "Güncelleniyor…");
+        TR_MAP.put("tomorrow_short", "Yarın");
+        TR_MAP.put("tomorrow", "Yarın");
+        TR_MAP.put("now", "Şimdi");
+        TR_MAP.put("bm_inputs_overlay", "TV Girişleri Paneli (Ekran Üstü)");
+        TR_MAP.put("caffeine_title", "Caffeine (Uyku ve Ortam Modunu Engelle)");
+        TR_MAP.put("caffeine_desc", "Caffeine, Android'in boşta kalma (idle) modunu reddeder ve Android TV'nin otomatik Ortam Modu'nun açılmasını engelleyerek TV'nizi uyanık tutar ve uykuya geçmesini önler.");
+        TR_MAP.put("cp_bg_mode", "Denetim Paneli arka planı");
+        TR_MAP.put("cp_bg_blurry", "Bulanık (Mevcut içerik bulanıklığı)");
+        TR_MAP.put("cp_bg_transparent", "Şeffaf");
+        TR_MAP.put("next_wallpaper", "Sonraki Duvar Kağıdı");
+        TR_MAP.put("align_dynamic", "Dinamik");
+        TR_MAP.put("align_left", "Sol");
+        TR_MAP.put("align_center", "Orta");
+        TR_MAP.put("align_right", "Sağ");
+        TR_MAP.put("settings", "Ayarlar");
+        TR_MAP.put("home_settings", "Ana Ekran Ayarları");
+        TR_MAP.put("tv_settings", "TV Ayarları");
+        TR_MAP.put("sleep_timer", "Uyku Zamanlayıcısı");
+        TR_MAP.put("keep_watching", "İzlemeye devam et");
+        TR_MAP.put("releases_country_setting", "Çok İzlenenler ülkeleri");
+        TR_MAP.put("releases_country_auto", "Otomatik (Arayüz diliyle eşitle)");
+
+        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
@@ -135,6 +217,7 @@ public final class I18n {
         initTranslations();
         initSwedish();
         initKorean();
+        initAzerbaijani();
     }
 
     private static void add(String en, String hi, String es, String fr, String de, String it, String ru, String pt, String ar, String ja, String zh) {
@@ -152,6 +235,10 @@ public final class I18n {
 
     private static void initTranslations() {
         // Greetings
+        add("Most Watched", "सबसे ज़्यादा देखे गए", "Más vistos", "Les plus regardés", "Meistgesehen", "Più visti", "Самое популярное", "Mais vistos", "الأكثر مشاهدة", "人気コンテンツ", "热门观看");
+        add("Loading titles…", "शीर्षक लोड हो रहे हैं…", "Cargando títulos…", "Chargement des titres…", "Titel werden geladen…", "Caricamento titoli…", "Загрузка контента…", "A carregar títulos…", "جارٍ تحميل العناوين…", "タイトルを読み込み中…", "正在加载内容…");
+        add("Most Watched countries", "सबसे ज़्यादा देखे गए देश", "Países de Más vistos", "Pays des plus regardés", "Meistgesehen-Länder", "Paesi Più visti", "Страны популярного", "Países de Mais vistos", "بلدان الأكثر مشاهدة", "人気コンテンツの国", "热门观看国家/地区");
+        add("Automatic (Sync with UI language)", "स्वचालित (UI भाषा के साथ सिंक)", "Automático (sincronizar con idioma)", "Automatique (synchroniser avec la langue)", "Automatisch (mit UI-Sprache synchronisieren)", "Automatico (sincronizza con lingua UI)", "Автоматически (по языку интерфейса)", "Automático (sincronizar com idioma)", "تلقائي (مزامنة مع لغة الواجهة)", "自動（表示言語と同期）", "自动（与界面语言同步）");
         add("Good morning", "सुप्रभात", "Buenos días", "Bonjour", "Guten Morgen", "Buongiorno", "Доброе утро", "Bom dia", "صباح الخير", "おはようございます", "早上好");
         add("Good afternoon", "नमस्कार", "Buenas tardes", "Bon après-midi", "Guten Tag", "Buon pomeriggio", "Добрый день", "Boa tarde", "مساء الخير", "こんにちは", "下午好");
         add("Good evening", "शुभ संध्या", "Buenas noches", "Bonsoir", "Guten Abend", "Buonasera", "Добрый вечер", "Boa noite", "مساء الخير", "こんばんは", "晚上好");
@@ -868,6 +955,10 @@ public final class I18n {
         sv("Backup settings to Download", "Säkerhetskopiera inställningar till Download");
         sv("Restore settings from folder…", "Återställ inställningar från mapp…");
         sv("Choose folder ›", "Välj mapp ›");
+        sv("Most Watched", "Mest sedda");
+        sv("Loading titles…", "Laddar titlar…");
+        sv("Most Watched countries", "Mest sedda länder");
+        sv("Automatic (Sync with UI language)", "Automatisk (synka med gränssnittsspråk)");
     }
 
     private static void ko(String en, String koVal) {
@@ -1223,6 +1314,191 @@ public final class I18n {
         ko("Not done", "미완료");
         ko("apps", "개 앱");
         ko("packages", "개 패키지");
+        ko("Most Watched", "인기 콘텐츠");
+        ko("Loading titles…", "콘텐츠 불러오는 중…");
+        ko("Most Watched countries", "인기 콘텐츠 국가");
+        ko("Automatic (Sync with UI language)", "자동 (UI 언어와 동기화)");
+    }
+
+    private static void az(String en, String azVal) {
+        LANG_MAPS.get(LANG_AZ).put(en, azVal);
+    }
+
+    private static void initAzerbaijani() {
+        // Symbolic keys
+        az("dash_prayer_times", "Namaz Vaxtları");
+        az("dash_football", "Futbol Oyunları");
+        az("dash_latest_releases", "Çox İzlənənlər");
+        az("weather", "Hava Proqnozu");
+        az("prayer_fajr", "Sübh");
+        az("prayer_sunrise", "Günəş");
+        az("prayer_dhuhr", "Zöhr");
+        az("prayer_asr", "Əsr");
+        az("prayer_maghrib", "Məğrib");
+        az("prayer_isha", "İşa");
+        az("prayer_remaining", "qaldı");
+        az("prayer_method_label", "Hesablama Metodu");
+        az("football_loading", "Oyunlar yüklənir…");
+        az("football_fav_teams", "Sevimli Komandalar");
+        az("football_no_matches", "Hazırda planlaşdırılmış oyun yoxdur");
+        az("releases_loading", "Məzmunlar yüklənir…");
+        az("weather_updating", "Yenilənir…");
+        az("tomorrow_short", "Sabah");
+        az("tomorrow", "Sabah");
+        az("now", "İndi");
+        az("bm_inputs_overlay", "TV Girişləri Paneli (Ekran Üstü)");
+        az("caffeine_title", "Caffeine (Yuxu və Mühit Rejimini Əngəllə)");
+        az("caffeine_desc", "Caffeine Android-in boşda qalma (idle) rejimini rədd edir və Android TV-nin avtomatik Mühit Rejiminin açılmasının qarşısını alaraq TV-ni oyaq saxlayır və yuxu rejiminə keçməsinə mane olur.");
+        az("cp_bg_mode", "İdarəetmə Paneli fonu");
+        az("cp_bg_blurry", "Bulanıq (Cari məzmun bulanıqlığı)");
+        az("cp_bg_transparent", "Şəffaf");
+        az("next_wallpaper", "Növbəti Divar Kağızı");
+        az("align_dynamic", "Dinamik");
+        az("align_left", "Sol");
+        az("align_center", "Mərkəz");
+        az("align_right", "Sağ");
+        az("settings", "Tənzimləmələr");
+        az("home_settings", "Ana Ekran Tənzimləmələri");
+        az("tv_settings", "TV Tənzimləmələri");
+        az("sleep_timer", "Yuxu Taymeri");
+
+        // Greetings & Weather
+        az("Good morning", "Sabahınız xeyir");
+        az("Good afternoon", "Hər vaxtınız xeyir");
+        az("Good evening", "Axşamınız xeyir");
+        az("Good night", "Gecəniz xeyrə qalsın");
+        az("Clear", "Açıq");
+        az("Sunny", "Günəşli");
+        az("Mostly Sunny", "Əsasən Günəşli");
+        az("Mostly Clear", "Əsasən Açıq");
+        az("Partly Cloudy", "Qismən Buludlu");
+        az("Cloudy", "Buludlu");
+        az("Foggy", "Dumanlı");
+        az("Drizzle", "Çiskin");
+        az("Rain", "Yağışlı");
+        az("Heavy Rain", "Güclü Yağış");
+        az("Sleet", "Sulopa");
+        az("Snow", "Qarlı");
+        az("Heavy Snow", "Güclü Qar");
+        az("Showers", "Leysan");
+        az("Thunderstorms", "Şimşəkli Fırtına");
+
+        // Main UI & Settings Sections
+        az("Settings", "Tənzimləmələr");
+        az("Language", "Dil");
+        az("Location", "Məkan");
+        az("Weather", "Hava Proqnozu");
+        az("Weather and location", "Hava və məkan");
+        az("Look and scenes", "Görünüş və səhnələr");
+        az("Appearance and scenes", "Görünüş və səhnələr");
+        az("Apps", "Tətbiqlər");
+        az("People", "Profillər");
+        az("Button Mapper", "Düymə Təyinatçısı");
+        az("Button mapper", "Düymə təyinatçısı");
+        az("Control Panel", "İdarəetmə Paneli");
+        az("Control Panel (Overlay)", "İdarəetmə Paneli (Ekran Üstü)");
+        az("Recent Apps Switcher (Overlay)", "Son Tətbiqlər (Ekran Üstü)");
+        az("Home & System", "Ana Ekran və Sistem");
+        az("Advanced", "Təkmil");
+        az("Updates", "Yeniləmələr");
+        az("UPDATES", "YENİLƏMƏLƏR");
+        az("About", "Haqqında");
+
+        // Look & Scenes
+        az("LOOK", "GÖRÜNÜŞ");
+        az("Night scenes", "Gecə səhnələri");
+        az("A big glass clock, scenes taking turns", "Böyük şüşə saat, növbə ilə dəyişən səhnələr");
+        az("Classic", "Klassik");
+        az("One photo and a grid of app banners", "Tək şəkil və tətbiq afişaları şəbəkəsi");
+        az("HOME DASHBOARD", "ANA EKRAN PANELİ");
+        az("HOME SCREEN WIDGETS", "ANA EKRAN VİDCETLƏRİ");
+        az("Home screen widget settings", "Ana ekran vidcet tənzimləmələri");
+        az("Home Dashboard widgets…", "Ana Ekran Paneli vidcetləri…");
+        az("Home Dashboard", "Ana Ekran Paneli");
+        az("Enable Home Dashboard", "Ana Ekran Panelini Aktivləşdir");
+        az("Show widgets when selected app has no Continue Watching", "Seçilmiş tətbiqdə İzləməyə Davam Et yoxdursa vidcetləri göstər");
+        az("DOCK", "DOCK");
+        az("Dock size", "Dock ölçüsü");
+        az("Show app names", "Tətbiq adlarını göstər");
+        az("NIGHT SCENES CLOCK", "GECƏ SƏHNƏLƏRİ SAATI");
+        az("CLASSIC CLOCK & WEATHER", "KLASSİK SAAT VƏ HAVA PROQNOZU");
+        az("Big Clock (Night Scene style)", "Böyük Saat (Gecə Səhnəsi üslubu)");
+        az("Clock", "Saat");
+        az("Clock font", "Saat şrifti");
+        az("Clock alignment", "Saat düzləndirilməsi");
+        az("Default wallpaper clock alignment", "Varsayılan divar kağızı saat düzləndirilməsi");
+        az("Custom wallpaper clock alignment", "Xüsusi divar kağızı saat düzləndirilməsi");
+        az("Top-right weather shortcut", "Sağ üst hava proqnozu qısayolu");
+        az("12 hour", "12 saat");
+        az("24 hour", "24 saat");
+        az("Left", "Sol");
+        az("Center", "Mərkəz");
+        az("Right", "Sağ");
+        az("Dynamic", "Dinamik");
+        az("Each scene stays", "Hər səhnənin müddəti");
+        az(" seconds", " saniyə");
+        az("SCENES", "SƏHNƏLƏR");
+        az("Night", "Gecə");
+        az("Golden hour", "Qızıl saat");
+        az("Waterline", "Su xətti");
+        az("Fog", "Duman");
+        az("Rainforest dawn", "Tropik meşə şəfəqi");
+        az("Custom", "Xüsusi");
+        az("CUSTOM WALLPAPER", "XÜSUSİ DİVAR KAĞIZI");
+        az("Custom wallpaper mode", "Xüsusi divar kağızı rejimi");
+        az("Custom wallpaper settings…", "Xüsusi divar kağızı tənzimləmələri…");
+        az("Single / Multi Wallpapers", "Təkli / Çoxlu Divar Kağızı");
+        az("Shuffle Folder", "Qovluğu Qarışdır");
+        az("Reddit Wallpapers", "Reddit Divar Kağızları");
+        az("Add new wallpaper…", "Yeni divar kağızı əlavə et…");
+        az("Select wallpaper folder…", "Divar kağızı qovluğunu seç…");
+        az("Auto-change interval", "Avtomatik dəyişmə müddəti");
+        az("Add custom subreddit…", "Xüsusi subreddit əlavə et…");
+
+        // Common Controls
+        az("keep_watching", "İzləməyə davam et");
+        az("releases_country_setting", "Çox İzlənənlər ölkələri");
+        az("releases_country_auto", "Avtomatik (İnterfeys dili ilə eyniləşdir)");
+        az("Most Watched", "Çox İzlənənlər");
+        az("Most Watched countries", "Çox İzlənənlər ölkələri");
+        az("Keep watching", "İzləməyə davam et");
+        az("Continue Watching", "İzləməyə Davam Et");
+        az("More apps", "Digər tətbiqlər");
+        az("More Apps", "Digər Tətbiqlər");
+        az("Fewer apps", "Daha az tətbiq");
+        az("Inputs", "Girişlər");
+        az("Home settings", "Ana ekran tənzimləmələri");
+        az("Home Settings", "Ana Ekran Tənzimləmələri");
+        az("TV settings", "TV tənzimləmələri");
+        az("TV Settings", "TV Tənzimləmələri");
+        az("Sleep timer", "Yuxu taymeri");
+        az("Sleep Timer", "Yuxu Taymeri");
+        az("On", "Açıq");
+        az("Off", "Bağlı");
+        az("Active", "Aktiv");
+        az("Default", "Varsayılan");
+        az("Back", "Geri");
+        az("Cancel", "Ləğv et");
+        az("Save", "Yadda saxla");
+        az("Reset", "Sıfırla");
+        az("Add", "Əlavə et");
+        az("Search", "Axtar");
+        az("Refresh", "Yenilə");
+        az("Next", "Növbəti");
+        az("Continue", "Davam et");
+        az("Connected", "Qoşulub");
+        az("Not Connected", "Qoşulmayıb");
+        az("Memory", "Yaddaş");
+        az("Do Not Disturb", "Narahat Etməyin");
+        az("Audio", "Səs");
+        az("Sound", "Səs");
+        az("Ambient Mode", "Mühit Rejimi");
+        az("Lock Screen", "Kilid Ekranı");
+        az("Power Off", "Söndür");
+        az("Automatic updates", "Avtomatik yeniləmələr");
+        az("Check for updates", "Yeniləmələri yoxla");
+        az("Current version", "Cari versiya");
+        az("GitHub release latest version", "GitHub son versiyası");
     }
 
     private I18n() { }
@@ -1298,6 +1574,7 @@ public final class I18n {
     public static Locale locale(Context c) {
         switch (getLang(c)) {
             case LANG_TR: return Locale.forLanguageTag("tr-TR");
+            case LANG_AZ: return Locale.forLanguageTag("az-AZ");
             case LANG_SV: return Locale.forLanguageTag("sv-SE");
             case LANG_HI: return Locale.forLanguageTag("hi-IN");
             case LANG_ES: return Locale.forLanguageTag("es-ES");
@@ -1327,12 +1604,23 @@ public final class I18n {
     public static String t(Context c, String enKey) {
         if (enKey == null) return "";
         String lang = getLang(c);
-        if (LANG_EN.equals(lang)) return enKey;
+        if (LANG_EN.equals(lang)) {
+            String mappedEn = EN_MAP.get(enKey);
+            return mappedEn != null ? mappedEn : enKey;
+        }
         if (LANG_TR.equals(lang)) {
             String v = TR_MAP.get(enKey);
-            return v != null ? v : enKey;
+            if (v != null) return v;
+            String mappedEn = EN_MAP.get(enKey);
+            return mappedEn != null ? mappedEn : enKey;
         }
-        return translateOther(lang, enKey);
+        String direct = translateOther(lang, enKey);
+        if (!direct.equals(enKey)) return direct;
+        String mappedEn = EN_MAP.get(enKey);
+        if (mappedEn != null) {
+            return translateOther(lang, mappedEn);
+        }
+        return enKey;
     }
 
     private static String translateOther(String lang, String en) {
@@ -1381,6 +1669,7 @@ public final class I18n {
         Locale loc = locale(c);
         switch (lang) {
             case LANG_TR:
+            case LANG_AZ:
                 return new SimpleDateFormat("d MMMM EEEE", loc).format(date);
             case LANG_JA:
             case LANG_ZH:
@@ -1411,6 +1700,10 @@ public final class I18n {
             if (name.startsWith("Person ")) return "Kişi " + name.substring("Person ".length());
             if (name.startsWith("Profile ")) return "Profile " + name.substring("Profile ".length());
             if (name.equals("Kids")) return "Çocuklar";
+        } else if (LANG_AZ.equals(getLang(c))) {
+            if (name.equals("Default") || name.equals("Varsayılan")) return "Varsayılan";
+            if (name.startsWith("Person ")) return "Şəxs " + name.substring("Person ".length());
+            if (name.equals("Kids")) return "Uşaqlar";
         } else {
             if (name.equals("Varsayılan")) return "Default";
             if (name.startsWith("Kişi ")) return "Person " + name.substring("Kişi ".length());
