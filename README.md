@@ -93,8 +93,9 @@ A fast, lightweight, tvOS 26 & macOS–inspired home screen for Android TV & Goo
   - **Secure Mode (Default & Recommended)**: Grants permissions once and immediately closes network ADB (`adb_enabled = 0`) so port `5555` is never left open on your LAN. Self-repair and Volume Hold Fix run 100% in-process.
   - **Persistent ADB Mode**: Keeps network ADB open for runtime debloating with a one-tap toggle in Settings.
 
-- **15 Supported Languages**
-  - Fully localized across **English, Turkish, Azerbaijani (Azərbaycan dili), Swedish, Hindi, Spanish, French, German, Italian, Russian, Portuguese, Arabic, Japanese, Chinese, and Korean (한국어)**.
+- **16 Supported Languages**
+  - Fully localized across **English, Turkish, Azerbaijani (Azərbaycan dili), Swedish, Hindi, Spanish, French, German, Italian, Russian, Portuguese, Arabic, Japanese, Chinese, Korean (한국어), and Hebrew (עברית)**.
+  - Hebrew mirrors Settings, the setup wizard, dialogs and the Presentation web page right-to-left, and adds a Hebrew on-screen search keyboard.
 
 - **Multi-User Profiles & Live Weather**
   - Up to 3 profiles, each with its own app order, hidden apps, and Continue Watching list.

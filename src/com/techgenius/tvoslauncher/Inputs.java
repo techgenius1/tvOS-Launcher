@@ -72,7 +72,7 @@ final class Inputs {
                 in.type = info.getType();
                 in.passthrough = info.isPassthroughInput();
                 CharSequence custom = info.loadCustomLabel(c), label = info.loadLabel(c);
-                in.label = custom != null && custom.length() > 0 ? custom.toString() : label != null ? tidy(label.toString(), in.type) : "Input";
+                in.label = custom != null && custom.length() > 0 ? custom.toString() : label != null ? tidy(label.toString(), in.type) : I18n.t(c, "Input");
                 in.disconnected = tm.getInputState(in.id) == TvInputManager.INPUT_STATE_DISCONNECTED;
                 out.add(in);
             } catch (Exception ignored) {

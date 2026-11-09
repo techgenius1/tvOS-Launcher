@@ -57,6 +57,7 @@
     </queries>
 
     <application
+        android:supportsRtl="true"
         android:label="tvOS Launcher"
         android:icon="@drawable/ic_launcher"
         android:banner="@drawable/banner"

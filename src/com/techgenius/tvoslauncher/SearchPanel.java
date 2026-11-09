@@ -51,6 +51,7 @@ final class SearchPanel {
     static final long DEBOUNCE_MS = 350;
     static final String LATIN = "abcdefghijklmnopqrstuvwxyz";
     static final String TURKISH = "abc\u00e7defg\u011fh\u0131ijklmno\u00f6prs\u015ftu\u00fcvyzqwx";
+    static final String HEBREW = "\u05d0\u05d1\u05d2\u05d3\u05d4\u05d5\u05d6\u05d7\u05d8\u05d9\u05db\u05da\u05dc\u05de\u05dd\u05e0\u05df\u05e1\u05e2\u05e4\u05e3\u05e6\u05e5\u05e7\u05e8\u05e9\u05ea";
     static final String DIGITS = "1234567890.-'&:!?";
     static final String HINDI = "\u0905\u0906\u0907\u0908\u0909\u090a\u090f\u0910\u0913\u0914"
             + "\u0915\u0916\u0917\u0918\u091a\u091b\u091c\u091d\u091f\u0920\u0921\u0922\u0923"
@@ -186,7 +187,9 @@ final class SearchPanel {
     void buildKeys(String focusLabel) {
         keys.removeAllViews();
         boolean isTr = I18n.isTr(a);
-        String chars = mode == 1 ? DIGITS : mode == 2 ? HINDI : (isTr ? TURKISH : LATIN);
+        boolean isHe = I18n.isRtl(a);
+        // Hebrew: Hebrew letters first, with a key that switches to Latin letters (mode 2) instead of Hindi.
+        String chars = mode == 1 ? DIGITS : mode == 2 ? (isHe ? LATIN : HINDI) : (isTr ? TURKISH : isHe ? HEBREW : LATIN);
         List<View> made = new ArrayList<>();
         for (int i = 0; i < chars.length(); i++) {
             String ch = String.valueOf(chars.charAt(i));
@@ -194,8 +197,9 @@ final class SearchPanel {
         }
         made.add(key(tr("space", "bo\u015fluk"), a.dp(64), () -> type(" ")));
         made.add(key("\u232b", a.dp(40), this::backspace));
-        made.add(key(mode == 1 ? "abc" : "123", a.dp(48), () -> switchMode(mode == 1 ? 0 : 1)));
-        if (!isTr) made.add(key(mode == 2 ? "abc" : "\u0905\u0906", a.dp(48), () -> switchMode(mode == 2 ? 0 : 2)));
+        made.add(key(mode == 1 ? (isHe ? "\u05d0\u05d1\u05d2" : "abc") : "123", a.dp(48), () -> switchMode(mode == 1 ? 0 : 1)));
+        if (isHe) made.add(key(mode == 2 ? "\u05d0\u05d1\u05d2" : "abc", a.dp(48), () -> switchMode(mode == 2 ? 0 : 2)));
+        else if (!isTr) made.add(key(mode == 2 ? "abc" : "\u0905\u0906", a.dp(48), () -> switchMode(mode == 2 ? 0 : 2)));
         made.add(key(tr("clear", "temizle"), a.dp(56), this::clear));
         View focus = made.get(0);
         for (View k : made) {
@@ -323,7 +327,7 @@ final class SearchPanel {
         return new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE, langTag)
-                .putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", new String[]{isTr ? "en-US" : "hi-IN"})
+                .putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", new String[]{isTr || I18n.isRtl(a) ? "en-US" : "hi-IN"})
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, a.getPackageName())
@@ -527,23 +531,23 @@ final class SearchPanel {
     /** tvOS Launcher's own screens and the TV settings people look for: name, keywords, glyph, action. */
     List<Object[]> actions() {
         List<Object[]> l = new ArrayList<>();
-        l.add(new Object[]{tr("Control Center", "Denetim Merkezi"), "controls power sleep denetim g\u00fc\u00e7 uyku", "controls", (Runnable) () -> { close(); a.showControlCenter(); }});
-        l.add(new Object[]{tr("Weather Forecast", "Hava Durumu Tahmini"), "weather temperature rain hava s\u0131cakl\u0131k ya\u011fmur", "refresh", (Runnable) () -> { close(); a.showWeather(); }});
-        l.add(new Object[]{tr("Switch Profile", "Profil De\u011fi\u015ftir"), "profile user who profil kullan\u0131c\u0131 ki\u015fi", "controls", (Runnable) () -> { close(); a.showProfilePicker(false); }});
-        l.add(new Object[]{tr("Home Settings", "tvOS Launcher Ayarlar\u0131"), "settings launcher preferences ayarlar g\u00f6r\u00fcn\u00fcm sahneler dil", "gear", (Runnable) () -> {
+        l.add(new Object[]{tr("Control Center", "Denetim Merkezi"), "controls power sleep denetim g\u00fc\u00e7 uyku \u05dc\u05d5\u05d7 \u05d1\u05e7\u05e8\u05d4 \u05db\u05d9\u05d1\u05d5\u05d9 \u05e9\u05d9\u05e0\u05d4", "controls", (Runnable) () -> { close(); a.showControlCenter(); }});
+        l.add(new Object[]{tr("Weather Forecast", "Hava Durumu Tahmini"), "weather temperature rain hava s\u0131cakl\u0131k ya\u011fmur \u05de\u05d6\u05d2 \u05d0\u05d5\u05d5\u05d9\u05e8 \u05d8\u05de\u05e4\u05e8\u05d8\u05d5\u05e8\u05d4 \u05d2\u05e9\u05dd \u05ea\u05d7\u05d6\u05d9\u05ea", "refresh", (Runnable) () -> { close(); a.showWeather(); }});
+        l.add(new Object[]{tr("Switch Profile", "Profil De\u011fi\u015ftir"), "profile user who profil kullan\u0131c\u0131 ki\u015fi \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc \u05de\u05e9\u05ea\u05de\u05e9 \u05e6\u05d5\u05e4\u05d4", "controls", (Runnable) () -> { close(); a.showProfilePicker(false); }});
+        l.add(new Object[]{tr("Home Settings", "tvOS Launcher Ayarlar\u0131"), "settings launcher preferences ayarlar g\u00f6r\u00fcn\u00fcm sahneler dil \u05d4\u05d2\u05d3\u05e8\u05d5\u05ea \u05de\u05e1\u05da \u05d4\u05d1\u05d9\u05ea \u05e9\u05e4\u05d4 \u05e1\u05e6\u05e0\u05d5\u05ea", "gear", (Runnable) () -> {
             a.returningFromSettings = true;
             a.startActivity(new Intent(a, SettingsActivity.class));
         }});
-        l.add(new Object[]{tr("Refresh Carousel", "Vitrin Yenile"), "refresh reload news recommendations yenile haberler \u00f6neriler", "refresh", (Runnable) () -> { close(); a.refreshAll(); }});
-        l.add(new Object[]{"Wi-Fi", "wifi network internet a\u011f", "wifi", settings(Settings.ACTION_WIFI_SETTINGS)});
-        l.add(new Object[]{"Bluetooth", "bluetooth remote controller headphones speaker pair kumanda kulakl\u0131k hoparl\u00f6r", "gamepad", settings(Settings.ACTION_BLUETOOTH_SETTINGS)});
-        l.add(new Object[]{tr("Sound", "Ses"), "sound audio volume speaker ses hoparl\u00f6r", "audio", settings("android.settings.SOUND_SETTINGS")});
-        l.add(new Object[]{tr("Display", "Ekran"), "display resolution screen picture ekran \u00e7\u00f6z\u00fcn\u00fcrl\u00fck g\u00f6r\u00fcnt\u00fc", "present", settings(Settings.ACTION_DISPLAY_SETTINGS)});
-        l.add(new Object[]{tr("Screen Saver", "Ekran Koruyucu"), "screensaver dream ambient ekran koruyucu", "moon", settings("android.settings.DREAM_SETTINGS")});
-        l.add(new Object[]{tr("Date & Time", "Tarih ve Saat"), "date time clock tarih saat", "timer", settings(Settings.ACTION_DATE_SETTINGS)});
-        l.add(new Object[]{tr("Accessibility", "Eri\u015filebilirlik"), "accessibility captions eri\u015filebilirlik altyaz\u0131", "accessibility", settings(Settings.ACTION_ACCESSIBILITY_SETTINGS)});
-        l.add(new Object[]{tr("Apps", "Uygulamalar"), "apps applications uninstall storage uygulamalar kald\u0131r depolama", "memory", settings(Settings.ACTION_APPLICATION_SETTINGS)});
-        l.add(new Object[]{tr("Storage", "Depolama"), "storage space memory depolama alan bellek", "memory", settings(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)});
+        l.add(new Object[]{tr("Refresh Carousel", "Vitrin Yenile"), "refresh reload news recommendations yenile haberler \u00f6neriler \u05e8\u05e2\u05e0\u05d5\u05df \u05d7\u05d3\u05e9\u05d5\u05ea \u05d4\u05de\u05dc\u05e6\u05d5\u05ea", "refresh", (Runnable) () -> { close(); a.refreshAll(); }});
+        l.add(new Object[]{"Wi-Fi", "wifi network internet a\u011f \u05e8\u05e9\u05ea \u05d0\u05d9\u05e0\u05d8\u05e8\u05e0\u05d8 \u05d0\u05dc\u05d7\u05d5\u05d8\u05d9", "wifi", settings(Settings.ACTION_WIFI_SETTINGS)});
+        l.add(new Object[]{"Bluetooth", "bluetooth remote controller headphones speaker pair kumanda kulakl\u0131k hoparl\u00f6r \u05e9\u05dc\u05d8 \u05d0\u05d5\u05d6\u05e0\u05d9\u05d5\u05ea \u05e8\u05de\u05e7\u05d5\u05dc \u05e6\u05d9\u05de\u05d5\u05d3", "gamepad", settings(Settings.ACTION_BLUETOOTH_SETTINGS)});
+        l.add(new Object[]{tr("Sound", "Ses"), "sound audio volume speaker ses hoparl\u00f6r \u05e6\u05dc\u05d9\u05dc \u05e9\u05de\u05e2 \u05e2\u05d5\u05e6\u05de\u05d4 \u05e8\u05de\u05e7\u05d5\u05dc", "audio", settings("android.settings.SOUND_SETTINGS")});
+        l.add(new Object[]{tr("Display", "Ekran"), "display resolution screen picture ekran \u00e7\u00f6z\u00fcn\u00fcrl\u00fck g\u00f6r\u00fcnt\u00fc \u05ea\u05e6\u05d5\u05d2\u05d4 \u05de\u05e1\u05da \u05e8\u05d6\u05d5\u05dc\u05d5\u05e6\u05d9\u05d4 \u05ea\u05de\u05d5\u05e0\u05d4", "present", settings(Settings.ACTION_DISPLAY_SETTINGS)});
+        l.add(new Object[]{tr("Screen Saver", "Ekran Koruyucu"), "screensaver dream ambient ekran koruyucu \u05e9\u05d5\u05de\u05e8 \u05de\u05e1\u05da \u05de\u05e6\u05d1 \u05d0\u05d5\u05d5\u05d9\u05e8\u05d4", "moon", settings("android.settings.DREAM_SETTINGS")});
+        l.add(new Object[]{tr("Date & Time", "Tarih ve Saat"), "date time clock tarih saat \u05ea\u05d0\u05e8\u05d9\u05da \u05e9\u05e2\u05d4 \u05e9\u05e2\u05d5\u05df", "timer", settings(Settings.ACTION_DATE_SETTINGS)});
+        l.add(new Object[]{tr("Accessibility", "Eri\u015filebilirlik"), "accessibility captions eri\u015filebilirlik altyaz\u0131 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea \u05db\u05ea\u05d5\u05d1\u05d9\u05d5\u05ea", "accessibility", settings(Settings.ACTION_ACCESSIBILITY_SETTINGS)});
+        l.add(new Object[]{tr("Apps", "Uygulamalar"), "apps applications uninstall storage uygulamalar kald\u0131r depolama \u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d5\u05ea \u05d4\u05e1\u05e8\u05d4 \u05d0\u05d7\u05e1\u05d5\u05df", "memory", settings(Settings.ACTION_APPLICATION_SETTINGS)});
+        l.add(new Object[]{tr("Storage", "Depolama"), "storage space memory depolama alan bellek \u05d0\u05d7\u05e1\u05d5\u05df \u05de\u05e7\u05d5\u05dd \u05d6\u05d9\u05db\u05e8\u05d5\u05df", "memory", settings(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)});
         l.add(new Object[]{tr("TV Settings", "TV Ayarlar\u0131"), "settings system device ayarlar sistem cihaz", "gear", settings(Settings.ACTION_SETTINGS)});
         return l;
     }
@@ -944,7 +948,8 @@ final class SearchPanel {
         TextView kind = a.text(12, Ui.font(a, "medium"), 0.7f);
         kind.setShadowLayer(0, 0, 0, 0);
         String notInstalled = tr("Not installed", "Y\u00fckl\u00fc de\u011fil");
-        kind.setText(have ? o.label() : o.label().isEmpty() ? notInstalled : o.label() + "  \u00b7  " + notInstalled);
+        String kindLabel = I18n.t(a, o.label());
+        kind.setText(have ? kindLabel : kindLabel.isEmpty() ? notInstalled : kindLabel + "  \u00b7  " + notInstalled);
         b.addView(kind);
         b.setOnFocusChangeListener((v, has) -> {
             bg.setColor(has ? Color.WHITE : 0x33FFFFFF);

@@ -17,7 +17,7 @@ source (Nayuki, MIT) under `src/io/nayuki/qrcodegen`.
 | `SettingsActivity.java` | All settings, tvOS list layout |
 | `Suggestions.java` | JustWatch / TMDB / Stremio (Cinemeta) recommendations: fetch, cache, artwork, deep links |
 | `Search.java` | Search data: JustWatch title search (every service in India) and Cinemeta, matching each service to its installed app, Open / Get, recent searches |
-| `SearchPanel.java` | The search screen: one-row keyboard (English, digits, Hindi, voice), Apps & Settings and Movies & TV rows, the How to Watch sheet |
+| `SearchPanel.java` | The search screen: one-row keyboard (English, digits, Hindi or Hebrew, voice), Apps & Settings and Movies & TV rows, the How to Watch sheet |
 | `MediaWatchService.java` | Notification listener → media sessions → Continue Watching store; DND access |
 | `Profiles.java` | Profiles (max 3), unique emoji avatars, per-profile storage names |
 | `SleepReceiver.java` | Sleep via device admin (or PowerService); sleep timer alarm |
@@ -31,6 +31,8 @@ source (Nayuki, MIT) under `src/io/nayuki/qrcodegen`.
 | `AirPlayGuard.java` | Keeps the AirPlay receiver app visible: mDNS check, restart via its settings / start-up receivers |
 | `Glyphs.java` | Line glyphs drawn in code (Control Center, Presentation tile, inputs, refresh) |
 | `Ui.java` | Resolution-based sizing (960×540 design grid), fonts |
+| `I18n.java` | Languages: active language, dictionaries keyed by the English string, date formats, reading direction (`isRtl`, `wrap`, `applyDirection`) |
+| `I18nHe.java`, `I18nHeData.java` | Hebrew: patterns for strings built with values, and the generated dictionary |
 | `present/Presenter.java` | Presentation entry point: settings, server lifecycle, player bridge, boot start |
 | `present/AdminServer.java` | HTTP server (port 8080), API, streaming multipart uploads |
 | `present/Repo.java`, `Model.java`, `Pairing.java` | SQLite storage, slide model & validation, pairing tokens |

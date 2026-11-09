@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.techgenius.tvoslauncher.I18n;
+
 /**
  * Presentation feature entry point (replaces AppGraph.kt). Owns the repository, pairing and the
  * admin server, and forwards web commands to the on-screen player when it is open.
@@ -68,6 +70,7 @@ public final class Presenter {
         if (!enabled(c)) return;
         init(c);
         if (server == null) {
+            Context app = c.getApplicationContext();
             server = new AdminServer(c, repo, pairing, new AdminServer.Gateway() {
                 @Override public void reload() {
                     AdminServer.Gateway p = player;
@@ -85,7 +88,7 @@ public final class Presenter {
                     Model.Status s = new Model.Status();
                     s.available = false;
                     s.state = "not_on_screen";
-                    s.error = "Presentation isn\u2019t on screen";
+                    s.error = I18n.t(app, "Presentation isn\u2019t on screen");
                     return s;
                 }
             });

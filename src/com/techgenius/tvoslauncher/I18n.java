@@ -15,7 +15,7 @@ import java.util.Set;
  * Multi-language localization support for tvOS Launcher:
  * English (en), Turkish (tr), Swedish (sv), Hindi/Indian (hi), Spanish (es), French (fr),
  * German (de), Italian (it), Russian (ru), Portuguese (pt), Arabic (ar),
- * Japanese (ja), and Chinese (zh).
+ * Japanese (ja), Chinese (zh), Korean (ko) and Hebrew (he).
  */
 public final class I18n {
     public static final String LANG_EN = "en";
@@ -33,6 +33,7 @@ public final class I18n {
     public static final String LANG_JA = "ja";
     public static final String LANG_ZH = "zh";
     public static final String LANG_KO = "ko";
+    public static final String LANG_HE = "he";
 
     public static final String[][] LANGUAGES = {
         {LANG_EN, "English", "Use tvOS Launcher in English"},
@@ -49,12 +50,13 @@ public final class I18n {
         {LANG_AR, "العربية", "استخدم tvOS Launcher باللغة العربية"},
         {LANG_JA, "日本語", "tvOS Launcher を日本語で使用する"},
         {LANG_ZH, "中文", "使用中文版 tvOS Launcher"},
-        {LANG_KO, "한국어", "tvOS Launcher를 한국어로 사용"}
+        {LANG_KO, "\ud55c\uad6d\uc5b4", "tvOS Launcher\ub97c \ud55c\uad6d\uc5b4\ub85c \uc0ac\uc6a9"},
+        {LANG_HE, "\u05e2\u05d1\u05e8\u05d9\u05ea", "\u05e9\u05d9\u05de\u05d5\u05e9 \u05d1-tvOS Launcher \u05d1\u05e2\u05d1\u05e8\u05d9\u05ea"}
     };
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
             LANG_EN, LANG_TR, LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
-            LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO
+            LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE
     ));
 
     private static String cachedLang;
@@ -209,7 +211,7 @@ public final class I18n {
         TR_MAP.put("releases_country_setting", "Çok İzlenenler ülkeleri");
         TR_MAP.put("releases_country_auto", "Otomatik (Arayüz diliyle eşitle)");
 
-        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO};
+        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
@@ -218,6 +220,7 @@ public final class I18n {
         initSwedish();
         initKorean();
         initAzerbaijani();
+        I18nHe.init(LANG_MAPS.get(LANG_HE));
     }
 
     private static void add(String en, String hi, String es, String fr, String de, String it, String ru, String pt, String ar, String ja, String zh) {
@@ -1525,6 +1528,8 @@ public final class I18n {
         if (sep > 0) {
             code = code.substring(0, sep);
         }
+        // Older Android/Java versions report Hebrew with the legacy code "iw".
+        if ("iw".equals(code)) code = LANG_HE;
         return SUPPORTED.contains(code) ? code : LANG_EN;
     }
 
@@ -1587,6 +1592,7 @@ public final class I18n {
             case LANG_JA: return Locale.forLanguageTag("ja-JP");
             case LANG_ZH: return Locale.forLanguageTag("zh-CN");
             case LANG_KO: return Locale.forLanguageTag("ko-KR");
+            case LANG_HE: return Locale.forLanguageTag("he-IL");
             default: return Locale.US;
         }
     }
@@ -1623,11 +1629,22 @@ public final class I18n {
         return enKey;
     }
 
+    /** Translates every key of an array (for dialogs that take a String[]). */
+    public static String[] tAll(Context c, String[] enKeys) {
+        String[] out = new String[enKeys.length];
+        for (int i = 0; i < enKeys.length; i++) out[i] = t(c, enKeys[i]);
+        return out;
+    }
+
     private static String translateOther(String lang, String en) {
         Map<String, String> map = LANG_MAPS.get(lang);
         if (map != null) {
             String direct = map.get(en);
             if (direct != null) return direct;
+        }
+        if (LANG_HE.equals(lang)) {
+            String dyn = I18nHe.dynamic(en);
+            if (dyn != null) return dyn;
         }
         // Dynamic pattern translations
         if (en.endsWith("% used · Recent Apps") && map != null) {
@@ -1676,6 +1693,8 @@ public final class I18n {
                 return new SimpleDateFormat("M月d日 EEEE", loc).format(date);
             case LANG_KO:
                 return new SimpleDateFormat("M월 d일 EEEE", loc).format(date);
+            case LANG_HE:
+                return new SimpleDateFormat("EEEE, d \u05d1MMMM", loc).format(date);
             case LANG_DE:
                 return new SimpleDateFormat("EEEE, d. MMMM", loc).format(date);
             case LANG_SV:
@@ -1692,9 +1711,75 @@ public final class I18n {
         }
     }
 
+    /** True when the active language is written right to left and the UI should be mirrored. */
+    public static boolean isRtl(Context c) {
+        return LANG_HE.equals(getLang(c));
+    }
+
+    /**
+     * Wraps an activity's base context so its layout direction follows the in-app language
+     * (not the system locale). Dialogs created from the activity inherit it.
+     */
+    public static Context wrap(Context base) {
+        if (base == null) return null;
+        try {
+            android.content.res.Configuration conf =
+                    new android.content.res.Configuration(base.getResources().getConfiguration());
+            conf.setLayoutDirection(isRtl(base) ? Locale.forLanguageTag("he-IL") : Locale.US);
+            return base.createConfigurationContext(conf);
+        } catch (Throwable t) {
+            return base;
+        }
+    }
+
+    /** Applies the in-app reading direction to a view tree (used for overlays and windows). */
+    public static void applyDirection(Context c, android.view.View root) {
+        if (root == null) return;
+        boolean rtl = isRtl(c);
+        root.setLayoutDirection(rtl ? android.view.View.LAYOUT_DIRECTION_RTL : android.view.View.LAYOUT_DIRECTION_LTR);
+        root.setTextDirection(rtl ? android.view.View.TEXT_DIRECTION_ANY_RTL : android.view.View.TEXT_DIRECTION_FIRST_STRONG);
+        if (rtl) {
+            // Rows are built and rebuilt in code: keep start-aligned text on the right edge after every layout,
+            // so Latin-only lines (app names, percentages) line up with the Hebrew ones.
+            final android.view.View r = root;
+            root.getViewTreeObserver().addOnGlobalLayoutListener(() -> alignToStart(r));
+        }
+    }
+
+    private static void alignToStart(android.view.View v) {
+        if (v instanceof android.widget.TextView) {
+            android.widget.TextView t = (android.widget.TextView) v;
+            int h = t.getGravity() & android.view.Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK;
+            if (t.getTextAlignment() == android.view.View.TEXT_ALIGNMENT_GRAVITY
+                    && (h == android.view.Gravity.START || h == android.view.Gravity.LEFT)) {
+                // Gravity (not textAlignment) so TextView rebuilds its cached layout right away.
+                t.setGravity((t.getGravity() & ~android.view.Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK) | android.view.Gravity.RIGHT);
+            }
+        } else if (v instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) alignToStart(g.getChildAt(i));
+        }
+    }
+
+    /** Keeps a view tree left-to-right (Home screen layout) while Hebrew text still reads right to left. */
+    public static void keepLtr(Context c, android.view.View root) {
+        if (root == null) return;
+        root.setLayoutDirection(android.view.View.LAYOUT_DIRECTION_LTR);
+        root.setTextDirection(isRtl(c) ? android.view.View.TEXT_DIRECTION_ANY_RTL : android.view.View.TEXT_DIRECTION_FIRST_STRONG);
+    }
+
     /** Translates default profile names ("Person 1", "Default", "Kids") while preserving custom names. */
     public static String profileName(Context c, String name) {
         if (name == null) return "";
+        if (LANG_HE.equals(getLang(c))) {
+            if (name.equals("Default") || name.equals("Varsay\u0131lan")) return "\u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc";
+            if (name.startsWith("Person ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Person ".length());
+            if (name.startsWith("Ki\u015fi ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Ki\u015fi ".length());
+            if (name.startsWith("Profile ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Profile ".length());
+            if (name.startsWith("Profil ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Profil ".length());
+            if (name.equals("Kids") || name.equals("\u00c7ocuklar")) return "\u05d9\u05dc\u05d3\u05d9\u05dd";
+            return name;
+        }
         if (isTr(c)) {
             if (name.equals("Default")) return "Varsayılan";
             if (name.startsWith("Person ")) return "Kişi " + name.substring("Person ".length());

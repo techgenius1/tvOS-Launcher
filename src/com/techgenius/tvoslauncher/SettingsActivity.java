@@ -175,6 +175,11 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(I18n.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         Clicks.init(this);
@@ -230,6 +235,11 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    /** Forward arrow that points the right way for the reading direction. */
+    private String chev() {
+        return I18n.isRtl(this) ? "\u2039" : "\u203a";
+    }
+
     private String tr(String en, String trStr) {
         return I18n.s(this, en, trStr);
     }
@@ -273,7 +283,7 @@ public class SettingsActivity extends Activity {
         columns.setOrientation(LinearLayout.HORIZONTAL);
         columns.setClipChildren(false);
         columns.setClipToPadding(false);
-        columns.setPadding(u(44), u(28), u(48), u(22));
+        columns.setPaddingRelative(u(44), u(28), u(48), u(22));
         root.addView(columns, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -283,7 +293,7 @@ public class SettingsActivity extends Activity {
         sideCol.setClipChildren(false);
         sideCol.setClipToPadding(false);
         LinearLayout.LayoutParams sideLp = new LinearLayout.LayoutParams(u(288), ViewGroup.LayoutParams.MATCH_PARENT);
-        sideLp.rightMargin = u(26);
+        sideLp.setMarginEnd(u(26));
         columns.addView(sideCol, sideLp);
 
         sideTitleView = new TextView(this);
@@ -295,7 +305,7 @@ public class SettingsActivity extends Activity {
         sideTitleView.setSingleLine(true);
         LinearLayout.LayoutParams stLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        stLp.leftMargin = u(16);
+        stLp.setMarginStart(u(16));
         stLp.topMargin = u(10);
         stLp.bottomMargin = u(16);
         sideCol.addView(sideTitleView, stLp);
@@ -304,7 +314,7 @@ public class SettingsActivity extends Activity {
         sideList.setOrientation(LinearLayout.VERTICAL);
         sideList.setClipChildren(false);
         sideList.setClipToPadding(false);
-        sideList.setPadding(u(8), u(4), u(8), u(8));
+        sideList.setPaddingRelative(u(8), u(4), u(8), u(8));
         sideCol.addView(sideList, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -325,7 +335,7 @@ public class SettingsActivity extends Activity {
         mainHeadView.setSingleLine(true);
         LinearLayout.LayoutParams mhLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mhLp.leftMargin = u(16);
+        mhLp.setMarginStart(u(16));
         mhLp.topMargin = u(14);
         mhLp.bottomMargin = u(12);
         mainCol.addView(mainHeadView, mhLp);
@@ -335,13 +345,13 @@ public class SettingsActivity extends Activity {
         scroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
         scroller.setClipChildren(true);
         scroller.setClipToPadding(true);
-        scroller.setPadding(0, 0, 0, 0);
+        scroller.setPaddingRelative(0, 0, 0, 0);
 
         list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
         list.setClipChildren(false);
         list.setClipToPadding(false);
-        list.setPadding(u(18), u(8), u(18), u(28));
+        list.setPaddingRelative(u(18), u(8), u(18), u(28));
         scroller.addView(list, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         mainCol.addView(scroller, new LinearLayout.LayoutParams(
@@ -358,10 +368,10 @@ public class SettingsActivity extends Activity {
         msgBg.setColor(0xD8181A24);
         msgBg.setStroke(Math.max(1, u(1)), 0x338FD3FF);
         msgView.setBackground(msgBg);
-        msgView.setPadding(u(14), u(6), u(14), u(6));
+        msgView.setPaddingRelative(u(14), u(6), u(14), u(6));
         LinearLayout.LayoutParams msgLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        msgLp.leftMargin = u(18);
+        msgLp.setMarginStart(u(18));
         msgLp.topMargin = u(6);
         mainCol.addView(msgView, msgLp);
 
@@ -375,13 +385,14 @@ public class SettingsActivity extends Activity {
         hintBg.setColor(0xD916161F);
         hintBg.setStroke(Math.max(1, u(1)), 0x26FFFFFF);
         hintView.setBackground(hintBg);
-        hintView.setPadding(u(14), u(7), u(14), u(7));
+        hintView.setPaddingRelative(u(14), u(7), u(14), u(7));
         LinearLayout.LayoutParams hintLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        hintLp.leftMargin = u(18);
+        hintLp.setMarginStart(u(18));
         hintLp.topMargin = u(8);
         mainCol.addView(hintView, hintLp);
 
+        I18n.applyDirection(this, root);
         setContentView(root);
     }
 
@@ -517,7 +528,7 @@ public class SettingsActivity extends Activity {
             row.setClipChildren(false);
             row.setClipToPadding(false);
             row.setMinimumHeight(u(35));
-            row.setPadding(u(7), u(4), u(14), u(4));
+            row.setPaddingRelative(u(7), u(4), u(14), u(4));
 
             GradientDrawable pillBg = new GradientDrawable();
             pillBg.setCornerRadius(u(12));
@@ -538,7 +549,7 @@ public class SettingsActivity extends Activity {
             iconBox.addView(iconIv, new FrameLayout.LayoutParams(iconGlyphSz, iconGlyphSz, Gravity.CENTER));
 
             LinearLayout.LayoutParams ibLp = new LinearLayout.LayoutParams(iconBoxSz, iconBoxSz);
-            ibLp.rightMargin = u(11);
+            ibLp.setMarginEnd(u(11));
             row.addView(iconBox, ibLp);
 
             TextView label = new TextView(this);
@@ -867,7 +878,14 @@ public class SettingsActivity extends Activity {
                     sub,
                     code.equals(cur),
                     () -> {
+                        boolean wasRtl = I18n.isRtl(this);
                         I18n.setLang(this, code);
+                        if (wasRtl != I18n.isRtl(this)) {
+                            // Reading direction changed: rebuild the screen so the whole layout flips.
+                            getIntent().putExtra("page", "language");
+                            recreate();
+                            return;
+                        }
                         updateSidebarTranslations();
                         selectSection(LANGUAGE, true, idx);
                     });
@@ -915,7 +933,7 @@ public class SettingsActivity extends Activity {
                 isManual ? tr("Set manually", "Elle ayarlandı") : tr("Detected automatically", "Otomatik algılandı"));
 
         row(tr("Search for a city or town…", "Şehir veya ilçe ara…"),
-                () -> isManual ? city : "›",
+                () -> isManual ? city : chev(),
                 this::searchCity);
 
         if (isManual) {
@@ -1124,7 +1142,7 @@ public class SettingsActivity extends Activity {
                 () -> {
                     Set<String> hidden = Profiles.homePrefs(this).getStringSet(MainActivity.PREF_HIDDEN, Collections.emptySet());
                     int count = hidden != null ? hidden.size() : 0;
-                    return (count > 0 ? count + "  " : "") + "›";
+                    return (count > 0 ? count + "  " : "") + chev();
                 },
                 () -> {
                     showingHiddenApps = true;
@@ -1161,7 +1179,7 @@ public class SettingsActivity extends Activity {
                     showStatusMsg(tr("Continue Watching cleared.", "İzlemeye Devam Et geçmişi temizlendi."));
                 });
         row(tr("Manage system apps in TV settings…", "TV ayarlarında uygulamaları yönet…"),
-                () -> "›",
+                () -> chev(),
                 () -> Suggestions.start(this, new Intent(Settings.ACTION_APPLICATION_SETTINGS)));
         infoNote(tr("Tip: Hold OK on any app on the home screen dock to move or hide it.",
                 "İpucu: Ana ekran dock'undaki herhangi bir uygulamayı taşımak veya gizlemek için OK tuşuna basılı tutun."));
@@ -1253,7 +1271,7 @@ public class SettingsActivity extends Activity {
         mainHeadView.setText(tr("Hidden apps", "Gizlenen uygulamalar"));
         List<HiddenAppItem> hiddenList = listHiddenAppItems();
         if (hiddenList.isEmpty()) {
-            row("←  " + tr("Back to Apps", "Uygulamalara dön"), () -> "", () -> {
+            row((I18n.isRtl(this) ? "\u2192  " : "\u2190  ") + tr("Back to Apps", "Uygulamalara d\u00f6n"), () -> "", () -> {
                 showingHiddenApps = false;
                 rebuildMainRows();
                 focusFirstRow();
@@ -1277,7 +1295,7 @@ public class SettingsActivity extends Activity {
         r.setFocusable(true);
         r.setClickable(true);
         r.setLongClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -1297,7 +1315,7 @@ public class SettingsActivity extends Activity {
         });
         iconIv.setClipToOutline(true);
         LinearLayout.LayoutParams icLp = new LinearLayout.LayoutParams(icSz, icSz);
-        icLp.rightMargin = u(12);
+        icLp.setMarginEnd(u(12));
         r.addView(iconIv, icLp);
 
         TextView l = new TextView(this);
@@ -1389,7 +1407,7 @@ public class SettingsActivity extends Activity {
                     () -> openSubMenu("profile_actions:" + p.id));
         }
         if (Profiles.canAdd(this)) {
-            row(tr("Add a person…", "Kişi ekle…"), () -> "›", this::promptAddPerson);
+            row(tr("Add a person\u2026", "Ki\u015fi ekle\u2026"), () -> chev(), this::promptAddPerson);
         }
         section(tr("OPTIONS", "SEÇENEKLER"));
         row(tr("Ask who is watching on wake", "TV açıldığında kimin izlediğini sor"),
@@ -1406,7 +1424,7 @@ public class SettingsActivity extends Activity {
         in.setSelection(in.getText().length());
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         AlertDialog dlg = dialog(tr("Rename person", "Kişiyi yeniden adlandır"))
                 .setView(box)
@@ -1430,7 +1448,7 @@ public class SettingsActivity extends Activity {
         in.setHint(tr("Name", "Ad"));
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         AlertDialog dlg = dialog(tr("Add a person", "Kişi ekle"))
                 .setView(box)
@@ -1623,13 +1641,13 @@ public class SettingsActivity extends Activity {
                         : tr("Turn on first", "Önce etkinleştirin"),
                 this::showPresentInfo);
         row(tr("Run first-time setup again…", "İlk kurulumu tekrar çalıştır…"),
-                () -> "›",
+                () -> chev(),
                 () -> {
                     getSharedPreferences("setup", MODE_PRIVATE).edit().putInt("cur_step", 0).apply();
                     startActivity(new Intent(this, SetupActivity.class).putExtra("step", 0));
                 });
         row(tr("Open Android TV Settings…", "Android TV Ayarlarını Aç…"),
-                () -> "›",
+                () -> chev(),
                 () -> Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS)));
 
         section(tr("BACKUP & RESTORE", "YEDEKLEME VE GERİ YÜKLEME"));
@@ -2265,7 +2283,7 @@ public class SettingsActivity extends Activity {
     // ================================================================ Native Right-Side Sub-Menus
 
     private void backSubMenuRow() {
-        row("←  " + tr("Back", "Geri"), () -> "", this::closeSubMenu);
+        row((I18n.isRtl(this) ? "\u2192  " : "\u2190  ") + tr("Back", "Geri"), () -> "", this::closeSubMenu);
     }
 
     private void renderSubMenu(String subId) {
@@ -2733,7 +2751,7 @@ public class SettingsActivity extends Activity {
         section(tr("FORECAST PROVIDER", "HAVA TAHMİNİ SAĞLAYICISI"));
         String cur = Weather.source(this);
         String[] keys = Weather.SOURCES;
-        String[] names = {"Open-Meteo", "MET Norway (Yr)", "wttr.in  (3 days)"};
+        String[] names = {"Open-Meteo", "MET Norway (Yr)", "wttr.in  (" + tr("3 days", "3 g\u00fcn") + ")"};
         for (int i = 0; i < keys.length; i++) {
             final String k = keys[i];
             final String n = names[i];
@@ -2788,13 +2806,13 @@ public class SettingsActivity extends Activity {
         backSubMenuRow();
         section(dispName);
         row(tr("Switch to " + dispName, dispName + " profiline geç"),
-                () -> Profiles.current(this).id.equals(p.id) ? tr("Active", "Etkin") : "›",
+                () -> Profiles.current(this).id.equals(p.id) ? tr("Active", "Etkin") : chev(),
                 () -> {
                     Profiles.setCurrent(this, p.id);
                     closeSubMenu();
                 });
         row(tr("Rename…", "Yeniden adlandır…"),
-                () -> "›",
+                () -> chev(),
                 () -> promptRenamePerson(p, rowIdx));
         if (all.size() > 1) {
             row(tr("Remove person", "Kişiyi kaldır"),
@@ -3367,7 +3385,7 @@ public class SettingsActivity extends Activity {
         in.setSelection(in.getText().length());
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         AlertDialog dlg = dialog(tr("Filter TV Models", "TV Modellerini Filtrele"))
                 .setView(box)
@@ -3439,7 +3457,7 @@ public class SettingsActivity extends Activity {
             infoNote(tr("None of the packages listed in " + model.title + " are installed on this TV.",
                     model.title + " profilindeki paketlerin hiçbiri bu TV'de yüklü değil."));
             row(tr("🔍 Scan Installed System Apps to Find Matching Model", "🔍 Eşleşen Modeli Bulmak İçin Yüklü Uygulamaları Tara"),
-                    () -> "›",
+                    () -> chev(),
                     () -> {
                         cytScannedMatches = null;
                         openSubMenu("cyt_models_scan");
@@ -3455,7 +3473,7 @@ public class SettingsActivity extends Activity {
                     : tr("On Google TV, if you disable setupwraith, make sure your Wi-Fi network was re-added in Wi-Fi Settings.",
                          "Google TV'de setupwraith'i devre dışı bırakacaksanız Wi-Fi ağınızı Wi-Fi Ayarları'ndan yeniden eklediğinizden emin olun."));
             row(tr("📶 Open Wi-Fi Settings…", "📶 Wi-Fi Ayarlarını Aç…"),
-                    () -> "›",
+                    () -> chev(),
                     () -> {
                         Intent wifi = new Intent(Settings.ACTION_WIFI_SETTINGS);
                         if (!Suggestions.start(this, wifi)) {
@@ -3766,7 +3784,7 @@ public class SettingsActivity extends Activity {
         in.setSelection(in.getText().length());
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         AlertDialog dlg = dialog(tr("Filter System Apps", "Sistem Uygulamalarını Filtrele"))
                 .setView(box)
@@ -3842,7 +3860,7 @@ public class SettingsActivity extends Activity {
             infoNote(tr("No saved disabled-app backup was found, and no TV model is selected yet. Choose a TV model first if you want to restore by model profile.",
                     "Kaydedilmiş devre dışı uygulama yedeği bulunamadı ve henüz bir TV modeli seçilmedi."));
             row(tr("Choose TV model…", "TV modelini seçin…"),
-                    () -> "›",
+                    () -> chev(),
                     () -> {
                         cytAutoContinueToDebloat = false;
                         openSubMenu("cyt_models");
@@ -3917,7 +3935,7 @@ public class SettingsActivity extends Activity {
         Ui.textSize(t, 10.5f);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.leftMargin = u(14);
+        lp.setMarginStart(u(14));
         lp.topMargin = list.getChildCount() == 0 ? u(2) : u(12);
         lp.bottomMargin = u(4);
         list.addView(t, lp);
@@ -3930,7 +3948,7 @@ public class SettingsActivity extends Activity {
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setFocusable(true);
         r.setClickable(true);
-        r.setPadding(u(16), u(9), u(16), u(9));
+        r.setPaddingRelative(u(16), u(9), u(16), u(9));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4012,7 +4030,7 @@ public class SettingsActivity extends Activity {
         r.setClickable(true);
         r.setLongClickable(true);
         r.setTag("scene:" + spec.id);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4033,7 +4051,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4178,7 +4196,7 @@ public class SettingsActivity extends Activity {
         r.setClickable(true);
         r.setLongClickable(true);
         r.setTag("scene:" + cid);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4203,7 +4221,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4325,7 +4343,7 @@ public class SettingsActivity extends Activity {
         r.setFocusable(true);
         r.setClickable(true);
         r.setLongClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4355,7 +4373,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4450,7 +4468,7 @@ public class SettingsActivity extends Activity {
         r.setClickable(true);
         r.setLongClickable(true);
         r.setTag("scene:" + fid);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4475,7 +4493,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4601,7 +4619,7 @@ public class SettingsActivity extends Activity {
         r.setFocusable(true);
         r.setClickable(true);
         r.setLongClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4626,7 +4644,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4730,7 +4748,7 @@ public class SettingsActivity extends Activity {
                     refreshAll();
                 });
         row(tr("Preview Lock Screen now", "Kilit Ekranını şimdi önizle"),
-                () -> "›",
+                () -> chev(),
                 () -> MainActivity.triggerLockScreen(this));
 
         section(tr("NIGHT SCENES", "GECE SAHNELERİ"));
@@ -4765,7 +4783,7 @@ public class SettingsActivity extends Activity {
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setFocusable(true);
         r.setClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4790,7 +4808,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4871,7 +4889,7 @@ public class SettingsActivity extends Activity {
         r.setFocusable(true);
         r.setClickable(true);
         r.setLongClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -4896,7 +4914,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -4998,7 +5016,7 @@ public class SettingsActivity extends Activity {
         r.setFocusable(true);
         r.setClickable(true);
         r.setLongClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -5023,7 +5041,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -5117,7 +5135,7 @@ public class SettingsActivity extends Activity {
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setFocusable(true);
         r.setClickable(true);
-        r.setPadding(u(14), u(6), u(16), u(6));
+        r.setPaddingRelative(u(14), u(6), u(16), u(6));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -5137,7 +5155,7 @@ public class SettingsActivity extends Activity {
         });
         thumb.setClipToOutline(true);
         LinearLayout.LayoutParams thlp = new LinearLayout.LayoutParams(tw, th);
-        thlp.rightMargin = u(12);
+        thlp.setMarginEnd(u(12));
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
@@ -5188,7 +5206,7 @@ public class SettingsActivity extends Activity {
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setFocusable(true);
         r.setClickable(true);
-        r.setPadding(u(16), 0, u(16), 0);
+        r.setPaddingRelative(u(16), 0, u(16), 0);
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -5211,7 +5229,7 @@ public class SettingsActivity extends Activity {
         v.setSingleLine(true);
         LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        vlp.leftMargin = u(10);
+        vlp.setMarginStart(u(10));
         r.addView(v, vlp);
 
         Runnable refresh = () -> {
@@ -5255,7 +5273,7 @@ public class SettingsActivity extends Activity {
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setFocusable(true);
         r.setClickable(true);
-        r.setPadding(u(16), u(9), u(16), u(9));
+        r.setPaddingRelative(u(16), u(9), u(16), u(9));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(13));
@@ -5288,13 +5306,13 @@ public class SettingsActivity extends Activity {
         r.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView chev = new TextView(this);
-        chev.setText("›");
+        chev.setText(chev());
         chev.setTextColor(0x9EFFFFFF);
         chev.setTypeface(Ui.font(this, "medium"));
         Ui.textSize(chev, 15f);
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        clp.leftMargin = u(10);
+        clp.setMarginStart(u(10));
         r.addView(chev, clp);
 
         Runnable refresh = () -> {
@@ -5337,7 +5355,7 @@ public class SettingsActivity extends Activity {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
         r.setGravity(Gravity.CENTER_VERTICAL);
-        r.setPadding(u(14), u(5), u(14), u(5));
+        r.setPaddingRelative(u(14), u(5), u(14), u(5));
 
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
@@ -5377,7 +5395,7 @@ public class SettingsActivity extends Activity {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
         r.setGravity(Gravity.CENTER_VERTICAL);
-        r.setPadding(u(14), u(5), u(14), u(5));
+        r.setPaddingRelative(u(14), u(5), u(14), u(5));
 
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
@@ -5428,8 +5446,8 @@ public class SettingsActivity extends Activity {
         Ui.textSize(t, 11.5f);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.leftMargin = u(14);
-        lp.rightMargin = u(14);
+        lp.setMarginStart(u(14));
+        lp.setMarginEnd(u(14));
         lp.topMargin = u(6);
         lp.bottomMargin = u(4);
         list.addView(t, lp);
@@ -5633,7 +5651,7 @@ public class SettingsActivity extends Activity {
         in.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         AlertDialog dlg = dialog(tr("Choose City", "Şehir Seçin"))
                 .setView(box)
@@ -5693,11 +5711,11 @@ public class SettingsActivity extends Activity {
         box.setOrientation(LinearLayout.HORIZONTAL);
         box.setGravity(Gravity.CENTER_VERTICAL);
         int pad = u(16);
-        box.setPadding(pad, pad, pad, pad / 2);
+        box.setPaddingRelative(pad, pad, pad, pad / 2);
         ImageView qr = new ImageView(this);
         qr.setImageBitmap(com.techgenius.tvoslauncher.present.Presenter.qr(u(110)));
         qr.setBackgroundColor(Color.WHITE);
-        qr.setPadding(u(6), u(6), u(6), u(6));
+        qr.setPaddingRelative(u(6), u(6), u(6), u(6));
         box.addView(qr, new LinearLayout.LayoutParams(u(122), u(122)));
         TextView info = new TextView(this);
         String pin = com.techgenius.tvoslauncher.present.Presenter.pin(this);
@@ -5708,7 +5726,7 @@ public class SettingsActivity extends Activity {
         info.setTextColor(Color.WHITE);
         info.setTypeface(Ui.font(this, "medium"));
         Ui.textSize(info, 14);
-        info.setPadding(u(18), 0, 0, 0);
+        info.setPaddingRelative(u(18), 0, 0, 0);
         box.addView(info);
         dialog(tr("Send to this TV", "Bu TV'ye gönder")).setView(box).setPositiveButton(tr("Done", "Tamam"), null).show();
     }

@@ -1024,7 +1024,7 @@ public final class CleanYourTv {
                     box.setGravity(Gravity.CENTER_VERTICAL);
                     int padH = dp(activity, 16);
                     int padV = dp(activity, 11);
-                    box.setPadding(padH, padV, padH, padV);
+                    box.setPaddingRelative(padH, padV, padH, padV);
 
                     GradientDrawable cardBg = new GradientDrawable();
                     cardBg.setCornerRadius(dp(activity, 10));
@@ -1085,7 +1085,7 @@ public final class CleanYourTv {
         for (int id : btnIds) {
             Button b = dlg.getButton(id);
             if (b == null) continue;
-            b.setPadding(padH, padV, padH, padV);
+            b.setPaddingRelative(padH, padV, padH, padV);
             ViewGroup.LayoutParams lp = b.getLayoutParams();
             if (lp instanceof ViewGroup.MarginLayoutParams) {
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
@@ -1097,7 +1097,7 @@ public final class CleanYourTv {
             }
         }
         if (parentBar != null) {
-            parentBar.setPadding(dp(activity, 12), dp(activity, 8), dp(activity, 12), dp(activity, 8));
+            parentBar.setPaddingRelative(dp(activity, 12), dp(activity, 8), dp(activity, 12), dp(activity, 8));
             parentBar.setClipToPadding(false);
             parentBar.setClipChildren(false);
         }
@@ -1111,7 +1111,7 @@ public final class CleanYourTv {
             lv.setDividerHeight(dp(activity, 9));
             int padH = dp(activity, 14);
             int padV = dp(activity, 8);
-            lv.setPadding(padH, padV, padH, padV);
+            lv.setPaddingRelative(padH, padV, padH, padV);
             lv.setClipToPadding(false);
         }
         styleDialogButtons(activity, dlg);
@@ -1309,7 +1309,7 @@ public final class CleanYourTv {
         }
         int pad = Math.round(16 * activity.getResources().getDisplayMetrics().density);
         FrameLayout box = new FrameLayout(activity);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(input);
 
         AlertDialog dlg = dialog(activity, tr(activity, "Search TV Model or Brand", "TV Modeli veya Markası Ara"))
@@ -1603,7 +1603,7 @@ public final class CleanYourTv {
         for (String[] row : KNOWN_SYSTEM_LAUNCHERS) {
             String pkg = row[0];
             String fallbackTitle = row[1];
-            String desc = row[2];
+            String desc = I18n.t(c, row[2]);
             boolean isInstalled = (installedPkgs != null && installedPkgs.contains(pkg)) || savedDisabled.contains(pkg);
             Boolean pmEnabled = null;
             try {
@@ -1864,7 +1864,7 @@ public final class CleanYourTv {
                         if (it.checked) toDisable.add(it.pkg);
                     }
                     if (!toDisable.isEmpty()) {
-                        executeDebloatPackages(activity, "System Launchers", toDisable, onChanged);
+                        executeDebloatPackages(activity, I18n.t(activity, "System Launchers"), toDisable, onChanged);
                     }
                 })
                 .setNegativeButton(tr(activity, "Close", "Kapat"), null)
@@ -2088,7 +2088,7 @@ public final class CleanYourTv {
                     rowBox.setGravity(Gravity.CENTER_VERTICAL);
                     int padH = dp(activity, 16);
                     int padV = dp(activity, 11);
-                    rowBox.setPadding(padH, padV, padH, padV);
+                    rowBox.setPaddingRelative(padH, padV, padH, padV);
 
                     GradientDrawable cardBg = new GradientDrawable();
                     cardBg.setCornerRadius(dp(activity, 10));
@@ -2126,7 +2126,7 @@ public final class CleanYourTv {
                     tvBadge.setGravity(Gravity.CENTER);
                     LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
                             dp(activity, 32), dp(activity, 32));
-                    blp.leftMargin = dp(activity, 12);
+                    blp.setMarginStart(dp(activity, 12));
                     rowBox.addView(tvBadge, blp);
 
                     rowBox.setTag(new TextView[]{tvTitle, tvSub, tvBadge});
