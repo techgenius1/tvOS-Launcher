@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,13 +44,16 @@ public final class Scenes {
     public static final int MAX_CUSTOM_SCENES = 5;
     public static final String[] CUSTOM_IDS = {"custom", "custom_2", "custom_3", "custom_4", "custom_5"};
     public static final String FOLDER_SHUFFLE_ID = "folder_shuffle";
+    public static final String REDDIT_WALLPAPER_ID = "reddit_wall";
     public static final String LOCK_CUSTOM_ID = "lock_custom";
     public static final String LOCK_FOLDER_SHUFFLE_ID = "lock_folder_shuffle";
 
+    public static final String CLOCK_POS_DYNAMIC = "dynamic";
     public static final String CLOCK_POS_LEFT = "left";
     public static final String CLOCK_POS_CENTER = "center";
     public static final String CLOCK_POS_RIGHT = "right";
     public static final String[] CLOCK_POSITIONS = {CLOCK_POS_LEFT, CLOCK_POS_CENTER, CLOCK_POS_RIGHT};
+    public static final String[] DEFAULT_CLOCK_POSITIONS = {CLOCK_POS_DYNAMIC, CLOCK_POS_LEFT, CLOCK_POS_CENTER, CLOCK_POS_RIGHT};
 
     public static final String CLOCK_STYLE_DUO = "duo";
     public static final String CLOCK_STYLE_ROUNDED = "rounded";
@@ -153,6 +157,13 @@ public final class Scenes {
             68f, 190f, 48f,
             45f, 52f, false);
 
+    public static final Spec REDDIT_WALLPAPER_SPEC = new Spec(
+            REDDIT_WALLPAPER_ID, "Reddit Wallpapers", "Reddit Duvar Kağıtları",
+            null, null, null,
+            false, false, false,
+            68f, 190f, 48f,
+            45f, 52f, false);
+
     public static final Spec LOCK_CUSTOM_SPEC = new Spec(
             LOCK_CUSTOM_ID, "Custom Lock Image", "Özel Kilit Görseli",
             null, null, null,
@@ -176,14 +187,21 @@ public final class Scenes {
     };
 
     public static String customId(int slot) {
-        int s = Math.max(1, Math.min(MAX_CUSTOM_SCENES, slot));
-        return CUSTOM_IDS[s - 1];
+        int s = Math.max(1, slot);
+        return s == 1 ? CUSTOM_ID : ("custom_" + s);
+    }
+
+    public static String customSlotToId(int slot) {
+        return customId(slot);
     }
 
     public static int customSlotFromId(String id) {
         if (id == null) return 0;
-        for (int i = 0; i < CUSTOM_IDS.length; i++) {
-            if (CUSTOM_IDS[i].equals(id)) return i + 1;
+        if (CUSTOM_ID.equals(id)) return 1;
+        if (id.startsWith("custom_")) {
+            try {
+                return Math.max(1, Integer.parseInt(id.substring("custom_".length())));
+            } catch (NumberFormatException ignored) {}
         }
         return 0;
     }
@@ -193,10 +211,52 @@ public final class Scenes {
         String base = baseSceneId(id);
         return customSlotFromId(base) > 0
                 || FOLDER_SHUFFLE_ID.equals(base)
+                || REDDIT_WALLPAPER_ID.equals(base)
                 || LOCK_CUSTOM_ID.equals(base)
                 || LOCK_FOLDER_SHUFFLE_ID.equals(base)
                 || base.startsWith("photo:")
                 || base.startsWith("grad:");
+    }
+
+    public static boolean isCustomWallpaperSelected(Context c) {
+        if (c == null) return false;
+        for (String id : getEnabledSceneIdsRaw(c)) {
+            if (customSlotFromId(id) > 0) return true;
+        }
+        return false;
+    }
+
+    public static boolean isFolderShuffleSelected(Context c) {
+        if (c == null) return false;
+        return getEnabledSceneIdsRaw(c).contains(FOLDER_SHUFFLE_ID);
+    }
+
+    public static boolean isRedditWallpaperSelected(Context c) {
+        if (c == null) return false;
+        return getEnabledSceneIdsRaw(c).contains(REDDIT_WALLPAPER_ID);
+    }
+
+    public static void setSelected(Context c, Object idOrIdx) {
+        if (c == null || idOrIdx == null) return;
+        if (idOrIdx instanceof Integer) {
+            int idx = (Integer) idOrIdx;
+            if (idx >= 0 && idx < ALL.length) {
+                prefs(c).edit().putString("prefer_scene_id", ALL[idx].id).apply();
+            }
+        } else {
+            String id = String.valueOf(idOrIdx);
+            List<String> enabled = new ArrayList<>(getEnabledSceneIdsRaw(c));
+            if (!enabled.contains(id)) enabled.add(id);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < enabled.size(); i++) {
+                if (i > 0) sb.append(',');
+                sb.append(enabled.get(i));
+            }
+            prefs(c).edit()
+                    .putString("scene_enabled", sb.toString())
+                    .putString("prefer_scene_id", id)
+                    .apply();
+        }
     }
 
     public static String baseSceneId(String id) {
@@ -218,8 +278,13 @@ public final class Scenes {
     public static Spec byId(String rawId) {
         String id = baseSceneId(rawId);
         int cSlot = customSlotFromId(id);
-        if (cSlot > 0) return CUSTOM_SPECS[cSlot - 1];
+        if (cSlot > 0) {
+            if (cSlot <= CUSTOM_SPECS.length) return CUSTOM_SPECS[cSlot - 1];
+            return new Spec(customId(cSlot), "Custom " + cSlot, "Özel " + cSlot,
+                    null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false);
+        }
         if (FOLDER_SHUFFLE_ID.equals(id)) return FOLDER_SHUFFLE_SPEC;
+        if (REDDIT_WALLPAPER_ID.equals(id)) return REDDIT_WALLPAPER_SPEC;
         if (LOCK_CUSTOM_ID.equals(id)) return LOCK_CUSTOM_SPEC;
         if (LOCK_FOLDER_SHUFFLE_ID.equals(id)) return LOCK_FOLDER_SHUFFLE_SPEC;
         if (id.startsWith("photo:")) {
@@ -311,7 +376,7 @@ public final class Scenes {
     }
 
     public static List<String> getSceneOrder(Context c) {
-        String raw = prefs(c).getString("scene_order", "night,golden,water,fog,dawn,custom,custom_2,custom_3,custom_4,custom_5,folder_shuffle");
+        String raw = prefs(c).getString("scene_order", "night,golden,water,fog,dawn,custom,custom_2,custom_3,custom_4,custom_5,folder_shuffle,reddit_wall");
         List<String> out = new ArrayList<>();
         for (String part : raw.split(",")) {
             String p = part.trim();
@@ -322,11 +387,16 @@ public final class Scenes {
         for (Spec s : ALL) {
             if (!out.contains(s.id)) out.add(s.id);
         }
-        for (String cid : CUSTOM_IDS) {
+        int slotCount = Math.max(MAX_CUSTOM_SCENES, CustomMedia.getCustomSlotCount(c, CustomMedia.SCOPE_SCENE));
+        for (int i = 1; i <= slotCount; i++) {
+            String cid = customId(i);
             if (!out.contains(cid)) out.add(cid);
         }
         if (!out.contains(FOLDER_SHUFFLE_ID)) {
             out.add(FOLDER_SHUFFLE_ID);
+        }
+        if (!out.contains(REDDIT_WALLPAPER_ID)) {
+            out.add(REDDIT_WALLPAPER_ID);
         }
         return out;
     }
@@ -340,20 +410,67 @@ public final class Scenes {
         prefs(c).edit().putString("scene_order", sb.toString()).apply();
     }
 
+    private static List<String> getEnabledSceneIdsRaw(Context c) {
+        String raw = prefs(c).getString("scene_enabled", "night,golden,water,fog,dawn");
+        List<String> enabled = new ArrayList<>();
+        for (String part : raw.split(",")) {
+            String p = part.trim();
+            if (!p.isEmpty() && !enabled.contains(p)) enabled.add(p);
+        }
+        return enabled;
+    }
+
     public static List<String> getEnabledSceneIds(Context c) {
+        boolean customModeOn = CustomMedia.isCustomWallpaperEnabled(c, CustomMedia.SCOPE_SCENE);
+        int customSubMode = CustomMedia.getCustomWallpaperSubMode(c, CustomMedia.SCOPE_SCENE);
+        if (customModeOn) {
+            if (customSubMode == CustomMedia.CUSTOM_MODE_REDDIT) {
+                return Collections.singletonList(REDDIT_WALLPAPER_ID);
+            }
+            if (customSubMode == CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE
+                    && CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_SCENE)) {
+                return Collections.singletonList(FOLDER_SHUFFLE_ID);
+            }
+        }
+
         String raw = prefs(c).getString("scene_enabled", "night,golden,water,fog,dawn");
         List<String> enabled = new ArrayList<>();
         for (String part : raw.split(",")) {
             String p = part.trim();
             int cSlot = customSlotFromId(p);
-            if (cSlot > 0 && !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) {
-                continue;
+            if (cSlot > 0) {
+                if (!customModeOn || customSubMode != CustomMedia.CUSTOM_MODE_SINGLE_MULTI
+                        || !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) {
+                    continue;
+                }
             }
-            if (FOLDER_SHUFFLE_ID.equals(p) && !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_SCENE)) {
-                continue;
+            if (FOLDER_SHUFFLE_ID.equals(p)) {
+                if (!customModeOn || !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_SCENE)) {
+                    continue;
+                }
+            }
+            if (REDDIT_WALLPAPER_ID.equals(p)) {
+                if (!customModeOn || customSubMode != CustomMedia.CUSTOM_MODE_REDDIT) {
+                    continue;
+                }
             }
             if (!p.isEmpty() && byId(p).id.equals(p) && !enabled.contains(p)) {
                 enabled.add(p);
+            }
+        }
+        if (customModeOn && customSubMode == CustomMedia.CUSTOM_MODE_SINGLE_MULTI) {
+            List<String> customOnly = new ArrayList<>();
+            for (String id : enabled) {
+                if (customSlotFromId(id) > 0) customOnly.add(id);
+            }
+            if (customOnly.isEmpty()) {
+                int act = CustomMedia.getActiveCustomSlot(c, CustomMedia.SCOPE_SCENE);
+                if (CustomMedia.hasCustomSceneWallpaper(c, act)) {
+                    customOnly.add(customId(act));
+                }
+            }
+            if (!customOnly.isEmpty()) {
+                return customOnly;
             }
         }
         if (enabled.isEmpty()) enabled.add("night");
@@ -370,19 +487,22 @@ public final class Scenes {
         int cSlot = customSlotFromId(id);
         if (cSlot > 0 && !CustomMedia.hasCustomSceneWallpaper(c, cSlot)) return false;
         if (FOLDER_SHUFFLE_ID.equals(id) && !CustomMedia.hasWallpaperShuffleFolder(c, CustomMedia.SCOPE_SCENE)) return false;
-        return getEnabledSceneIds(c).contains(id);
+        return getEnabledSceneIds(c).contains(id) || getEnabledSceneIdsRaw(c).contains(id);
     }
 
     public static boolean isAnyCustomSceneEnabled(Context c) {
+        if (CustomMedia.isCustomWallpaperEnabled(c, CustomMedia.SCOPE_SCENE)) return true;
         List<String> enabled = getEnabledSceneIds(c);
-        for (String cid : CUSTOM_IDS) {
-            if (enabled.contains(cid)) return true;
+        for (String id : enabled) {
+            if (customSlotFromId(id) > 0 || FOLDER_SHUFFLE_ID.equals(id) || REDDIT_WALLPAPER_ID.equals(id)) {
+                return true;
+            }
         }
-        return enabled.contains(FOLDER_SHUFFLE_ID);
+        return false;
     }
 
     public static void enableFolderShuffleScene(Context c, boolean enable) {
-        List<String> enabled = new ArrayList<>(getEnabledSceneIds(c));
+        List<String> enabled = new ArrayList<>(getEnabledSceneIdsRaw(c));
         if (enable) {
             if (!enabled.contains(FOLDER_SHUFFLE_ID)) enabled.add(FOLDER_SHUFFLE_ID);
             prefs(c).edit().putString("prefer_scene_id", FOLDER_SHUFFLE_ID).apply();
@@ -404,7 +524,7 @@ public final class Scenes {
 
     public static void enableCustomScene(Context c, int slot, boolean enable) {
         String cid = customId(slot);
-        List<String> enabled = new ArrayList<>(getEnabledSceneIds(c));
+        List<String> enabled = new ArrayList<>(getEnabledSceneIdsRaw(c));
         if (enable) {
             if (!enabled.contains(cid)) enabled.add(cid);
             prefs(c).edit().putString("prefer_scene_id", cid).apply();
@@ -419,6 +539,43 @@ public final class Scenes {
         }
         prefs(c).edit().putString("scene_enabled", sb.toString()).apply();
     }
+
+    // ─── Default Night Scenes Clock Alignment (Dynamic / Left / Center / Right) ───
+
+    public static String getDefaultClockPos(Context c) {
+        String pos = prefs(c).getString("default_clock_pos", CLOCK_POS_DYNAMIC);
+        if (CLOCK_POS_LEFT.equals(pos) || CLOCK_POS_CENTER.equals(pos) || CLOCK_POS_RIGHT.equals(pos)) {
+            return pos;
+        }
+        return CLOCK_POS_DYNAMIC;
+    }
+
+    public static void setDefaultClockPos(Context c, String pos) {
+        prefs(c).edit().putString("default_clock_pos", pos).apply();
+    }
+
+    public static String cycleDefaultClockPos(Context c) {
+        String cur = getDefaultClockPos(c);
+        String next = DEFAULT_CLOCK_POSITIONS[0];
+        for (int i = 0; i < DEFAULT_CLOCK_POSITIONS.length; i++) {
+            if (DEFAULT_CLOCK_POSITIONS[i].equals(cur)) {
+                next = DEFAULT_CLOCK_POSITIONS[(i + 1) % DEFAULT_CLOCK_POSITIONS.length];
+                break;
+            }
+        }
+        setDefaultClockPos(c, next);
+        return next;
+    }
+
+    public static String defaultClockPosLabel(Context c) {
+        String pos = getDefaultClockPos(c);
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.t(c, "align_left");
+        if (CLOCK_POS_CENTER.equals(pos)) return I18n.t(c, "align_center");
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.t(c, "align_right");
+        return I18n.t(c, "align_dynamic");
+    }
+
+    // ─── Custom Night Scenes Clock Alignment (Left / Center / Right) ───
 
     public static String getCustomClockPos(Context c) {
         String pos = prefs(c).getString("custom_clock_pos", CLOCK_POS_CENTER);
@@ -445,9 +602,49 @@ public final class Scenes {
 
     public static String customClockPosLabel(Context c) {
         String pos = getCustomClockPos(c);
-        if (CLOCK_POS_LEFT.equals(pos)) return I18n.s(c, "Left", "Sol");
-        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.s(c, "Right", "Sağ");
-        return I18n.s(c, "Center", "Orta");
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.t(c, "align_left");
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.t(c, "align_right");
+        return I18n.t(c, "align_center");
+    }
+
+    // ─── Classic Appearance Big Clock & Clock Alignment ───
+
+    public static boolean isClassicBigClockEnabled(Context c) {
+        return prefs(c).getBoolean("classic_big_clock", true);
+    }
+
+    public static void setClassicBigClockEnabled(Context c, boolean enabled) {
+        prefs(c).edit().putBoolean("classic_big_clock", enabled).apply();
+    }
+
+    public static String getClassicClockPos(Context c) {
+        String pos = prefs(c).getString("classic_clock_pos", CLOCK_POS_CENTER);
+        if (CLOCK_POS_LEFT.equals(pos) || CLOCK_POS_RIGHT.equals(pos)) return pos;
+        return CLOCK_POS_CENTER;
+    }
+
+    public static void setClassicClockPos(Context c, String pos) {
+        prefs(c).edit().putString("classic_clock_pos", pos).apply();
+    }
+
+    public static String cycleClassicClockPos(Context c) {
+        String cur = getClassicClockPos(c);
+        String next = CLOCK_POS_LEFT;
+        for (int i = 0; i < CLOCK_POSITIONS.length; i++) {
+            if (CLOCK_POSITIONS[i].equals(cur)) {
+                next = CLOCK_POSITIONS[(i + 1) % CLOCK_POSITIONS.length];
+                break;
+            }
+        }
+        setClassicClockPos(c, next);
+        return next;
+    }
+
+    public static String classicClockPosLabel(Context c) {
+        String pos = getClassicClockPos(c);
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.t(c, "align_left");
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.t(c, "align_right");
+        return I18n.t(c, "align_center");
     }
 
     /** Returns false if trying to disable the last remaining active scene. */
@@ -724,6 +921,7 @@ public final class Scenes {
         private String weatherDesc;
         private int weatherCode = -1;
         private boolean lockScreenMode = false;
+        private boolean classicClockOnlyMode = false;
         private int folderFlipCounter = 0;
 
         private final Paint bmpPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
@@ -777,6 +975,10 @@ public final class Scenes {
             Bitmap glassWetBaked;
             BitmapShader glassShader;
             BitmapShader glassWetShader;
+            /** Clock uses the same Liquid Glass look as the dock / cards (custom, classic, reddit, folder walls). */
+            boolean dockGlass;
+            /** Average luminance behind the clock region (0..1). */
+            float clockLum = 0.35f;
 
             LoadedScene(Spec spec) {
                 this.spec = spec;
@@ -842,6 +1044,46 @@ public final class Scenes {
             return lockScreenMode;
         }
 
+        public void setClassicClockOnlyMode(boolean clockOnly) {
+            if (this.classicClockOnlyMode != clockOnly) {
+                this.classicClockOnlyMode = clockOnly;
+                this.cachedFrameKey = null;
+                invalidate();
+            }
+        }
+
+        public boolean isClassicClockOnlyMode() {
+            return classicClockOnlyMode;
+        }
+
+        private Bitmap classicWallBmp;
+
+        public void setClassicWallpaperBitmap(Bitmap bmp) {
+            if (this.classicWallBmp != bmp) {
+                this.classicWallBmp = bmp;
+                LoadedScene old = cache.remove("__classic_wall__");
+                if (old != null) old.recycle();
+                this.cachedFrameKey = null;
+                invalidate();
+            }
+        }
+
+        public void onRedditWallpaperUpdated() {
+            java.util.Iterator<Map.Entry<String, LoadedScene>> it = cache.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, LoadedScene> e = it.next();
+                if (REDDIT_WALLPAPER_ID.equals(baseSceneId(e.getKey()))) {
+                    LoadedScene ls = e.getValue();
+                    if (ls != null) ls.recycle();
+                    it.remove();
+                }
+            }
+            ensureLoaded(currentId);
+            notifySceneBackdrop();
+            cachedFrameKey = null;
+            invalidate();
+        }
+
         public void syncSettings() {
             Context c = getContext();
             List<String> enabled = lockScreenMode ? getEnabledLockSceneIds(c) : getEnabledSceneIds(c);
@@ -866,7 +1108,8 @@ public final class Scenes {
                 activeIdx = activeIds.indexOf(curBase);
             }
             if (FOLDER_SHUFFLE_ID.equals(baseSceneId(currentId))
-                    || LOCK_FOLDER_SHUFFLE_ID.equals(baseSceneId(currentId))) {
+                    || LOCK_FOLDER_SHUFFLE_ID.equals(baseSceneId(currentId))
+                    || REDDIT_WALLPAPER_ID.equals(baseSceneId(currentId))) {
                 LoadedScene old = cache.remove(currentId);
                 if (old != null) old.recycle();
             }
@@ -932,10 +1175,13 @@ public final class Scenes {
         }
 
         private boolean canRotate() {
+            if (classicClockOnlyMode) return false;
             if (activeIds.size() > 1) return true;
             for (String id : activeIds) {
                 String b = baseSceneId(id);
-                if (FOLDER_SHUFFLE_ID.equals(b) || LOCK_FOLDER_SHUFFLE_ID.equals(b)) return true;
+                if (FOLDER_SHUFFLE_ID.equals(b) || LOCK_FOLDER_SHUFFLE_ID.equals(b) || REDDIT_WALLPAPER_ID.equals(b)) {
+                    return true;
+                }
             }
             return false;
         }
@@ -943,15 +1189,34 @@ public final class Scenes {
         private void scheduleNextRotation() {
             handler.removeCallbacks(rotateTick);
             if (canRotate()) {
-                handler.postDelayed(rotateTick, getStaySeconds(getContext()) * 1000L);
+                long delayMs = getStaySeconds(getContext()) * 1000L;
+                if (REDDIT_WALLPAPER_ID.equals(baseSceneId(currentId))) {
+                    int mins = CustomMedia.getRedditIntervalMinutes(getContext(), CustomMedia.SCOPE_SCENE);
+                    delayMs = Math.max(60_000L, mins * 60_000L);
+                }
+                handler.postDelayed(rotateTick, delayMs);
             }
         }
 
-        private void advanceScene() {
+        public void advanceScene() {
             if (!canRotate()) return;
             prevId = currentId;
             activeIdx = (activeIdx + 1) % activeIds.size();
             String nextBase = activeIds.get(activeIdx);
+            if (REDDIT_WALLPAPER_ID.equals(nextBase)) {
+                CustomMedia.fetchNextRedditWallpaperAsync(getContext(), CustomMedia.SCOPE_SCENE, () -> {
+                    folderFlipCounter = (folderFlipCounter + 1) % 2;
+                    currentId = REDDIT_WALLPAPER_ID + "#" + folderFlipCounter;
+                    LoadedScene stale = cache.remove(currentId);
+                    if (stale != null) stale.recycle();
+                    ensureLoaded(currentId);
+                    notifySceneBackdrop();
+                    cachedFrameKey = null;
+                    invalidate();
+                });
+                scheduleNextRotation();
+                return;
+            }
             if (FOLDER_SHUFFLE_ID.equals(nextBase) || LOCK_FOLDER_SHUFFLE_ID.equals(nextBase)) {
                 folderFlipCounter = (folderFlipCounter + 1) % 2;
                 currentId = nextBase + "#" + folderFlipCounter;
@@ -981,6 +1246,21 @@ public final class Scenes {
 
         private LoadedScene ensureLoaded(String id) {
             Context c = getContext();
+            if (classicClockOnlyMode && classicWallBmp != null && !classicWallBmp.isRecycled()) {
+                LoadedScene cls = cache.get("__classic_wall__");
+                int genId = classicWallBmp.getGenerationId();
+                if (cls != null && cls.bg == classicWallBmp && cls.customTs == genId && cls.glassBaked != null) {
+                    return cls;
+                }
+                if (cls != null) cls.recycle();
+                cls = new LoadedScene(ALL[0]);
+                cls.customTs = genId;
+                cls.ownsBg = false;
+                cls.bg = classicWallBmp;
+                bakeLoadedGlassFromBg(cls, false);
+                cache.put("__classic_wall__", cls);
+                return cls;
+            }
             LoadedScene ls = cache.get(id);
             String base = baseSceneId(id);
             int cSlot = customSlotFromId(base);
@@ -990,13 +1270,42 @@ public final class Scenes {
                     return ls;
                 }
                 if (ls != null) ls.recycle();
-                ls = new LoadedScene(CUSTOM_SPECS[cSlot - 1]);
+                ls = new LoadedScene(byId(base));
                 ls.customTs = ts;
                 ls.ownsBg = false;
                 ls.bg = CustomMedia.getCustomSceneWallpaper(c, cSlot, 1920, 1080);
                 if (ls.bg == null) {
                     ls.ownsBg = true;
                     ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                bakeLoadedGlassFromBg(ls, false);
+                cache.put(id, ls);
+                return ls;
+            }
+            if (REDDIT_WALLPAPER_ID.equals(base)) {
+                Bitmap rBmp = CustomMedia.getRedditWallpaperBitmap(c, CustomMedia.SCOPE_SCENE, 1920, 1080);
+                long rTs = CustomMedia.getRedditWallpaperTimestamp(c, CustomMedia.SCOPE_SCENE);
+                if (ls != null && ls.bg != null && !ls.bg.isRecycled()
+                        && ((rBmp != null && ls.bg == rBmp && ls.customTs == rTs)
+                        || (rBmp == null && ls.customTs == -1L))) {
+                    return ls;
+                }
+                if (ls != null) ls.recycle();
+                ls = new LoadedScene(REDDIT_WALLPAPER_SPEC);
+                if (rBmp != null && !rBmp.isRecycled()) {
+                    ls.customTs = rTs;
+                    ls.ownsBg = false;
+                    ls.bg = rBmp;
+                } else {
+                    ls.customTs = -1L;
+                    ls.ownsBg = true;
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                    CustomMedia.fetchNextRedditWallpaperAsync(c, CustomMedia.SCOPE_SCENE, () -> {
+                        cache.remove(id);
+                        cachedFrameKey = null;
+                        notifySceneBackdrop();
+                        invalidate();
+                    });
                 }
                 bakeLoadedGlassFromBg(ls, false);
                 cache.put(id, ls);
@@ -1069,11 +1378,103 @@ public final class Scenes {
         }
 
         private static void bakeLoadedGlassFromBg(LoadedScene ls, boolean darkClock) {
-            if (ls.bg != null) {
-                Bitmap rawGlass = Bitmap.createScaledBitmap(ls.bg, 480, 270, true);
-                ls.glassBaked = bakeGlassTexture(rawGlass, darkClock, false);
+            if (ls.bg != null && !ls.bg.isRecycled()) {
+                int w = 480, h = 270;
+                Bitmap cropped = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                Canvas cropCv = new Canvas(cropped);
+                int bw = ls.bg.getWidth(), bh = ls.bg.getHeight();
+                float scale = Math.max((float) w / Math.max(1, bw), (float) h / Math.max(1, bh));
+                float sw = w / scale, sh = h / scale;
+                int sx = Math.max(0, Math.round((bw - sw) * 0.5f));
+                int sy = Math.max(0, Math.round((bh - sh) * 0.5f));
+                cropCv.drawBitmap(ls.bg,
+                        new Rect(sx, sy, Math.min(bw, Math.round(sx + sw)), Math.min(bh, Math.round(sy + sh))),
+                        new Rect(0, 0, w, h),
+                        new Paint(Paint.FILTER_BITMAP_FLAG));
+
+                // Sample average luminance of the clock region (upper-middle 10%..55%)
+                float sumLum = 0f;
+                int count = 0;
+                for (int py = h / 10; py < (h * 55) / 100; py += 6) {
+                    for (int px = w / 8; px < (w * 7) / 8; px += 8) {
+                        int c = cropped.getPixel(px, py);
+                        float r = ((c >> 16) & 0xFF) / 255f;
+                        float g = ((c >> 8) & 0xFF) / 255f;
+                        float b = (c & 0xFF) / 255f;
+                        sumLum += (0.2126f * r + 0.7152f * g + 0.0722f * b);
+                        count++;
+                    }
+                }
+                float avgLum = count > 0 ? (sumLum / count) : 0.35f;
+
+                // Deep refractive blur so background colors blend smoothly into the clock digits
+                Bitmap smallBlur = Ui.blur(cropped, 160, 90, 8, 3);
+                Bitmap base = Bitmap.createScaledBitmap(smallBlur != null ? smallBlur : cropped, w, h, true);
+                if (smallBlur != null && smallBlur != base && smallBlur != cropped) smallBlur.recycle();
+                cropped.recycle();
+
+                Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                Canvas cv = new Canvas(out);
+                ColorMatrix cm = new ColorMatrix();
+                if (darkClock) {
+                    cm.setSaturation(0.95f);
+                    ColorMatrix sc = new ColorMatrix(new float[]{
+                        0.48f, 0, 0, 0, 0,
+                        0, 0.48f, 0, 0, 0,
+                        0, 0, 0.48f, 0, 0,
+                        0, 0, 0, 1f, 0
+                    });
+                    cm.postConcat(sc);
+                } else {
+                    // Dock / card Liquid Glass body: the blurred wallpaper itself with gentle saturation,
+                    // then an adaptive tint exactly like MainActivity.LiquidGlass.tintFor(): darker glass
+                    // over bright artwork, light frost over dark artwork, so digits always stand out.
+                    cm.setSaturation(1.6f);
+                    // Same colour lift as Ui.glassBackdrop() used by the dock and cards
+                    cm.postConcat(new ColorMatrix(new float[]{
+                        1.05f, 0, 0, 0, 14,
+                        0, 1.05f, 0, 0, 14,
+                        0, 0, 1.05f, 0, 14,
+                        0, 0, 0, 1f, 0
+                    }));
+                }
+                Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
+                p.setColorFilter(new ColorMatrixColorFilter(cm));
+                cv.drawBitmap(base, 0, 0, p);
+                if (base != out) base.recycle();
+
+                if (!darkClock) {
+                    // Exactly MainActivity.LiquidGlass.tintFor(): up to 36% black over bright art,
+                    // a light white frost (max ~14%) over dark art.
+                    int tint;
+                    if (avgLum >= 0.45f) {
+                        int a = Math.round(0x1F + (Math.min(avgLum, 0.85f) - 0.45f) / 0.4f * (0x5C - 0x1F));
+                        tint = Color.argb(a, 0, 0, 0);
+                    } else {
+                        int a = Math.round((0.45f - Math.max(avgLum, 0.05f)) / 0.4f * 0x24);
+                        tint = Color.argb(a, 255, 255, 255);
+                    }
+                    cv.drawColor(tint);
+                    ls.dockGlass = true;
+                    ls.clockLum = avgLum;
+                } else {
+                    // Luminous specular glass sheen while keeping background colors vivid
+                    Paint sheen = new Paint(Paint.ANTI_ALIAS_FLAG);
+                    int[] colors = {
+                        Color.argb(46, 255, 255, 255),
+                        Color.argb(22, 255, 255, 255),
+                        Color.argb(10, 255, 255, 255),
+                        Color.argb(26, 255, 255, 255)
+                    };
+                    sheen.setShader(new LinearGradient(
+                            0, 0, w * 0.45f, h,
+                            colors, new float[]{0f, 0.35f, 0.65f, 1f},
+                            Shader.TileMode.CLAMP));
+                    cv.drawRect(0, 0, w, h, sheen);
+                }
+
+                ls.glassBaked = out;
                 ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                if (rawGlass != ls.bg) rawGlass.recycle();
             }
         }
 
@@ -1136,7 +1537,7 @@ public final class Scenes {
             int w = getWidth(), h = getHeight();
             if (w <= 0 || h <= 0) return;
 
-            if (prevId != null && crossfade < 1f) {
+            if (prevId != null && crossfade < 1f && !classicClockOnlyMode) {
                 LoadedScene prev = ensureLoaded(prevId);
                 if (prev != null) {
                     drawScene(canvas, prev, w, h, 1f);
@@ -1150,13 +1551,17 @@ public final class Scenes {
                 if (cur != null) {
                     Context ctx = getContext();
                     int cSlot = Math.max(1, customSlotFromId(baseSceneId(currentId)));
-                    String frameKey = currentId + "|" + lockScreenMode + "|" + formatTime(ctx) + "|"
+                    String frameKey = currentId + "|" + lockScreenMode + "|" + classicClockOnlyMode + "|"
+                            + formatTime(ctx) + "|"
                             + I18n.formatSceneDate(ctx, new Date()) + "|"
                             + (lockScreenMode ? "" : (weatherTemp != null ? weatherTemp : "")) + "|"
                             + (lockScreenMode ? "" : (weatherDesc != null ? weatherDesc : "")) + "|"
                             + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
-                            + getCustomClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
+                            + getDefaultClockPos(ctx) + "|" + getCustomClockPos(ctx) + "|"
+                            + getClassicClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
                             + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
+                            + CustomMedia.getRedditWallpaperTimestamp(ctx, CustomMedia.SCOPE_SCENE) + "|"
+                            + (classicWallBmp != null && !classicWallBmp.isRecycled() ? classicWallBmp.getGenerationId() : 0) + "|"
                             + CustomMedia.getCustomLockTimestamp(ctx) + "|"
                             + buildGreeting(ctx) + "|" + w + "x" + h;
                     if (!frameKey.equals(cachedFrameKey) || cachedFrameBmp == null
@@ -1184,25 +1589,27 @@ public final class Scenes {
                 canvas.saveLayerAlpha(0, 0, w, h, alphaInt);
             }
 
-            // 1. Background image (center-crop)
-            drawCenterCrop(canvas, ls.bg, w, h);
-
-            // 2. Scene shade gradient
             Spec sp = ls.spec;
-            if ("water".equals(sp.id)) {
-                shadePaint.setShader(new LinearGradient(0, 0, 0, h,
-                        new int[]{Color.argb(56, 14, 22, 40), Color.argb(15, 14, 22, 40), Color.argb(128, 0, 0, 0)},
-                        new float[]{0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
-            } else if ("dawn".equals(sp.id)) {
-                shadePaint.setShader(new LinearGradient(0, 0, 0, h,
-                        new int[]{Color.argb(66, 30, 18, 12), Color.argb(20, 30, 18, 12), Color.argb(128, 0, 0, 0)},
-                        new float[]{0f, 0.42f, 1f}, Shader.TileMode.CLAMP));
-            } else {
-                shadePaint.setShader(new LinearGradient(0, 0, 0, h,
-                        new int[]{Color.TRANSPARENT, Color.TRANSPARENT, Color.argb(128, 0, 0, 0)},
-                        new float[]{0f, 0.60f, 1f}, Shader.TileMode.CLAMP));
+            if (!classicClockOnlyMode) {
+                // 1. Background image (center-crop)
+                drawCenterCrop(canvas, ls.bg, w, h);
+
+                // 2. Scene shade gradient
+                if ("water".equals(sp.id)) {
+                    shadePaint.setShader(new LinearGradient(0, 0, 0, h,
+                            new int[]{Color.argb(56, 14, 22, 40), Color.argb(15, 14, 22, 40), Color.argb(128, 0, 0, 0)},
+                            new float[]{0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
+                } else if ("dawn".equals(sp.id)) {
+                    shadePaint.setShader(new LinearGradient(0, 0, 0, h,
+                            new int[]{Color.argb(66, 30, 18, 12), Color.argb(20, 30, 18, 12), Color.argb(128, 0, 0, 0)},
+                            new float[]{0f, 0.42f, 1f}, Shader.TileMode.CLAMP));
+                } else {
+                    shadePaint.setShader(new LinearGradient(0, 0, 0, h,
+                            new int[]{Color.TRANSPARENT, Color.TRANSPARENT, Color.argb(128, 0, 0, 0)},
+                            new float[]{0f, 0.60f, 1f}, Shader.TileMode.CLAMP));
+                }
+                canvas.drawRect(0, 0, w, h, shadePaint);
             }
-            canvas.drawRect(0, 0, w, h, shadePaint);
 
             // 3. Giant Glass Clock (iPhone Duo / Rounded / Tall Glass)
             float u = Math.min(w / 960f, h / 540f);
@@ -1211,7 +1618,6 @@ public final class Scenes {
             boolean isDuo = CLOCK_STYLE_DUO.equals(style);
             boolean isRounded = CLOCK_STYLE_ROUNDED.equals(style);
 
-            // Duo uses Bahnschrift Condensed ('wght' 345, 'wdth' 75) with rounded corners matching screen_duo12.png
             android.graphics.Typeface tf = isDuo
                     ? Ui.font(ctx, "clock_duo")
                     : isRounded
@@ -1242,7 +1648,8 @@ public final class Scenes {
             clockShadowPaint.setPathEffect(cornerFx);
 
             String timeStr = formatTime(ctx);
-            float clockPx = (isRounded ? sp.clockSizeU * 0.78f : isDuo ? sp.clockSizeU * 0.84f : sp.clockSizeU) * u;
+            float baseClockSizeU = classicClockOnlyMode ? 186f : sp.clockSizeU;
+            float clockPx = (isRounded ? baseClockSizeU * 0.78f : isDuo ? baseClockSizeU * 0.84f : baseClockSizeU) * u;
             float scaleY = isRounded ? 1.24f : isDuo ? 1.24f : 1.0f;
             float letterSp = isDuo ? 0.01f : isRounded ? -0.01f : -0.02f;
 
@@ -1257,25 +1664,40 @@ public final class Scenes {
             clockShadowPaint.setTextSize(clockPx);
             clockShadowPaint.setLetterSpacing(letterSp);
 
-            // Compute exact 3-line vertical layout with 1 extra line spacing above Greeting
-            // and shifted down slightly so the bottom of the clock sits slightly behind the mountain ridge:
-            // Line 1: Greeting ("Good morning, Name")
-            // Line 2: Date & Weather
-            // Line 3: Clock
             float greetPx = 12.5f * u;
             float datePx = 13.5f * u;
-            boolean useUserClockPos = lockScreenMode || isCustomId(sp.id);
-            String activeClockPos = lockScreenMode ? getLockClockPos(ctx) : getCustomClockPos(ctx);
-            boolean isCustomRight = !lockScreenMode && isCustomId(sp.id) && CLOCK_POS_RIGHT.equals(activeClockPos);
-            float topOffsetU = isCustomRight ? 62f : 19f;
-            float dateBaselineY = Math.max((46f + topOffsetU) * u, (sp.dateTopU + topOffsetU) * u);
+            String defClockPos = getDefaultClockPos(ctx);
+            boolean useUserClockPos;
+            String activeClockPos;
+            if (lockScreenMode) {
+                useUserClockPos = true;
+                activeClockPos = getLockClockPos(ctx);
+            } else if (classicClockOnlyMode) {
+                useUserClockPos = true;
+                activeClockPos = getClassicClockPos(ctx);
+            } else if (isCustomId(sp.id)) {
+                useUserClockPos = true;
+                activeClockPos = getCustomClockPos(ctx);
+            } else if (!CLOCK_POS_DYNAMIC.equals(defClockPos)) {
+                useUserClockPos = true;
+                activeClockPos = defClockPos;
+            } else {
+                useUserClockPos = false;
+                activeClockPos = CLOCK_POS_CENTER;
+            }
+
+            boolean isRightAligned = !lockScreenMode && useUserClockPos && CLOCK_POS_RIGHT.equals(activeClockPos);
+            float topOffsetU = isRightAligned ? 62f : 19f;
+            float baseDateTopU = classicClockOnlyMode ? 45f : sp.dateTopU;
+            float baseClockTopU = classicClockOnlyMode ? 68f : sp.clockTopU;
+            float dateBaselineY = Math.max((46f + topOffsetU) * u, (baseDateTopU + topOffsetU) * u);
             float greetBaselineY = dateBaselineY - (18.5f * u);
 
             clockFillPaint.getTextBounds("0847", 0, 4, digitBounds);
             float rawCapH = Math.max(clockPx * 0.68f, -digitBounds.top);
             float visualCapH = rawCapH * scaleY;
             float minClockTopY = dateBaselineY + (14f * u);
-            float clockVisualTopY = Math.max((sp.clockTopU + topOffsetU) * u, minClockTopY);
+            float clockVisualTopY = Math.max((baseClockTopU + topOffsetU) * u, minClockTopY);
             float baselineY = clockVisualTopY + visualCapH;
 
             float textW = measureClockWidth(timeStr, clockFillPaint, u, isDuo || isRounded);
@@ -1299,11 +1721,11 @@ public final class Scenes {
                 clockFillPaint.setShader(ls.glassShader);
             }
 
-            // Frosted vertical gradient fill + crisp outer rim matching duo.png
+            boolean darkClk = !classicClockOnlyMode && sp.darkClock;
             float topGradY = baselineY - visualCapH;
             clockFrostPaint.setShader(new LinearGradient(
                     0, topGradY, 0, baselineY,
-                    sp.darkClock
+                    darkClk
                             ? new int[]{Color.argb(38, 255, 255, 255), Color.argb(68, 255, 255, 255), Color.argb(118, 255, 255, 255)}
                             : new int[]{Color.argb(52, 218, 224, 255), Color.argb(86, 236, 232, 255), Color.argb(138, 255, 242, 252)},
                     new float[]{0f, 0.52f, 1f},
@@ -1312,23 +1734,44 @@ public final class Scenes {
             clockStrokePaint.setStrokeWidth(Math.max(1.7f, (isDuo ? 2.1f : 1.2f) * u));
             clockStrokePaint.setShader(new LinearGradient(
                     0, topGradY, 0, baselineY,
-                    sp.darkClock
+                    darkClk
                             ? new int[]{Color.argb(210, 255, 255, 255), Color.argb(160, 255, 255, 255), Color.argb(230, 255, 255, 255)}
                             : new int[]{Color.argb(228, 244, 248, 255), Color.argb(185, 232, 236, 255), Color.argb(250, 255, 255, 255)},
                     new float[]{0f, 0.5f, 1f},
                     Shader.TileMode.CLAMP));
             clockShadowPaint.setColor(Color.argb(42, 0, 0, 0));
 
-            if (sp.waterSplit) {
+            if (ls.dockGlass && (classicClockOnlyMode || ls.fg == null)) {
+                // Dock / card Liquid Glass: soft top glow + diagonal specular rim that catches light on
+                // the top-left edge and fades down the sides (same as MainActivity.LiquidGlass).
+                clockFrostPaint.setShader(new LinearGradient(
+                        0, topGradY, 0, topGradY + visualCapH * 0.55f,
+                        Color.argb(0x1F, 255, 255, 255), Color.argb(0, 255, 255, 255),
+                        Shader.TileMode.CLAMP));
+                boolean brightBehind = ls.clockLum >= 0.45f;
+                int k = brightBehind ? 255 : 235;
+                clockStrokePaint.setStrokeWidth(Math.max(1.6f, (isDuo ? 2.0f : 1.6f) * u));
+                clockStrokePaint.setShader(new LinearGradient(
+                        clockX, topGradY, clockX + textW, baselineY,
+                        new int[]{
+                                Color.argb(k, 255, 255, 255),
+                                Color.argb(Math.round(k * 0.55f), 255, 255, 255),
+                                Color.argb(Math.round(k * 0.32f), 255, 255, 255),
+                                Color.argb(Math.round(k * 0.42f), 255, 255, 255),
+                                Color.argb(Math.round(k * 0.85f), 255, 255, 255)},
+                        new float[]{0f, 0.22f, 0.5f, 0.78f, 1f},
+                        Shader.TileMode.CLAMP));
+                clockShadowPaint.setColor(Color.argb(brightBehind ? 34 : 46, 0, 0, 0));
+            }
+
+            if (!classicClockOnlyMode && sp.waterSplit) {
                 float waterY = h * 0.55f;
-                // Above waterline: sharp glass clock
                 canvas.save();
                 canvas.clipRect(0, 0, w, waterY);
                 drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, false, ls, sp.darkClock);
+                        isDuo, isRounded, false, ls, darkClk);
                 canvas.restore();
 
-                // Below waterline: blurred wet reflection clock
                 canvas.save();
                 canvas.clipRect(0, waterY, w, h);
                 if (ls.glassWetShader != null && ls.glassWetBaked != null) {
@@ -1338,23 +1781,24 @@ public final class Scenes {
                     clockWetPaint.setShader(ls.glassWetShader);
                 }
                 drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, true, ls, sp.darkClock);
+                        isDuo, isRounded, true, ls, darkClk);
                 canvas.restore();
             } else {
                 drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, false, ls, sp.darkClock);
+                        isDuo, isRounded, false, ls, darkClk);
             }
 
             // 4. Foreground cutout (mountain ridge / volcano / fog hills / rainforest canopy)
-            if (ls.fg != null) {
+            if (!classicClockOnlyMode && ls.fg != null) {
                 drawCenterCrop(canvas, ls.fg, w, h);
             }
 
             // 5. Line 1 (Greeting with person name) + Line 2 (Date & Weather) above the clock
+            boolean darkDt = !classicClockOnlyMode && sp.darkDate;
             String greeting = buildGreeting(ctx);
             greetPaint.setTextSize(greetPx);
             greetPaint.setLetterSpacing(0.015f);
-            if (sp.darkDate) {
+            if (darkDt) {
                 greetPaint.setColor(Color.argb(185, 22, 32, 29));
                 greetPaint.clearShadowLayer();
             } else {
@@ -1385,7 +1829,7 @@ public final class Scenes {
             }
             datePaint.setTextSize(datePx);
             datePaint.setLetterSpacing(0.01f);
-            if (sp.darkDate) {
+            if (darkDt) {
                 datePaint.setColor(Color.argb(225, 22, 32, 29));
                 datePaint.clearShadowLayer();
             } else {
@@ -1526,6 +1970,13 @@ public final class Scenes {
                                        LoadedScene ls, boolean darkClock) {
             TextPaint fillP = wet ? clockWetPaint : clockFillPaint;
             int colonIdx = (isDuo || isRounded) ? timeStr.indexOf(':') : -1;
+            boolean isUncoveredBg = classicClockOnlyMode || ls == null || ls.fg == null;
+
+            if (!wet && isUncoveredBg && ls != null && ls.dockGlass) {
+                drawDockGlassClock(canvas, timeStr, startX, baselineY, scaleY, rawCapH, clockPx, u,
+                        isDuo, colonIdx, fillP);
+                return;
+            }
 
             if (isDuo && colonIdx >= 0) {
                 // iPhone Duo Lock Screen Clock (matching duo.png 12:08):
@@ -1550,7 +2001,7 @@ public final class Scenes {
                 duoClockPath.addCircle(colonCx, dotY2, dotR, android.graphics.Path.Direction.CW);
 
                 if (!wet) {
-                    clockShadowPaint.setAlpha(38);
+                    clockShadowPaint.setAlpha(isUncoveredBg ? 74 : 38);
                     canvas.save();
                     canvas.translate(0f, 3f * u);
                     canvas.drawPath(duoClockPath, clockShadowPaint);
@@ -1558,13 +2009,18 @@ public final class Scenes {
                 }
 
                 // 1. Refractive blurred background glass fill inside the numerals & colon dots
-                fillP.setAlpha(wet ? 155 : 215);
+                fillP.setAlpha(wet ? 155 : (isUncoveredBg ? 242 : 215));
                 canvas.drawPath(duoClockPath, fillP);
 
-                // 2. Frosted translucent vertical gradient fill (milky near bottom, airy near top, matching screen_duo12.png)
-                //    with white outer outline removed for cleaner iPhone Duo similarity.
-                clockFrostPaint.setAlpha(wet ? 120 : 235);
+                // 2. Balanced frosted translucent gradient fill: bright enough to read clearly over any
+                //    custom or classic wallpaper while letting the blurred background colors shine through.
+                clockFrostPaint.setAlpha(wet ? 120 : (isUncoveredBg ? 152 : 235));
                 canvas.drawPath(duoClockPath, clockFrostPaint);
+                if (isUncoveredBg && !wet) {
+                    clockStrokePaint.setStrokeWidth(Math.max(1.4f, 1.55f * u));
+                    clockStrokePaint.setAlpha(150);
+                    canvas.drawPath(duoClockPath, clockStrokePaint);
+                }
                 return;
             }
 
@@ -1576,11 +2032,16 @@ public final class Scenes {
             if (colonIdx < 0) {
                 // Tall Glass mode
                 if (!wet) {
+                    clockShadowPaint.setAlpha(isUncoveredBg ? 68 : 42);
                     canvas.drawText(timeStr, startX, baselineY + 4f * u, clockShadowPaint);
                 }
                 fillP.setAlpha(wet ? 158 : 255);
                 canvas.drawText(timeStr, startX, baselineY, fillP);
-                clockStrokePaint.setAlpha(wet ? 60 : 140);
+                if (isUncoveredBg && !wet) {
+                    clockFrostPaint.setAlpha(120);
+                    canvas.drawText(timeStr, startX, baselineY, clockFrostPaint);
+                }
+                clockStrokePaint.setAlpha(wet ? 60 : (isUncoveredBg ? 145 : 140));
                 canvas.drawText(timeStr, startX, baselineY, clockStrokePaint);
                 canvas.restore();
                 return;
@@ -1599,7 +2060,7 @@ public final class Scenes {
 
             // iPhone Rounded Lock Screen Clock
             if (!wet) {
-                clockShadowPaint.setAlpha(46);
+                clockShadowPaint.setAlpha(isUncoveredBg ? 70 : 46);
                 canvas.drawText(hrs, startX, baselineY + 3.5f * u, clockShadowPaint);
                 canvas.drawText(mins, minsX, baselineY + 3.5f * u, clockShadowPaint);
             }
@@ -1609,14 +2070,95 @@ public final class Scenes {
             canvas.drawCircle(colonCx, dotY1, dotR, fillP);
             canvas.drawCircle(colonCx, dotY2, dotR, fillP);
 
-            clockStrokePaint.setStrokeWidth(Math.max(1.5f, 1.4f * u));
-            clockStrokePaint.setAlpha(wet ? 65 : 165);
+            if (isUncoveredBg && !wet) {
+                clockFrostPaint.setAlpha(120);
+                canvas.drawText(hrs, startX, baselineY, clockFrostPaint);
+                canvas.drawText(mins, minsX, baselineY, clockFrostPaint);
+                canvas.drawCircle(colonCx, dotY1, dotR, clockFrostPaint);
+                canvas.drawCircle(colonCx, dotY2, dotR, clockFrostPaint);
+            }
+
+            clockStrokePaint.setStrokeWidth(Math.max(1.5f, 1.5f * u));
+            clockStrokePaint.setAlpha(wet ? 65 : (isUncoveredBg ? 155 : 165));
             canvas.drawText(hrs, startX, baselineY, clockStrokePaint);
             canvas.drawText(mins, minsX, baselineY, clockStrokePaint);
             canvas.drawCircle(colonCx, dotY1, dotR, clockStrokePaint);
             canvas.drawCircle(colonCx, dotY2, dotR, clockStrokePaint);
 
             canvas.restore();
+        }
+
+        /**
+         * Clock digits rendered as the same Liquid Glass material used by the dock and the
+         * Continue Watching / widget cards: blurred wallpaper body with an adaptive tint, a soft
+         * top glow, a diagonal specular rim and a gentle drop shadow for separation.
+         */
+        private void drawDockGlassClock(Canvas canvas, String timeStr, float startX, float baselineY,
+                                        float scaleY, float rawCapH, float clockPx, float u,
+                                        boolean isDuo, int colonIdx, TextPaint fillP) {
+            android.graphics.Path path = new android.graphics.Path();
+            if (isDuo && colonIdx >= 0) {
+                String hrs = timeStr.substring(0, colonIdx);
+                String mins = timeStr.substring(colonIdx + 1);
+                float hrsW = fillP.measureText(hrs) * DUO_SCALE_X;
+                float colonSpace = 20f * u;
+                float colonCx = startX + hrsW + colonSpace * 0.5f;
+                float minsX = startX + hrsW + colonSpace;
+                appendDuoTextPath(fillP, hrs, startX, baselineY, scaleY, path);
+                appendDuoTextPath(fillP, mins, minsX, baselineY, scaleY, path);
+                float visualCapH = rawCapH * scaleY;
+                float dotR = visualCapH * 0.048f;
+                path.addCircle(colonCx, baselineY - visualCapH * 0.65f, dotR, android.graphics.Path.Direction.CW);
+                path.addCircle(colonCx, baselineY - visualCapH * 0.36f, dotR, android.graphics.Path.Direction.CW);
+            } else if (colonIdx >= 0) {
+                String hrs = timeStr.substring(0, colonIdx);
+                String mins = timeStr.substring(colonIdx + 1);
+                float hrsW = fillP.measureText(hrs);
+                float colonSpace = 24f * u;
+                float colonCx = startX + hrsW + colonSpace * 0.5f;
+                float minsX = startX + hrsW + colonSpace;
+                android.graphics.Path tmp = new android.graphics.Path();
+                fillP.getTextPath(hrs, 0, hrs.length(), startX, baselineY, tmp);
+                path.addPath(tmp);
+                tmp.reset();
+                fillP.getTextPath(mins, 0, mins.length(), minsX, baselineY, tmp);
+                path.addPath(tmp);
+                float dotR = clockPx * 0.048f;
+                path.addCircle(colonCx, baselineY - rawCapH * 0.68f, dotR, android.graphics.Path.Direction.CW);
+                path.addCircle(colonCx, baselineY - rawCapH * 0.42f, dotR, android.graphics.Path.Direction.CW);
+                if (scaleY != 1f) {
+                    android.graphics.Matrix sm = new android.graphics.Matrix();
+                    sm.setScale(1f, scaleY, startX, baselineY);
+                    path.transform(sm);
+                }
+            } else {
+                fillP.getTextPath(timeStr, 0, timeStr.length(), startX, baselineY, path);
+                if (scaleY != 1f) {
+                    android.graphics.Matrix sm = new android.graphics.Matrix();
+                    sm.setScale(1f, scaleY, startX, baselineY);
+                    path.transform(sm);
+                }
+            }
+
+            // 1. Soft drop shadow for separation from the wallpaper
+            int shA = clockShadowPaint.getColor() >>> 24;
+            clockShadowPaint.setAlpha(Math.max(24, shA));
+            canvas.save();
+            canvas.translate(0f, 3f * u);
+            canvas.drawPath(path, clockShadowPaint);
+            canvas.restore();
+
+            // 2. Glass body: blurred wallpaper + adaptive tint (baked into the shader)
+            fillP.setAlpha(255);
+            canvas.drawPath(path, fillP);
+
+            // 3. Top glow
+            clockFrostPaint.setAlpha(255);
+            canvas.drawPath(path, clockFrostPaint);
+
+            // 4. Specular rim
+            clockStrokePaint.setAlpha(255);
+            canvas.drawPath(path, clockStrokePaint);
         }
 
         private void drawCenterCrop(Canvas canvas, Bitmap bmp, int viewW, int viewH) {

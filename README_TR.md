@@ -1,141 +1,101 @@
-# tvOS Launcher (`v2.1.2`)
+# tvOS Launcher (`v2.1.5`)
 
 > 🇬🇧 **For English documentation and setup guide:** **[README.md (English)](README.md)**  
-> 📦 **En Son APK İndir (`v2.1.2`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
+> 📦 **En Son APK İndir (`v2.1.5`):** **[GitHub Releases](https://github.com/techgenius1/tvOS-Launcher/releases/latest)**
 
 ![tvOS Launcher Afiş](screenshots_tr/Header_TR.jpg)
 
-Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlardan **Android 14** modellere kadar 60 FPS akıcılık sunarken; **boyutlandırılabilir macOS Liquid Glass Dock (`%50–%150`)**, dönüşümlü **Gece Sahneleri**, **Özel Duvar Kağıtları (`Özel 1..5`) + Klasörden Karışık Duvar Kağıdı**, **Dahili Kilit Ekranı / Ekran Koruyucu**, **Uygulama Simgesi Değiştirici ve Simge Düzenleyici**, **Otomatik GitHub Uygulama Güncellemeleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli + Manuel Sistem Uygulaması Debloat + Sistem Başlatıcılarını Devre Dışı Bırakma)**, **Özelleştirilebilir Evrensel Denetim Paneli (`Hızlı Ayarlar`)**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı + Tuş Kodu Gönder (`Send Key Code`) + Ana Ekran Tuşu Düzeltmesi** ve **Çift Modlu Güvenli Yerel ADB Kurulumu (Port 5555'i açık bırakmadan Otomatik Onarım & Ses Tuşu Düzeltmesi)** özelliklerini bir araya getirir.
-
----
-
-## 🆕 `v2.1.2` Sürümündeki Yenilikler
-
-- **Tüm Medya Uygulamaları İçin Evrensel İzlemeye Devam Et Desteği**:
-  - İzlemeye Devam Et özelliği yalnızca YouTube ile sınırlı kalmayıp yüklü tüm medya uygulamalarını (Prime Video, HBO Max, Tivimate, Netflix, Disney+, Apple TV+ vb.) kapsayacak şekilde genişletildi. Android TV `TvContract` EPG / Watch Next içerik sağlayıcısı, `MediaSessionManager` aktif medya oturumu takibi ve bildirim dinleyicileri entegre edildi.
-  - **Dock ile Eşzamanlı Odak Filtreleme**: İzlemeye Devam Et rafı artık yalnızca dock üzerinde seçili olan medya uygulamasının içeriklerini gösterir (başka uygulamanın üzerindeyken varsayılan olarak sürekli YouTube gösterme durumu düzeltildi).
-  - **Stremio & Nuvio Dock Açılır Menü Entegrasyonu**: Stremio ve Nuvio dock simgeleri üzerine doğrudan yerel önbellek, QR kodlu hızlı giriş ve çoklu profil geçişi destekli izlemeye devam et pencereleri entegre edildi.
-  - **Akıcı RenderNode Açılış & Kapanış Animasyonu**: Sıfır GPU aşırı çizim (overdraw) yükü (`hasOverlappingRendering = false`) ile yukarı süzülme ve aşağı kaybolma animasyonları eklendi.
-  - **Uygulamalar Arası Anında Geçiş (Yeniden Animasyon Oynatılmaz)**: İki izlemeye devam et içerikli uygulama arasında gezinirken satır anında güncellenir, gereksiz yere animasyon tekrarlanmaz. Animasyon yalnızca içerik olmayan bir uygulamadan içerik olan bir uygulamaya geçildiğinde veya dock kapandığında devreye girer.
-  - **Ana Ekran (Home) Tuşu Kararlılığı**: Kumandadan Home tuşuna basıldığında dock ve izlemeye devam et satırının gereksiz yere baştan animasyonla açılması engellendi.
-- **Ayarları Yedekleme ve Geri Yükleme (`Ayarlar → Sistem / Hakkında / Hızlı ve Ana Ekran`)**:
-  - Tüm başlatıcı ayarları, dock sıralaması, özel uygulama isimleri ve simgeleri, kumanda tuş eşlemeleri ve sahne tercihleri tek dokunuşla `Download/tvos-launcher-settings.json` dosyasına yedeklenebilir.
-  - Dahili depolamadan veya takılan USB bellekten klasör seçilerek ayarlar tek tıkla geri yüklenebilir.
-- **Korece Dil Desteği (한국어)**:
-  - Başlatıcının tüm ekranları, ilk kurulum sihirbazı, ayarlar menüsü, debloat araçları ve tuş eşleyici için eksiksiz Korece dil desteği eklendi (`I18n.java`).
-- **CleanYourTV & MiBluetooth Koruması**:
-  - Manuel Debloat listesinde `MiBluetooth` (`com.xiaomi.bluetooth`, `com.mi.bluetooth`, `com.xiaomi.mitv.bluetooth` vb.) kritik sistem servisi olarak işaretlendi ve Xiaomi TV/Mi Box kumandalarının bağlantısının kopmaması için hiçbir koşulda devre dışı bırakılamaz hale getirildi.
-- **HY320 / Projeksiyon Ses Tuşu Basılı Tutma Düzeltmesi (Mod 2 & Mod 1)**:
-  - Mod 2'de ses tuşuna normalden biraz daha uzun basıldığında tuş bırakılsa bile sesin değişmeye devam etmesi sorunu giderildi; hem ADB Açık hem ADB Kapalı modlarında tuş bırakma debouncing, zaman aşımı bekçisi ve anında durdurma mekanizması eklendi.
-- **Ayarlar Menüsü Açılış Hızı ve Görsel Düzeltmeler**:
-  - Hızlı Ayarlar veya Dock'tan Ayarlar menüsünün açılışı optimize edildi: arka planda çalışan ağır sistem uygulaması taramaları (`CleanYourTv.getSystemLaunchersSummary`, `getDebloatStatusSummary`) arka plan iş parçacığına taşınarak açılış anında takılma engellendi (`…` yükleniyor göstergesi eklendi).
-  - Ayarlar kenar çubuğu önbelleği ve geçişleri optimize edilerek gezinme akıcı hale getirildi.
-  - Ayarlar başlık simgeleri düzeltildi: alttan ve üstten kırpılmış görünüm yerine dock simgeleriyle birebir uyumlu gerçek squircle (yuvarlatılmış kare) şekline dönüştürüldü.
-- **HWUI & GPU Performans Optimizasyonu**:
-  - Vektör simgeler için `LruCache` önbellek eklenerek odak değişimlerindeki CPU rasterizasyonu ve GPU doku yüklemeleri tamamen ortadan kaldırıldı.
-  - `LiquidGlass` cam efektleri ve shader'lar optimize edilerek gereksiz matris hesaplamaları ve tam ekran katmanları kaldırıldı.
-  - Dock kartları ve menülerdeki gereksiz 3D gölge yükseklikleri (`translationZ`) temizlendi.
-  - `dumpsys gfxinfo` ile doğrulandı: 99. yüzdelik GPU kare süreleri 14ms seviyesine düşürüldü (60 FPS için gereken 16.6ms sınırının oldukça altında).
-- **Yerel ADB ile Otomatik Güncelleme Düzeltmesi**:
-  - TV'de ADB açıkken başlatıcının varsayılan modu olan Güvenli Mod (`ADB_MODE_SECURE_CLOSE`) nedeniyle ADB üzerinden otomatik güncellemenin başlatılamaması sorunu giderildi.
-  - `/data/local/tmp` dizinine aktarılan güncelleme APK dosyasına `chmod 644` yetkisi verilerek Android `system_server` (UID 1000) servisinin izin hatası almadan APK'yı kurabilmesi sağlandı (Android 8–14 uyumluluğu).
-  - Arka plan `pm install` komutunda `stdin`, `stdout` ve `stderr` bağlantıları tam olarak ayrıldı, otomatik izin onaylama için `-g` bayrağı eklendi ve ADB kurulumu başarısız olursa paket yükleyiciye düşmeden önce kullanıcıya bilgilendirici toast bildirimi eklendi.
-
----
-
-## 🆕 `v2.1.0` Sürümündeki Yenilikler (`v2.0.5` Sonrası Tüm Değişiklikler)
-
-- **Çift Modlu ADB Güvenlik Mimarisi & Tek Tıkla ADB Aç/Kapat (`Ayarlar → Gelişmiş` & İlk Kurulum)**:
-  - **Güvenli Mod (İzinleri Ver ve ADB'yi Kapat — Varsayılan & Önerilen)**: Kurulum sırasında `WRITE_SECURE_SETTINGS` ve `DUMP` izinlerini bir kez alıp ağ ADB bağlantısını (`adb_enabled = 0`) hemen kapatır; böylece yerel ağınızda `5555` portu açık kalmaz. Güvenli Mod seçiliyken TV'de ADB açık olsa bile uygulama arka planda kesinlikle ADB port `5555`'e bağlanmaz; Erişilebilirlik Servisini (`ServiceRepair`) ve **Ses Tuşu Basılı Tutma Düzeltmesini** %100 uygulama içinden çalıştırır.
-  - **Kalıcı ADB Modu (Onay Pencereli İsteğe Bağlı Mod)**: CleanYourTV gibi çalışma zamanı ADB araçları için ADB'yi açık tutmak isteyen kullanıcılara özel mod. ADB kapalıyken Kalıcı Mod seçildiğinde USB Hata Ayıklamayı açıp geçmek için onay penceresi gösterir; ADB kapatıldığında ise otomatik olarak Güvenli Moda döner.
-  - **Tek Tıkla ADB Aç / Kapat Butonu**: Kablosuz Hata Ayıklamayı (`adb_wifi_enabled`) açmadan yalnızca USB Hata Ayıklamayı (`adb_enabled`) doğrudan `Ayarlar → Gelişmiş` menüsünden açıp kapatabilirsiniz.
-  - **Cihaz Yöneticisi İzninin Kaldırılması & Varsayılan Açık Keep Alive**: Uygulamanın silinmesini zorlaştıran `BIND_DEVICE_ADMIN` izni tamamen kaldırıldı (ekran kapatma Android 9+ `GLOBAL_ACTION_LOCK_SCREEN` ile çalışır) ve **Keep Alive** varsayılan olarak açık hale getirildi (Güvenli Modda ADB kullanmadan `WRITE_SECURE_SETTINGS` ile, Kalıcı ADB Modunda ise Yerel ADB ile çalışır).
-- **Yenilenen İlk Kurulum Sihirbazı & Ayrı Varsayılan Ana Ekran Kurulum Sayfası**:
-  - **Kullanım Modu Seçimi**: Kurulumu Tamamla ekranındaki izin seçenekleri numaralı adımlar yerine net **Kullanım Modları** (*Mod: Güvenli Otomatik Kurulum ve ADB'yi Kapat*, *Mod: Kalıcı ADB Kurulumu*, *Mod: Manuel Kurulum*) olarak düzenlendi.
-  - **Ayrı "tvOS Launcher'ı Varsayılan Ana Ekran Yap" Sayfası**: Varsayılan başlatıcı ve sorun giderme seçenekleri kendi özel kurulum sayfasına taşındı; **1. Adım – 4. Adım** şeklinde sıralandı ve en alta **Devam Et** butonu eklendi (1. Adım seçildiğinde sayfa atlanmaz, böylece 2. veya 3. Adımı da uygulayabilirsiniz).
-  - **Güvenli Mod Kullanıcıları İçin Akıllı ADB Uyarı Penceresi**: Önceki adımda Güvenli ADB Modunu seçip *2. Adım: Sistem Başlatıcılarını Devre Dışı Bırak* gibi ADB gerektiren bir sorun giderme adımına tıkladığınızda, bu adım için ADB moduna ihtiyaç duyulduğunu ve ADB modunu daha sonra Ayarlar'dan değiştirebileceğinizi belirten kullanıcı dostu bir pencere açılır (**ADB'yi Şimdi Etkinleştir** veya **Bu Adımı Atla**).
-- **Mod Seçimli Evrensel Ses Tuşu Basılı Tutma Düzeltmesi (`Ayarlar → Düğme Eşleyici` içinde `Mod 1` / `Mod 2`)**:
-  - **Hem Güvenli Modda (ADB Kapalı) hem Kalıcı ADB Modunda** kusursuz çalışır:
-    - **Mod 1 (Standart — Varsayılan)**: Güvenli Modda `AudioService` + `InputManagerService` (`DUMP` izniyle `InputReader` donanım `KeyDowns` durumu) ve Kalıcı ADB Modunda `getevent` kullanarak Android 9–14 TV'lerde ses tuşuna basılı tutulduğunda akıcı ses değişimi (`320ms` başlangıç gecikmesi, `85ms` tekrar) ve tuş bırakıldığı anda anında durma (`<= 45ms`) sağlar.
-    - **Mod 2 (HY320 / Projeksiyon)**: Magcubic HY320 ve Android 9–12 projeksiyon cihazları için geliştirilmiş `AudioService` Binder izleyicisi (`280ms` gecikme ve IR darbe algılama).
-- **Dahili Kilit Ekranı & Boşta Kalma Zamanlayıcısı (`Ayarlar → Denetim Paneli → Ortam Modu`)**:
-  - Denetim Panelindeki Ortam Modu tuşuna basıldığında veya **Boşta Kalma Süresi (`Kapalı / 5 / 10 / 15 / 30 / 60 dk`)** dolduğunda **Ortam Modu (Sistem Varsayılanı)** ya da yeni **Dahili Kilit Ekranı** açılacak şekilde seçim yapabilirsiniz.
-  - **Kilit Ekranı Ayarları Alt Menüsü**: Tüm Gece Sahneleri, Klasik duvar kağıtları, Özel 1–5 veya **Klasörden Karıştır** seçeneklerinden birini seçebilir, **Saat Konumunu (`Sol / Orta / Sağ`)** ayarlayabilir ve duvar kağıdı üzerinde saat, tarih, karşılama mesajı ile canlı hava durumunu görüntüleyebilirsiniz (kumandadan herhangi bir tuşa basıldığında anında kaldığınız yere döner).
-- **Klasörden Karışık Duvar Kağıdı (`Ayarlar → Görünüm ve Sahneler` & `Kilit Ekranı`)**:
-  - Yalnızca 5 özel görselle sınırlı kalmadan dahili depolama veya USB bellekteki herhangi bir klasörü seçip (**Klasör Seç ve Karıştır**) içindeki tüm görselleri masaüstü veya kilit ekranı arka planı olarak karışık oynatabilirsiniz.
-- **Gece Sahneleri Ana Ekran Hava Durumu Kısayolu (`Ayarlar → Uygulamalar`)**:
-  - Gece Sahneleri ana ekranında sağ üstteki Denetim Paneli butonunun yanına, tıklandığında 5 günlük hava durumu penceresini açan cam **Hava Durumu Simgesi** eklendi (varsayılan açık, `Ayarlar → Uygulamalar → Ana ekran hava durumu kısayolu` üzerinden kapatılabilir).
-- **Özelleştirilebilir Denetim Paneli Öğeleri (`Ayarlar → Denetim Paneli`)**:
-  - Denetim Panelindeki tüm kutucukları (**Wi-Fi, Bluetooth, RAM, Rahatsız Etmeyin, Ses, Uyku Zamanlayıcısı, Ortam Modu, Kapat, Girişler, Tuş Atayıcı, Ayarlar, Arama**) isteğinize göre tek tek açıp kapatabilirsiniz (tümü varsayılan olarak açıktır).
-- **Düğme Eşleyicide Tuş Kodu Gönder (`Send Key Code`) Seçeneği (`Ayarlar → Düğme Eşleyici`)**:
-  - tvQuickActions gibi üçüncü parti uygulamalara gerek kalmadan kumandadaki herhangi bir tuşa (`1x / 2x / 3x` basış) **Tuş Kodu Gönder** (*Oynat/Duraklat, Sonraki, Önceki, Sessiz, Ses Aç/Kıs, Geri, Ana Ekran, Menü, TV Girişi, Kanal İleri/Geri, Altyazı, Rehber, Bilgi* veya özel Android `KeyEvent` kodu) atayabilirsiniz.
-- **Etkileşimli Güncelleme Mevcut Penceresi & Çift Modlu APK Yükleyici (`Ayarlar → Güncellemeler`)**:
-  - Otomatik veya manuel güncelleme kontrolünde yeni sürüm bulunduğunda **2 butonlu Güncelleme Mevcut** penceresi açılır: **Değişiklik Günlüğü (`Show Changelog`)** (GitHub sürüm notlarını doğrudan TV ekranında gösterir) ve **Yükle (`Install` — varsayılan seçili)**.
-  - **Çift Modlu Kurulum**: Kalıcı ADB Modunda (`5555` portu açıkken) uygulamayı çökertmeden arka planda otomatik olarak günceller; Güvenli Modda ise sistem paket yükleyicisini açarak temiz kurulum sağlar.
-- **Açılış Hızı, Uyumluluk ve İzlemeye Devam Et Düzeltmeleri**:
-  - **Daha Hızlı Sistem Açılışında Başlatma**: `PowerService`, sistem açılışında Erişilebilirlik Servisi bağlandığı anda (`BOOT_COMPLETED` gecikmesini beklemeden) başlatıcıyı öne getirir ve açılışta stok başlatıcı pencerelerini yakalar.
-  - **Philips Canlı TV (`org.droidtv.playtv`) Düzeltmesi**: Philips TV'lerde canlı TV / uydu alıcısı paketi olan `org.droidtv.playtv`, `KNOWN_SYSTEM_LAUNCHERS` listesinden çıkarıldı.
-  - **Android 9 İzin Kaldırma Çökme Düzeltmesi & Anlık İzin Sayacı**: Android 9 TV'lerde izinleri geri alırken oluşan çökme düzeltildi ve izinler onarıldığında `Ayarlar → Gelişmiş` ekranındaki sayacın (`4 / 4 etkin`) anında güncellenmesi sağlandı.
-  - **İzlemeye Devam Et (`Continue Watching`) Düzeltmesi**: Gerçek medya içeriği olmadığında sahte/demo içeriklerin gösterilmesi tamamen engellendi (içerik yoksa satır gizlenir) ve YouTube / SmartTube videolarına tıklandığında yalnızca uygulamayı açmak yerine doğrudan seçilen videoyu başlatan `Intent.parseUri` / `vnd.youtube` derin bağlantı desteği eklendi.
-
----
-
-## 🆕 `v2.0.5` Sürümündeki Yenilikler
-
-- **Boyutlandırılabilir Gece Sahneleri Dock'u (`%50` – `%150`) & Çok Satırlı Navigasyon**: *Görünüm ve sahneler* menüsünün en üstünden Gece Sahneleri dock boyutunu `%50` ile `%150` arasında (`%100` varsayılan) ölçeklendirebilirsiniz. Dock büyütüldüğünde ekrana sığmayan fazla uygulamalar otomatik olarak **Diğer uygulamalar (`...`)** menüsüne taşınır; açılan çok satırlı dock içerisinde **Yukarı / Aşağı / Sol / Sağ** yön tuşlarıyla gezinebilir ve klasör boşaldığında `Diğer uygulamalar` simgesi otomatik gizlenir.
-- **Yenilenen Apple tvOS Klasik Dock & Simetrik Odaklama**: Klasik görünümde dock ve uygulama simgelerinin köşe yuvarlaklığı Apple tvOS stilinde güncellendi, uygulama kutucukları büyütüldü, ilk ve son sıradaki uygulama seçildiğinde simetrik kenar boşluğu sağlandı ve satırlar arası geçiş animasyonu akıcı hale getirildi.
-- **Ayarlar İçinde Yerel Sağ Panel Alt Menüleri**: CleanYourTV, Manuel Debloat, Sistem Başlatıcılarını Devre Dışı Bırakma ve diğer tüm alt menüler artık açılır pencere (popup) yerine Ayarlar menüsünün sağ tarafında yerel alt menü olarak açılır; 341 TV modeli ve sistem uygulamaları arka planda önbelleğe alınarak anında yüklenir.
-- **Tek Tıkla Sistem Başlatıcılarını Devre Dışı Bırakma & Manuel Debloat**: Yüklü stok başlatıcıları (*Google TV Home / LauncherX, Android TV Home / Leanback, TCL, Philips, Xiaomi, Sony* vb.) tespit edip tek dokunuşla devre dışı bırakan **Sistem başlatıcılarını devre dışı bırak** menüsü ve tüm sistem paketlerini arayıp yönetebileceğiniz **Manuel debloat (Tüm sistem uygulamaları)** ekranı eklendi.
-- **Gelişmiş TCL, Philips, Xiaomi ve Android 11–14 Uyumluluğu**:
-  - **Android 13/14 Kısıtlanmış Ayarlar (`ACCESS_RESTRICTED_SETTINGS`) Kilidi Açma**: Yerel ADB izin verme ve onarma işlemleri artık `appops ACCESS_RESTRICTED_SETTINGS allow` komutunu otomatik çalıştırarak Android 13 ve 14 TV'lerde Erişilebilirlik Servisinin sistem tarafından engellenmesini önler.
-  - **Ana Ekran (Home) Tuşunu Düzelt (`Ayarlar → Düğme eşleyici`)**: Varsayılan başlatıcı ayarını yok sayan TCL ve Philips (Android 11/12) TV'ler için Home tuşunu doğrudan tvOS Launcher'a yönlendiren isteğe bağlı seçenek (varsayılan kapalı).
-  - **Açılışta Otomatik Başlat (`Ayarlar → Gelişmiş`)**: Sistem açılışından hemen sonra başlatıcıyı otomatik çalıştıran seçenek (varsayılan kapalı).
-  - **Tüm İzinleri Kaldır / Cihaz Yöneticisini Devre Dışı Bırak (`Ayarlar → Gelişmiş`)**: Cihaz Yöneticisi kapatma ekranı bulunmayan TV'lerde uygulamayı kolayca kaldırabilmek için tek tıkla tüm izinleri geri alma seçeneği.
-  - **Çökme Korumalı Kumanda Tuş Yönetimi & Tuş Sesleri**: ADB izin onarımı sırasındaki siyah ekran döngüsü giderildi, `PowerService` kumanda tuşlarını hiçbir koşulda kilitlemeyecek şekilde güçlendirildi, *Hızlı düğmeler* başlığı 13 dilde **Hızlı ayarlar** olarak güncellendi ve **Tuş sesleri** varsayılan olarak **Kapalı** ayarlandı.
+Android TV ve Google TV cihazlar için hiçbir üçüncü parti çalışma zamanı (runtime) kütüphanesi kullanılmadan **%100 saf Java** ile geliştirilmiş, hızlı ve ultra hafif **tvOS 26 & macOS** tasarımlı ana ekran başlatıcısı (**arka planda `%0.0` CPU kullanımı ve yalnızca ~30 MB özel RAM / ~38 MB toplam PSS tüketimi**). **1 GB RAM'li** uygun fiyatlı TV kutularında ve eski **Android 7.0 / 8.0** televizyonlardan **Android 14** modellere kadar 60 FPS akıcılık sunarken; **boyutlandırılabilir macOS Liquid Glass Dock (`%50–%150`)**, dönüşümlü **Gece Sahneleri**, **Varsayılan Ana Ekran Widget Paneli**, **Özel Duvar Kağıtları (`Tekli/Çoklu, Klasörden Karışık & Reddit Duvar Kağıtları`)**, **Dahili Kilit Ekranı / Ekran Koruyucu**, **Uygulama Simgesi Değiştirici ve Simge Düzenleyici**, **Otomatik GitHub Uygulama Güncellemeleri**, **bilgisayar gerektirmeyen dahili CleanYourTV Debloat aracı (341 TV modeli + Manuel Sistem Uygulaması Debloat + Sistem Başlatıcılarını Devre Dışı Bırakma)**, **Genişletilmiş Hava Durumu Panelli Özelleştirilebilir Evrensel Denetim Paneli (`Hızlı Ayarlar`)**, **Son Uygulamalar Değiştiricisi**, **çoklu basış (`1x / 2x / 3x`) Kumanda Tuş Atayıcı + Tuş Kodu Gönder (`Send Key Code`) + Ana Ekran Tuşu Düzeltmesi**, **Evrensel 3 Modlu Ses Tuşu Basılı Tutma Düzeltmesi (Standart, HY320 Projeksiyon, Onn TV Box)**, **Caffeine Modu** ve **Çift Modlu Güvenli Yerel ADB Kurulumu (Port 5555'i açık bırakmadan Otomatik Onarım & Ses Tuşu Düzeltmesi)** özelliklerini bir araya getirir.
 
 ---
 
 ## ✨ Öne Çıkan Özellikler
 
-- **Çift Görünüm Modu (`Gece Sahneleri` & `Klasik`) + Özel Duvar Kağıtları**
-  - **Gece Sahneleri (Night Scenes)**: Dağ ve manzara katmanlarının arkasında duran dev cam saat (*iPhone Duo*, *iPhone Rounded*, *Tall Glass*), derinlikli arka plan sahneleri (*Gece*, *Altın Saat*, *Su Çizgisi*, *Sis*, *Yağmur Ormanı Şafağı* ve **Sol / Orta / Sağ Saat Konumu** seçilebilen **5 adede kadar Özel Sahne Duvar Kağıdı**), kişisel karşılama mesajı, tarih, canlı hava durumu ve dinamik boyutlanan **macOS Liquid Glass Dock (`%50` – `%150`)**.
-  - **Uygulama Simgesi Değiştirici & Simge Düzenleyici (`JPG / PNG / ICO`)**:
-    - Dock veya ızgara üzerindeki herhangi bir uygulamaya **OK** tuşuyla basılı tutup **Uygulama simgesini değiştir** seçeneğiyle dahili depolama veya USB bellekten `.jpg`, `.jpeg`, `.png` ya da `.ico` dosyası seçebilirsiniz.
-    - Dahili **Uygulama Simgesi Düzenleyici** ile canlı önizleme, **14 arka plan rengi** (otomatik kenar rengi algılama dahil), **Yakınlaştırma / Uzaklaştırma** ve **Sol / Sağ / Yukarı / Aşağı** hizalama ayarlarını anında yapabilirsiniz.
-  - **Uygulama Yeniden Adlandırma, Diğer Uygulamalar & Gizlenen Uygulamalar Ayrımı**:
-    - Dock üzerindeki herhangi bir uygulamaya **OK** tuşuyla basılı tutarak **Yeniden Adlandır**, **Uygulama simgesini değiştir**, **Taşı**, **Diğer Uygulamalara Taşı**, **Gizle**, **Uygulama Bilgisi**, **Kaldır** veya **Düzeni Sıfırla** seçeneklerini kullanabilirsiniz.
-    - **Diğer Uygulamalara Taşı**: Uygulamayı ilk dock satırından kaldırır ancak dock'taki **`...` (Diğer uygulamalar)** butonunun içinde tek tıkla erişilebilir tutar (klasör boşsa otomatik gizlenir, çok satırlı olduğunda Yukarı/Aşağı yön tuşlarıyla gezilebilir).
-    - **Gizlenen Uygulamalar (`Ayarlar → Uygulamalar → Gizlenen uygulamalar`)**: Uygulamayı hem ana dock satırından hem de Diğer Uygulamalar menüsünden tamamen gizler. **Ayarlar → Uygulamalar → Gizlenen uygulamalar** menüsünden gizlenen bir uygulamanın üzerine **OK** ile basarak doğrudan açabilir veya **OK tuşuna basılı tutarak** ana ekrana geri yükleyebilirsiniz.
-  - **Klasik (Classic)**: Apple tvOS tarzı yuvarlatılmış köşelere sahip 6 sütunlu uygulama ızgarası ve ortalanmış cam dock, simetrik odak boşlukları, akıcı satır kaydırma animasyonu, yerleşik fotoğraflar, ortam rengi temaları veya kendi **Özel Duvar Kağıdınız** ve isteğe bağlı Üst Raf (Top Shelf).
-- **Otomatik ve Manuel GitHub Güncellemeleri (`Ayarlar → Güncellemeler`)**
-  - Hakkında menüsünün hemen üzerinde yer alan **Güncellemeler** menüsü ile mevcut sürümü ve GitHub üzerindeki en son sürümü görüntüleyebilir, tek tıkla güncelleme kontrolü yapabilir veya **Otomatik güncellemeler** seçeneğini açıp kapatabilirsiniz.
-- **CleanYourTV (Beta) — Bilgisayar Gerektirmeyen Dahili Android TV Debloat Aracı (`Ayarlar → Gelişmiş`)**
-  - **[CleanYourTV](https://github.com/Gathin23/cleanyourtv)** debloat profillerini **Yerel ADB (`127.0.0.1:5555`)** üzerinden doğrudan TV'nizde yerel sağ panel menülerinde çalıştırır — **bilgisayar veya harici CLI gerektirmez**.
-  - **341 Gömülü TV & Box Profili**: *TCL, Sony, Xiaomi, Hisense, Philips, Skyworth, OnePlus, Realme, Nvidia Shield, Motorola, Toshiba, Sharp, Onn, Chromecast with Google TV* ve daha fazlası.
-  - **Gelişmiş Üretici (OEM) Model Algılama & ADB Paket Benzerlik Tarayıcısı**: TV'nizin donanım özelliklerinden tam veya yakın modelleri otomatik bulur, 341 profili gecikmesiz aramanızı sağlar veya TV'nizdeki üreticiye özgü sistem paketlerini ADB ile ağırlıklı olarak tarayarak en yakın modelleri yüzdelik benzerlik oranıyla sıralar.
-  - **Sistem Başlatıcılarını Devre Dışı Bırakma & Manuel Debloat**: Yüklü stok başlatıcıları (*Google TV Home, Android TV Home*, OEM başlatıcılar) tek tıkla devre dışı bırakma veya yeniden etkinleştirme menüsü ve tüm sistem uygulamalarını tek tek yönetebileceğiniz **Manuel debloat** ekranı.
-  - **Seçmeli Debloat Kontrol Listesi**: Telemetri, reklam satırları ve gereksiz ön yüklü uygulamalar ön seçili gelirken; **isteğe bağlı uygulamalar** (*Google Asistan, YouTube Music, Play Oyunlar, TalkBack, Chromecast alıcısı, Telefon Kumanda Servisi*) otomatik seçilmez ve listenin en altında yer alır.
-  - **Google TV `setupwraith` Wi-Fi Koruması**: Google TV cihazlarda `setupwraith` / `launcherx` devre dışı bırakılmadan önce Wi-Fi ağını unutup yeniden eklemeniz konusunda uyarır (veya tek dokunuşla `setupwraith`'i güvenle atlamanızı sağlar).
-  - **Tek Tıkla Yedekleme, Geri Yükleme & AdGuard DNS**: Devre dışı bırakılan paketleri kaydeder, canlı **Debloat Durumunu** (`Tamamlandı` / `Yapılmadı`) gösterir, istediğiniz zaman tek dokunuşla tüm uygulamaları geri yükler ve **Reklam Engelleyici Özel DNS (`dns.adguard-dns.com`)** anahtarı sunar.
-- **Evrensel Cam Denetim Paneli (`Hızlı Ayarlar`)**
-  - Ana ekrandan veya Tuş Atayıcı erişilebilirlik servisi sayesinde **çalışan herhangi bir uygulamanın üzerinde** gerçek zamanlı bulanık arka plan ile açılır.
+- **Varsayılan Ana Ekran Widget Paneli (4 Özelleştirilebilir Widget)**
+  - Hiçbir uygulama seçili olmadığında veya seçili uygulamanın İzlemeye Devam Et içeriği bulunmadığında tek bir yatay sırada 4 özelleştirilebilir Liquid Glass widget kartı görüntüler:
+    - 🕌 **Namaz Vakitleri**: Günlük namaz vakitleri (İmsak, Güneş, Öğle, İkindi, Akşam, Yatsı), sonraki vakte canlı geri sayım ve 10 farklı hesaplama yöntemi (Diyanet, MWL, ISNA, Mısır, Mekke, Karaçi, Tahran, Caferi, Körfez, Fransa).
+    - ⚽ **Futbol Maçları**: Günün ve yaklaşan günlerin maç takvimi, canlı skorlar, favori takım takibi ve lig fikstürleri.
+    - 🎬 **Çok İzlenenler (Son Çıkanlar)**: JustWatch altyapısıyla en popüler yayın platformlarındaki popüler film ve diziler; varsayılan olarak arayüz diliyle eşitlenir ve istenirse birden fazla ülke seçilebilir.
+    - ⛅ **Hava Durumu**: Anlık sıcaklık, hava durumu ikonu, konum adı ve günün en yüksek/en düşük sıcaklıkları.
+  - Hem **Gece Sahneleri** hem de **Klasik Görünüm** ile tam uyumludur.
+  - Widget'ları tek tek açıp kapatabilir, seçili uygulamada İzlemeye Devam Et içeriği olmadığında widget'ların gösterilip gösterilmeyeceğini ayarlayabilirsiniz.
+
+- **Çift Görünüm Modu (`Gece Sahneleri` & `Klasik`)**
+  - **Gece Sahneleri (Night Scenes)**: Dağ ve manzara katmanlarının arkasında duran dev cam saat (*iPhone Duo*, *iPhone Rounded*, *Tall Glass*), derinlikli arka plan sahneleri (*Gece*, *Altın Saat*, *Su Çizgisi*, *Sis*, *Yağmur Ormanı Şafağı*), kişisel karşılama mesajı, tarih, canlı hava durumu ve dinamik boyutlanan **macOS Liquid Glass Dock (`%50` – `%150`)**.
+  - **Klasik Görünüm (Classic)**: Apple tvOS tarzı yuvarlatılmış köşelere sahip 6 sütunlu uygulama ızgarası ve ortalanmış cam dock, simetrik odak boşlukları ve akıcı satır animasyonları.
+  - **Klasik Görünüm İçin Büyük Saat**: Gece Sahnelerindeki dev cam saat, tarih, karşılama mesajı ve sağ üst hava durumu kısayolunu Klasik görünüme taşır (üstteki küçük saati devre dışı bırakır) ve **Saat Hizalaması (`Sol / Orta / Sağ`)** seçeneği sunar.
+  - **Dinamik ve Özel Duvar Kağıdı Saat Hizalaması**: Varsayılan gece sahnelerinde her duvar kağıdına göre otomatik değişen dinamik hizalama, özel duvar kağıtlarında ise Sol / Orta / Sağ hizalama seçeneği. Rakamlar dock ile birebir aynı Liquid Glass efektine ve ortam parlaklığına uyum sağlayan ışıklandırmaya sahiptir.
+
+- **Gelişmiş Özel Duvar Kağıdı Motoru**
+  - **Tekli ve Çoklu Duvar Kağıdı**: 5 duvar kağıdı sınırı olmadan dahili depolama veya USB'den sınırsız görsel seçebilme.
+  - **Klasörden Karıştır**: Seçilen herhangi bir klasördeki tüm duvar kağıtlarını otomatik döngüde rastgele oynatma.
+  - **Reddit Duvar Kağıtları**: Seçilen subreddit'lerden (örn. `wallpapers`, `EarthPorn`) yüksek çözünürlüklü duvar kağıtlarını otomatik çekme, süre aralığı belirleme ve Hızlı Ayarlar'dan anında "Sonraki Duvar Kağıdı"na geçebilme.
+
+- **Tüm Medya Uygulamaları İçin Evrensel İzlemeye Devam Et Desteği**
+  - Yüklü tüm medya uygulamalarıyla (YouTube, SmartTube, Netflix, Prime Video, Disney+, Apple TV+, Tivimate, HBO Max, Stremio, Nuvio vb.) Android TV `TvContract` EPG / Watch Next içerik sağlayıcısı, `MediaSessionManager` aktif oturum takibi ve bildirim dinleyicileri üzerinden entegre çalışır.
+  - **Dock ile Eşzamanlı Filtreleme**: Yalnızca dock'ta üzerinde durulan uygulamanın içeriklerini gösterir.
+  - **Stremio & Nuvio Dock Açılır Pencereleri**: Dock simgeleri üzerinde yerel önbellek, QR kodlu giriş ve profil geçişi destekli pencereler.
+  - **Akıcı ve Tekrarsız Geçiş**: İçerikli iki uygulama arasında gezinirken satır anında güncellenir, gereksiz animasyon tekrarlanmaz.
+  - **Doğrudan Derin Bağlantı (Deep Link)**: Karta tıklandığında doğrudan videoyu başlatır.
+
+- **Bağımsız TV Girişleri (Inputs) Ekran Üstü Paneli**
+  - Kumanda Tuş Atayıcı (örn. Giriş tuşuna 1x/2x basış) veya Denetim Panelinden açılabilen cam tasarımlı giriş paneli; Google TV / Android TV stok başlatıcıları devre dışı bırakılsa bile HDMI girişleri arasında kolayca geçiş yapmanızı sağlar.
+
+- **Caffeine Modu (`Ayarlar → Gelişmiş`)**
+  - Android'in boşta kalma (idle) modunu reddeder ve Android TV'nin otomatik Ortam Modu'nun / ekran koruyucusunun devreye girmesini önleyerek TV'nizi uyanık tutar.
+
+- **Evrensel Cam Denetim Paneli (`Hızlı Ayarlar`) Ekran Üstü Katmanı**
+  - Ana ekrandan veya herhangi bir uygulamanın üzerindeyken açılabilir. İki arka plan modu sunar:
+    - **Bulanık Mod**: Panelin arkasındaki içeriği gerçek zamanlı bulanıklaştırır.
+    - **Şeffaf Mod**: Canlı video oynatılırken videonun kesilmeden arka planda akmasını sağlar.
+  - **Genişletilmiş Hava Durumu Paneli**: Alt kısımda yer alan 4 sütun genişliğinde panel bugünkü ve yarınki hava durumunu gösterir (tıklandığında 5 günlük detaylı hava durumu açılır).
   - **Wi-Fi**, **Bluetooth**, **RAM / Son Uygulamalar**, **Rahatsız Etmeyin**, **Ses Çıkışı**, **Uyku Zamanlayıcısı**, **Ortam Modu**, **Kapat / Ekranı Kapat**, **Girişler (HDMI)**, **Tuş Atayıcı**, **Ayarlar** ve **Arama** kısayollarını içerir.
-  - **Evrensel Marka Etkinlik Seçici (`Ayarlar → Denetim Paneli`)**: **Wi-Fi**, **Bluetooth**, **Ses** veya **Girişler** kutucuklarına tıklandığında TV'nizdeki hangi sistem uygulamasının ve alt ekranın (Activity) açılacağını özgürce seçebilirsiniz.
+
 - **Son Uygulamalar Değiştiricisi (Recent Apps Switcher) & RAM Temizleyici**
   - Atanmış kumanda tuşuyla veya Denetim Panelindeki **RAM** kutucuğundan her uygulamanın üzerinde açılır.
-  - Canlı bellek kullanımını (`kullanılan / toplam RAM`), yatay uygulama kartlarını, **Yukarı (DPAD UP)** tuşuyla tekil uygulama kapatmayı (`force-stop`) ve **Tümünü Kapat** butonunu içerir; tüm uygulamalar kapatıldığında 1.5 saniye sonra otomatik olarak ana ekrana döner.
-- **Çoklu Basış Kumanda Tuş Atayıcı (`1x` / `2x` / `3x`), Ana Ekran Tuşu & Ses Tuşu Düzeltmesi**
-  - Seçtiğiniz herhangi bir kumanda tuşuna **Tek Basış (1x)**, **Çift Basış (2x)** ve **Üçlü Basış (3x)** için bağımsız görevler atamanızı sağlar.
-  - **Ana Ekran (Home) Tuşunu Düzelt (Varsayılan Kapalı)**: Varsayılan ana ekran ayarını yok sayan TV'lerde Home tuşunu doğrudan tvOS Launcher'ı açacak şekilde yeniden eşler.
-  - **Ses Tuşu Basılı Tutma Düzeltmesi (Varsayılan Açık)**: Erişilebilirlik servisi etkinleştirildiğinde ses açma/kısma tuşuna basılı tutmanın çalışmaması sorununu otomatik olarak çözer.
-- **Yerel ADB ile Kolay Kurulum, Keep Alive Otomatik İzin Onarımı & Tek Tıkla İzin Kaldırma**
-  - **Kolay Kurulum (ADB ile Otomatik)** `127.0.0.1:5555` üzerinden bağlanarak `ACCESS_RESTRICTED_SETTINGS` (Android 13/14+) kilidini açar ve Varsayılan Ana Ekran, Erişilebilirlik Servisi, Cihaz Yöneticisi, Bildirim Erişimi ve Kullanım İzinlerini tek tıkla verir.
-  - **Keep Alive (Varsayılan Açık)**: Arka planda sıfır ek CPU/RAM yüküyle izinleri kontrol eder ve TV yazılımı Erişilebilirlik iznini kapatırsa Yerel ADB üzerinden otomatik olarak onarır.
-  - **Tüm İzinleri Kaldır (`Ayarlar → Gelişmiş`)**: Uygulamayı kaldırmak istediğinizde Cihaz Yöneticisi ve diğer özel izinleri tek dokunuşla devre dışı bırakır.
-- **13 Dil Desteği**
-  - **Türkçe, İngilizce, İsveççe, Almanca, Fransızca, İspanyolca, İtalyanca, Rusça, Portekizce, Arapça, Hintçe, Japonca ve Çince** dillerinde tam yerelleştirilmiş arayüz.
+  - Canlı bellek kullanımını (`kullanılan / toplam RAM`), yatay uygulama kartlarını, **Yukarı (DPAD UP)** tuşuyla tekil uygulama kapatmayı (`force-stop`) ve **Tümünü Kapat** butonunu içerir.
+
+- **Çoklu Basış Kumanda Tuş Atayıcı & 3 Modlu Ses Tuşu Düzeltmesi**
+  - Kumandadaki herhangi bir tuşa **Tek Basış (1x)**, **Çift Basış (2x)** ve **Üçlü Basış (3x)** için bağımsız görevler veya **Tuş Kodu Gönder** (*Play/Pause, Mute, Volume, Back, Home, TV Input* vb.) atayabilirsiniz.
+  - **Ana Ekran (Home) Tuşunu Düzelt**: Varsayılan başlatıcı ayarını yok sayan TV'lerde Home tuşunu doğrudan tvOS Launcher'a yönlendirir.
+  - **Evrensel Ses Tuşu Basılı Tutma Düzeltmesi**:
+    - **Mod 1 (Standart — Varsayılan)**: Android 9–14 TV'lerde akıcı ses tekrarı (`320ms` gecikme, `85ms` tekrar) ve anında durma (`<= 45ms`).
+    - **Mod 2 (HY320 / Projeksiyon)**: Magcubic HY320 ve projeksiyon cihazları için darbe algılamalı Binder izleyicisi.
+    - **Mod 3 (Onn TV Box)**: Onn TV Box için özel optimize edilmiş bırakma hızı ve tekrarlama motoru.
+    - Hem **Güvenli Modda (ADB Kapalı)** hem **Kalıcı ADB Modunda** çalışır.
+
+- **CleanYourTV (Beta) — Bilgisayar Gerektirmeyen Dahili Android TV Debloat Aracı (`Ayarlar → Gelişmiş`)**
+  - **[CleanYourTV](https://github.com/Gathin23/cleanyourtv)** profillerini doğrudan TV'nizde çalıştırır — **bilgisayar gerektirmez**.
+  - **341 Gömülü TV & Box Profili**: *TCL, Sony, Xiaomi, Hisense, Philips, Skyworth, OnePlus, Realme, Nvidia Shield, Motorola, Toshiba, Sharp, Onn, Chromecast with Google TV* ve daha fazlası.
+  - **Sistem Başlatıcılarını Devre Dışı Bırakma & Manuel Debloat**: Stok başlatıcıları tek tıkla devre dışı bırakma ve tüm sistem uygulamalarını güvenle yönetme.
+  - **MiBluetooth Koruması**: Bluetooth kumanda servislerinin yanlışlıkla silinmesini engeller.
+  - **Reklam Engelleyici Özel DNS (`dns.adguard-dns.com`)** anahtarı.
+
+- **Ayarları Yedekleme ve Geri Yükleme (`Ayarlar → Sistem / Hakkında / Hızlı ve Ana Ekran`)**
+  - Tüm başlatıcı tercihleri, dock sıralaması, özel uygulama isimleri ve simgeleri tek dokunuşla `Download/tvos-launcher-settings.json` dosyasına yedeklenebilir ve USB/dahili depolamadan geri yüklenebilir.
+
+- **Uygulama Simgesi Değiştirici & Simge Düzenleyici (`JPG / PNG / ICO`)**
+  - İstediğiniz uygulamaya basılı tutarak simgesini değiştirebilir; dahili simge düzenleyici ile renk, boyut ve konumunu özelleştirebilirsiniz.
+  - Özel uygulama yeniden adlandırma, **Diğer Uygulamalar (`...`)** çok satırlı klasörü ve **Gizlenen Uygulamalar** kasası.
+
+- **Hızlı 60 FPS Kararma ile Uygulama Açılış Animasyonu**
+  - Giriş seviyesi çipsetlerde bile takılma yapmadan 60 FPS akıcılıkta kararma efektiyle uygulama açılışı.
+
+- **Otomatik ve Manuel GitHub Güncellemeleri (`Ayarlar → Güncellemeler`)**
+  - GitHub Releases üzerinden yeni sürümleri denetler, TV ekranında değişiklik günlüğünü gösterir ve otomatik yükler.
+
+- **Çift Modlu Güvenli Yerel ADB Mimarisi**
+  - **Güvenli Mod (Varsayılan & Önerilen)**: İzinleri tek seferde verip ağ ADB portunu (`5555`) hemen kapatır. Otomatik onarım ve ses düzeltmesi %100 dahili olarak çalışır.
+  - **Kalıcı ADB Modu**: İsteğe bağlı olarak çalışma zamanında debloat yapmak isteyenler için portu açık tutar.
+
+- **15 Dil Desteği**
+  - **Türkçe, İngilizce, Azerbaycan dili (Azərbaycan dili), İsveççe, Korece (한국어), Almanca, Fransızca, İspanyolca, İtalyanca, Rusça, Portekizce, Arapça, Hintçe, Japonca ve Çince** dillerinde tam yerelleştirilmiş arayüz.
+
 - **Çoklu Kullanıcı Profilleri & Canlı Hava Durumu**
-  - Her biri kendi uygulama sırasına, gizli uygulamalarına ve İzlemeye Devam Et listesine sahip 3'e kadar kullanıcı profili ve API anahtarı gerektirmeyen 5 günlük hava durumu tahmini.
+  - 3'e kadar bağımsız kullanıcı profili ve API anahtarı gerektirmeyen 5 günlük hava durumu tahmini.
+
+- **Ultra Hafif ve Hızlı (Android 7.0 – Android 14+)**
+  - Saf Android SDK Java — Gradle yok, Kotlin yok, AndroidX yükü yok. ~30 MB özel RAM ve %0.0 arka plan CPU kullanımı.
 
 ---
 
