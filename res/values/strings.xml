@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="power_service_desc">Lets tvOS Launcher by techgenius remap remote buttons, open the Control Panel overlay over any app, put the TV to sleep (Power Off, Sleep Timer), and close background apps.</string>
+    <!-- Системные описания -->
+    <string name="power_service_desc">Служба питания</string>
+
+    <!-- Заголовок TIGGO 9 (TIGGO — белый, 9 — красный) -->
+    <string name="tiggo_title"><![CDATA[<font color="#FFFFFF">TIGGO</font> <font color="#FF0000">9</font>]]></string>
+
+    <!-- Переводы элементов интерфейса на русский язык -->
+    <string name="menu_home">Главная</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_climate">Климат</string>
+    <string name="menu_media">Мультимедиа</string>
+    <string name="menu_vehicle">Автомобиль</string>
 </resources>
