@@ -977,7 +977,19 @@ public final class HomeDashboard {
                     });
                 }
         }
-        return row;
+       TextView titleTv = new TextView(host);
+titleTv.setText(Html.fromHtml(host.getString(R.string.tiggo_title), Html.FROM_HTML_MODE_LEGACY));
+titleTv.setTextSize(22);
+FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(
+    FrameLayout.LayoutParams.WRAP_CONTENT,
+    FrameLayout.LayoutParams.WRAP_CONTENT
+);
+titleParams.gravity = Gravity.START | Gravity.TOP;
+titleParams.leftMargin = dp(host, 32);
+titleParams.topMargin = dp(host, 24);
+row.addView(titleTv, titleParams);
+ return row;
+
     }
 
     private static FrameLayout createBaseGlassCard(final MainActivity host, final int accentColor) {
