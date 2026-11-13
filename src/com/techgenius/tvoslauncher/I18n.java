@@ -603,6 +603,23 @@ public final class I18n {
         add("Update Available", "अपडेट उपलब्ध है", "Actualización disponible", "Mise à jour disponible", "Update verfügbar", "Aggiornamento disponibile", "Доступно обновление", "Atualização disponível", "يتوفر تحديث", "アップデートがあります", "发现新版本");
         add("Download & Install", "डाउनलोड और इंस्टॉल करें", "Descargar e instalar", "Télécharger et installer", "Herunterladen & installieren", "Scarica e installa", "Скачать и установить", "Transferir e instalar", "تنزيل وتثبيت", "ダウンロードしてインストール", "下载并安装");
         add("Up to Date", "अप टू डेट", "Actualizado", "À jour", "Auf dem neuesten Stand", "Aggiornato", "Установлена последняя версия", "Atualizado", "محدّث لأحدث إصدار", "最新の状態です", "已是最新版本");
+        add("Scroll for more ›", "और देखने के लिए स्क्रॉल करें ›", "Desplaza para ver más ›", "Faites défiler pour plus ›", "Für mehr scrollen ›", "Scorri per altro ›", "Прокрутите, чтобы увидеть больше ›", "Deslize para ver mais ›", "مرّر للمزيد ›", "スクロールしてもっと見る ›", "滚动查看更多 ›");
+        add("Apps using Nuvio", "Nuvio इस्तेमाल करने वाले ऐप्स", "Apps que usan Nuvio", "Applis utilisant Nuvio", "Apps, die Nuvio nutzen", "App che usano Nuvio", "Приложения с Nuvio", "Apps que usam o Nuvio", "التطبيقات التي تستخدم Nuvio", "Nuvio を使うアプリ", "使用 Nuvio 的应用");
+        add("Official app", "आधिकारिक ऐप", "App oficial", "Appli officielle", "Offizielle App", "App ufficiale", "Официальное приложение", "App oficial", "التطبيق الرسمي", "公式アプリ", "官方应用");
+        add("Always on", "हमेशा चालू", "Siempre activado", "Toujours activé", "Immer an", "Sempre attivo", "Всегда включено", "Sempre ligado", "مفعّل دائمًا", "常にオン", "始终开启");
+        add("Not installed", "इंस्टॉल नहीं है", "No instalada", "Non installée", "Nicht installiert", "Non installata", "Не установлено", "Não instalada", "غير مثبّت", "未インストール", "未安装");
+        add("Suggested", "सुझाया गया", "Sugerida", "Suggérée", "Vorgeschlagen", "Suggerita", "Рекомендуется", "Sugerida", "مقترح", "おすすめ", "推荐");
+        add("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "उसी Nuvio खाते से साइन इन करने वाले Nuvio फ़ोर्क (जैसे Nuvio Native Legacy) जोड़ें। फिर उनकी डॉक टाइल पर Nuvio का Continue Watching दिखेगा और Search उनमें टाइटल खोलेगा।",
+                "Vincula versiones de Nuvio (como Nuvio Native Legacy) que inician sesión con la misma cuenta de Nuvio. Su icono del dock mostrará Seguir viendo de Nuvio y la Búsqueda abrirá los títulos en ellas.",
+                "Associez les versions de Nuvio (comme Nuvio Native Legacy) connectées au même compte Nuvio. Leur tuile du dock affichera Reprendre de Nuvio, et la Recherche y ouvrira les titres.",
+                "Verknüpfe Nuvio-Forks (z. B. Nuvio Native Legacy), die mit demselben Nuvio-Konto angemeldet sind. Ihre Dock-Kachel zeigt dann Nuvios „Weiterschauen“, und die Suche öffnet Titel darin.",
+                "Collega le versioni di Nuvio (come Nuvio Native Legacy) che accedono con lo stesso account Nuvio. Il loro riquadro nel dock mostrerà Continua a guardare di Nuvio e la Ricerca aprirà i titoli lì.",
+                "Привяжите форки Nuvio (например, Nuvio Native Legacy), вошедшие в тот же аккаунт Nuvio. Их плитка в доке покажет «Продолжить просмотр» Nuvio, а Поиск будет открывать в них фильмы и сериалы.",
+                "Associe versões do Nuvio (como o Nuvio Native Legacy) que entram com a mesma conta Nuvio. O ícone delas na dock mostrará o Continuar a ver do Nuvio, e a Pesquisa abrirá os títulos nelas.",
+                "اربط إصدارات Nuvio المعدّلة (مثل Nuvio Native Legacy) التي تسجّل الدخول بحساب Nuvio نفسه. ستعرض أيقونتها في الشريط قائمة متابعة المشاهدة من Nuvio، وسيفتح البحث العناوين فيها.",
+                "同じ Nuvio アカウントでサインインする Nuvio のフォーク（Nuvio Native Legacy など）をリンクします。ドックのタイルに Nuvio の「視聴を続ける」が表示され、検索からタイトルを開けます。",
+                "关联使用同一 Nuvio 账号登录的 Nuvio 分支版本（如 Nuvio Native Legacy）。其程序坞图标将显示 Nuvio 的继续观看，搜索也会在其中打开影片。");
     }
 
     private static void sv(String en, String svVal) {
@@ -955,6 +972,14 @@ public final class I18n {
         sv("Backup settings to Download", "Säkerhetskopiera inställningar till Download");
         sv("Restore settings from folder…", "Återställ inställningar från mapp…");
         sv("Choose folder ›", "Välj mapp ›");
+        sv("Scroll for more ›", "Skrolla för mer ›");
+        sv("Apps using Nuvio", "Appar som använder Nuvio");
+        sv("Official app", "Officiell app");
+        sv("Always on", "Alltid på");
+        sv("Not installed", "Inte installerad");
+        sv("Suggested", "Föreslagen");
+        sv("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "Länka Nuvio-forkar (som Nuvio Native Legacy) som loggar in med samma Nuvio-konto. Deras ruta i dockan visar då Nuvios Fortsätt titta, och Sök öppnar titlar i dem.");
         sv("Most Watched", "Mest sedda");
         sv("Loading titles…", "Laddar titlar…");
         sv("Most Watched countries", "Mest sedda länder");
@@ -1314,6 +1339,14 @@ public final class I18n {
         ko("Not done", "미완료");
         ko("apps", "개 앱");
         ko("packages", "개 패키지");
+        ko("Scroll for more ›", "더 보려면 스크롤 ›");
+        ko("Apps using Nuvio", "Nuvio 사용 앱");
+        ko("Official app", "공식 앱");
+        ko("Always on", "항상 켜짐");
+        ko("Not installed", "설치되지 않음");
+        ko("Suggested", "추천");
+        ko("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "같은 Nuvio 계정으로 로그인하는 Nuvio 포크(예: Nuvio Native Legacy)를 연결하세요. 해당 앱의 독 타일에 Nuvio의 이어서 보기가 표시되고, 검색에서 작품이 그 앱으로 열립니다.");
         ko("Most Watched", "인기 콘텐츠");
         ko("Loading titles…", "콘텐츠 불러오는 중…");
         ko("Most Watched countries", "인기 콘텐츠 국가");
@@ -1499,6 +1532,15 @@ public final class I18n {
         az("Check for updates", "Yeniləmələri yoxla");
         az("Current version", "Cari versiya");
         az("GitHub release latest version", "GitHub son versiyası");
+        az("Scroll for more ›", "Daha çox üçün sürüşdürün ›");
+        az("Other apps", "Digər tətbiqlər");
+        az("Apps using Nuvio", "Nuvio istifadə edən tətbiqlər");
+        az("Official app", "Rəsmi tətbiq");
+        az("Always on", "Həmişə aktiv");
+        az("Not installed", "Quraşdırılmayıb");
+        az("Suggested", "Tövsiyə olunur");
+        az("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "Eyni Nuvio hesabı ilə daxil olan Nuvio versiyalarını (Nuvio Native Legacy kimi) əlaqələndirin. Onda onların dock plitəsi Nuvio-nun İzləməyə davam et siyahısını göstərəcək, Axtarış isə başlıqları onlarda açacaq.");
     }
 
     private I18n() { }

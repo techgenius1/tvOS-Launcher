@@ -1179,7 +1179,104 @@ public class SettingsActivity extends Activity {
                     () -> cloud.isSignedIn() ? tr("Signed in · Sign out", "Giriş yapıldı · Çıkış yap")
                             : tr("Not signed in", "Giriş yapılmadı"),
                     () -> confirmWatchSignOut(cloud));
+            if (cloud instanceof NuvioCloud) {
+                row(tr("Apps using Nuvio", "Nuvio kullanan uygulamalar"),
+                        () -> {
+                            int n = NuvioCloud.linkedApps(this).size();
+                            return (n > 0 ? "+" + n + "  " : "") + "›";
+                        },
+                        () -> openSubMenu("nuvio_apps"));
+            }
         }
+    }
+
+    /**
+     * Nuvio forks (other package names, same Nuvio account) the user links to Nuvio's continue
+     * watching. The official com.nuvio.* app is built in; nothing else is linked automatically,
+     * but apps that look like Nuvio (name or nuvio:// links) are listed first as suggestions.
+     */
+    private void subMenuNuvioApps() {
+        mainHeadView.setText(tr("Apps using Nuvio", "Nuvio kullanan uygulamalar"));
+        backSubMenuRow();
+        PackageManager pm = getPackageManager();
+
+        // Launchable apps: package -> label.
+        Map<String, String> apps = new HashMap<>();
+        for (String cat : new String[]{Intent.CATEGORY_LEANBACK_LAUNCHER, Intent.CATEGORY_LAUNCHER}) {
+            List<ResolveInfo> ris;
+            try {
+                ris = pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(cat), 0);
+            } catch (Throwable t) {
+                ris = Collections.emptyList();
+            }
+            for (ResolveInfo ri : ris) {
+                if (ri.activityInfo == null) continue;
+                String pkg = ri.activityInfo.packageName;
+                if (pkg == null || apps.containsKey(pkg)) continue;
+                CharSequence l = ri.activityInfo.applicationInfo != null ? ri.activityInfo.applicationInfo.loadLabel(pm) : null;
+                apps.put(pkg, l != null && l.length() > 0 ? l.toString().trim() : pkg);
+            }
+        }
+
+        // Apps that open nuvio:// links: forks that kept Nuvio's deep links.
+        Set<String> nuvioLinks = new HashSet<>();
+        try {
+            for (ResolveInfo ri : pm.queryIntentActivities(new Intent(Intent.ACTION_VIEW,
+                    android.net.Uri.parse("nuvio://detail/movie/tt0111161")), 0)) {
+                if (ri.activityInfo != null) nuvioLinks.add(ri.activityInfo.packageName);
+            }
+        } catch (Throwable ignored) {
+        }
+
+        section(tr("Official app", "Resmi uygulama"));
+        boolean anyOfficial = false;
+        for (Map.Entry<String, String> e : apps.entrySet()) {
+            if (!NuvioCloud.isOfficial(e.getKey())) continue;
+            anyOfficial = true;
+            choiceRow(e.getValue(), tr("Always on", "Her zaman açık") + " · " + e.getKey(), true, () -> { });
+        }
+        if (!anyOfficial) {
+            choiceRow("Nuvio", tr("Not installed", "Yüklü değil") + " · " + NuvioCloud.OFFICIAL_PKG, true, () -> { });
+        }
+
+        // Linked apps that were uninstalled stay listed, so they can be unlinked.
+        Set<String> linked = NuvioCloud.linkedApps(this);
+        Map<String, String> others = new HashMap<>();
+        for (Map.Entry<String, String> e : apps.entrySet()) {
+            String pkg = e.getKey();
+            if (NuvioCloud.isOfficial(pkg) || pkg.startsWith("com.stremio.") || pkg.equals(getPackageName())) continue;
+            others.put(pkg, e.getValue());
+        }
+        for (String pkg : linked) if (!others.containsKey(pkg)) others.put(pkg, pkg);
+
+        // Suggestions first, then A-Z. Not sorted by linked state, so rows don't move when toggled.
+        List<String[]> rows = new ArrayList<>();  // {pkg, label, "1" = suggested}
+        for (Map.Entry<String, String> e : others.entrySet()) {
+            String pkg = e.getKey(), label = e.getValue();
+            boolean suggested = nuvioLinks.contains(pkg)
+                    || pkg.toLowerCase(java.util.Locale.ROOT).contains("nuvio")
+                    || label.toLowerCase(java.util.Locale.ROOT).contains("nuvio");
+            rows.add(new String[]{pkg, label, suggested ? "1" : "2"});
+        }
+        Collections.sort(rows, (a, b) -> {
+            int cmp = a[2].compareTo(b[2]);
+            if (cmp == 0) cmp = a[1].compareToIgnoreCase(b[1]);
+            return cmp != 0 ? cmp : a[0].compareTo(b[0]);
+        });
+
+        section(tr("Other apps", "Diğer uygulamalar"));
+        for (String[] r : rows) {
+            final String pkg = r[0];
+            boolean on = linked.contains(pkg);
+            String sub = (!apps.containsKey(pkg) ? tr("Not installed", "Yüklü değil") + " · "
+                    : r[2].equals("1") ? tr("Suggested", "Önerilen") + " · " : "") + pkg;
+            choiceRow(r[1], sub, on, () -> {
+                NuvioCloud.setLinked(this, pkg, !NuvioCloud.linkedApps(this).contains(pkg));
+                rebuildMainRows();
+            });
+        }
+        infoNote(tr("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "Aynı Nuvio hesabıyla giriş yapan Nuvio sürümlerini (Nuvio Native Legacy gibi) bağlayın. Dock'taki kutucukları Nuvio'nun İzlemeye Devam Et listesini gösterir ve Arama içerikleri onlarda açar."));
     }
 
     static final class HiddenAppItem {
@@ -2286,6 +2383,8 @@ public class SettingsActivity extends Activity {
             subMenuWeatherSource();
         } else if ("top_shelf".equals(subId)) {
             subMenuTopShelf();
+        } else if ("nuvio_apps".equals(subId)) {
+            subMenuNuvioApps();
         } else if (subId.startsWith("profile_actions:")) {
             subMenuProfileActions(subId.substring("profile_actions:".length()));
         } else if (subId.startsWith("cp_app:")) {

@@ -56,10 +56,10 @@ final class StremioCloud extends WatchCloud {
      * stremio:///detail/{type}/{id}/{videoId}: for a show this opens the episode that was being
      * watched (its stream list), for a movie the movie's streams.
      */
-    @Override String deepLink(Item it) {
+    @Override List<String> deepLinks(Item it) {
         String video = it.videoId == null || it.videoId.isEmpty() ? it.contentId : it.videoId;
-        return "stremio:///detail/" + Uri.encode(it.type) + "/" + Uri.encode(it.contentId, ":")
-                + "/" + Uri.encode(video, ":");
+        return java.util.Collections.singletonList("stremio:///detail/" + Uri.encode(it.type) + "/"
+                + Uri.encode(it.contentId, ":") + "/" + Uri.encode(video, ":"));
     }
 
     @Override String popupPrefKey() { return "stremio_popup"; }
