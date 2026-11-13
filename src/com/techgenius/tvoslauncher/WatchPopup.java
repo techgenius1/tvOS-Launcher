@@ -826,14 +826,7 @@ final class WatchPopup {
 
     private void open(WatchCloud.Item it) {
         String pkg = anchorPkg != null ? anchorPkg : cloud.defaultPackage();
-        PackageManager pm = host.getPackageManager();
-        Intent i = Suggestions.view(cloud.deepLink(it), pkg);
-        boolean started = i.resolveActivity(pm) != null && Suggestions.start(host, i);
-        if (!started) {
-            Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
-            if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
-            started = launch != null && Suggestions.start(host, launch);
-        }
+        boolean started = Suggestions.openLinks(host, pkg, cloud.deepLinks(it));
         if (started) host.lastLaunchedPkg = pkg;  // reload the row when the user comes back
     }
 

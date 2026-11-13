@@ -180,9 +180,38 @@ final class Suggestions {
         return prefs(c).getString(K_SOURCE, SRC_JUSTWATCH);
     }
 
-    /** Stremio when installed (or neither is), else Nuvio. */
+    /** The default app for Stremio titles: the first of {@link #stremioApps}, or Stremio when none is installed. */
     static Provider stremioApp(Context c) {
-        return !installed(c, STREMIO.pkg) && installed(c, NUVIO.pkg) ? NUVIO : STREMIO;
+        List<Provider> all = stremioApps(c);
+        return all.isEmpty() ? STREMIO : all.get(0);
+    }
+
+    /**
+     * Every installed app that opens Cinemeta titles by IMDb id: Stremio, the official Nuvio app,
+     * then linked Nuvio forks (each under its own name, e.g. "Nuvio Legacy").
+     */
+    static List<Provider> stremioApps(Context c) {
+        List<Provider> out = new ArrayList<>();
+        if (installed(c, STREMIO.pkg)) out.add(STREMIO);
+        for (String pkg : NuvioCloud.installedApps(c)) out.add(nuvioProvider(c, pkg));
+        return out;
+    }
+
+    /** The app for a Stremio-title offer's package (Stremio or one of the Nuvio apps). */
+    static Provider stremioAppFor(Context c, String pkg) {
+        for (Provider p : stremioApps(c)) if (p.pkg.equals(pkg)) return p;
+        return stremioApp(c);
+    }
+
+    private static Provider nuvioProvider(Context c, String pkg) {
+        if (pkg.equals(NUVIO.pkg)) return NUVIO;
+        String label = NUVIO.name;
+        try {
+            PackageManager pm = c.getPackageManager();
+            label = pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString().trim();
+        } catch (Exception ignored) {
+        }
+        return new Provider(NUVIO_ID, label.isEmpty() ? NUVIO.name : label, pkg, "", "");
     }
 
     static String sourceName(String s) {
@@ -784,18 +813,27 @@ final class Suggestions {
 
     /**
      * Stremio titles open on their detail page: Stremio takes stremio:///detail/{type}/{id}/{videoId},
-     * Nuvio takes nuvio://detail/{type}/{id} (its stremio:// handler only installs add-ons).
+     * Nuvio takes nuvio://detail/{type}/{id} (its stremio:// handler only installs add-ons), and
+     * Nuvio forks without that link the title's IMDb page (see NuvioCloud.titleLinks).
      */
     static void openStremio(Context c, Item it, Provider p) {
         String type = it.type.equals("tv") ? "series" : "movie";
-        String url = p.id == NUVIO_ID ? "nuvio://detail/" + type + "/" + it.link
-                : "stremio:///detail/" + type + "/" + it.link + (type.equals("movie") ? "/" + it.link : "");
+        List<String> urls = p.id == NUVIO_ID ? NuvioCloud.titleLinks(type.equals("series"), it.link)
+                : java.util.Collections.singletonList("stremio:///detail/" + type + "/" + it.link
+                        + (type.equals("movie") ? "/" + it.link : ""));
+        openLinks(c, p.pkg, urls);
+    }
+
+    /** Opens the first of these links the app handles, else just launches the app. Returns whether anything started. */
+    static boolean openLinks(Context c, String pkg, List<String> urls) {
         PackageManager pm = c.getPackageManager();
-        Intent i = view(url, p.pkg);
-        if (i.resolveActivity(pm) != null && start(c, i)) return;
-        Intent launch = pm.getLeanbackLaunchIntentForPackage(p.pkg);
-        if (launch == null) launch = pm.getLaunchIntentForPackage(p.pkg);
-        if (launch != null) start(c, launch);
+        for (String url : urls) {
+            Intent i = view(url, pkg);
+            if (i.resolveActivity(pm) != null && start(c, i)) return true;
+        }
+        Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
+        if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
+        return launch != null && start(c, launch);
     }
 
     static Intent view(String url, String pkg) {
