@@ -184,6 +184,10 @@ public final class CleanYourTv {
         return I18n.s(c, en, tr);
     }
 
+    private static String tr(Context c, String en, String trStr, Object... args) {
+        return I18n.s(c, en, trStr, args);
+    }
+
     private static SharedPreferences prefs(Context c) {
         return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
@@ -1677,9 +1681,9 @@ public final class CleanYourTv {
             if (it.checked) active++;
         }
         if (active == 0) {
-            return tr(c, "All disabled (" + items.size() + ")", "Tümü devre dışı (" + items.size() + ")");
+            return tr(c, "All disabled (%s)", "Tümü devre dışı (%s)", items.size());
         }
-        return tr(c, active + " active / " + items.size() + " found ›", active + " etkin / " + items.size() + " bulundu ›");
+        return tr(c, "%s active / %s found ›", "%s etkin / %s bulundu ›", active, items.size());
     }
 
     /**

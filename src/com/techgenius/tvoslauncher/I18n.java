@@ -1568,6 +1568,7 @@ public final class I18n {
         pl("You're All Set", "Jesteś gotowy");
         pl("Change any of this later in Settings, from the gear in Control Center.", "Zmień dowolne ustawienia później w Ustawieniach, korzystając z ikony koła zębatego w Centrum sterowania.");
         pl("Go to Home Screen", "Przejdź do ekranu głównego");
+        pl("%s active / %s found ›", "%s aktywne / %s znalezione ›");
 
         // HOME & Default Launcher & App Context menu
         pl("Make tvOS Launcher your home screen?", "Ustaw tvOS Launcher jako ekran główny?");
@@ -1650,7 +1651,9 @@ public final class I18n {
         pl("Thunderstorms", "Burze z piorunami");
         pl("HOURLY FORECAST", "Prognoza godzinowa");
         pl("5-DAY FORECAST", "Prognoza 5-dniowa");
+        pl("Humidity ", "Wilgotność ");
         pl("Humidity", "Wilgotność");
+        pl("Wind ", "Wiatr ");
         pl("Wind", "Wiatr");
         pl("Now", "Teraz");
         pl("Today", "Dzisiaj");
@@ -1662,7 +1665,7 @@ public final class I18n {
         pl("Screensaver", "Wygaszacz ekranu");
         pl("Recent Apps", "Ostatnie aplikacje");
         pl("No recent apps yet", "Brak ostatnich aplikacji");
-        // pl("RAM %s GB used of %s GB", "RAM %s GB używane z %s GB");
+        pl("RAM %s used of %s", "RAM %s używane z %s");
         pl("Close All", "Zamknij wszystkie");
         pl("Press ▲ on an app to close it", "Naciśnij ▲ na aplikacji, aby ją zamknąć");
         pl("Screen off", "Ekran wyłączony");
@@ -1881,10 +1884,7 @@ public final class I18n {
         pl("System Launchers", "Launchery systemowe");
         pl("Re-enable All Stock Launchers", "Włącz wszystkie stockowe launchery");
         pl("Enable all ›", "Włącz wszystkie ›");
-        pl("INSTALLED SYSTEM LAUNCHERS ON THIS TV (1)", "ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TV (1)");
-        pl("INSTALLED SYSTEM LAUNCHERS ON THIS TV (2)", "ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TV (2)");
-        pl("INSTALLED SYSTEM LAUNCHERS ON THIS TV (3)", "ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TV (3)");
-        pl("INSTALLED SYSTEM LAUNCHERS ON THIS TV (4)", "ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TV (4)");
+        pl("INSTALLED SYSTEM LAUNCHERS ON THIS TV (%s)", "ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TV (%s)");
         pl(" [Enabled — Tap to Disable]", " [Włączone — Stuknij, aby wyłączyć]");
         pl(" [Disabled — Tap to Enable]", " [Wyłączone — Stuknij, aby włączyć]");
         pl("Checked items are currently DISABLED. Disabling the stock system launcher (e.g. Google TV Home / LauncherX + setupwraith, Android TV Home, or TCL/Philips OEM Home) forces Android to use tvOS Launcher when pressing the Home key.", "Zaznaczone elementy są obecnie WYŁĄCZONE. Wyłączenie stockowego launchera systemowego (np. Google TV Home / LauncherX + setupwraith, Android TV Home lub TCL/Philips OEM Home) wymusza użycie tvOS Launchera po naciśnięciu klawisza Home.");
@@ -1906,12 +1906,37 @@ public final class I18n {
         pl("Disabled apps backup", "Kopia zapasowa wyłączonych aplikacji");
         pl("No disabled packages have been recorded by CleanYourTV yet.", "Żadne wyłączone pakiety nie zostały jeszcze zapisane przez CleanYourTV.");
         pl("ACTIONS", "AKCJE");
+        pl("All (%s)", "Wszystkie (%s)");
         pl("Restore all ›", "Przywróć wszystkie ›");
         pl("SAVED DISABLED PACKAGES (TAP TO RE-ENABLE)", "ZAPISANE WYŁĄCZONE PAKIETY (STUKNIJ, ABY PONOWNIE WŁĄCZYĆ)");
         pl("Restore debloated apps", "Przywróć usunięte aplikacje");
         pl("RESTORE OPTIONS", "OPCJE PRZYWRACANIA");
         pl("Re-enable all packages disabled by CleanYourTV over ADB", "Ponownie włącz wszystkie pakiety wyłączone przez CleanYourTV przez ADB");
         pl("No saved disabled-app backup was found, and no TV model is selected yet. Choose a TV model first if you want to restore by model profile.", "Nie znaleziono zapisanej kopii zapasowej wyłączonych aplikacji i nie wybrano jeszcze modelu TV. Najpierw wybierz model TV, jeśli chcesz przywrócić według profilu modelu.");
+        pl("Tap to toggle in scene rotation · Long-press or use actions below", "Stuknij, aby przełączać w rotacji sceny · Przytrzymaj lub użyj poniższych akcji");
+        pl("Tap to set as active wallpaper", "Stuknij, aby ustawić jako aktywną tapetę");
+        pl("Added custom wallpaper #%s.", "Dodano niestandardową tapetę #%s.");
+        pl("All disabled (%s)", "Wszystkie wyłączone (%s)");
+        pl("Grant All Permissions via Local ADB", "Nadaj wszystkie uprawnienia przez lokalne ADB");
+        pl("Grant All ›", "Nadaj wszystkie ›");
+        pl("Default Home Screen", "Domyślny ekran główny");
+        pl("Not set", "Nie ustawiono");
+        pl("Button Mapper & Control Panel (Accessibility)", "Mapowanie przycisków i panel sterowania (Dostępność)");
+        pl("Disabled", "Wyłączone");
+        pl("Active", "Aktywne");
+        pl("Continue Watching & DND (Notification Access)", "Kontynuuj oglądanie i DND (Dostęp do powiadomień)");
+        pl("Allowed", "Dozwolone");
+        pl("Not allowed", "Niedozwolone");
+        pl("Wi-Fi Name (Location)", "Nazwa Wi-Fi (Lokalizacja)");
+        pl("Pair now", "Paruj teraz");
+        pl("Secure Mode Active (ADB Not Used · Self-Repair Ready)", "Tryb bezpieczny aktywny (ADB nie używane · Gotowe do samonaprawy)");
+        pl("Secure Mode (Needs One-Time Pair to Grant Permissions)", "Tryb bezpieczny (wymaga jednorazowego sparowania w celu nadania uprawnień)");
+        pl("Connected & Paired (Port 5555 Open)", "Połączono i sparowano (Port 5555 otwarty)");
+        pl("Port 5555 Open · Ready to Pair", "Port 5555 otwarty · Gotowe do sparowania");
+        pl("Paired · ADB Enabled", "Sparowano · ADB włączone");
+        pl("ADB Enabled · Not Paired", "ADB włączone · Nie sparowano");
+        pl("Disconnected (ADB Off)", "Rozłączono (ADB wyłączone)");
+        pl("active", "aktywne");
 
         // Settings Sections - updates
         pl("UPDATES", "AKTUALIZACJE");
@@ -2141,6 +2166,13 @@ public final class I18n {
         if (LANG_EN.equals(lang)) return en;
         if (LANG_TR.equals(lang)) return tr != null ? tr : en;
         return translateOther(lang, en);
+    }
+
+    /** Returns a localized string with format arguments applied using the active language locale. */
+    public static String s(Context c, String en, String tr, Object... args) {
+        String localized = s(c, en, tr);
+        if (args == null || args.length == 0) return localized;
+        return String.format(locale(c), localized, args);
     }
 
     /** Translates a key using the active language dictionary. */

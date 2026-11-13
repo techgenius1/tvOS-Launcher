@@ -182,6 +182,10 @@ final class SearchPanel {
         return I18n.s(a, en, trStr);
     }
 
+    String tr(String en, String trStr, Object... args) {
+        return I18n.s(a, en, trStr, args);
+    }
+
     /** The one-row keyboard for the current mode, then space, delete, mode switches and the mic. */
     void buildKeys(String focusLabel) {
         keys.removeAllViews();
