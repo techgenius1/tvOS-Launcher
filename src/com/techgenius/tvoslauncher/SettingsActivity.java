@@ -234,6 +234,10 @@ public class SettingsActivity extends Activity {
         return I18n.s(this, en, trStr);
     }
 
+    private String tr(String en, String trStr, Object... args) {
+        return I18n.s(this, en, trStr, args);
+    }
+
     private int u(float dp) {
         return Ui.px(this, dp);
     }
@@ -2559,8 +2563,8 @@ public class SettingsActivity extends Activity {
                                     Scenes.enableCustomScene(this, slot, true);
                                 }
                                 rebuildMainRows();
-                                showStatusMsg(tr("Added custom wallpaper #" + slot + ".",
-                                        "Özel duvar kağıdı #" + slot + " eklendi."));
+                                showStatusMsg(tr("Added custom wallpaper #%s.",
+                                        "Özel duvar kağıdı #%s eklendi.", slot));
                             }));
 
             int totalSlots = CustomMedia.getCustomSlotCount(this, scope);
@@ -3574,8 +3578,8 @@ public class SettingsActivity extends Activity {
                     });
                 });
 
-        section(tr("INSTALLED SYSTEM LAUNCHERS ON THIS TV (" + launchers.size() + ")",
-                "BU TV'DE YÜKLÜ SİSTEM BAŞLATICILARI (" + launchers.size() + ")"));
+        section(tr("INSTALLED SYSTEM LAUNCHERS ON THIS TV (%s)",
+                "BU TV'DE YÜKLÜ SİSTEM BAŞLATICILARI (%s)", launchers.size()));
         for (CleanYourTv.DebloatItem it : launchers) {
             final CleanYourTv.DebloatItem item = it;
             boolean isEnabled = item.checked;
@@ -3626,7 +3630,7 @@ public class SettingsActivity extends Activity {
         }
 
         row(tr("🔍 Filter system apps…", "🔍 Sistem uygulamalarını filtrele…"),
-                () -> cytManualFilterQuery.isEmpty() ? tr("All (" + cytManualItems.size() + ")", "Tümü (" + cytManualItems.size() + ")") : "\"" + cytManualFilterQuery + "\"",
+                () -> cytManualFilterQuery.isEmpty() ? tr("All (%s)", "Tümü (%s)", cytManualItems.size()) : "\"" + cytManualFilterQuery + "\"",
                 this::promptCytManualFilter);
         if (!cytManualFilterQuery.isEmpty()) {
             row(tr("Clear filter", "Filtreyi temizle"),

@@ -368,6 +368,9 @@ public class SetupActivity extends Activity {
     String tr(String en, String trStr) {
         return I18n.s(this, en, trStr);
     }
+    String tr(String en, String trStr, Object... args) {
+        return I18n.s(this, en, trStr, args);
+    }
 
     /** Welcome, then Get Started. */
     void hello() {
