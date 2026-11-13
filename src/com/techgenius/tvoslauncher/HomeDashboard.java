@@ -1973,3 +1973,65 @@ public final class HomeDashboard {
         }
     }
 }
+private static View createWeatherWidgetCard(final Context host) {
+    FrameLayout card = createBaseGlassCard(host, 0x33000000); // Стеклянная подложка
+    card.setBackgroundResource(R.drawable.touch_ripple_effect); // Наш эффект нажатия
+    card.setClickable(true);
+    card.setFocusable(true);
+
+    LinearLayout layout = new LinearLayout(host);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setGravity(Gravity.CENTER);
+    layout.setPadding(16, 16, 16, 16);
+
+    // Основные элементы виджета
+    TextView iconTv = new TextView(host);
+    iconTv.setText("⛅");
+    iconTv.setTextSize(26);
+    iconTv.setGravity(Gravity.CENTER);
+
+    TextView tempTv = new TextView(host);
+    tempTv.setText("+24°C");
+    tempTv.setTextColor(Color.WHITE);
+    tempTv.setTextSize(18);
+    tempTv.setTypeface(null, Typeface.BOLD);
+    tempTv.setGravity(Gravity.CENTER);
+
+    // Дополнительный текст (детали, который будет открываться и закрываться)
+    TextView detailsTv = new TextView(host);
+    detailsTv.setText("Влажность: 65%\nВетер: 3 м/с\nКраснодар");
+    detailsTv.setTextColor(Color.LTGRAY);
+    detailsTv.setTextSize(12);
+    detailsTv.setGravity(Gravity.CENTER);
+    detailsTv.setVisibility(View.GONE); // Изначально скрыто (закрыто)
+
+    layout.addView(iconTv);
+    layout.addView(tempTv);
+    layout.addView(detailsTv);
+    card.addView(layout);
+
+    // Массив из одного элемента для отслеживания состояния (открыто / закрыто)
+    final boolean[] isOpen = {false};
+
+    // Обработка нажатия: нажали — открылось, нажали еще раз — закрылось
+    card.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            isOpen[0] = !isOpen[0]; // Меняем состояние на противоположное
+            
+            if (isOpen[0]) {
+                // Состояние: ОТКРЫТО (показываем детали)
+                detailsTv.setVisibility(View.VISIBLE);
+                tempTv.setText("+24°C (Подробно)");
+
+            } else {
+                // Состояние: ЗАКРЫТО (скрываем детали)
+                detailsTv.setVisibility(View.GONE);
+                tempTv.setText("+24°C");
+            }
+        }
+    });
+
+    return card;
+}
+
