@@ -574,7 +574,22 @@ public class SettingsActivity extends Activity {
                         .setDuration(160).start();
             });
 
-            row.setOnClickListener(v -> focusFirstRow());
+            // FORK PATCH (mouse/touch): in touch mode a click never gives the row
+            // focus, so the OnFocusChangeListener above doesn't fire and the pane
+            // never switches. Select (or reset) the section explicitly here.
+            row.setOnClickListener(v -> {
+                boolean sectionChanged = !secKey.equals(currentSection)
+                        || showingHiddenApps || activeSubMenu != null;
+                if (sectionChanged) {
+                    showingHiddenApps = false;
+                    activeSubMenu = null;
+                    subMenuStack.clear();
+                    selectSection(secKey, true, 0);
+                    updateHintText(false);
+                } else {
+                    focusFirstRow();
+                }
+            });
 
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
