@@ -17,7 +17,217 @@ const state = {
 };
 const $ = (id) => document.getElementById(id);
 
+/* ------------------------------------------------------------------ i18n */
+
+/* English text is the key. The page follows the TV's in-app language (GET /api/info "lang");
+   before that answer arrives it uses the last language seen, then the browser's. */
+const LANG_KEY = "tvos.present.lang";
+const RTL_LANGS = ["he"];
+const I18N = {
+  he: {
+    "Presentation · tvOS Launcher": "מצגת · tvOS Launcher",
+    "Pair with your TV": "צימוד לטלוויזיה",
+    "Enter the 6-digit code shown on the TV.": "יש להזין את הקוד בן 6 הספרות שמוצג בטלוויזיה.",
+    "Pairing code": "קוד צימוד",
+    "Digit 1": "ספרה 1", "Digit 2": "ספרה 2", "Digit 3": "ספרה 3",
+    "Digit 4": "ספרה 4", "Digit 5": "ספרה 5", "Digit 6": "ספרה 6",
+    "Pair": "צימוד",
+    "Can’t see the code? On the TV, open Presentation and press ▲ on the remote.": "הקוד לא מוצג? יש לפתוח את המצגת בטלוויזיה וללחוץ על ▲ בשלט.",
+    "Presentation": "מצגת",
+    "Sections": "אזורים",
+    "Library": "ספרייה",
+    "Playlist": "פלייליסט",
+    "Forget this browser": "ביטול הצימוד של הדפדפן הזה",
+    "Unpair": "ביטול צימוד",
+    "Now playing on TV": "מוצג עכשיו בטלוויזיה",
+    "Connecting…": "מתבצע חיבור…",
+    "Previous slide": "השקופית הקודמת",
+    "Next slide": "השקופית הבאה",
+    "Pause": "השהיה",
+    "Play": "הפעלה",
+    "Start over": "הפעלה מההתחלה",
+    "Show the address and code on the TV": "הצגת הכתובת והקוד בטלוויזיה",
+    "Show code on TV": "הצגת הקוד בטלוויזיה",
+    "Drop images or videos here": "אפשר לגרור לכאן תמונות או סרטונים",
+    "or {link} · uploads go straight to the TV": "או {link} · הקבצים מועלים ישירות לטלוויזיה",
+    "choose files": "בחירת קבצים",
+    "Filter": "סינון",
+    "All": "הכול",
+    "Images": "תמונות",
+    "Videos": "סרטונים",
+    "Add Slide": "הוספת שקופית",
+    "From Library…": "מהספרייה…",
+    "Webpage…": "דף אינטרנט…",
+    "Slides": "שקופיות",
+    "Drag to reorder": "אפשר לגרור כדי לשנות את הסדר",
+    "Slide settings": "הגדרות השקופית",
+    "No slides yet": "אין עדיין שקופיות",
+    "Add images or videos from your Library, or a webpage. Slides play in order and loop.": "אפשר להוסיף תמונות או סרטונים מהספרייה, או דף אינטרנט. השקופיות מוצגות לפי הסדר, בלולאה.",
+    "Add Webpage": "הוספת דף אינטרנט",
+    "Add from Library": "הוספה מהספרייה",
+    "Unsaved changes": "יש שינויים שלא נשמרו",
+    "Revert": "ביטול השינויים",
+    "Save to TV": "שמירה בטלוויזיה",
+    "Done": "סיום",
+    "Cancel": "ביטול",
+    "Delete": "מחיקה",
+    // Pairing and playback status
+    "Paired with the TV": "הצימוד לטלוויזיה הושלם",
+    "Not on screen": "לא מוצג על המסך",
+    "Open Presentation on the TV, or turn on “Start on boot” in Settings.": "יש לפתוח את המצגת בטלוויזיה, או להפעיל בהגדרות את האפשרות \"הפעלה עם הדלקת המכשיר\".",
+    "Nothing playing": "אין תוכן בהצגה",
+    "Add slides in Playlist, then Save to TV.": "יש להוסיף שקופיות בפלייליסט ולבחור באפשרות \"שמירה בטלוויזיה\".",
+    "Playing": "מוצג",
+    "Paused": "מושהה",
+    "Skipping": "בדילוג",
+    "Starting": "בטעינה",
+    "{label} · Slide {n} of {count}": "{label} · שקופית {n} מתוך {count}",
+    // Library
+    "No files yet. Drop images or videos above.": "אין עדיין קבצים. אפשר לגרור תמונות או סרטונים לאזור שלמעלה.",
+    "No images yet.": "אין עדיין תמונות.",
+    "No videos yet.": "אין עדיין סרטונים.",
+    "Video": "סרטון",
+    "Image": "תמונה",
+    "File": "קובץ",
+    "Add to Playlist": "הוספה לפלייליסט",
+    "Delete {name}": "מחיקת {name}",
+    "Delete “{name}”?": "למחוק את \"{name}\"?",
+    "It will be removed from the TV, along with any slides that use it.": "הקובץ יוסר מהטלוויזיה, יחד עם כל השקופיות שמשתמשות בו.",
+    "Deleted": "הקובץ נמחק",
+    "Only images and videos can be uploaded": "אפשר להעלות רק תמונות וסרטונים",
+    "Waiting…": "בהמתנה…",
+    "{pct}% of {size}": "{pct}% מתוך {size}",
+    "Uploaded": "הועלה",
+    "Upload failed": "ההעלאה נכשלה",
+    "{name} uploaded": "הקובץ {name} הועלה",
+    "{n} files uploaded": "{n} קבצים הועלו",
+    "{ok} uploaded, {failed} failed": "{ok} הועלו, {failed} נכשלו",
+    "{n} uploads failed": "{n} העלאות נכשלו",
+    "Upload failed ({status})": "ההעלאה נכשלה ({status})",
+    "Upload failed. Check the TV is on and on the same network.": "ההעלאה נכשלה. יש לוודא שהטלוויזיה מופעלת ומחוברת לאותה רשת.",
+    // Playlist editor
+    "Webpage": "דף אינטרנט",
+    "Missing file": "קובץ חסר",
+    "Slide {n}: {title}": "שקופית {n}: {title}",
+    "On TV": "בטלוויזיה",
+    "Scroll": "גלילה",
+    "No address yet": "עדיין אין כתובת",
+    "Shown on the TV as a 1920-px-wide page": "מוצג בטלוויזיה כדף ברוחב 1920 פיקסלים",
+    "Shown on the TV as a 1920-px-wide page, scrolling down": "מוצג בטלוויזיה כדף ברוחב 1920 פיקסלים, בגלילה כלפי מטה",
+    "Choose another file for this slide.": "יש לבחור קובץ אחר לשקופית הזו.",
+    "{n} of {count}": "{n} מתוך {count}",
+    "On TV now": "מוצג עכשיו בטלוויזיה",
+    "Hidden": "מוסתר",
+    "Webpage address": "כתובת דף האינטרנט",
+    "Auto-scroll": "גלילה אוטומטית",
+    "Scroll speed": "מהירות גלילה",
+    "Pause on each screen": "השהיה בכל מסך",
+    "{n} px/s": "{n} פיקסלים/שנ׳",
+    "{n} s": "{n} שנ׳",
+    "s": "שנ׳",
+    "Time on screen": "משך ההצגה",
+    "Plays to the end": "מוצג עד הסוף",
+    "Until it reaches the bottom": "עד שמגיעים לתחתית הדף",
+    "5 seconds less": "5 שניות פחות",
+    "5 seconds more": "5 שניות יותר",
+    "Seconds": "שניות",
+    "Playback": "הצגה",
+    "Fit": "התאמה למסך",
+    "Contain": "הצגה מלאה",
+    "Cover": "מילוי",
+    "Fill": "מתיחה",
+    "Show all of it": "הצגת התוכן כולו",
+    "Fill the screen, cropping edges": "מילוי המסך, תוך חיתוך השוליים",
+    "Stretch to the screen": "מתיחה לגודל המסך",
+    "Sound": "שמע",
+    "Play sound": "השמעת קול",
+    "Show this slide": "הצגת השקופית",
+    "Earlier": "הזזה למעלה",
+    "Later": "הזזה למטה",
+    "Remove Slide": "הסרת השקופית",
+    "Only images and videos can be slides": "רק תמונות וסרטונים יכולים לשמש כשקופיות",
+    "Slide added — Save to TV when ready": "השקופית נוספה – בסיום יש לבחור באפשרות \"שמירה בטלוויזיה\"",
+    "The page opens full screen on the TV and scrolls down slowly. You can change scrolling in the slide’s settings.": "הדף נפתח במסך מלא בטלוויזיה ונגלל לאט כלפי מטה. אפשר לשנות את הגלילה בהגדרות השקופית.",
+    "Webpage address must start with http:// or https://": "כתובת דף האינטרנט חייבת להתחיל ב-http:// או ב-https://",
+    "Your Library is empty. Upload images or videos first.": "הספרייה ריקה. יש להעלות תחילה תמונות או סרטונים.",
+    "Saving…": "מתבצעת שמירה…",
+    "Saved — now playing on the TV": "השינויים נשמרו ומוצגים עכשיו בטלוויזיה",
+    "Showing the address and code on the TV": "הכתובת והקוד מוצגים בטלוויזיה",
+    "Slide {n}: time on screen must be at least 1 second.": "שקופית {n}: משך ההצגה חייב להיות שנייה אחת לפחות.",
+    "Slide {n}: webpage address must start with http:// or https://.": "שקופית {n}: כתובת דף האינטרנט חייבת להתחיל ב-http:// או ב-https://.",
+    "Slide {n}: scroll speed must be between 5 and 1000.": "שקופית {n}: מהירות הגלילה חייבת להיות בין 5 ל-1000.",
+    "Slide {n}: pause must be between 0 and 300 seconds.": "שקופית {n}: ההשהיה חייבת להיות בין 0 ל-300 שניות.",
+    "Slide {n}: choose a file.": "שקופית {n}: יש לבחור קובץ.",
+    "Slide {n}: uses a deleted file.": "שקופית {n}: הקובץ שנבחר נמחק.",
+    "You have unsaved playlist changes. Leave anyway?": "יש בפלייליסט שינויים שלא נשמרו. לצאת בכל זאת?",
+    "Video · plays to the end": "סרטון · מוצג עד הסוף",
+    "Image · {d}": "תמונה · {d}",
+    "Webpage · auto-scroll": "דף אינטרנט · גלילה אוטומטית",
+    "Webpage · {d}": "דף אינטרנט · {d}",
+    "Empty": "ריק",
+    "Loop {d}": "לולאה של {d}",
+    "{base} + {n} video/scroll": "{base} + {n} סרטונים/גלילה",
+    "Request failed ({status})": "הבקשה נכשלה ({status})",
+    "Pair this browser again with the code on the TV.": "יש לצמד שוב את הדפדפן הזה באמצעות הקוד שמוצג בטלוויזיה.",
+    "Something went wrong": "אירעה שגיאה",
+    "{s}s": "{s} שנ׳",
+    "{m}m": "{m} דק׳",
+    "{m}m {s}s": "{m} דק׳ {s} שנ׳",
+  },
+};
+let LANG = "en";
+
+/** Translates an English string; {name} placeholders are filled from vars. */
+function T(en, vars) {
+  const s = (I18N[LANG] && I18N[LANG][en]) || en;
+  return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : s;
+}
+
+/** "he-IL" → "he"; null when the page has no dictionary for it (English needs none). */
+function supportedLang(code) {
+  const c = String(code || "").toLowerCase().split(/[-_]/)[0];
+  return c === "en" || I18N[c] ? c : null;
+}
+
+function initialLang() {
+  let saved = null;
+  try { saved = localStorage.getItem(LANG_KEY); } catch (_) { /* storage blocked */ }
+  return supportedLang(saved) || supportedLang(navigator.language) || "en";
+}
+
+const i18nOrig = new WeakMap();
+
+/** Applies the language to <html> and to every element marked data-i18n / data-i18n-attr / data-i18n-html. */
+function applyStaticText() {
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = RTL_LANGS.includes(LANG) ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n], [data-i18n-attr], [data-i18n-html]").forEach((el) => {
+    let orig = i18nOrig.get(el);
+    if (!orig) {
+      orig = { text: el.textContent.trim(), attrs: {} };
+      (el.dataset.i18nAttr || "").split(/\s+/).filter(Boolean).forEach((a) => { orig.attrs[a] = el.getAttribute(a) || ""; });
+      i18nOrig.set(el, orig);
+    }
+    if (el.dataset.i18nHtml) el.innerHTML = T(el.dataset.i18nHtml, { link: `<span class="link">${esc(T("choose files"))}</span>` });
+    else if ("i18n" in el.dataset) el.textContent = T(orig.text);
+    Object.entries(orig.attrs).forEach(([a, v]) => el.setAttribute(a, T(v)));
+  });
+  if (document.querySelector("title")) document.title = T("Presentation · tvOS Launcher");
+}
+
+/** Switches language and redraws whatever is on screen. */
+function setLang(lang) {
+  const next = supportedLang(lang) || "en";
+  try { localStorage.setItem(LANG_KEY, next); } catch (_) { /* storage blocked */ }
+  if (next === LANG && document.documentElement.lang === next) return;
+  LANG = next;
+  applyStaticText();
+  if (state.token && state.playlist) { renderMedia(); renderSlides(); refreshPlayback(); }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  LANG = initialLang();
+  applyStaticText();
   bind();
   loadInfo();
   if (state.token) { showApp(); refreshAll({ preserveDirty: false }); } else { showPair(); }
@@ -85,6 +295,7 @@ function bind() {
 async function loadInfo() {
   try {
     const info = await api("/api/info", { auth: false });
+    if (info.lang) setLang(info.lang);  // follow the TV's in-app language
     if (info.device) $("deviceName").textContent = `${info.device}${info.versionName ? " · tvOS Launcher " + info.versionName : ""}`;
   } catch (_) { /* shown when calls fail */ }
 }
@@ -102,7 +313,7 @@ async function pair(e) {
     localStorage.setItem(TOKEN_KEY, state.token);
     showApp();
     await refreshAll({ preserveDirty: false });
-    toast("Paired with the TV");
+    toast(T("Paired with the TV"));
   } catch (err) {
     $("pairError").textContent = err.message;
     const g = $("pinBoxes");
@@ -168,17 +379,18 @@ async function refreshPlayback() {
     const onTv = p.available && p.slideCount > 0 && live[p.slideIndex] ? live[p.slideIndex].id : null;
     if (onTv !== state.onTv) { state.onTv = onTv; if (state.tab === "playlist") { renderNav(); renderPreview(); } }
     $("playPause").dataset.cmd = state.playing ? "pause" : "play";
-    $("playPause").title = state.playing ? "Pause" : "Play";
+    $("playPause").title = T(state.playing ? "Pause" : "Play");
+    $("playPause").setAttribute("aria-label", $("playPause").title);
     $("ppIcon").setAttribute("d", state.playing ? "M8 5v14M16 5v14" : "M7 5l12 7-12 7z");
     if (!p.available) {
-      $("nowTitle").textContent = "Not on screen";
-      $("nowSub").textContent = "Open Presentation on the TV, or turn on “Start on boot” in Settings.";
+      $("nowTitle").textContent = T("Not on screen");
+      $("nowSub").textContent = T("Open Presentation on the TV, or turn on “Start on boot” in Settings.");
     } else if (p.state === "empty") {
-      $("nowTitle").textContent = "Nothing playing";
-      $("nowSub").textContent = "Add slides in Playlist, then Save to TV.";
+      $("nowTitle").textContent = T("Nothing playing");
+      $("nowSub").textContent = T("Add slides in Playlist, then Save to TV.");
     } else {
-      const label = { playing: "Playing", paused: "Paused", error: "Skipping", starting: "Starting" }[p.state] || p.state;
-      $("nowTitle").textContent = p.slideCount > 0 ? `${label} · Slide ${p.slideIndex + 1} of ${p.slideCount}` : label;
+      const label = T({ playing: "Playing", paused: "Paused", error: "Skipping", starting: "Starting" }[p.state] || p.state);
+      $("nowTitle").textContent = p.slideCount > 0 ? T("{label} · Slide {n} of {count}", { label, n: p.slideIndex + 1, count: p.slideCount }) : label;
       $("nowSub").textContent = [p.mediaName || p.url, p.error].filter(Boolean).join(" — ");
     }
   } catch (err) { handleError(err, true); }
@@ -207,7 +419,7 @@ function renderMedia() {
   $("mediaCount").textContent = state.media.length ? state.media.length : "";
   const items = state.media.filter((m) => state.filter === "all" || kind(m) === state.filter);
   if (!items.length) {
-    grid.innerHTML = `<div class="empty">${state.filter === "all" ? "No files yet. Drop images or videos above." : `No ${state.filter}s yet.`}</div>`;
+    grid.innerHTML = `<div class="empty">${esc(T({ all: "No files yet. Drop images or videos above.", image: "No images yet.", video: "No videos yet." }[state.filter]))}</div>`;
     return;
   }
   items.forEach((m) => {
@@ -215,24 +427,24 @@ function renderMedia() {
     const el = document.createElement("div");
     el.className = "tile";
     el.innerHTML = `
-      <div class="thumb">${thumb(m)}<span class="kind">${t === "video" ? "Video" : t === "image" ? "Image" : "File"}</span></div>
+      <div class="thumb">${thumb(m)}<span class="kind">${T(t === "video" ? "Video" : t === "image" ? "Image" : "File")}</span></div>
       <div class="tile-body">
         <div class="tile-name" title="${esc(m.displayName)}">${esc(m.displayName)}</div>
         <div class="tile-meta">${formatBytes(m.sizeBytes)} · ${formatDate(m.createdAt)}</div>
         <div class="tile-actions">
-          ${t ? `<button class="btn tinted small" data-a="add">Add to Playlist</button>` : ""}
-          <button class="icon-btn danger" data-a="del" title="Delete" aria-label="Delete ${esc(m.displayName)}"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>
+          ${t ? `<button class="btn tinted small" data-a="add">${T("Add to Playlist")}</button>` : ""}
+          <button class="icon-btn danger" data-a="del" title="${T("Delete")}" aria-label="${esc(T("Delete {name}", { name: m.displayName }))}"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>
         </div>
       </div>`;
     el.querySelector('[data-a="add"]')?.addEventListener("click", () => { addMediaSlide(m); setTab("playlist"); });
     el.querySelector('[data-a="del"]').addEventListener("click", async () => {
-      const ok = await confirmSheet(`Delete “${m.displayName}”?`, "It will be removed from the TV, along with any slides that use it.");
+      const ok = await confirmSheet(T("Delete “{name}”?", { name: m.displayName }), T("It will be removed from the TV, along with any slides that use it."));
       if (!ok) return;
       try {
         await api(`/api/media/${m.id}`, { method: "DELETE" });
         removeMediaFromDraft(m.id);
         await refreshAll({ preserveDirty: true });
-        toast("Deleted");
+        toast(T("Deleted"));
       } catch (err) { handleError(err); }
     });
     grid.appendChild(el);
@@ -241,31 +453,31 @@ function renderMedia() {
 
 async function uploadFiles(files) {
   const list = files.filter((f) => /^(image|video)\//.test(mimeFor(f)));
-  if (list.length < files.length) toast("Only images and videos can be uploaded", "error");
+  if (list.length < files.length) toast(T("Only images and videos can be uploaded"), "error");
   let ok = 0;
   for (const file of list) {
     const row = document.createElement("div");
     row.className = "upload";
-    row.innerHTML = `<div class="upload-row"><span class="upload-name">${esc(file.name)}</span><span class="secondary" data-s>Waiting…</span></div><div class="bar"><i></i></div>`;
+    row.innerHTML = `<div class="upload-row"><span class="upload-name">${esc(file.name)}</span><span class="secondary" data-s>${T("Waiting…")}</span></div><div class="bar"><i></i></div>`;
     $("uploads").prepend(row);
     try {
-      await uploadOne(file, (pct) => { row.querySelector("i").style.width = pct + "%"; row.querySelector("[data-s]").textContent = `${pct}% of ${formatBytes(file.size)}`; });
+      await uploadOne(file, (pct) => { row.querySelector("i").style.width = pct + "%"; row.querySelector("[data-s]").textContent = T("{pct}% of {size}", { pct, size: formatBytes(file.size) }); });
       row.classList.add("done");
       row.querySelector("i").style.width = "100%";
-      row.querySelector("[data-s]").textContent = "Uploaded";
+      row.querySelector("[data-s]").textContent = T("Uploaded");
       ok++;
       await refreshMedia();
       setTimeout(() => row.remove(), 2500);
     } catch (err) {
       row.classList.add("failed");
-      row.querySelector("[data-s]").textContent = err.message || "Upload failed";
+      row.querySelector("[data-s]").textContent = err.message || T("Upload failed");
     }
   }
   // Report what actually happened, not how many files were picked.
   const failed = list.length - ok;
-  if (ok && !failed) toast(ok === 1 ? `${list[0].name} uploaded` : `${ok} files uploaded`);
-  else if (ok && failed) toast(`${ok} uploaded, ${failed} failed`, "error");
-  else if (failed) toast(failed === 1 ? "Upload failed" : `${failed} uploads failed`, "error");
+  if (ok && !failed) toast(ok === 1 ? T("{name} uploaded", { name: list[0].name }) : T("{n} files uploaded", { n: ok }));
+  else if (ok && failed) toast(T("{ok} uploaded, {failed} failed", { ok, failed }), "error");
+  else if (failed) toast(failed === 1 ? T("Upload failed") : T("{n} uploads failed", { n: failed }), "error");
 }
 
 function uploadOne(file, onProgress) {
@@ -283,9 +495,9 @@ function uploadOne(file, onProgress) {
       const data = safeJson(xhr.responseText);
       if (xhr.status >= 200 && xhr.status < 300) return resolve(data);
       if (xhr.status === 401) forgetPairing();
-      reject(new Error(data.error || (data.errors || []).join("; ") || `Upload failed (${xhr.status})`));
+      reject(new Error(data.error || (data.errors || []).join("; ") || T("Upload failed ({status})", { status: xhr.status })));
     };
-    xhr.onerror = () => reject(new Error("Upload failed. Check the TV is on and on the same network."));
+    xhr.onerror = () => reject(new Error(T("Upload failed. Check the TV is on and on the same network.")));
     xhr.send(form);
   });
 }
@@ -316,7 +528,7 @@ function renderSlides() {
 
 function selectedIndex() { return state.draft.slides.findIndex((s) => s.id === state.selected); }
 function mediaOf(s) { return s.mediaId ? state.media.find((x) => x.id === s.mediaId) : null; }
-function titleOf(s) { return s.type === "webpage" ? s.url || "Webpage" : mediaOf(s)?.displayName || "Missing file"; }
+function titleOf(s) { return s.type === "webpage" ? s.url || T("Webpage") : mediaOf(s)?.displayName || T("Missing file"); }
 
 function select(id, focus) {
   state.selected = id;
@@ -348,14 +560,14 @@ function renderNav() {
     li.tabIndex = sel ? 0 : -1;
     li.setAttribute("role", "option");
     li.setAttribute("aria-selected", String(sel));
-    li.setAttribute("aria-label", `Slide ${i + 1}: ${titleOf(s)}`);
+    li.setAttribute("aria-label", T("Slide {n}: {title}", { n: i + 1, title: titleOf(s) }));
     li.innerHTML = `
       <span class="nav-num">${i + 1}</span>
       <div class="nav-thumb${s.type === "webpage" ? " web" : ""}">
         ${s.type === "webpage" ? ICON.web : m ? thumb(m) : ""}
-        ${state.onTv === s.id && !state.dirty ? `<span class="chip tl live">On TV</span>` : ""}
+        ${state.onTv === s.id && !state.dirty ? `<span class="chip tl live">${T("On TV")}</span>` : ""}
         ${enabled ? "" : `<span class="chip tr">${ICON.hidden}</span>`}
-        <span class="chip br">${s.type === "video" ? ICON.video + "Video" : (s.type === "webpage" && s.webpageAutoScroll !== false ? "Scroll" : formatDuration(s.durationSec || defaultDuration(s.type)))}</span>
+        <span class="chip br">${s.type === "video" ? ICON.video + T("Video") : (s.type === "webpage" && s.webpageAutoScroll !== false ? T("Scroll") : formatDuration(s.durationSec || defaultDuration(s.type)))}</span>
       </div>`;
     li.addEventListener("click", () => select(s.id));
     li.addEventListener("keydown", (e) => navKey(e, i));
@@ -365,7 +577,10 @@ function renderNav() {
 }
 
 function navKey(e, i) {
-  const s = state.draft.slides, prev = ["ArrowUp", "ArrowLeft"].includes(e.key), next = ["ArrowDown", "ArrowRight"].includes(e.key);
+  // In right-to-left layouts the horizontal slide strip runs right to left, so ← means "next".
+  const rtl = document.documentElement.dir === "rtl";
+  const back = rtl ? "ArrowRight" : "ArrowLeft", fwd = rtl ? "ArrowLeft" : "ArrowRight";
+  const s = state.draft.slides, prev = ["ArrowUp", back].includes(e.key), next = ["ArrowDown", fwd].includes(e.key);
   if (!prev && !next) return;
   e.preventDefault();
   if (e.altKey) { move(i, prev ? -1 : 1); document.querySelector(".nav-item.sel")?.focus(); return; }
@@ -381,18 +596,18 @@ function renderPreview() {
   const fit = { contain: "contain", cover: "cover", fill: "fill" }[s.fitMode] || "contain";
   let body = "";
   if (s.type === "webpage") {
-    body = `<div class="web-card">${ICON.web}<div class="web-url">${esc(s.url || "No address yet")}</div>
-      <div class="web-note">Shown on the TV as a 1920-px-wide page${s.webpageAutoScroll !== false ? ", scrolling down" : ""}</div></div>`;
+    body = `<div class="web-card">${ICON.web}<div class="web-url">${esc(s.url || T("No address yet"))}</div>
+      <div class="web-note">${T(s.webpageAutoScroll !== false ? "Shown on the TV as a 1920-px-wide page, scrolling down" : "Shown on the TV as a 1920-px-wide page")}</div></div>`;
   } else if (m && kind(m) === "image") {
     body = `<img src="${mediaUrl(m)}" alt="" style="object-fit:${fit}">`;
   } else if (m && kind(m) === "video") {
     body = `<video src="${mediaUrl(m)}#t=0.5" style="object-fit:${fit}" controls muted playsinline preload="metadata"></video>`;
   } else {
-    body = `<div class="web-card" style="background:#1c1c1e"><div class="web-url">Missing file</div><div class="web-note">Choose another file for this slide.</div></div>`;
+    body = `<div class="web-card" style="background:#1c1c1e"><div class="web-url">${T("Missing file")}</div><div class="web-note">${T("Choose another file for this slide.")}</div></div>`;
   }
   box.className = `preview${enabled ? "" : " off"}`;
-  box.innerHTML = body + `<span class="chip tl">${i + 1} of ${state.draft.slides.length}</span>`
-    + (state.onTv === s.id && !state.dirty ? `<span class="chip tr live">On TV now</span>` : enabled ? "" : `<span class="chip tr">${ICON.hidden}Hidden</span>`);
+  box.innerHTML = body + `<span class="chip tl">${T("{n} of {count}", { n: i + 1, count: state.draft.slides.length })}</span>`
+    + (state.onTv === s.id && !state.dirty ? `<span class="chip tr live">${T("On TV now")}</span>` : enabled ? "" : `<span class="chip tr">${ICON.hidden}${T("Hidden")}</span>`);
   $("capTitle").textContent = titleOf(s);
   $("capSub").textContent = summary(s);
 }
@@ -404,35 +619,35 @@ function renderInspector() {
   const fit = s.fitMode || "contain", count = state.draft.slides.length;
   const g = [];
   if (s.type === "webpage") {
-    g.push(`<div class="group-label">Webpage</div><div class="group">
-      <div class="cell stack"><input data-f="url" type="text" inputmode="url" autocapitalize="off" spellcheck="false" value="${esc(s.url || "")}" placeholder="https://example.com" aria-label="Webpage address"></div>
-      <div class="cell"><span>Auto-scroll</span><label class="switch"><input type="checkbox" data-f="webpageAutoScroll" ${s.webpageAutoScroll !== false ? "checked" : ""} aria-label="Auto-scroll"><span></span></label></div>
+    g.push(`<div class="group-label">${T("Webpage")}</div><div class="group">
+      <div class="cell stack"><input data-f="url" type="text" inputmode="url" autocapitalize="off" spellcheck="false" value="${esc(s.url || "")}" placeholder="https://example.com" aria-label="${T("Webpage address")}"></div>
+      <div class="cell"><span>${T("Auto-scroll")}</span><label class="switch"><input type="checkbox" data-f="webpageAutoScroll" ${s.webpageAutoScroll !== false ? "checked" : ""} aria-label="${T("Auto-scroll")}"><span></span></label></div>
       ${s.webpageAutoScroll !== false ? `
-      <div class="cell stack"><span>Scroll speed</span><div class="row"><input data-f="webpageScrollSpeedPxPerSec" type="range" min="5" max="400" value="${Math.min(400, s.webpageScrollSpeedPxPerSec || 40)}" aria-label="Scroll speed"><span class="val" data-v="speed">${s.webpageScrollSpeedPxPerSec || 40} px/s</span></div></div>
-      <div class="cell stack"><span>Pause on each screen</span><div class="row"><input data-f="webpageScrollPauseSec" type="range" min="0" max="60" value="${Math.min(60, s.webpageScrollPauseSec ?? 5)}" aria-label="Pause on each screen"><span class="val" data-v="wait">${s.webpageScrollPauseSec ?? 5} s</span></div></div>` : ""}
+      <div class="cell stack"><span>${T("Scroll speed")}</span><div class="row"><input data-f="webpageScrollSpeedPxPerSec" type="range" min="5" max="400" value="${Math.min(400, s.webpageScrollSpeedPxPerSec || 40)}" aria-label="${T("Scroll speed")}"><span class="val" data-v="speed">${T("{n} px/s", { n: s.webpageScrollSpeedPxPerSec || 40 })}</span></div></div>
+      <div class="cell stack"><span>${T("Pause on each screen")}</span><div class="row"><input data-f="webpageScrollPauseSec" type="range" min="0" max="60" value="${Math.min(60, s.webpageScrollPauseSec ?? 5)}" aria-label="${T("Pause on each screen")}"><span class="val" data-v="wait">${T("{n} s", { n: s.webpageScrollPauseSec ?? 5 })}</span></div></div>` : ""}
     </div>`);
   } else {
     const opts = state.media.filter((m) => kind(m) === s.type)
       .map((m) => `<option value="${m.id}" ${m.id === s.mediaId ? "selected" : ""}>${esc(m.displayName)}</option>`).join("");
-    g.push(`<div class="group-label">${s.type === "video" ? "Video" : "Image"}</div><div class="group">
-      <div class="cell"><span>File</span><select data-f="mediaId" aria-label="File">${opts}</select></div></div>`);
+    g.push(`<div class="group-label">${T(s.type === "video" ? "Video" : "Image")}</div><div class="group">
+      <div class="cell"><span>${T("File")}</span><select data-f="mediaId" aria-label="${T("File")}" dir="auto">${opts}</select></div></div>`);
   }
   const timing = s.type === "video"
-    ? `<div class="cell"><span>Time on screen</span><span class="note">Plays to the end</span></div>`
+    ? `<div class="cell"><span>${T("Time on screen")}</span><span class="note">${T("Plays to the end")}</span></div>`
     : s.type === "webpage" && s.webpageAutoScroll !== false
-      ? `<div class="cell"><span>Time on screen</span><span class="note">Until it reaches the bottom</span></div>`
-      : `<div class="cell"><span>Time on screen</span><span class="stepper"><button type="button" data-step="-5" aria-label="5 seconds less">−</button><input data-f="durationSec" type="number" min="1" max="86400" value="${s.durationSec || defaultDuration(s.type)}" aria-label="Seconds"><span class="unit">s</span><button type="button" data-step="5" aria-label="5 seconds more">+</button></span></div>`;
-  g.push(`<div class="group-label">Playback</div><div class="group">
+      ? `<div class="cell"><span>${T("Time on screen")}</span><span class="note">${T("Until it reaches the bottom")}</span></div>`
+      : `<div class="cell"><span>${T("Time on screen")}</span><span class="stepper"><button type="button" data-step="-5" aria-label="${T("5 seconds less")}">−</button><input data-f="durationSec" type="number" min="1" max="86400" value="${s.durationSec || defaultDuration(s.type)}" aria-label="${T("Seconds")}"><span class="unit">${T("s")}</span><button type="button" data-step="5" aria-label="${T("5 seconds more")}">+</button></span></div>`;
+  g.push(`<div class="group-label">${T("Playback")}</div><div class="group">
     ${timing}
-    <div class="cell"><span>Fit</span><div class="segmented small" role="group" aria-label="Fit">
-      ${["contain", "cover", "fill"].map((f) => `<button type="button" data-fit="${f}" aria-pressed="${f === fit}" title="${{ contain: "Show all of it", cover: "Fill the screen, cropping edges", fill: "Stretch to the screen" }[f]}">${f[0].toUpperCase() + f.slice(1)}</button>`).join("")}</div></div>
-    ${s.type === "video" ? `<div class="cell"><span>Sound</span><label class="switch"><input type="checkbox" data-f="muted" data-invert ${s.muted === false ? "checked" : ""} aria-label="Play sound"><span></span></label></div>` : ""}
-    <div class="cell"><span>Show this slide</span><label class="switch"><input type="checkbox" data-f="enabled" ${s.enabled !== false ? "checked" : ""} aria-label="Show this slide"><span></span></label></div>
+    <div class="cell"><span>${T("Fit")}</span><div class="segmented small" role="group" aria-label="${T("Fit")}">
+      ${["contain", "cover", "fill"].map((f) => `<button type="button" data-fit="${f}" aria-pressed="${f === fit}" title="${T({ contain: "Show all of it", cover: "Fill the screen, cropping edges", fill: "Stretch to the screen" }[f])}">${fitLabel(f)}</button>`).join("")}</div></div>
+    ${s.type === "video" ? `<div class="cell"><span>${T("Sound")}</span><label class="switch"><input type="checkbox" data-f="muted" data-invert ${s.muted === false ? "checked" : ""} aria-label="${T("Play sound")}"><span></span></label></div>` : ""}
+    <div class="cell"><span>${T("Show this slide")}</span><label class="switch"><input type="checkbox" data-f="enabled" ${s.enabled !== false ? "checked" : ""} aria-label="${T("Show this slide")}"><span></span></label></div>
   </div>`);
   g.push(`<div class="insp-actions">
-    <button type="button" class="btn small" data-a="up" ${i === 0 ? "disabled" : ""}>${ICON.up}Earlier</button>
-    <button type="button" class="btn small" data-a="down" ${i === count - 1 ? "disabled" : ""}>${ICON.down}Later</button>
-    <button type="button" class="btn small remove" data-a="remove">${ICON.trash}Remove Slide</button></div>`);
+    <button type="button" class="btn small" data-a="up" ${i === 0 ? "disabled" : ""}>${ICON.up}${T("Earlier")}</button>
+    <button type="button" class="btn small" data-a="down" ${i === count - 1 ? "disabled" : ""}>${ICON.down}${T("Later")}</button>
+    <button type="button" class="btn small remove" data-a="remove">${ICON.trash}${T("Remove Slide")}</button></div>`);
   box.innerHTML = g.join("");
 
   box.querySelectorAll("[data-f]").forEach((input) => {
@@ -462,8 +677,8 @@ function updateField(i, input) {
   if (input.type === "checkbox") s[f] = "invert" in input.dataset ? !input.checked : input.checked;
   else if (["durationSec", "webpageScrollSpeedPxPerSec", "webpageScrollPauseSec"].includes(f)) s[f] = normalizeNumber(f, input.value);
   else s[f] = input.value;
-  if (f === "webpageScrollSpeedPxPerSec") $("inspector").querySelector('[data-v="speed"]').textContent = `${s[f]} px/s`;
-  if (f === "webpageScrollPauseSec") $("inspector").querySelector('[data-v="wait"]').textContent = `${s[f]} s`;
+  if (f === "webpageScrollSpeedPxPerSec") $("inspector").querySelector('[data-v="speed"]').textContent = T("{n} px/s", { n: s[f] });
+  if (f === "webpageScrollPauseSec") $("inspector").querySelector('[data-v="wait"]').textContent = T("{n} s", { n: s[f] });
   $("loopTime").textContent = loopLabel(state.draft.slides);
   markDirty();
   if (f === "durationSec") {
@@ -476,7 +691,7 @@ function updateField(i, input) {
 
 function addMediaSlide(m) {
   const type = kind(m);
-  if (!type) { toast("Only images and videos can be slides", "error"); return; }
+  if (!type) { toast(T("Only images and videos can be slides"), "error"); return; }
   addSlide({ type, mediaId: m.id, durationSec: type === "video" ? 0 : defaultDuration(type), fitMode: "contain", muted: true, loop: false, enabled: true });
 }
 
@@ -487,7 +702,7 @@ function addSlide(slide) {
   state.selected = created.id;
   markDirty();
   renderSlides();
-  toast("Slide added — Save to TV when ready");
+  toast(T("Slide added — Save to TV when ready"));
 }
 
 function move(i, dir) {
@@ -519,7 +734,10 @@ function enableDrag(li, i) {
   const clear = () => document.querySelectorAll(".drop-before, .drop-after").forEach((x) => x.classList.remove("drop-before", "drop-after"));
   const after = (e) => {
     const r = li.getBoundingClientRect();
-    return getComputedStyle($("slides")).gridAutoFlow.startsWith("column") ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2;
+    if (!getComputedStyle($("slides")).gridAutoFlow.startsWith("column")) return e.clientY > r.top + r.height / 2;
+    // Horizontal strip: "after" is to the right in LTR and to the left in RTL.
+    const rightHalf = e.clientX > r.left + r.width / 2;
+    return document.documentElement.dir === "rtl" ? !rightHalf : rightHalf;
   };
   li.addEventListener("dragstart", (e) => { li.classList.add("dragging"); e.dataTransfer.setData("text/plain", String(i)); e.dataTransfer.effectAllowed = "move"; });
   li.addEventListener("dragend", () => { li.classList.remove("dragging"); clear(); });
@@ -541,18 +759,18 @@ function toggleMenu(open) {
 }
 
 function openWebpageSheet() {
-  $("sheetTitle").textContent = "Add Webpage";
+  $("sheetTitle").textContent = T("Add Webpage");
   $("sheetBody").innerHTML = `<form id="webForm" class="web-form">
-    <div class="group"><div class="cell stack"><input id="webUrl" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="example.com/dashboard" aria-label="Webpage address" required></div></div>
-    <p class="secondary small">The page opens full screen on the TV and scrolls down slowly. You can change scrolling in the slide’s settings.</p>
-    <button class="btn primary wide" type="submit">Add Slide</button></form>`;
+    <div class="group"><div class="cell stack"><input id="webUrl" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="example.com/dashboard" aria-label="${T("Webpage address")}" required></div></div>
+    <p class="secondary small">${T("The page opens full screen on the TV and scrolls down slowly. You can change scrolling in the slide’s settings.")}</p>
+    <button class="btn primary wide" type="submit">${T("Add Slide")}</button></form>`;
   $("sheet").classList.remove("hidden");
   setTimeout(() => $("webUrl").focus(), 50);
   $("webForm").addEventListener("submit", (e) => {
     e.preventDefault();
     let url = $("webUrl").value.trim();
     if (url && !/^[a-z]+:\/\//i.test(url)) url = "https://" + url;
-    if (!/^https?:\/\//.test(url)) { toast("Webpage address must start with http:// or https://", "error"); return; }
+    if (!/^https?:\/\//.test(url)) { toast(T("Webpage address must start with http:// or https://"), "error"); return; }
     addSlide({
       type: "webpage", url, durationSec: defaultDuration("webpage"), fitMode: "contain", muted: true, loop: false,
       webpageAutoScroll: true, webpageScrollSpeedPxPerSec: 40, webpageScrollPauseSec: 5, enabled: true,
@@ -563,10 +781,10 @@ function openWebpageSheet() {
 
 function openPicker() {
   const items = state.media.filter((m) => kind(m));
-  $("sheetTitle").textContent = "Add from Library";
+  $("sheetTitle").textContent = T("Add from Library");
   $("sheetBody").innerHTML = items.length
-    ? `<div class="pick">${items.map((m) => `<button type="button" data-id="${m.id}"><div class="thumb">${thumb(m)}<span class="kind">${kind(m) === "video" ? "Video" : "Image"}</span></div><div class="tile-body"><div class="tile-name">${esc(m.displayName)}</div><div class="tile-meta">${formatBytes(m.sizeBytes)}</div></div></button>`).join("")}</div>`
-    : `<div class="empty">Your Library is empty. Upload images or videos first.</div>`;
+    ? `<div class="pick">${items.map((m) => `<button type="button" data-id="${m.id}"><div class="thumb">${thumb(m)}<span class="kind">${T(kind(m) === "video" ? "Video" : "Image")}</span></div><div class="tile-body"><div class="tile-name">${esc(m.displayName)}</div><div class="tile-meta">${formatBytes(m.sizeBytes)}</div></div></button>`).join("")}</div>`
+    : `<div class="empty">${T("Your Library is empty. Upload images or videos first.")}</div>`;
   $("sheetBody").querySelectorAll("[data-id]").forEach((b) => b.addEventListener("click", () => {
     addMediaSlide(state.media.find((m) => m.id === b.dataset.id));
     b.style.boxShadow = "0 0 0 2px var(--green)";
@@ -585,7 +803,7 @@ async function savePlaylist() {
   const errors = validateDraft();
   if (errors.length) { $("saveError").textContent = errors.join(" "); return; }
   $("saveBtn").disabled = true;
-  $("saveBtn").textContent = "Saving…";
+  $("saveBtn").textContent = T("Saving…");
   try {
     const res = await api("/api/playlist", { method: "PUT", body: { name: "Default", slides: state.draft.slides } });
     state.playlist = res.playlist;
@@ -593,19 +811,19 @@ async function savePlaylist() {
     setDirty(false);
     renderSlides();
     await refreshPlayback();
-    toast("Saved — now playing on the TV");
+    toast(T("Saved — now playing on the TV"));
   } catch (err) {
     $("saveError").textContent = err.message;
   } finally {
     $("saveBtn").disabled = false;
-    $("saveBtn").textContent = "Save to TV";
+    $("saveBtn").textContent = T("Save to TV");
   }
 }
 
 async function control(cmd) {
   try {
     await api("/api/playback/control", { method: "POST", body: { command: cmd } });
-    if (cmd === "showConnectionInfo") toast("Showing the address and code on the TV");
+    if (cmd === "showConnectionInfo") toast(T("Showing the address and code on the TV"));
     setTimeout(refreshPlayback, 300);
   } catch (err) { handleError(err); }
 }
@@ -615,17 +833,17 @@ async function control(cmd) {
 function validateDraft() {
   const errors = [];
   state.draft.slides.forEach((s, i) => {
-    const label = `Slide ${i + 1}:`;
-    if (s.type !== "video" && s.durationSec < 1) errors.push(`${label} time on screen must be at least 1 second.`);
-    if (s.type === "webpage" && !/^https?:\/\//.test(s.url || "")) errors.push(`${label} webpage address must start with http:// or https://.`);
+    const v = { n: i + 1 };
+    if (s.type !== "video" && s.durationSec < 1) errors.push(T("Slide {n}: time on screen must be at least 1 second.", v));
+    if (s.type === "webpage" && !/^https?:\/\//.test(s.url || "")) errors.push(T("Slide {n}: webpage address must start with http:// or https://.", v));
     if (s.type === "webpage") {
       const speed = Number(s.webpageScrollSpeedPxPerSec || 40), wait = Number(s.webpageScrollPauseSec ?? 5);
-      if (speed < 5 || speed > 1000) errors.push(`${label} scroll speed must be between 5 and 1000.`);
-      if (wait < 0 || wait > 300) errors.push(`${label} pause must be between 0 and 300 seconds.`);
+      if (speed < 5 || speed > 1000) errors.push(T("Slide {n}: scroll speed must be between 5 and 1000.", v));
+      if (wait < 0 || wait > 300) errors.push(T("Slide {n}: pause must be between 0 and 300 seconds.", v));
     }
     if (s.type === "image" || s.type === "video") {
-      if (!s.mediaId) errors.push(`${label} choose a file.`);
-      else if (!state.media.some((m) => m.id === s.mediaId)) errors.push(`${label} uses a deleted file.`);
+      if (!s.mediaId) errors.push(T("Slide {n}: choose a file.", v));
+      else if (!state.media.some((m) => m.id === s.mediaId)) errors.push(T("Slide {n}: uses a deleted file.", v));
     }
   });
   return errors;
@@ -653,21 +871,24 @@ function normalizeOrders() { state.draft.slides.forEach((s, i) => (s.order = i))
 function markDirty() { setDirty(true); }
 function setDirty(d) { state.dirty = d; $("saveError").textContent = ""; renderSaveBar(); }
 function renderSaveBar() { $("saveBar").classList.toggle("show", state.dirty && !!state.token); }
-function confirmLeave() { return !state.dirty || window.confirm("You have unsaved playlist changes. Leave anyway?"); }
+function confirmLeave() { return !state.dirty || window.confirm(T("You have unsaved playlist changes. Leave anyway?")); }
+
+function fitLabel(f) { return T({ contain: "Contain", cover: "Cover", fill: "Fill" }[f] || "Contain"); }
 
 function summary(s) {
-  const t = s.type === "video" ? "Video · plays to the end" : s.type === "image" ? `Image · ${formatDuration(s.durationSec || 10)}`
-    : s.webpageAutoScroll !== false ? "Webpage · auto-scroll" : `Webpage · ${formatDuration(s.durationSec || 20)}`;
-  return `${t} · ${(s.fitMode || "contain").replace(/^./, (c) => c.toUpperCase())}${s.enabled === false ? " · Hidden" : ""}`;
+  const t = s.type === "video" ? T("Video · plays to the end") : s.type === "image" ? T("Image · {d}", { d: formatDuration(s.durationSec || 10) })
+    : s.webpageAutoScroll !== false ? T("Webpage · auto-scroll") : T("Webpage · {d}", { d: formatDuration(s.durationSec || 20) });
+  return `${t} · ${fitLabel(s.fitMode || "contain")}${s.enabled === false ? " · " + T("Hidden") : ""}`;
 }
 
 function loopLabel(slides) {
   const on = slides.filter((s) => s.enabled !== false);
-  if (!on.length) return "Empty";
+  if (!on.length) return T("Empty");
   const fixed = on.filter((s) => s.type === "image" || (s.type === "webpage" && s.webpageAutoScroll === false))
     .reduce((n, s) => n + Number(s.durationSec || defaultDuration(s.type)), 0);
   const variable = on.length - on.filter((s) => s.type === "image" || (s.type === "webpage" && s.webpageAutoScroll === false)).length;
-  return `Loop ${formatDuration(fixed)}${variable ? ` + ${variable} video/scroll` : ""}`;
+  const base = T("Loop {d}", { d: formatDuration(fixed) });
+  return variable ? T("{base} + {n} video/scroll", { base, n: variable }) : base;
 }
 
 /* ------------------------------------------------------------------ utils */
@@ -717,7 +938,7 @@ async function api(path, opts = {}) {
   const text = await res.text();
   const data = text ? safeJson(text) : {};
   if (!res.ok) {
-    const err = new Error(data.error || (data.errors || []).join("; ") || `Request failed (${res.status})`);
+    const err = new Error(data.error || (data.errors || []).join("; ") || T("Request failed ({status})", { status: res.status }));
     err.status = res.status;
     throw err;
   }
@@ -725,8 +946,8 @@ async function api(path, opts = {}) {
 }
 
 function handleError(err, quiet) {
-  if (err.status === 401 || err.status === 403) { forgetPairing(); $("pairError").textContent = "Pair this browser again with the code on the TV."; return; }
-  if (!quiet) toast(err.message || "Something went wrong", "error");
+  if (err.status === 401 || err.status === 403) { forgetPairing(); $("pairError").textContent = T("Pair this browser again with the code on the TV."); return; }
+  if (!quiet) toast(err.message || T("Something went wrong"), "error");
 }
 
 let toastTimer;
@@ -760,5 +981,5 @@ function safeJson(t) { try { return t ? JSON.parse(t) : {}; } catch (_) { return
 function randomId() { return (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`); }
 function esc(v) { return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
 function formatBytes(b) { if (!b) return "0 B"; const u = ["B", "KB", "MB", "GB"]; let i = 0, n = b; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return `${n.toFixed(n < 10 && i ? 1 : 0)} ${u[i]}`; }
-function formatDate(ms) { try { return new Date(ms).toLocaleDateString(undefined, { day: "numeric", month: "short" }); } catch (_) { return ""; } }
-function formatDuration(sec) { sec = Number(sec) || 0; if (sec < 60) return `${sec}s`; const m = Math.floor(sec / 60), s = sec % 60; return s ? `${m}m ${s}s` : `${m}m`; }
+function formatDate(ms) { try { return new Date(ms).toLocaleDateString(LANG === "en" ? undefined : LANG, { day: "numeric", month: "short" }); } catch (_) { return ""; } }
+function formatDuration(sec) { sec = Number(sec) || 0; if (sec < 60) return T("{s}s", { s: sec }); const m = Math.floor(sec / 60), s = sec % 60; return s ? T("{m}m {s}s", { m, s }) : T("{m}m", { m }); }

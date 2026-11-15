@@ -50,6 +50,11 @@ public class SetupActivity extends Activity {
     }
 
     @Override
+    protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(I18n.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         Clicks.init(this);
@@ -68,20 +73,20 @@ public class SetupActivity extends Activity {
         page.setClipChildren(true);
         page.setClipToPadding(true);
         FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        page.setPadding(0, u(36), 0, u(22));
+        page.setPaddingRelative(0, u(36), 0, u(22));
         root.addView(page, plp);
 
         // Top-right "Skip Setup" pill button on the first setup screen (language selection)
         skipBtn = new TextView(this);
         skipBtn.setId(View.generateViewId());
-        skipBtn.setText(tr("Skip Setup", "Kurulumu Atla") + "  \u203a");
+        skipBtn.setText(tr("Skip Setup", "Kurulumu Atla") + "  " + chev());
         skipBtn.setTextColor(Color.WHITE);
         skipBtn.setTypeface(Ui.font(this, "medium"));
         Ui.textSize(skipBtn, 14);
         skipBtn.setGravity(Gravity.CENTER);
         skipBtn.setFocusable(true);
         skipBtn.setClickable(true);
-        skipBtn.setPadding(u(18), u(9), u(18), u(9));
+        skipBtn.setPaddingRelative(u(18), u(9), u(18), u(9));
         GradientDrawable skipBg = new GradientDrawable();
         skipBg.setCornerRadius(u(999));
         skipBg.setColor(0x2EFFFFFF);
@@ -104,9 +109,10 @@ public class SetupActivity extends Activity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.TOP | Gravity.END);
         skipLp.topMargin = u(26);
-        skipLp.rightMargin = u(36);
+        skipLp.setMarginEnd(u(36));
         root.addView(skipBtn, skipLp);
 
+        I18n.applyDirection(this, root);
         setContentView(root);
 
         steps.add(this::hello);
@@ -160,7 +166,7 @@ public class SetupActivity extends Activity {
         index = Math.max(0, Math.min(i, steps.size() - 1));
         getSharedPreferences("setup", MODE_PRIVATE).edit().putInt("cur_step", index).apply();
         if (skipBtn != null) {
-            skipBtn.setText(tr("Skip Setup", "Kurulumu Atla") + "  \u203a");
+            skipBtn.setText(tr("Skip Setup", "Kurulumu Atla") + "  " + chev());
             skipBtn.setVisibility(index == 0 ? View.VISIBLE : View.GONE);
         }
         page.animate().cancel();
@@ -168,7 +174,7 @@ public class SetupActivity extends Activity {
         steps.get(index).build();
         // New page: slide and fade. Same page re-drawn after a switch: a quick fade only.
         page.setAlpha(dir == 0 ? 0.6f : 0f);
-        page.setTranslationX(u(30) * dir);
+        page.setTranslationX(u(30) * dir * (I18n.isRtl(this) ? -1 : 1));
         page.animate().alpha(1f).translationX(0).setDuration(dir == 0 ? 120 : 320).start();
     }
 
@@ -237,7 +243,7 @@ public class SetupActivity extends Activity {
         l.setOrientation(LinearLayout.VERTICAL);
         l.setClipChildren(false);
         l.setClipToPadding(false);
-        l.setPadding(u(22), u(6), u(22), u(6));
+        l.setPaddingRelative(u(22), u(6), u(22), u(6));
         if (page.findViewWithTag("list") == null) l.setTag("list");
         page.addView(l, new LinearLayout.LayoutParams(u(484), ViewGroup.LayoutParams.WRAP_CONTENT));
         return l;
@@ -253,7 +259,7 @@ public class SetupActivity extends Activity {
         l.setOrientation(LinearLayout.VERTICAL);
         l.setClipChildren(false);
         l.setClipToPadding(false);
-        l.setPadding(u(22), u(6), u(22), u(6));
+        l.setPaddingRelative(u(22), u(6), u(22), u(6));
         if (page.findViewWithTag("list") == null) l.setTag("list");
         sv.addView(l, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         LinearLayout.LayoutParams svLp = new LinearLayout.LayoutParams(u(484), 0, 1f);
@@ -268,7 +274,7 @@ public class SetupActivity extends Activity {
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setFocusable(true);
         r.setClickable(true);
-        r.setPadding(u(18), u(8), u(16), u(8));
+        r.setPaddingRelative(u(18), u(8), u(16), u(8));
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(u(12));
         bg.setColor(0x26FFFFFF);
@@ -305,7 +311,7 @@ public class SetupActivity extends Activity {
         Ui.textSize(tick, 17);
         LinearLayout.LayoutParams tickLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        tickLp.leftMargin = u(10);
+        tickLp.setMarginStart(u(10));
         r.addView(tick, tickLp);
         TextView dRef = d;
         r.setOnFocusChangeListener((v, has) -> {
@@ -365,6 +371,11 @@ public class SetupActivity extends Activity {
 
     // ---------------------------------------------------------------- pages
 
+    /** Forward arrow that points the right way for the reading direction. */
+    private String chev() {
+        return I18n.isRtl(this) ? "\u2039" : "\u203a";
+    }
+
     String tr(String en, String trStr) {
         return I18n.s(this, en, trStr);
     }
@@ -378,8 +389,8 @@ public class SetupActivity extends Activity {
         hi.setTranslationY(u(12));
         hi.animate().alpha(1f).translationY(0).setDuration(700).start();
         // "Welcome" in Turkish, English, Swedish, Indian and world languages, fading from one to the next.
-        String[] words = {"Welcome", "Ho\u015f Geldiniz", "V\u00e4lkommen", "\u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948", "\u09b8\u09cd\u09ac\u09be\u0997\u09a4\u09ae", "\u0bb5\u0bb0\u0bb5\u0bc7\u0bb1\u0bcd\u0b95\u0bbf\u0bb1\u0bcb\u0bae\u0bcd", "\u0c38\u0c4d\u0c35\u0c3e\u0c17\u0c24\u0c02", "Bienvenue", "Bienvenido", "Willkommen", "\u3088\u3046\u3053\u305d", "Benvenuto", "Bem-vindo", "\u6b22\u8fce"};
-        int[] k = {I18n.isTr(this) ? 1 : 0};
+        String[] words = {"Welcome", "Ho\u015f Geldiniz", "V\u00e4lkommen", "\u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948", "\u09b8\u09cd\u09ac\u09be\u0997\u09a4\u09ae", "\u0bb5\u0bb0\u0bb5\u0bc7\u0bb1\u0bcd\u0b95\u0bbf\u0bb1\u0bcb\u0bae\u0bcd", "\u0c38\u0c4d\u0c35\u0c3e\u0c17\u0c24\u0c02", "Bienvenue", "Bienvenido", "Willkommen", "\u3088\u3046\u3053\u305d", "Benvenuto", "Bem-vindo", "\u6b22\u8fce", "\u05d1\u05e8\u05d5\u05db\u05d9\u05dd \u05d4\u05d1\u05d0\u05d9\u05dd"};
+        int[] k = {I18n.isTr(this) ? 1 : I18n.isRtl(this) ? words.length - 1 : 0};
         Runnable[] cycle = new Runnable[1];
         cycle[0] = () -> {
             k[0] = (k[0] + 1) % words.length;
@@ -412,7 +423,14 @@ public class SetupActivity extends Activity {
             final String title = I18n.LANGUAGES[i][1];
             final String sub = I18n.LANGUAGES[i][2];
             View langRow = option(l, title, sub, code.equals(curLang), () -> {
+                boolean wasRtl = I18n.isRtl(this);
                 I18n.setLang(this, code);
+                if (wasRtl != I18n.isRtl(this)) {
+                    // Reading direction changed: rebuild the screen so the whole layout flips.
+                    getSharedPreferences("setup", MODE_PRIVATE).edit().putInt("cur_step", 0).apply();
+                    recreate();
+                    return;
+                }
                 show(0, 0);
                 focusRow(rowIdx);
             });
@@ -445,7 +463,7 @@ public class SetupActivity extends Activity {
             in.setSelection(in.getText().length());
             int pad = u(14);
             FrameLayout box = new FrameLayout(this);
-            box.setPadding(pad, pad / 2, pad, 0);
+            box.setPaddingRelative(pad, pad / 2, pad, 0);
             box.addView(in);
             android.app.AlertDialog dlg = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                     .setTitle(tr("Your name", "Ad\u0131n\u0131z")).setView(box)
@@ -724,7 +742,7 @@ public class SetupActivity extends Activity {
         in.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
-        box.setPadding(pad, pad / 2, pad, 0);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
         android.app.AlertDialog dlg = new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle(tr("Choose City", "\u015eehir Se\u00e7in"))

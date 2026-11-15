@@ -311,7 +311,7 @@ public final class AppUpdater {
         card.setOrientation(android.widget.LinearLayout.VERTICAL);
         int padH = Math.round(28 * d);
         int padV = Math.round(24 * d);
-        card.setPadding(padH, padV, padH, padV);
+        card.setPaddingRelative(padH, padV, padH, padV);
         android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
         cardBg.setColor(0xF2181A22);
         cardBg.setCornerRadius(22f * d);
@@ -367,7 +367,7 @@ public final class AppUpdater {
         android.widget.LinearLayout.LayoutParams b1Lp = new android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        b1Lp.rightMargin = Math.round(12 * d);
+        b1Lp.setMarginEnd(Math.round(12 * d));
         btnRow.addView(changelogBtn, b1Lp);
 
         // Button 2: Install (Default Selected / Focused)
@@ -420,7 +420,7 @@ public final class AppUpdater {
         card.setOrientation(android.widget.LinearLayout.VERTICAL);
         int padH = Math.round(26 * d);
         int padV = Math.round(22 * d);
-        card.setPadding(padH, padV, padH, padV);
+        card.setPaddingRelative(padH, padV, padH, padV);
         android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
         cardBg.setColor(0xF2181A22);
         cardBg.setCornerRadius(22f * d);
@@ -448,7 +448,7 @@ public final class AppUpdater {
         bodyTv.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL));
         bodyTv.setLineSpacing(0f, 1.18f);
         int sPad = Math.round(12 * d);
-        bodyTv.setPadding(sPad, sPad, sPad, sPad);
+        bodyTv.setPaddingRelative(sPad, sPad, sPad, sPad);
         scroll.addView(bodyTv);
 
         android.graphics.drawable.GradientDrawable scrollBg = new android.graphics.drawable.GradientDrawable();
@@ -478,7 +478,7 @@ public final class AppUpdater {
         android.widget.LinearLayout.LayoutParams backLp = new android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        backLp.rightMargin = Math.round(12 * d);
+        backLp.setMarginEnd(Math.round(12 * d));
         btnRow.addView(backBtn, backLp);
 
         android.widget.TextView installBtn = createDialogActionButton(
@@ -515,7 +515,7 @@ public final class AppUpdater {
         btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
         btn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD));
         btn.setGravity(android.view.Gravity.CENTER);
-        btn.setPadding(Math.round(22 * d), Math.round(11 * d), Math.round(22 * d), Math.round(11 * d));
+        btn.setPaddingRelative(Math.round(22 * d), Math.round(11 * d), Math.round(22 * d), Math.round(11 * d));
         btn.setFocusable(true);
         btn.setClickable(true);
 

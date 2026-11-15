@@ -1,5 +1,9 @@
 package com.techgenius.tvoslauncher.present;
 
+import android.content.Context;
+
+import com.techgenius.tvoslauncher.I18n;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -208,36 +212,48 @@ public final class Model {
 
     // ------------------------------------------------------------------ rules
 
-    static List<String> validate(String name, List<Slide> slides) {
+    /**
+     * Playlist rules. Messages go to the web client in the TV's in-app language; `c` may be null
+     * (internal checks), which keeps them in English.
+     */
+    static List<String> validate(Context c, String name, List<Slide> slides) {
         List<String> errors = new ArrayList<>();
         String trimmed = name == null ? "" : name.trim();
-        if (trimmed.isEmpty()) errors.add("Playlist name is required");
-        if (trimmed.length() > 80) errors.add("Playlist name must be 80 characters or less");
+        if (trimmed.isEmpty()) errors.add(tr(c, "Playlist name is required"));
+        if (trimmed.length() > 80) errors.add(tr(c, "Playlist name must be 80 characters or less"));
         Set<String> ids = new HashSet<>();
         for (int i = 0; i < slides.size(); i++) {
             Slide s = slides.get(i);
-            String label = "Slide " + (i + 1);
-            if (!ids.add(s.id)) errors.add(label + " has a duplicate id");
+            int n = i + 1;
+            if (!ids.add(s.id)) errors.add(fmt(c, "Slide %1$d has a duplicate id", n));
             if (!VIDEO.equals(s.type) && (s.durationSec < 1 || s.durationSec > 86_400)) {
-                errors.add(label + " duration must be between 1 second and 24 hours");
+                errors.add(fmt(c, "Slide %1$d duration must be between 1 second and 24 hours", n));
             }
-            if (s.order < 0) errors.add(label + " order must not be negative");
+            if (s.order < 0) errors.add(fmt(c, "Slide %1$d order must not be negative", n));
             if (IMAGE.equals(s.type) || VIDEO.equals(s.type)) {
-                if (s.mediaId == null || s.mediaId.trim().isEmpty()) errors.add(label + " requires a media item");
+                if (s.mediaId == null || s.mediaId.trim().isEmpty()) errors.add(fmt(c, "Slide %1$d requires a media item", n));
             } else {
                 String url = s.url == null ? "" : s.url;
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                    errors.add(label + " webpage URL must start with http:// or https://");
+                    errors.add(fmt(c, "Slide %1$d webpage URL must start with http:// or https://", n));
                 }
                 if (s.webpageScrollSpeedPxPerSec < 5 || s.webpageScrollSpeedPxPerSec > 1000) {
-                    errors.add(label + " webpage scroll speed must be between 5 and 1000 pixels per second");
+                    errors.add(fmt(c, "Slide %1$d webpage scroll speed must be between 5 and 1000 pixels per second", n));
                 }
                 if (s.webpageScrollPauseSec < 0 || s.webpageScrollPauseSec > 300) {
-                    errors.add(label + " webpage wait time must be between 0 and 300 seconds");
+                    errors.add(fmt(c, "Slide %1$d webpage wait time must be between 0 and 300 seconds", n));
                 }
             }
         }
         return errors;
+    }
+
+    static String tr(Context c, String en) {
+        return c == null ? en : I18n.t(c, en);
+    }
+
+    private static String fmt(Context c, String en, int n) {
+        return String.format(Locale.US, tr(c, en), n);
     }
 
     static List<Slide> normalized(List<Slide> slides) {

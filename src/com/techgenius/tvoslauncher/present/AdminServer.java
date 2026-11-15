@@ -3,6 +3,8 @@ package com.techgenius.tvoslauncher.present;
 import android.content.Context;
 import android.util.Log;
 
+import com.techgenius.tvoslauncher.I18n;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -120,7 +122,11 @@ final class AdminServer {
                 route(r, out);
             } catch (Exception e) {
                 Log.w(TAG, r.method + " " + r.path + ": " + e);
-                json(out, 500, new JSONObject().put("error", e.getMessage() == null ? "Unexpected server error" : e.getMessage()));
+                String msg = e.getMessage();
+                // Validation messages thrown by Model (e.g. "Slide type is required") are English keys.
+                if (msg == null) msg = tr("Unexpected server error");
+                else if (e instanceof IllegalArgumentException) msg = tr(msg);
+                json(out, 500, new JSONObject().put("error", msg));
             }
         } catch (SocketException ignored) {
         } catch (Exception e) {
@@ -185,7 +191,7 @@ final class AdminServer {
         if (p.equals("/api/info")) { json(out, 200, info()); return; }
         if (p.equals("/api/pair") && "POST".equals(r.method)) {
             String token = pairing.pair(body(r).optString("pin"));
-            if (token == null) json(out, 403, new JSONObject().put("error", "That PIN doesn\u2019t match the one on the TV."));
+            if (token == null) json(out, 403, new JSONObject().put("error", tr("That PIN doesn\u2019t match the one on the TV.")));
             else json(out, 200, new JSONObject().put("token", token));
             return;
         }
@@ -195,7 +201,7 @@ final class AdminServer {
         String token = auth.startsWith("Bearer") ? auth.substring(6).trim() : r.query.get("token");
         if (!pairing.valid(token)) {
             drain(r);
-            json(out, 401, new JSONObject().put("error", "Pair with the TV PIN first"));
+            json(out, 401, new JSONObject().put("error", tr("Pair with the TV PIN first")));
             return;
         }
         String[] seg = p.replaceAll("^/+|/+$", "").split("/");
@@ -209,7 +215,7 @@ final class AdminServer {
         } else if (seg.length == 4 && seg[1].equals("media") && seg[3].equals("file") && "GET".equals(r.method)) {
             mediaFile(r, out, seg[2]);
         } else if (seg.length == 3 && seg[1].equals("media") && "DELETE".equals(r.method)) {
-            if (!repo.deleteMedia(seg[2])) json(out, 404, new JSONObject().put("error", "Media item not found"));
+            if (!repo.deleteMedia(seg[2])) json(out, 404, new JSONObject().put("error", tr("Media item not found")));
             else {
                 gateway.reload();
                 json(out, 200, new JSONObject().put("deleted", true));
@@ -224,7 +230,7 @@ final class AdminServer {
                 || (seg.length == 3 && seg[1].equals("playlists") && "PUT".equals(r.method))) {
             savePlaylist(r, out, "POST".equals(r.method) ? 201 : 200);
         } else if (seg.length == 3 && seg[1].equals("playlists") && "DELETE".equals(r.method)) {
-            json(out, 400, new JSONObject().put("error", "Default playlist cannot be deleted"));
+            json(out, 400, new JSONObject().put("error", tr("Default playlist cannot be deleted")));
         } else if (seg.length == 4 && seg[1].equals("playlists") && seg[3].equals("activate") && "POST".equals(r.method)) {
             gateway.reload();
             json(out, 200, new JSONObject().put("playlist", repo.playlist().toJson()));
@@ -233,15 +239,15 @@ final class AdminServer {
         } else if (p.equals("/api/playback/control") && "POST".equals(r.method)) {
             String cmd = body(r).optString("command").toLowerCase(Locale.US);
             if (!cmd.matches("play|pause|next|previous|restart|showconnectioninfo|connectinfo|connection")) {
-                json(out, 400, new JSONObject().put("error", "Unsupported playback command"));
+                json(out, 400, new JSONObject().put("error", tr("Unsupported playback command")));
             } else if (!gateway.control(cmd)) {
-                json(out, 409, new JSONObject().put("error", "Presentation isn\u2019t on screen. Start it from the TV or turn on \u201cStart on boot\u201d."));
+                json(out, 409, new JSONObject().put("error", tr("Presentation isn\u2019t on screen. Start it from the TV or turn on \u201cStart on boot\u201d.")));
             } else {
                 json(out, 200, new JSONObject().put("accepted", true));
             }
         } else {
             drain(r);
-            json(out, 404, new JSONObject().put("error", "Endpoint not found"));
+            json(out, 404, new JSONObject().put("error", tr("Endpoint not found")));
         }
     }
 
@@ -257,12 +263,13 @@ final class AdminServer {
                 .put("port", PORT)
                 .put("urls", new JSONArray(Net.urls(PORT)))
                 .put("versionName", version)
-                .put("pairingRequired", true);
+                .put("pairingRequired", true)
+                .put("lang", I18n.getLang(context));  // the web page follows the TV's in-app language
     }
 
     private void savePlaylist(Req r, OutputStream out, int okStatus) throws Exception {
         List<Model.Slide> slides = Model.slidesFromRequest(body(r));
-        List<String> errors = Model.validate(Repo.PLAYLIST_NAME, slides);
+        List<String> errors = Model.validate(context, Repo.PLAYLIST_NAME, slides);
         if (!errors.isEmpty()) {
             json(out, 400, new JSONObject().put("errors", new JSONArray(errors)));
             return;
@@ -270,6 +277,11 @@ final class AdminServer {
         Model.Playlist p = repo.savePlaylist(slides);
         gateway.reload();
         json(out, okStatus, new JSONObject().put("playlist", p.toJson()));
+    }
+
+    /** Message for the web client in the TV's in-app language. */
+    private String tr(String en) {
+        return I18n.t(context, en);
     }
 
     // ------------------------------------------------------------------ uploads
@@ -295,7 +307,7 @@ final class AdminServer {
                 String boundary = type.substring(b + 9).replace("\"", "").trim();
                 Multipart mp = Multipart.extract(raw, boundary, dir);
                 if (mp.file == null) {
-                    json(out, 400, new JSONObject().put("error", "Upload form field named file is required"));
+                    json(out, 400, new JSONObject().put("error", tr("Upload form field named file is required")));
                     return;
                 }
                 payload = mp.file;
