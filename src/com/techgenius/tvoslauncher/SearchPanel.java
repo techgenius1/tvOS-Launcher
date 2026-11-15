@@ -675,7 +675,13 @@ final class SearchPanel {
         List<View> cards = new ArrayList<>();
         for (Search.Title t : ts) if (!listed.contains(t.imdb)) cards.add(titleCard(t));
         if (cards.isEmpty()) return;
-        if (stremioRow == null) stremioRow = addRow(tr("On ", "") + Suggestions.stremioApp(a).name + tr("", " \u00fczerinde"), cards, a.dp(176));
+        if (stremioRow == null) {
+            // Every app that can open these: "On Stremio \u00b7 Nuvio \u00b7 Nuvio Legacy".
+            List<String> names = new ArrayList<>();
+            for (Suggestions.Provider p : Suggestions.stremioApps(a)) names.add(p.name);
+            if (names.isEmpty()) names.add(Suggestions.stremioApp(a).name);
+            stremioRow = addRow(tr("On ", "") + String.join(" \u00b7 ", names) + tr("", " \u00fczerinde"), cards, a.dp(176));
+        }
         else setItems(stremioRow, cards);
     }
 
@@ -817,7 +823,8 @@ final class SearchPanel {
         }
         img.execute(() -> {
             if (closed || !url.equals(iv.getTag())) return;
-            Bitmap b = Suggestions.image(a, url, "", Math.max(64, width));
+            Bitmap b = url.startsWith(Search.APP_ICON) ? appIcon(url.substring(Search.APP_ICON.length()), Math.max(64, width))
+                    : Suggestions.image(a, url, "", Math.max(64, width));
             if (b == null) return;
             a.handler.post(() -> {
                 if (closed) return;
@@ -830,6 +837,19 @@ final class SearchPanel {
                 }
             });
         });
+    }
+
+    /** An installed app's launcher icon as a square bitmap (offers without a JustWatch logo: Stremio, Nuvio, forks). */
+    Bitmap appIcon(String pkg, int size) {
+        try {
+            Drawable d = a.getPackageManager().getApplicationIcon(pkg);
+            Bitmap b = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            d.setBounds(0, 0, size, size);
+            d.draw(new android.graphics.Canvas(b));
+            return b;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ---------------------------------------------------------------- How to Watch sheet
