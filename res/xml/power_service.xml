@@ -6,5 +6,5 @@
     android:canRequestFilterKeyEvents="true"
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
-    android:notificationTimeout="1000"
+    android:notificationTimeout="0"
     android:description="@string/power_service_desc" />

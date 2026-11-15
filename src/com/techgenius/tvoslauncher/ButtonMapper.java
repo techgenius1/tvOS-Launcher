@@ -183,7 +183,7 @@ public final class ButtonMapper {
      * stock launcher even after another home app was chosen.
      */
     public static boolean isHomeFixEnabled(Context c) {
-        return c != null && prefs(c).getBoolean(KEY_HOME_FIX, false);
+        return c != null && prefs(c).getBoolean(KEY_HOME_FIX, true);
     }
 
     public static void setHomeFixEnabled(Context c, boolean enabled) {

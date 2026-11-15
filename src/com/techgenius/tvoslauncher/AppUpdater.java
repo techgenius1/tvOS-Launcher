@@ -46,6 +46,7 @@ public final class AppUpdater {
     private static final String KEY_LATEST_URL = "latest_apk_url";
     private static final String KEY_LATEST_CHANGELOG = "latest_changelog";
     private static final String KEY_LAST_CHECK = "last_check_ms";
+    private static final String KEY_INCOMPATIBLE_VER = "incompatible_sig_version";
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile boolean checking = false;
@@ -230,6 +231,11 @@ public final class AppUpdater {
 
         checkForUpdates(activity, (success, latestVersion, downloadUrl, updateAvailable, errorMsg) -> {
             if (success && updateAvailable && !activity.isFinishing()) {
+                String incomp = prefs(activity).getString(KEY_INCOMPATIBLE_VER, "");
+                if (latestVersion != null && latestVersion.equals(incomp)) {
+                    // Suppress automatic popup if this exact version was previously confirmed incompatible
+                    return;
+                }
                 showUpdateAvailableDialog(
                         activity,
                         latestVersion,
@@ -608,6 +614,36 @@ public final class AppUpdater {
                 } catch (Throwable ignored) {
                 }
 
+                // Verify package signature compatibility before attempting to install
+                if (!isSignatureCompatible(appCtx, apkFile)) {
+                    downloading = false;
+                    try {
+                        if (apkFile.exists()) apkFile.delete();
+                    } catch (Throwable ignored) {
+                    }
+                    prefs(appCtx).edit().putString(KEY_INCOMPATIBLE_VER, version).apply();
+                    if (onUiRefresh != null) MAIN.post(onUiRefresh);
+                    MAIN.post(() -> {
+                        if (activity != null && !activity.isFinishing()) {
+                            new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                                    .setTitle(I18n.s(activity, "Update Signature Mismatch", "Güncelleme İmza Uyuşmazlığı"))
+                                    .setMessage(I18n.s(activity,
+                                            "The downloaded update (v" + version + ") is signed with a different key than your installed app.\n\n"
+                                                    + "Android requires existing installs to be uninstalled before switching signatures. To install, please backup your settings in Settings -> Backup & Restore, then reinstall.",
+                                            "İndirilen güncelleme (v" + version + "), yüklü uygulamanızdan farklı bir anahtarla imzalanmış.\n\n"
+                                                    + "Android farklı imzalar arasında güncellemeyi engeller. Yüklemek için Ayarlar -> Yedekle ve Geri Yükle bölümünden yedek alıp uygulamayı yeniden kurun."))
+                                    .setPositiveButton(I18n.s(activity, "OK", "Tamam"), null)
+                                    .show();
+                        } else {
+                            Toast.makeText(appCtx,
+                                    I18n.s(appCtx, "Update signature mismatch: cannot update in-place.", "Güncelleme imza uyuşmazlığı."),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
+                }
+                prefs(appCtx).edit().remove(KEY_INCOMPATIBLE_VER).apply();
+
                 // 1. If ADB is currently active (port 5555 open), install automatically via LocalAdb
                 if (LocalAdb.isAdbPortCurrentlyOpen()) {
                     MAIN.post(() -> Toast.makeText(appCtx,
@@ -700,6 +736,55 @@ public final class AppUpdater {
                     I18n.s(activity, "Could not start installer.", "Yükleyici başlatılamadı."),
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Checks whether the downloaded APK has a signing certificate compatible with the installed app.
+     * Android strictly forbids replacing an installed app with an APK signed with a different key
+     * (INSTALL_FAILED_UPDATE_INCOMPATIBLE).
+     */
+    public static boolean isSignatureCompatible(Context c, File apk) {
+        if (c == null || apk == null || !apk.exists()) return true;
+        try {
+            android.content.pm.PackageManager pm = c.getPackageManager();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                PackageInfo curPi = pm.getPackageInfo(c.getPackageName(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES);
+                PackageInfo arcPi = pm.getPackageArchiveInfo(apk.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES);
+                if (curPi != null && curPi.signingInfo != null && arcPi != null && arcPi.signingInfo != null) {
+                    android.content.pm.Signature[] curSigs = curPi.signingInfo.hasMultipleSigners()
+                            ? curPi.signingInfo.getApkContentsSigners()
+                            : curPi.signingInfo.getSigningCertificateHistory();
+                    android.content.pm.Signature[] arcSigs = arcPi.signingInfo.hasMultipleSigners()
+                            ? arcPi.signingInfo.getApkContentsSigners()
+                            : arcPi.signingInfo.getSigningCertificateHistory();
+                    if (curSigs != null && arcSigs != null && curSigs.length > 0 && arcSigs.length > 0) {
+                        for (android.content.pm.Signature cs : curSigs) {
+                            for (android.content.pm.Signature as : arcSigs) {
+                                if (cs.equals(as)) return true;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+            // Fallback for API < 28 or if signingInfo was not populated
+            PackageInfo curPiLegacy = pm.getPackageInfo(c.getPackageName(), android.content.pm.PackageManager.GET_SIGNATURES);
+            PackageInfo arcPiLegacy = pm.getPackageArchiveInfo(apk.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNATURES);
+            if (curPiLegacy != null && curPiLegacy.signatures != null
+                    && arcPiLegacy != null && arcPiLegacy.signatures != null) {
+                if (curPiLegacy.signatures.length > 0 && arcPiLegacy.signatures.length > 0) {
+                    for (android.content.pm.Signature cs : curPiLegacy.signatures) {
+                        for (android.content.pm.Signature as : arcPiLegacy.signatures) {
+                            if (cs.equals(as)) return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        } catch (Throwable t) {
+            return true;
+        }
+        return true;
     }
 
     /**

@@ -2,9 +2,19 @@ $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
 if (-not $env:JAVA_HOME) {
-    $jdkCandidate = "C:\Users\asen4\AppData\Local\Programs\Microsoft\jdk-17.0.10.7-hotspot"
-    if (Test-Path $jdkCandidate) {
-        $env:JAVA_HOME = $jdkCandidate
+    $jdkCandidates = @(
+        "C:\Program Files\Java\jdk-17",
+        "C:\Program Files\Java\jdk-21",
+        "C:\Program Files\Eclipse Adoptium\jdk-17*",
+        "C:\Program Files\Microsoft\jdk-17*",
+        "C:\Users\asen4\AppData\Local\Programs\Microsoft\jdk-17.0.10.7-hotspot"
+    )
+    foreach ($cand in $jdkCandidates) {
+        $found = Get-Item $cand -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($found -and (Test-Path "$($found.FullName)\bin\javac.exe")) {
+            $env:JAVA_HOME = $found.FullName
+            break
+        }
     }
 }
 if ($env:JAVA_HOME) {
