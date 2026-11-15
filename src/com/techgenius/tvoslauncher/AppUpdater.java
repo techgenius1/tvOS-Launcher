@@ -46,6 +46,7 @@ public final class AppUpdater {
     private static final String KEY_LATEST_URL = "latest_apk_url";
     private static final String KEY_LATEST_CHANGELOG = "latest_changelog";
     private static final String KEY_LAST_CHECK = "last_check_ms";
+    private static final String KEY_INCOMPATIBLE_VER = "incompatible_sig_version";
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile boolean checking = false;
@@ -230,6 +231,11 @@ public final class AppUpdater {
 
         checkForUpdates(activity, (success, latestVersion, downloadUrl, updateAvailable, errorMsg) -> {
             if (success && updateAvailable && !activity.isFinishing()) {
+                String incomp = prefs(activity).getString(KEY_INCOMPATIBLE_VER, "");
+                if (latestVersion != null && latestVersion.equals(incomp)) {
+                    // Suppress automatic popup if this exact version was previously confirmed incompatible
+                    return;
+                }
                 showUpdateAvailableDialog(
                         activity,
                         latestVersion,
@@ -311,7 +317,7 @@ public final class AppUpdater {
         card.setOrientation(android.widget.LinearLayout.VERTICAL);
         int padH = Math.round(28 * d);
         int padV = Math.round(24 * d);
-        card.setPadding(padH, padV, padH, padV);
+        card.setPaddingRelative(padH, padV, padH, padV);
         android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
         cardBg.setColor(0xF2181A22);
         cardBg.setCornerRadius(22f * d);
@@ -367,7 +373,7 @@ public final class AppUpdater {
         android.widget.LinearLayout.LayoutParams b1Lp = new android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        b1Lp.rightMargin = Math.round(12 * d);
+        b1Lp.setMarginEnd(Math.round(12 * d));
         btnRow.addView(changelogBtn, b1Lp);
 
         // Button 2: Install (Default Selected / Focused)
@@ -420,7 +426,7 @@ public final class AppUpdater {
         card.setOrientation(android.widget.LinearLayout.VERTICAL);
         int padH = Math.round(26 * d);
         int padV = Math.round(22 * d);
-        card.setPadding(padH, padV, padH, padV);
+        card.setPaddingRelative(padH, padV, padH, padV);
         android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
         cardBg.setColor(0xF2181A22);
         cardBg.setCornerRadius(22f * d);
@@ -448,7 +454,7 @@ public final class AppUpdater {
         bodyTv.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL));
         bodyTv.setLineSpacing(0f, 1.18f);
         int sPad = Math.round(12 * d);
-        bodyTv.setPadding(sPad, sPad, sPad, sPad);
+        bodyTv.setPaddingRelative(sPad, sPad, sPad, sPad);
         scroll.addView(bodyTv);
 
         android.graphics.drawable.GradientDrawable scrollBg = new android.graphics.drawable.GradientDrawable();
@@ -478,7 +484,7 @@ public final class AppUpdater {
         android.widget.LinearLayout.LayoutParams backLp = new android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        backLp.rightMargin = Math.round(12 * d);
+        backLp.setMarginEnd(Math.round(12 * d));
         btnRow.addView(backBtn, backLp);
 
         android.widget.TextView installBtn = createDialogActionButton(
@@ -515,7 +521,7 @@ public final class AppUpdater {
         btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
         btn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD));
         btn.setGravity(android.view.Gravity.CENTER);
-        btn.setPadding(Math.round(22 * d), Math.round(11 * d), Math.round(22 * d), Math.round(11 * d));
+        btn.setPaddingRelative(Math.round(22 * d), Math.round(11 * d), Math.round(22 * d), Math.round(11 * d));
         btn.setFocusable(true);
         btn.setClickable(true);
 
@@ -607,6 +613,36 @@ public final class AppUpdater {
                     apkFile.setReadable(true, false);
                 } catch (Throwable ignored) {
                 }
+
+                // Verify package signature compatibility before attempting to install
+                if (!isSignatureCompatible(appCtx, apkFile)) {
+                    downloading = false;
+                    try {
+                        if (apkFile.exists()) apkFile.delete();
+                    } catch (Throwable ignored) {
+                    }
+                    prefs(appCtx).edit().putString(KEY_INCOMPATIBLE_VER, version).apply();
+                    if (onUiRefresh != null) MAIN.post(onUiRefresh);
+                    MAIN.post(() -> {
+                        if (activity != null && !activity.isFinishing()) {
+                            new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                                    .setTitle(I18n.s(activity, "Update Signature Mismatch", "Güncelleme İmza Uyuşmazlığı"))
+                                    .setMessage(I18n.s(activity,
+                                            "The downloaded update (v" + version + ") is signed with a different key than your installed app.\n\n"
+                                                    + "Android requires existing installs to be uninstalled before switching signatures. To install, please backup your settings in Settings -> Backup & Restore, then reinstall.",
+                                            "İndirilen güncelleme (v" + version + "), yüklü uygulamanızdan farklı bir anahtarla imzalanmış.\n\n"
+                                                    + "Android farklı imzalar arasında güncellemeyi engeller. Yüklemek için Ayarlar -> Yedekle ve Geri Yükle bölümünden yedek alıp uygulamayı yeniden kurun."))
+                                    .setPositiveButton(I18n.s(activity, "OK", "Tamam"), null)
+                                    .show();
+                        } else {
+                            Toast.makeText(appCtx,
+                                    I18n.s(appCtx, "Update signature mismatch: cannot update in-place.", "Güncelleme imza uyuşmazlığı."),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
+                }
+                prefs(appCtx).edit().remove(KEY_INCOMPATIBLE_VER).apply();
 
                 // 1. If ADB is currently active (port 5555 open), install automatically via LocalAdb
                 if (LocalAdb.isAdbPortCurrentlyOpen()) {
@@ -700,6 +736,55 @@ public final class AppUpdater {
                     I18n.s(activity, "Could not start installer.", "Yükleyici başlatılamadı."),
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Checks whether the downloaded APK has a signing certificate compatible with the installed app.
+     * Android strictly forbids replacing an installed app with an APK signed with a different key
+     * (INSTALL_FAILED_UPDATE_INCOMPATIBLE).
+     */
+    public static boolean isSignatureCompatible(Context c, File apk) {
+        if (c == null || apk == null || !apk.exists()) return true;
+        try {
+            android.content.pm.PackageManager pm = c.getPackageManager();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                PackageInfo curPi = pm.getPackageInfo(c.getPackageName(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES);
+                PackageInfo arcPi = pm.getPackageArchiveInfo(apk.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES);
+                if (curPi != null && curPi.signingInfo != null && arcPi != null && arcPi.signingInfo != null) {
+                    android.content.pm.Signature[] curSigs = curPi.signingInfo.hasMultipleSigners()
+                            ? curPi.signingInfo.getApkContentsSigners()
+                            : curPi.signingInfo.getSigningCertificateHistory();
+                    android.content.pm.Signature[] arcSigs = arcPi.signingInfo.hasMultipleSigners()
+                            ? arcPi.signingInfo.getApkContentsSigners()
+                            : arcPi.signingInfo.getSigningCertificateHistory();
+                    if (curSigs != null && arcSigs != null && curSigs.length > 0 && arcSigs.length > 0) {
+                        for (android.content.pm.Signature cs : curSigs) {
+                            for (android.content.pm.Signature as : arcSigs) {
+                                if (cs.equals(as)) return true;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+            // Fallback for API < 28 or if signingInfo was not populated
+            PackageInfo curPiLegacy = pm.getPackageInfo(c.getPackageName(), android.content.pm.PackageManager.GET_SIGNATURES);
+            PackageInfo arcPiLegacy = pm.getPackageArchiveInfo(apk.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNATURES);
+            if (curPiLegacy != null && curPiLegacy.signatures != null
+                    && arcPiLegacy != null && arcPiLegacy.signatures != null) {
+                if (curPiLegacy.signatures.length > 0 && arcPiLegacy.signatures.length > 0) {
+                    for (android.content.pm.Signature cs : curPiLegacy.signatures) {
+                        for (android.content.pm.Signature as : arcPiLegacy.signatures) {
+                            if (cs.equals(as)) return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        } catch (Throwable t) {
+            return true;
+        }
+        return true;
     }
 
     /**

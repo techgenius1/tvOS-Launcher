@@ -330,6 +330,7 @@ public final class ControlPanelOverlay {
             } catch (Throwable ignored) {}
         }
 
+        I18n.keepLtr(svcCtx, layer);
         wm.addView(layer, wlp);
         activeWm = wm;
         activeRoot = layer;

@@ -15,7 +15,7 @@ import java.util.Set;
  * Multi-language localization support for tvOS Launcher:
  * English (en), Turkish (tr), Swedish (sv), Hindi/Indian (hi), Spanish (es), French (fr),
  * German (de), Italian (it), Russian (ru), Portuguese (pt), Arabic (ar),
- * Japanese (ja), and Chinese (zh).
+ * Japanese (ja), Chinese (zh), Korean (ko) and Hebrew (he).
  */
 public final class I18n {
     public static final String LANG_EN = "en";
@@ -34,6 +34,7 @@ public final class I18n {
     public static final String LANG_JA = "ja";
     public static final String LANG_ZH = "zh";
     public static final String LANG_KO = "ko";
+    public static final String LANG_HE = "he";
 
     public static final String[][] LANGUAGES = {
         {LANG_EN, "English", "Use tvOS Launcher in English"},
@@ -51,12 +52,13 @@ public final class I18n {
         {LANG_AR, "العربية", "استخدم tvOS Launcher باللغة العربية"},
         {LANG_JA, "日本語", "tvOS Launcher を日本語で使用する"},
         {LANG_ZH, "中文", "使用中文版 tvOS Launcher"},
-        {LANG_KO, "한국어", "tvOS Launcher를 한국어로 사용"}
+        {LANG_KO, "\ud55c\uad6d\uc5b4", "tvOS Launcher\ub97c \ud55c\uad6d\uc5b4\ub85c \uc0ac\uc6a9"},
+        {LANG_HE, "\u05e2\u05d1\u05e8\u05d9\u05ea", "\u05e9\u05d9\u05de\u05d5\u05e9 \u05d1-tvOS Launcher \u05d1\u05e2\u05d1\u05e8\u05d9\u05ea"}
     };
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
             LANG_EN, LANG_TR, LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
-            LANG_IT, LANG_RU, LANG_PT, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO
+            LANG_IT, LANG_RU, LANG_PT, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE
     ));
 
     private static String cachedLang;
@@ -211,7 +213,7 @@ public final class I18n {
         TR_MAP.put("releases_country_setting", "Çok İzlenenler ülkeleri");
         TR_MAP.put("releases_country_auto", "Otomatik (Arayüz diliyle eşitle)");
 
-        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO};
+        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
@@ -221,6 +223,7 @@ public final class I18n {
         initKorean();
         initAzerbaijani();
         initPolish();
+        I18nHe.init(LANG_MAPS.get(LANG_HE));
     }
 
     private static void add(String en, String hi, String es, String fr, String de, String it, String ru, String pt, String ar, String ja, String zh) {
@@ -606,6 +609,23 @@ public final class I18n {
         add("Update Available", "अपडेट उपलब्ध है", "Actualización disponible", "Mise à jour disponible", "Update verfügbar", "Aggiornamento disponibile", "Доступно обновление", "Atualização disponível", "يتوفر تحديث", "アップデートがあります", "发现新版本");
         add("Download & Install", "डाउनलोड और इंस्टॉल करें", "Descargar e instalar", "Télécharger et installer", "Herunterladen & installieren", "Scarica e installa", "Скачать и установить", "Transferir e instalar", "تنزيل وتثبيت", "ダウンロードしてインストール", "下载并安装");
         add("Up to Date", "अप टू डेट", "Actualizado", "À jour", "Auf dem neuesten Stand", "Aggiornato", "Установлена последняя версия", "Atualizado", "محدّث لأحدث إصدار", "最新の状態です", "已是最新版本");
+        add("Scroll for more ›", "और देखने के लिए स्क्रॉल करें ›", "Desplaza para ver más ›", "Faites défiler pour plus ›", "Für mehr scrollen ›", "Scorri per altro ›", "Прокрутите, чтобы увидеть больше ›", "Deslize para ver mais ›", "مرّر للمزيد ›", "スクロールしてもっと見る ›", "滚动查看更多 ›");
+        add("Apps using Nuvio", "Nuvio इस्तेमाल करने वाले ऐप्स", "Apps que usan Nuvio", "Applis utilisant Nuvio", "Apps, die Nuvio nutzen", "App che usano Nuvio", "Приложения с Nuvio", "Apps que usam o Nuvio", "التطبيقات التي تستخدم Nuvio", "Nuvio を使うアプリ", "使用 Nuvio 的应用");
+        add("Official app", "आधिकारिक ऐप", "App oficial", "Appli officielle", "Offizielle App", "App ufficiale", "Официальное приложение", "App oficial", "التطبيق الرسمي", "公式アプリ", "官方应用");
+        add("Always on", "हमेशा चालू", "Siempre activado", "Toujours activé", "Immer an", "Sempre attivo", "Всегда включено", "Sempre ligado", "مفعّل دائمًا", "常にオン", "始终开启");
+        add("Not installed", "इंस्टॉल नहीं है", "No instalada", "Non installée", "Nicht installiert", "Non installata", "Не установлено", "Não instalada", "غير مثبّت", "未インストール", "未安装");
+        add("Suggested", "सुझाया गया", "Sugerida", "Suggérée", "Vorgeschlagen", "Suggerita", "Рекомендуется", "Sugerida", "مقترح", "おすすめ", "推荐");
+        add("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "उसी Nuvio खाते से साइन इन करने वाले Nuvio फ़ोर्क (जैसे Nuvio Native Legacy) जोड़ें। फिर उनकी डॉक टाइल पर Nuvio का Continue Watching दिखेगा और Search उनमें टाइटल खोलेगा।",
+                "Vincula versiones de Nuvio (como Nuvio Native Legacy) que inician sesión con la misma cuenta de Nuvio. Su icono del dock mostrará Seguir viendo de Nuvio y la Búsqueda abrirá los títulos en ellas.",
+                "Associez les versions de Nuvio (comme Nuvio Native Legacy) connectées au même compte Nuvio. Leur tuile du dock affichera Reprendre de Nuvio, et la Recherche y ouvrira les titres.",
+                "Verknüpfe Nuvio-Forks (z. B. Nuvio Native Legacy), die mit demselben Nuvio-Konto angemeldet sind. Ihre Dock-Kachel zeigt dann Nuvios „Weiterschauen“, und die Suche öffnet Titel darin.",
+                "Collega le versioni di Nuvio (come Nuvio Native Legacy) che accedono con lo stesso account Nuvio. Il loro riquadro nel dock mostrerà Continua a guardare di Nuvio e la Ricerca aprirà i titoli lì.",
+                "Привяжите форки Nuvio (например, Nuvio Native Legacy), вошедшие в тот же аккаунт Nuvio. Их плитка в доке покажет «Продолжить просмотр» Nuvio, а Поиск будет открывать в них фильмы и сериалы.",
+                "Associe versões do Nuvio (como o Nuvio Native Legacy) que entram com a mesma conta Nuvio. O ícone delas na dock mostrará o Continuar a ver do Nuvio, e a Pesquisa abrirá os títulos nelas.",
+                "اربط إصدارات Nuvio المعدّلة (مثل Nuvio Native Legacy) التي تسجّل الدخول بحساب Nuvio نفسه. ستعرض أيقونتها في الشريط قائمة متابعة المشاهدة من Nuvio، وسيفتح البحث العناوين فيها.",
+                "同じ Nuvio アカウントでサインインする Nuvio のフォーク（Nuvio Native Legacy など）をリンクします。ドックのタイルに Nuvio の「視聴を続ける」が表示され、検索からタイトルを開けます。",
+                "关联使用同一 Nuvio 账号登录的 Nuvio 分支版本（如 Nuvio Native Legacy）。其程序坞图标将显示 Nuvio 的继续观看，搜索也会在其中打开影片。");
     }
 
     private static void sv(String en, String svVal) {
@@ -958,6 +978,14 @@ public final class I18n {
         sv("Backup settings to Download", "Säkerhetskopiera inställningar till Download");
         sv("Restore settings from folder…", "Återställ inställningar från mapp…");
         sv("Choose folder ›", "Välj mapp ›");
+        sv("Scroll for more ›", "Skrolla för mer ›");
+        sv("Apps using Nuvio", "Appar som använder Nuvio");
+        sv("Official app", "Officiell app");
+        sv("Always on", "Alltid på");
+        sv("Not installed", "Inte installerad");
+        sv("Suggested", "Föreslagen");
+        sv("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "Länka Nuvio-forkar (som Nuvio Native Legacy) som loggar in med samma Nuvio-konto. Deras ruta i dockan visar då Nuvios Fortsätt titta, och Sök öppnar titlar i dem.");
         sv("Most Watched", "Mest sedda");
         sv("Loading titles…", "Laddar titlar…");
         sv("Most Watched countries", "Mest sedda länder");
@@ -1317,6 +1345,14 @@ public final class I18n {
         ko("Not done", "미완료");
         ko("apps", "개 앱");
         ko("packages", "개 패키지");
+        ko("Scroll for more ›", "더 보려면 스크롤 ›");
+        ko("Apps using Nuvio", "Nuvio 사용 앱");
+        ko("Official app", "공식 앱");
+        ko("Always on", "항상 켜짐");
+        ko("Not installed", "설치되지 않음");
+        ko("Suggested", "추천");
+        ko("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "같은 Nuvio 계정으로 로그인하는 Nuvio 포크(예: Nuvio Native Legacy)를 연결하세요. 해당 앱의 독 타일에 Nuvio의 이어서 보기가 표시되고, 검색에서 작품이 그 앱으로 열립니다.");
         ko("Most Watched", "인기 콘텐츠");
         ko("Loading titles…", "콘텐츠 불러오는 중…");
         ko("Most Watched countries", "인기 콘텐츠 국가");
@@ -1502,6 +1538,15 @@ public final class I18n {
         az("Check for updates", "Yeniləmələri yoxla");
         az("Current version", "Cari versiya");
         az("GitHub release latest version", "GitHub son versiyası");
+        az("Scroll for more ›", "Daha çox üçün sürüşdürün ›");
+        az("Other apps", "Digər tətbiqlər");
+        az("Apps using Nuvio", "Nuvio istifadə edən tətbiqlər");
+        az("Official app", "Rəsmi tətbiq");
+        az("Always on", "Həmişə aktiv");
+        az("Not installed", "Quraşdırılmayıb");
+        az("Suggested", "Tövsiyə olunur");
+        az("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
+                "Eyni Nuvio hesabı ilə daxil olan Nuvio versiyalarını (Nuvio Native Legacy kimi) əlaqələndirin. Onda onların dock plitəsi Nuvio-nun İzləməyə davam et siyahısını göstərəcək, Axtarış isə başlıqları onlarda açacaq.");
     }
 
     private static void pl(String en, String plVal) {
@@ -2092,6 +2137,8 @@ public final class I18n {
         if (sep > 0) {
             code = code.substring(0, sep);
         }
+        // Older Android/Java versions report Hebrew with the legacy code "iw".
+        if ("iw".equals(code)) code = LANG_HE;
         return SUPPORTED.contains(code) ? code : LANG_EN;
     }
 
@@ -2155,6 +2202,7 @@ public final class I18n {
             case LANG_JA: return Locale.forLanguageTag("ja-JP");
             case LANG_ZH: return Locale.forLanguageTag("zh-CN");
             case LANG_KO: return Locale.forLanguageTag("ko-KR");
+            case LANG_HE: return Locale.forLanguageTag("he-IL");
             default: return Locale.US;
         }
     }
@@ -2198,11 +2246,22 @@ public final class I18n {
         return enKey;
     }
 
+    /** Translates every key of an array (for dialogs that take a String[]). */
+    public static String[] tAll(Context c, String[] enKeys) {
+        String[] out = new String[enKeys.length];
+        for (int i = 0; i < enKeys.length; i++) out[i] = t(c, enKeys[i]);
+        return out;
+    }
+
     private static String translateOther(String lang, String en) {
         Map<String, String> map = LANG_MAPS.get(lang);
         if (map != null) {
             String direct = map.get(en);
             if (direct != null) return direct;
+        }
+        if (LANG_HE.equals(lang)) {
+            String dyn = I18nHe.dynamic(en);
+            if (dyn != null) return dyn;
         }
         // Dynamic pattern translations
         if (en.endsWith("% used · Recent Apps") && map != null) {
@@ -2251,6 +2310,8 @@ public final class I18n {
                 return new SimpleDateFormat("M月d日 EEEE", loc).format(date);
             case LANG_KO:
                 return new SimpleDateFormat("M월 d일 EEEE", loc).format(date);
+            case LANG_HE:
+                return new SimpleDateFormat("EEEE, d \u05d1MMMM", loc).format(date);
             case LANG_DE:
                 return new SimpleDateFormat("EEEE, d. MMMM", loc).format(date);
             case LANG_SV:
@@ -2268,9 +2329,75 @@ public final class I18n {
         }
     }
 
+    /** True when the active language is written right to left and the UI should be mirrored. */
+    public static boolean isRtl(Context c) {
+        return LANG_HE.equals(getLang(c));
+    }
+
+    /**
+     * Wraps an activity's base context so its layout direction follows the in-app language
+     * (not the system locale). Dialogs created from the activity inherit it.
+     */
+    public static Context wrap(Context base) {
+        if (base == null) return null;
+        try {
+            android.content.res.Configuration conf =
+                    new android.content.res.Configuration(base.getResources().getConfiguration());
+            conf.setLayoutDirection(isRtl(base) ? Locale.forLanguageTag("he-IL") : Locale.US);
+            return base.createConfigurationContext(conf);
+        } catch (Throwable t) {
+            return base;
+        }
+    }
+
+    /** Applies the in-app reading direction to a view tree (used for overlays and windows). */
+    public static void applyDirection(Context c, android.view.View root) {
+        if (root == null) return;
+        boolean rtl = isRtl(c);
+        root.setLayoutDirection(rtl ? android.view.View.LAYOUT_DIRECTION_RTL : android.view.View.LAYOUT_DIRECTION_LTR);
+        root.setTextDirection(rtl ? android.view.View.TEXT_DIRECTION_ANY_RTL : android.view.View.TEXT_DIRECTION_FIRST_STRONG);
+        if (rtl) {
+            // Rows are built and rebuilt in code: keep start-aligned text on the right edge after every layout,
+            // so Latin-only lines (app names, percentages) line up with the Hebrew ones.
+            final android.view.View r = root;
+            root.getViewTreeObserver().addOnGlobalLayoutListener(() -> alignToStart(r));
+        }
+    }
+
+    private static void alignToStart(android.view.View v) {
+        if (v instanceof android.widget.TextView) {
+            android.widget.TextView t = (android.widget.TextView) v;
+            int h = t.getGravity() & android.view.Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK;
+            if (t.getTextAlignment() == android.view.View.TEXT_ALIGNMENT_GRAVITY
+                    && (h == android.view.Gravity.START || h == android.view.Gravity.LEFT)) {
+                // Gravity (not textAlignment) so TextView rebuilds its cached layout right away.
+                t.setGravity((t.getGravity() & ~android.view.Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK) | android.view.Gravity.RIGHT);
+            }
+        } else if (v instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) alignToStart(g.getChildAt(i));
+        }
+    }
+
+    /** Keeps a view tree left-to-right (Home screen layout) while Hebrew text still reads right to left. */
+    public static void keepLtr(Context c, android.view.View root) {
+        if (root == null) return;
+        root.setLayoutDirection(android.view.View.LAYOUT_DIRECTION_LTR);
+        root.setTextDirection(isRtl(c) ? android.view.View.TEXT_DIRECTION_ANY_RTL : android.view.View.TEXT_DIRECTION_FIRST_STRONG);
+    }
+
     /** Translates default profile names ("Person 1", "Default", "Kids") while preserving custom names. */
     public static String profileName(Context c, String name) {
         if (name == null) return "";
+        if (LANG_HE.equals(getLang(c))) {
+            if (name.equals("Default") || name.equals("Varsay\u0131lan")) return "\u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc";
+            if (name.startsWith("Person ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Person ".length());
+            if (name.startsWith("Ki\u015fi ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Ki\u015fi ".length());
+            if (name.startsWith("Profile ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Profile ".length());
+            if (name.startsWith("Profil ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Profil ".length());
+            if (name.equals("Kids") || name.equals("\u00c7ocuklar")) return "\u05d9\u05dc\u05d3\u05d9\u05dd";
+            return name;
+        }
         if (isTr(c)) {
             if (name.equals("Default")) return "Varsayılan";
             if (name.startsWith("Person ")) return "Kişi " + name.substring("Person ".length());

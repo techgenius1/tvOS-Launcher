@@ -1265,12 +1265,15 @@ final class LocalAdb {
                 String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
                 String installCmd = "(chmod 644 " + remoteTmp + " 2>/dev/null; "
                         + "sleep 2; "
-                        + "pm install -r -d -g " + remoteTmp + " || pm install -r -g " + remoteTmp + " || pm install -r " + remoteTmp + "; "
+                        + "if pm install -r -d -g " + remoteTmp + " 2>/dev/null || pm install -r -g " + remoteTmp + " 2>/dev/null || pm install -r " + remoteTmp + " 2>/dev/null; then "
                         + "rm -f " + remoteTmp + " /sdcard/Download/tvos-update.apk 2>/dev/null; "
                         + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
                         + "settings put secure enabled_accessibility_services '" + newAcc + "' 2>/dev/null; "
                         + "settings put secure accessibility_enabled 1 2>/dev/null; "
-                        + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null || am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null"
+                        + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null || am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null; "
+                        + "else "
+                        + "rm -f " + remoteTmp + " /sdcard/Download/tvos-update.apk 2>/dev/null; "
+                        + "fi"
                         + ") </dev/null >/dev/null 2>&1 & echo STARTED";
                 String out = runShellCommandOutput(c, h, 5555, installCmd);
                 if (out != null && out.contains("STARTED")) {

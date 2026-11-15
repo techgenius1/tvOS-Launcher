@@ -95,8 +95,8 @@ abstract class WatchCloud {
     /** Package to open titles in when the tile's own package isn't known. */
     abstract String defaultPackage();
 
-    /** URL that opens the title in the app. */
-    abstract String deepLink(Item it);
+    /** URLs that open the title in the app, most exact first; the first one the app handles is used. */
+    abstract List<String> deepLinks(Item it);
 
     /** Key in the launcher's "settings" prefs for the popup's on/off switch. */
     abstract String popupPrefKey();

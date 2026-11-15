@@ -51,10 +51,10 @@ final class Weather {
         return prefs(c).getBoolean(K_ENABLED, true);
     }
 
-    /** "c" or "f"; automatic picks Fahrenheit for the US, Liberia and Myanmar. */
+    /** "c" or "f"; default to "c" (Celsius) unless explicitly set to "f". */
     static String units(Context c) {
-        String u = prefs(c).getString(K_UNITS, "auto");
-        if (!u.equals("auto")) return u;
+        String u = prefs(c).getString(K_UNITS, "c");
+        if (u.equals("c") || u.equals("f")) return u;
         String cc = Locale.getDefault().getCountry();
         return cc.equals("US") || cc.equals("LR") || cc.equals("MM") ? "f" : "c";
     }
@@ -80,9 +80,13 @@ final class Weather {
         return prefs(c).getInt(K_REFRESH, 15);
     }
 
-    /** Settings changed: the next refresh fetches again. */
+    /** Settings changed: clear cache so the next refresh fetches immediately in the new unit. */
     static void changed(Context c) {
-        prefs(c).edit().remove(K_CACHE_AT).apply();
+        prefs(c).edit()
+                .remove(K_CACHE_AT)
+                .remove(K_CACHE)
+                .remove(K_CACHE_KEY)
+                .apply();
     }
 
     // ---------------------------------------------------------------- data

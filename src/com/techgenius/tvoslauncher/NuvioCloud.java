@@ -15,10 +15,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Nuvio Cloud account access for the dock's "continue watching" popup.
@@ -37,8 +40,7 @@ final class NuvioCloud extends WatchCloud {
     private static final String K_ACCESS = "access", K_REFRESH = "refresh", K_EXPIRES = "expires_at",
             K_PROFILE = "profile", K_META = "meta_cache", K_PROFILES = "profiles_cache";
     static final int MAX_PROFILES = MAX_CACHED_PROFILES;
-    /** Ignore titles opened for less than a minute; Nuvio itself marks >= 90% as watched. */
-    static final long MIN_POSITION_MS = 60_000L;
+    /** Nuvio marks >= 90% as watched (WatchProgress.COMPLETED_THRESHOLD). */
     static final double WATCHED_FRACTION = 0.90;
 
     NuvioCloud(Context c) {
@@ -47,13 +49,74 @@ final class NuvioCloud extends WatchCloud {
 
     @Override String name() { return "Nuvio"; }
 
-    @Override boolean ownsPackage(String pkg) { return pkg != null && pkg.startsWith("com.nuvio."); }
+    @Override boolean ownsPackage(String pkg) { return isNuvioApp(ctx, pkg); }
 
-    @Override String defaultPackage() { return "com.nuvio.tv"; }
+    @Override String defaultPackage() {
+        String pkg = installedApp(ctx);
+        return pkg != null ? pkg : OFFICIAL_PKG;
+    }
 
-    /** Same deep link the launcher's Suggestions already use for Nuvio. */
-    @Override String deepLink(Item it) {
-        return "nuvio://detail/" + (it.isSeries() ? "series" : "movie") + "/" + Uri.encode(it.contentId, ":");
+    @Override List<String> deepLinks(Item it) {
+        return titleLinks(it.isSeries(), it.contentId);
+    }
+
+    // ------------------------------------------------------------------ Nuvio apps (official + linked forks)
+
+    /** The official Nuvio TV app. Every com.nuvio.* package is always treated as Nuvio. */
+    static final String OFFICIAL_PKG = "com.nuvio.tv";
+    /** "settings" prefs: packages of Nuvio forks the user linked in Settings › Apps › Nuvio. */
+    static final String PREF_LINKED = "nuvio_linked_apps";
+
+    /** The official Nuvio namespace (built in, can't be unlinked). */
+    static boolean isOfficial(String pkg) {
+        return pkg != null && pkg.startsWith("com.nuvio.");
+    }
+
+    /** Forks that sign in to the same Nuvio account (e.g. Nuvio Native Legacy), chosen by the user. */
+    static Set<String> linkedApps(Context c) {
+        Set<String> s = c.getSharedPreferences("settings", Context.MODE_PRIVATE).getStringSet(PREF_LINKED, null);
+        return s == null ? new HashSet<>() : new HashSet<>(s);
+    }
+
+    static void setLinked(Context c, String pkg, boolean linked) {
+        Set<String> s = linkedApps(c);
+        if (linked) s.add(pkg); else s.remove(pkg);
+        c.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putStringSet(PREF_LINKED, s).apply();
+    }
+
+    /** Whether this package shows Nuvio's continue watching: the official app or a linked fork. */
+    static boolean isNuvioApp(Context c, String pkg) {
+        return isOfficial(pkg) || (pkg != null && linkedApps(c).contains(pkg));
+    }
+
+    /** The installed Nuvio app titles open in: the official one, else a linked fork; null when none is installed. */
+    static String installedApp(Context c) {
+        List<String> all = installedApps(c);
+        return all.isEmpty() ? null : all.get(0);
+    }
+
+    /** Every installed Nuvio app: the official one first, then linked forks (A-Z by package). */
+    static List<String> installedApps(Context c) {
+        List<String> out = new ArrayList<>();
+        if (Suggestions.installed(c, OFFICIAL_PKG)) out.add(OFFICIAL_PKG);
+        List<String> linked = new ArrayList<>(linkedApps(c));
+        Collections.sort(linked);
+        for (String pkg : linked) if (!out.contains(pkg) && Suggestions.installed(c, pkg)) out.add(pkg);
+        return out;
+    }
+
+    /**
+     * Links that open a title in a Nuvio app, most exact first (the opener uses the first one the
+     * app handles): Nuvio's own detail page, then the title's IMDb page, which forks like Nuvio
+     * Native Legacy open instead of nuvio:// links.
+     */
+    static List<String> titleLinks(boolean series, String contentId) {
+        List<String> out = new ArrayList<>();
+        out.add("nuvio://detail/" + (series ? "series" : "movie") + "/" + Uri.encode(contentId, ":"));
+        int colon = contentId.indexOf(':');
+        String base = colon >= 0 ? contentId.substring(0, colon) : contentId;
+        if (base.startsWith("tt")) out.add("https://www.imdb.com/title/" + base + "/");
+        return out;
     }
 
     @Override String popupPrefKey() { return "nuvio_popup"; }
@@ -175,36 +238,210 @@ final class NuvioCloud extends WatchCloud {
 
     // ------------------------------------------------------------------ continue watching
 
-    /** Newest in-progress titles, with title + poster filled in (see {@link #enrich}). */
+    /**
+     * The same row the Nuvio app shows, with title + poster filled in (see {@link #enrich}).
+     * Follows the app's rules (NuvioTV HomeViewModelContinueWatching):
+     * - Per title only its most recent entry counts (ties, e.g. a season marked watched at once:
+     *   the highest episode). An older half-watched episode never comes back once a later one
+     *   was finished. Episodes marked watched (watched_items) count as finished entries too.
+     * - That entry not finished (under 90%): a resume card.
+     * - A show whose latest entry is finished: an "Up next" card for the episode after the
+     *   furthest finished one, once it has aired. Finished movies and shows drop out.
+     */
     @Override List<Item> continueWatching(int profile, int max) throws Exception {
         JSONObject body = new JSONObject().put("p_profile_id", profile).put("p_limit", 200);
         JSONArray rows = new JSONArray(rpc("sync_pull_watch_progress", body));
 
-        // Rows arrive newest first; keep the newest episode per show.
         Map<String, Item> latest = new LinkedHashMap<>();
+        Map<String, Item> furthestFinished = new HashMap<>();
         for (int i = 0; i < rows.length(); i++) {
             JSONObject o = rows.getJSONObject(i);
             Item it = new Item();
             it.contentId = o.optString("content_id", "");
-            it.type = o.optString("content_type", "movie");
+            it.type = normalizeType(o.optString("content_type", "movie"));
             it.videoId = o.optString("video_id", it.contentId);
             it.season = o.isNull("season") ? -1 : o.optInt("season", -1);
             it.episode = o.isNull("episode") ? -1 : o.optInt("episode", -1);
             it.position = o.optLong("position");
             it.duration = o.optLong("duration");
             it.lastWatched = o.optLong("last_watched");
-            if (it.contentId.isEmpty() || it.duration <= 0 || it.position < MIN_POSITION_MS
-                    || it.fraction() >= WATCHED_FRACTION) continue;
-            Item prev = latest.get(it.contentId);
-            if (prev == null || it.lastWatched > prev.lastWatched) latest.put(it.contentId, it);
+            consider(it, latest, furthestFinished);
         }
-        List<Item> out = new ArrayList<>(latest.values());
-        out.sort((a, b) -> Long.compare(b.lastWatched, a.lastWatched));
-        if (out.size() > max) out = new ArrayList<>(out.subList(0, max));
+        // "Mark as watched" lands in watched_items. The official app also writes a 100% progress
+        // row, but other Nuvio apps (e.g. Nuvio Native Legacy) may write only the watched item,
+        // so each one counts as a finished entry at its watched_at time. Only for titles that have
+        // progress, like the app: a show only ever marked watched doesn't get an Up next card.
+        java.util.Set<String> withProgress = new java.util.HashSet<>(latest.keySet());
+        for (Item it : watchedItems(profile)) {
+            if (withProgress.contains(it.contentId)) consider(it, latest, furthestFinished);
+        }
+
+        List<Item> recent = new ArrayList<>(latest.values());
+        recent.sort((a, b) -> Long.compare(b.lastWatched, a.lastWatched));
+        List<Item> out = new ArrayList<>();
+        int lookups = 0;
+        for (Item it : recent) {
+            if (out.size() >= max) break;
+            if (!finished(it)) {
+                if (it.position > 0) out.add(it);
+                continue;
+            }
+            Item seed = furthestFinished.get(it.contentId);
+            if (seed == null || !seed.baseId().startsWith("tt") || lookups >= MAX_NEXT_UP_LOOKUPS) continue;
+            lookups++;
+            Item next = nextUp(seed, it.lastWatched);
+            if (next != null) out.add(next);
+        }
 
         enrich(profile, out);
         saveCache(profile, out);
         return out;
+    }
+
+    /** Adds one progress or watched entry: tracks each title's latest entry and furthest finished episode. */
+    private static void consider(Item it, Map<String, Item> latest, Map<String, Item> furthestFinished) {
+        if (it.contentId.isEmpty()) return;
+        Item prev = latest.get(it.contentId);
+        if (prev == null || it.lastWatched > prev.lastWatched
+                || (it.lastWatched == prev.lastWatched && episodeOrder(it, prev) > 0)) {
+            latest.put(it.contentId, it);
+        }
+        if (it.isSeries() && it.season > 0 && it.episode >= 0 && finished(it)) {
+            Item f = furthestFinished.get(it.contentId);
+            if (f == null || episodeOrder(it, f) > 0) furthestFinished.put(it.contentId, it);
+        }
+    }
+
+    private static String normalizeType(String type) {
+        return "tv".equalsIgnoreCase(type) ? "series" : type.toLowerCase(java.util.Locale.ROOT);
+    }
+
+    /** Watched-items pages read per refresh (900 each, like the Nuvio app's sync). */
+    private static final int WATCHED_PAGE_SIZE = 900, MAX_WATCHED_PAGES = 3;
+
+    /**
+     * The profile's watched items (marked watched or finished), as finished entries: full
+     * progress, last watched = watched_at. Empty when they can't be loaded (the row then
+     * falls back to progress alone).
+     */
+    private List<Item> watchedItems(int profile) throws Exception {
+        List<Item> out = new ArrayList<>();
+        try {
+            for (int page = 1; page <= MAX_WATCHED_PAGES; page++) {
+                JSONObject body = new JSONObject().put("p_profile_id", profile)
+                        .put("p_page", page).put("p_page_size", WATCHED_PAGE_SIZE);
+                JSONArray rows = new JSONArray(rpc("sync_pull_watched_items", body));
+                for (int i = 0; i < rows.length(); i++) {
+                    JSONObject o = rows.getJSONObject(i);
+                    Item it = new Item();
+                    it.contentId = o.optString("content_id", "");
+                    it.type = normalizeType(o.optString("content_type", "movie"));
+                    it.season = o.isNull("season") ? -1 : o.optInt("season", -1);
+                    it.episode = o.isNull("episode") ? -1 : o.optInt("episode", -1);
+                    it.videoId = it.isSeries() && it.season >= 0 && it.episode >= 0
+                            ? it.contentId + ":" + it.season + ":" + it.episode : it.contentId;
+                    it.position = 1;
+                    it.duration = 1;
+                    it.lastWatched = o.optLong("watched_at");
+                    out.add(it);
+                }
+                if (rows.length() < WATCHED_PAGE_SIZE) break;
+            }
+        } catch (NotSignedInException e) {
+            throw e;
+        } catch (Exception e) {
+            android.util.Log.w("NuvioCloud", "Couldn't load watched items", e);
+        }
+        return out;
+    }
+
+    /** Next-up lookups per refresh: each one asks Cinemeta for the show's episode list. */
+    private static final int MAX_NEXT_UP_LOOKUPS = 8;
+
+    private static boolean finished(Item it) {
+        return it.duration > 0 && it.fraction() >= WATCHED_FRACTION;
+    }
+
+    private static int episodeOrder(Item a, Item b) {
+        if (a.season != b.season) return Integer.compare(a.season, b.season);
+        return Integer.compare(a.episode, b.episode);
+    }
+
+    /** Positive "next episode" lookups ("tt123:2:5" -> next item); an aired episode stays aired. */
+    private final Map<String, Item> nextUpCache = new HashMap<>();
+
+    /**
+     * The episode after {@code seed} (season 0 specials skipped), as an "Up next" card, or null
+     * when the show has no further episode that has aired yet.
+     */
+    private Item nextUp(Item seed, long lastWatched) {
+        String id = seed.baseId();
+        String key = id + ":" + seed.season + ":" + seed.episode;
+        Item cached;
+        synchronized (nextUpCache) {
+            cached = nextUpCache.get(key);
+        }
+        if (cached == null) {
+            try {
+                cached = fetchNextEpisode(id, seed.season, seed.episode);
+            } catch (Exception e) {
+                return null;  // offline / Cinemeta down: no card this time
+            }
+            if (cached == null) return null;
+            synchronized (nextUpCache) {
+                nextUpCache.put(key, cached);
+            }
+        }
+        Item it = new Item();
+        it.contentId = id;
+        it.type = "series";
+        it.videoId = cached.videoId;
+        it.season = cached.season;
+        it.episode = cached.episode;
+        it.title = cached.title;
+        it.poster = cached.poster;
+        it.upNext = true;
+        it.lastWatched = lastWatched;
+        return it;
+    }
+
+    private static Item fetchNextEpisode(String imdbId, int season, int episode) throws Exception {
+        String url = "https://v3-cinemeta.strem.io/meta/series/" + imdbId + ".json";
+        JSONObject meta = new JSONObject(get(url)).optJSONObject("meta");
+        if (meta == null) return null;
+        JSONArray videos = meta.optJSONArray("videos");
+        if (videos == null) return null;
+        // Release dates are ISO strings; comparing the "yyyy-MM-dd" part is enough.
+        java.text.SimpleDateFormat day = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT);
+        day.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        String today = day.format(new java.util.Date());
+
+        JSONObject best = null;
+        int bestS = 0, bestE = 0;
+        for (int i = 0; i < videos.length(); i++) {
+            JSONObject v = videos.optJSONObject(i);
+            if (v == null) continue;
+            int s = v.optInt("season", -1);
+            int e = v.has("episode") ? v.optInt("episode", -1) : v.optInt("number", -1);
+            if (s <= 0 || e < 0) continue;
+            boolean after = s > season || (s == season && e > episode);
+            if (!after) continue;
+            String released = v.optString("released", "");
+            if (released.length() < 10 || released.substring(0, 10).compareTo(today) > 0) continue;
+            if (best == null || s < bestS || (s == bestS && e < bestE)) {
+                best = v;
+                bestS = s;
+                bestE = e;
+            }
+        }
+        if (best == null) return null;
+        Item next = new Item();
+        next.videoId = best.optString("id", imdbId + ":" + bestS + ":" + bestE);
+        next.season = bestS;
+        next.episode = bestE;
+        next.title = meta.optString("name", "");
+        next.poster = meta.optString("poster", "");
+        return next;
     }
 
     /**

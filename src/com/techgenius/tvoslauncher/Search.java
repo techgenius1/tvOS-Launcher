@@ -236,19 +236,23 @@ final class Search {
     }
 
     static boolean hasStremioApp(Context c) {
-        return Suggestions.installed(c, Suggestions.STREMIO.pkg) || Suggestions.installed(c, Suggestions.NUVIO.pkg);
+        return Suggestions.installed(c, Suggestions.STREMIO.pkg) || NuvioCloud.installedApp(c) != null;
     }
 
-    /** "Open in Stremio" (or Nuvio) by IMDb id, after the services, when one of them is installed. */
+    /** Offer.icon prefix for an installed app's own launcher icon instead of a logo URL. */
+    static final String APP_ICON = "app:";
+
+    /** "Open in Stremio" / "Open in Nuvio" / "Open in Nuvio Legacy" by IMDb id, after the services: one per installed app. */
     static void addStremio(Context c, Title t) {
-        if (!hasStremioApp(c)) return;
-        Suggestions.Provider p = Suggestions.stremioApp(c);
-        Offer o = new Offer();
-        o.service = p.name;
-        o.tech = "stremio";
-        o.monetization = "STREMIO";
-        o.pkg = p.pkg;
-        t.offers.add(o);
+        for (Suggestions.Provider p : Suggestions.stremioApps(c)) {
+            Offer o = new Offer();
+            o.service = p.name;
+            o.icon = APP_ICON + p.pkg;
+            o.tech = "stremio";
+            o.monetization = "STREMIO";
+            o.pkg = p.pkg;
+            t.offers.add(o);
+        }
     }
 
     static String tidyService(String s) {
@@ -373,7 +377,7 @@ final class Search {
             it.type = t.type;
             it.link = t.imdb;
             it.providerId = Suggestions.STREMIO_ID;
-            Suggestions.openStremio(c, it, Suggestions.stremioApp(c));
+            Suggestions.openStremio(c, it, Suggestions.stremioAppFor(c, o.pkg));
             return;
         }
         PackageManager pm = c.getPackageManager();

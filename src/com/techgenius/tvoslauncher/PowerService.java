@@ -1049,13 +1049,26 @@ public class PowerService extends AccessibilityService {
                 return;
             }
 
-            // Fire TV Stick ("Home on Fire" style) & OEM Home Button Fix:
-            // On Fire OS 7/8, Amazon intercepts KEYCODE_HOME before onKeyEvent and launches com.amazon.tv.launcher
-            // or com.amazon.firehomestarter. When Home Button Fix is enabled, intercept its window immediately!
-            if (ButtonMapper.isHomeFixEnabled(this)
-                    && ("com.amazon.tv.launcher".equals(fgPkg) || "com.amazon.firehomestarter".equals(fgPkg))) {
-                BootReceiver.launchHomeImmediately(this);
-                return;
+            // OEM Home Button Fix (Fire TV, Google TV, Android TV):
+            // On Google TV & Fire OS, the OS intercepts KEYCODE_HOME before onKeyEvent and launches the stock launcher.
+            // When Home Button Fix is enabled, intercept its window immediately!
+            if (ButtonMapper.isHomeFixEnabled(this)) {
+                boolean isStockHome = "com.amazon.tv.launcher".equals(fgPkg)
+                        || "com.amazon.firehomestarter".equals(fgPkg)
+                        || "com.google.android.tvlauncher".equals(fgPkg)
+                        || "com.google.android.leanbacklauncher".equals(fgPkg);
+                if (!isStockHome && "com.google.android.apps.tv.launcherx".equals(fgPkg)) {
+                    CharSequence cls = e.getClassName();
+                    // Intercept Google TV HomeActivity only.
+                    // Allow Dashboard / Quick Settings and ReauthActivity (e.g. Google Photos identity verification) through!
+                    if (cls != null && cls.toString().contains("HomeActivity")) {
+                        isStockHome = true;
+                    }
+                }
+                if (isStockHome) {
+                    BootReceiver.launchHomeImmediately(this);
+                    return;
+                }
             }
 
             // Fast boot guard: during the first 40s after system boot, if "Launch on System Boot" is enabled
@@ -1065,6 +1078,11 @@ public class PowerService extends AccessibilityService {
                     && BootReceiver.isLaunchOnBootEnabled(this)) {
                 for (String stockLauncher : Perms.getStockTvHomePackages()) {
                     if (stockLauncher.equals(fgPkg)) {
+                        CharSequence cls = e.getClassName();
+                        if ("com.google.android.apps.tv.launcherx".equals(fgPkg)
+                                && (cls == null || !cls.toString().contains("HomeActivity"))) {
+                            continue;
+                        }
                         BootReceiver.launchHomeImmediately(this);
                         break;
                     }
@@ -1079,7 +1097,8 @@ public class PowerService extends AccessibilityService {
                 AccessibilityNodeInfo stop = findButton(root,
                         "force stop", "force_stop", "forcestop",
                         "zorla durdur", "durdurmaya zorla",
-                        "arr\u00eater", "forzar detenci\u00f3n", "beenden erzwingen", "\u5f3a\u884c\u505c\u6b62");
+                        "arr\u00eater", "forzar detenci\u00f3n", "beenden erzwingen", "\u5f3a\u884c\u505c\u6b62",
+                        "\u05d0\u05d9\u05dc\u05d5\u05e5 \u05e2\u05e6\u05d9\u05e8\u05d4", "\u05e2\u05e6\u05d9\u05e8\u05d4 \u05d1\u05db\u05e4\u05d9\u05d9\u05d4", "\u05e2\u05e6\u05d9\u05e8\u05d4 \u05de\u05d0\u05d5\u05dc\u05e6\u05ea");
                 if (stop != null) {
                     if (!stop.isEnabled()) {
                         advance();
@@ -1094,7 +1113,7 @@ public class PowerService extends AccessibilityService {
             }
             if (clickedStop && !clickedOk) {
                 AccessibilityNodeInfo ok = findButton(root,
-                        "android:id/button1", "ok", "tamam", "force stop", "zorla durdur");
+                        "android:id/button1", "ok", "tamam", "force stop", "zorla durdur", "\u05d0\u05d9\u05e9\u05d5\u05e8");
                 if (ok != null && ok.isEnabled()) {
                     ok.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     clickedOk = true;
