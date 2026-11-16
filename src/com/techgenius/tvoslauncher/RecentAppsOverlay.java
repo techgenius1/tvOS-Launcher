@@ -1041,8 +1041,8 @@ public final class RecentAppsOverlay {
             String usedStr = String.format(Locale.US, "%.1f GB", usedBytes / gb);
             String totalStr = String.format(Locale.US, "%.1f GB", mi.totalMem / gb);
             activeRamText.setText(I18n.s(c,
-                    "RAM " + usedStr + " used of " + totalStr,
-                    "RAM " + totalStr + " içinde " + usedStr + " kullanımda"));
+                    "RAM %s used of %s",
+                    "RAM %s içinde %s kullanımda", usedStr, totalStr));
             activeRamTrack.post(() -> {
                 if (activeRamTrack == null || activeRamFill == null) return;
                 int w = activeRamTrack.getWidth();
