@@ -1347,11 +1347,8 @@ final class LocalAdb {
     }
 
     /**
-     * Installs {@code apkFile} (downloaded in {@code /storage/emulated/0/Download/tvOSLauncherUpdates})
-     * over Local ADB in Persistent ADB Mode.
-     * Supports direct install from {@code /storage/emulated/0/Download/tvOSLauncherUpdates} as well as
-     * staging to {@code /data/local/tmp/tvos-update.apk} (via shell {@code cp} or {@code exec:cat})
-     * and launches a detached {@code nohup} install + restart script.
+     * Installs {@code apkFile} directly from {@code /storage/emulated/0/Download/tvOSLauncherUpdates}
+     * over Local ADB in Persistent ADB Mode without staging to {@code /data/local/tmp}.
      */
     static boolean installApkViaAdb(Context c, File apkFile) {
         if (c == null || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
@@ -1360,7 +1357,7 @@ final class LocalAdb {
         String pkg = c.getPackageName();
         String apkAbsPath = apkFile.getAbsolutePath();
         String sdcardUpdatesPath = "/storage/emulated/0/Download/tvOSLauncherUpdates/" + apkFile.getName();
-        String legacySdcardPath = "/sdcard/Download/tvOSLauncherUpdates/" + apkFile.getName();
+        long apkSize = apkFile.length();
 
         String[] hosts = {"127.0.0.1", localLanIp()};
         for (String h : hosts) {
@@ -1368,53 +1365,34 @@ final class LocalAdb {
             int port = resolveOpenPort(c, h, 600);
             if (port <= 0) continue;
             try {
-                String remoteTmp = "/data/local/tmp/tvos-update.apk";
-                boolean staged = false;
-
-                // 1. Grant storage access and try copying from /storage/emulated/0/Download/tvOSLauncherUpdates to /data/local/tmp
-                try {
-                    StringBuilder cpCmd = new StringBuilder();
-                    cpCmd.append("appops set ").append(pkg).append(" MANAGE_EXTERNAL_STORAGE allow 2>/dev/null; ");
-                    cpCmd.append("appops set ").append(pkg).append(" REQUEST_INSTALL_PACKAGES allow 2>/dev/null; ");
-                    cpCmd.append("rm -f ").append(remoteTmp).append(" 2>/dev/null; ");
-                    cpCmd.append("cp \"").append(apkAbsPath).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
-                    cpCmd.append("cp \"").append(sdcardUpdatesPath).append("\" ").append(remoteTmp).append(" 2>/dev/null || ");
-                    cpCmd.append("cp \"").append(legacySdcardPath).append("\" ").append(remoteTmp).append(" 2>/dev/null; ");
-                    cpCmd.append("chmod 644 ").append(remoteTmp).append(" 2>/dev/null; [ -s ").append(remoteTmp).append(" ] && echo STAGED_OK");
-                    String cpOut = runShellCommandOutput(c, h, port, cpCmd.toString());
-                    if (cpOut != null && cpOut.contains("STAGED_OK")) {
-                        staged = true;
-                    }
-                } catch (Throwable ignored) {
-                }
-
-                // 2. If Scoped Storage blocked shell cp, stream APK bytes directly via ADB exec:cat
-                if (!staged) {
-                    staged = streamFileOverAdbExec(c, h, port, apkFile, remoteTmp);
-                }
-
-                // 3. Launch detached nohup background pm install -r (trying both /storage/emulated/0/Download/tvOSLauncherUpdates and /data/local/tmp)
                 String existingAcc = "";
                 try {
                     existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
                 } catch (Throwable ignored) {
                 }
                 String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
-                String installCmd = "nohup sh -c '"
-                        + "chmod 644 " + remoteTmp + " \"" + apkAbsPath + "\" \"" + sdcardUpdatesPath + "\" 2>/dev/null; "
+
+                String apkPath = new File(sdcardUpdatesPath).exists() ? sdcardUpdatesPath : apkAbsPath;
+                String innerScript = "appops set " + pkg + " MANAGE_EXTERNAL_STORAGE allow 2>/dev/null; "
+                        + "appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null; "
+                        + "chmod 644 \"" + apkPath + "\" 2>/dev/null; "
                         + "sleep 1; "
-                        + "pm install -r -d -g " + remoteTmp + " 2>/dev/null "
-                        + "|| pm install -r -g " + remoteTmp + " 2>/dev/null "
-                        + "|| pm install -r " + remoteTmp + " 2>/dev/null "
-                        + "|| pm install -r -d -g \"" + sdcardUpdatesPath + "\" 2>/dev/null "
-                        + "|| pm install -r \"" + sdcardUpdatesPath + "\" 2>/dev/null; "
-                        + "rm -f " + remoteTmp + " 2>/dev/null; "
+                        + "RES=$(pm install -r -d -g \"" + apkPath + "\" 2>&1 "
+                        + "|| pm install -r -g \"" + apkPath + "\" 2>&1 "
+                        + "|| pm install -r \"" + apkPath + "\" 2>&1 "
+                        + "|| pm install -r -S " + apkSize + " - < \"" + apkPath + "\" 2>&1); "
+                        + "log -t tvOSUpdater \"adb_install=$RES\"; "
                         + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
                         + "settings put secure enabled_accessibility_services \"" + newAcc + "\" 2>/dev/null; "
                         + "settings put secure accessibility_enabled 1 2>/dev/null; "
                         + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null "
-                        + "|| am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null"
-                        + "' </dev/null >/dev/null 2>&1 & echo STARTED";
+                        + "|| am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null";
+
+                String installCmd = "if command -v setsid >/dev/null 2>&1; then "
+                        + "setsid sh -c '" + innerScript + "' </dev/null >/dev/null 2>&1 & "
+                        + "else "
+                        + "nohup sh -c '" + innerScript + "' </dev/null >/dev/null 2>&1 & "
+                        + "fi; echo STARTED";
                 String out = runShellCommandOutput(c, h, port, installCmd);
                 if (out != null && out.contains("STARTED")) {
                     portReachable = true;
