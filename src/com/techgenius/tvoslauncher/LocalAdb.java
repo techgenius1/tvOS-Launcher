@@ -1348,7 +1348,9 @@ final class LocalAdb {
 
     /**
      * Installs {@code apkFile} directly from {@code /storage/emulated/0/Download/tvOSLauncherUpdates}
-     * over Local ADB in Persistent ADB Mode without staging to {@code /data/local/tmp}.
+     * over Local ADB using a two-phase PackageInstaller shell session:
+     * 1) Synchronously {@code pm install-create} + {@code cat | pm install-write} (returns false to fall back to PackageInstaller if anything fails),
+     * 2) Detached {@code setsid}/{@code nohup} {@code pm install-commit} + permission restore + {@code am start}.
      */
     static boolean installApkViaAdb(Context c, File apkFile) {
         if (c == null || apkFile == null || !apkFile.exists() || apkFile.length() < 10_000) {
@@ -1365,6 +1367,28 @@ final class LocalAdb {
             int port = resolveOpenPort(c, h, 600);
             if (port <= 0) continue;
             try {
+                String apkPath = new File(sdcardUpdatesPath).exists() ? sdcardUpdatesPath : apkAbsPath;
+
+                // Phase 1: Create session & stream APK via pipe (avoids Android 14 FUSE SELinux denial and verifies success before committing)
+                String stageCmd = "appops set " + pkg + " MANAGE_EXTERNAL_STORAGE allow 2>/dev/null; "
+                        + "appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null; "
+                        + "chmod 644 \"" + apkPath + "\" 2>/dev/null; "
+                        + "S=$(pm install-create -r -d -g 2>/dev/null || pm install-create -r -g 2>/dev/null || pm install-create -r 2>/dev/null); "
+                        + "SID=$(echo \"$S\" | sed -n 's/.*\\[\\([0-9]*\\)\\].*/\\1/p'); "
+                        + "if [ -z \"$SID\" ]; then echo STAGE_FAIL_CREATE; exit 1; fi; "
+                        + "W=$(cat \"" + apkPath + "\" | pm install-write -S " + apkSize + " \"$SID\" base.apk - 2>&1); "
+                        + "case \"$W\" in *Success*) echo \"STAGE_OK:$SID\" ;; *) pm install-abandon \"$SID\" 2>/dev/null; echo \"STAGE_FAIL_WRITE:$W\" ;; esac";
+                String stageOut = runShellCommandOutput(c, h, port, stageCmd);
+                if (stageOut == null || !stageOut.contains("STAGE_OK:")) {
+                    continue;
+                }
+                int idx = stageOut.indexOf("STAGE_OK:");
+                String sid = stageOut.substring(idx + "STAGE_OK:".length()).trim().replaceAll("[^0-9].*$", "");
+                if (sid.isEmpty()) {
+                    continue;
+                }
+
+                // Phase 2: Commit session in detached setsid/nohup background shell so app replacement & relaunch complete cleanly
                 String existingAcc = "";
                 try {
                     existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
@@ -1372,29 +1396,20 @@ final class LocalAdb {
                 }
                 String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
 
-                String apkPath = new File(sdcardUpdatesPath).exists() ? sdcardUpdatesPath : apkAbsPath;
-                String innerScript = "appops set " + pkg + " MANAGE_EXTERNAL_STORAGE allow 2>/dev/null; "
-                        + "appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow 2>/dev/null; "
-                        + "chmod 644 \"" + apkPath + "\" 2>/dev/null; "
-                        + "sleep 1; "
-                        + "RES=$( (cat \"" + apkPath + "\" | pm install -r -d -g -S " + apkSize + " 2>&1) "
-                        + "|| (cat \"" + apkPath + "\" | pm install -r -g -S " + apkSize + " 2>&1) "
-                        + "|| (cat \"" + apkPath + "\" | pm install -r -S " + apkSize + " 2>&1) "
-                        + "|| pm install -r -d -g \"" + apkPath + "\" 2>&1 "
-                        + "|| pm install -r \"" + apkPath + "\" 2>&1 ); "
-                        + "log -t tvOSUpdater \"adb_install=$RES\"; "
+                String innerScript = "sleep 1; "
+                        + "pm install-commit " + sid + " >/dev/null 2>&1; "
                         + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
                         + "settings put secure enabled_accessibility_services \"" + newAcc + "\" 2>/dev/null; "
                         + "settings put secure accessibility_enabled 1 2>/dev/null; "
                         + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null "
                         + "|| am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null";
 
-                String installCmd = "if command -v setsid >/dev/null 2>&1; then "
+                String commitCmd = "if command -v setsid >/dev/null 2>&1; then "
                         + "setsid sh -c '" + innerScript + "' </dev/null >/dev/null 2>&1 & "
                         + "else "
                         + "nohup sh -c '" + innerScript + "' </dev/null >/dev/null 2>&1 & "
                         + "fi; echo STARTED";
-                String out = runShellCommandOutput(c, h, port, installCmd);
+                String out = runShellCommandOutput(c, h, port, commitCmd);
                 if (out != null && out.contains("STARTED")) {
                     portReachable = true;
                     setPaired(c, true);
