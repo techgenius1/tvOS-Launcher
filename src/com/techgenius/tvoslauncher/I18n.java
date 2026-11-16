@@ -138,6 +138,9 @@ public final class I18n {
         EN_MAP.put("dash_prayer_times", "Prayer Times");
         EN_MAP.put("dash_football", "Football Matches");
         EN_MAP.put("dash_latest_releases", "Most Watched");
+        EN_MAP.put("dash_cricket", "Live Cricket Scores");
+        EN_MAP.put("dash_news", "Live News");
+        EN_MAP.put("dash_top_media", "Top Movies & Series");
         EN_MAP.put("weather", "Weather");
         EN_MAP.put("prayer_fajr", "Fajr");
         EN_MAP.put("prayer_sunrise", "Sunrise");
@@ -177,6 +180,9 @@ public final class I18n {
         TR_MAP.put("dash_prayer_times", "Namaz Vakitleri");
         TR_MAP.put("dash_football", "Futbol Maçları");
         TR_MAP.put("dash_latest_releases", "Çok İzlenenler");
+        TR_MAP.put("dash_cricket", "Canlı Kriket Skorları");
+        TR_MAP.put("dash_news", "Canlı Haberler");
+        TR_MAP.put("dash_top_media", "En İyi Film ve Diziler");
         TR_MAP.put("weather", "Hava Durumu");
         TR_MAP.put("prayer_fajr", "İmsak");
         TR_MAP.put("prayer_sunrise", "Güneş");
@@ -224,6 +230,29 @@ public final class I18n {
         initAzerbaijani();
         initPolish();
         I18nHe.init(LANG_MAPS.get(LANG_HE));
+        LANG_MAPS.get(LANG_HE).put("dash_cricket", "תוצאות קריקט בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("dash_news", "חדשות בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("dash_top_media", "סרטים וסדרות מובילים");
+        LANG_MAPS.get(LANG_HE).put("Live Cricket Scores", "תוצאות קריקט בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("Live News", "חדשות בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("Top Movies & Series", "סרטים וסדרות מובילים");
+        LANG_MAPS.get(LANG_HE).put("Dock rows", "שורות בדוק");
+        LANG_MAPS.get(LANG_HE).put("Small clock", "שעון קטן");
+        LANG_MAPS.get(LANG_HE).put("Applications", "יישומים");
+        LANG_MAPS.get(LANG_HE).put("Show on Home Screen", "הצג במסך הבית");
+        LANG_MAPS.get(LANG_HE).put("UNINSTALL", "הסרת התקנה");
+        LANG_MAPS.get(LANG_HE).put("Uninstall tvOS Launcher", "הסר התקנת tvOS Launcher");
+        LANG_MAPS.get(LANG_HE).put("Hide input", "הסתר כניסה");
+        LANG_MAPS.get(LANG_HE).put("Custom label", "שם מותאם אישית");
+        LANG_MAPS.get(LANG_HE).put("Change name of input", "שנה שם כניסה");
+        LANG_MAPS.get(LANG_HE).put("Reset to default", "אפס לברירת מחדל");
+        LANG_MAPS.get(LANG_HE).put("Disable", "השבת");
+        LANG_MAPS.get(LANG_HE).put("Download CleanYourTV", "הורד CleanYourTV");
+        LANG_MAPS.get(LANG_HE).put("Re-download CleanYourTV", "הורד מחדש CleanYourTV");
+        LANG_MAPS.get(LANG_HE).put("minute", "דקה");
+        LANG_MAPS.get(LANG_HE).put("minutes", "דקות");
+        LANG_MAPS.get(LANG_HE).put(" minute", " דקה");
+        LANG_MAPS.get(LANG_HE).put(" minutes", " דקות");
     }
 
     private static void add(String en, String hi, String es, String fr, String de, String it, String ru, String pt, String ar, String ja, String zh) {
@@ -240,7 +269,13 @@ public final class I18n {
     }
 
     private static void initTranslations() {
-        // Greetings
+        // Greetings & Widgets
+        add("dash_cricket", "लाइव क्रिकेट स्कोर", "Resultados de Críquet en Vivo", "Scores de Cricket en Direct", "Live-Cricket-Ergebnisse", "Risultati Cricket in Diretta", "Крикет (онлайн-счёт)", "Resultados de Críquete ao Vivo", "نتائج الكريكيت المباشرة", "ライブクリケットスコア", "板球实时比分");
+        add("dash_news", "लाइव समाचार", "Noticias en Vivo", "Actualités en Direct", "Live-Nachrichten", "Notizie in Diretta", "Новости в прямом эфире", "Notícias em Direto", "الأخبار المباشرة", "ライブニュース", "实时新闻");
+        add("dash_top_media", "शीर्ष फ़िल्में और सीरीज़", "Mejores Películas y Series", "Meilleurs Films et Séries", "Top-Filme & Serien", "Migliori Film e Serie", "Лучшие фильмы и сериалы", "Melhores Filmes e Séries", "أفضل الأفلام والمسلسلات", "トップ映画＆シリーズ", "高分电影与剧集");
+        add("Live Cricket Scores", "लाइव क्रिकेट स्कोर", "Resultados de Críquet en Vivo", "Scores de Cricket en Direct", "Live-Cricket-Ergebnisse", "Risultati Cricket in Diretta", "Крикет (онлайн-счёт)", "Resultados de Críquete ao Vivo", "نتائج الكريكيت المباشرة", "ライブクリケットスコア", "板球实时比分");
+        add("Live News", "लाइव समाचार", "Noticias en Vivo", "Actualités en Direct", "Live-Nachrichten", "Notizie in Diretta", "Новости в прямом эфире", "Notícias em Direto", "الأخبار المباشرة", "ライブニュース", "实时新闻");
+        add("Top Movies & Series", "शीर्ष फ़िल्में और सीरीज़", "Mejores Películas y Series", "Meilleurs Films et Séries", "Top-Filme & Serien", "Migliori Film e Serie", "Лучшие фильмы и сериалы", "Melhores Filmes e Séries", "أفضل الأفلام والمسلسلات", "トップ映画＆シリーズ", "高分电影与剧集");
         add("Most Watched", "सबसे ज़्यादा देखे गए", "Más vistos", "Les plus regardés", "Meistgesehen", "Più visti", "Самое популярное", "Mais vistos", "الأكثر مشاهدة", "人気コンテンツ", "热门观看");
         add("Loading titles…", "शीर्षक लोड हो रहे हैं…", "Cargando títulos…", "Chargement des titres…", "Titel werden geladen…", "Caricamento titoli…", "Загрузка контента…", "A carregar títulos…", "جارٍ تحميل العناوين…", "タイトルを読み込み中…", "正在加载内容…");
         add("Most Watched countries", "सबसे ज़्यादा देखे गए देश", "Países de Más vistos", "Pays des plus regardés", "Meistgesehen-Länder", "Paesi Più visti", "Страны популярного", "Países de Mais vistos", "بلدان الأكثر مشاهدة", "人気コンテンツの国", "热门观看国家/地区");
@@ -626,6 +661,23 @@ public final class I18n {
                 "اربط إصدارات Nuvio المعدّلة (مثل Nuvio Native Legacy) التي تسجّل الدخول بحساب Nuvio نفسه. ستعرض أيقونتها في الشريط قائمة متابعة المشاهدة من Nuvio، وسيفتح البحث العناوين فيها.",
                 "同じ Nuvio アカウントでサインインする Nuvio のフォーク（Nuvio Native Legacy など）をリンクします。ドックのタイルに Nuvio の「視聴を続ける」が表示され、検索からタイトルを開けます。",
                 "关联使用同一 Nuvio 账号登录的 Nuvio 分支版本（如 Nuvio Native Legacy）。其程序坞图标将显示 Nuvio 的继续观看，搜索也会在其中打开影片。");
+        add("Dock rows", "डॉक पंक्तियाँ", "Filas del dock", "Lignes du dock", "Dock-Zeilen", "Righe del dock", "Ряды дока", "Linhas do dock", "صفوف الشريط", "ドックの行数", "程序坞行数");
+        add("Small clock", "छोटी घड़ी", "Reloj pequeño", "Petite horloge", "Kleine Uhr", "Orologio piccolo", "Маленькие часы", "Relógio pequeno", "ساعة صغيرة", "小さい時計", "小尺寸时钟");
+        add("Applications", "ऐप्स", "Aplicaciones", "Applications", "Anwendungen", "Applicazioni", "Приложения", "Aplicações", "التطبيقات", "アプリケーション", "应用程序");
+        add("Show on Home Screen", "होम स्क्रीन पर दिखाएं", "Mostrar en pantalla de inicio", "Afficher sur l'écran d'accueil", "Auf dem Startbildschirm anzeigen", "Mostra nella schermata Home", "Показывать на главном экране", "Mostrar no ecrã inicial", "إظهار على الشاشة الرئيسية", "ホーム画面に表示", "在主屏幕上显示");
+        add("UNINSTALL", "अनइंस्टॉल", "DESINSTALAR", "DÉSINSTALLER", "DEINSTALLIEREN", "DISINSTALLA", "УДАЛЕНИЕ", "DESINSTALAR", "إلغاء التثبيت", "アンインストール", "卸载");
+        add("Uninstall tvOS Launcher", "tvOS Launcher अनइंस्टॉल करें", "Desinstalar tvOS Launcher", "Désinstaller tvOS Launcher", "tvOS Launcher deinstallieren", "Disinstalla tvOS Launcher", "Удалить tvOS Launcher", "Desinstalar tvOS Launcher", "إلغاء تثبيت tvOS Launcher", "tvOS Launcher をアンインストール", "卸载 tvOS Launcher");
+        add("Hide input", "इनपुट छुपाएं", "Ocultar entrada", "Masquer l'entrée", "Eingang ausblenden", "Nascondi ingresso", "Скрыть вход", "Ocultar entrada", "إخفاء المدخل", "入力を非表示", "隐藏输入源");
+        add("Custom label", "कस्टम नाम", "Etiqueta personalizada", "Nom personnalisé", "Eigene Bezeichnung", "Etichetta personalizzata", "Своё название", "Etiqueta personalizada", "اسم مخصص", "カスタムラベル", "自定义名称");
+        add("Change name of input", "इनपुट का नाम बदलें", "Cambiar nombre de entrada", "Renommer l'entrée", "Eingangsname ändern", "Cambia nome ingresso", "Изменить название входа", "Alterar nome da entrada", "تغيير اسم المدخل", "入力の名前を変更", "更改输入源名称");
+        add("Reset to default", "डिफ़ॉल्ट पर रीसेट करें", "Restablecer predeterminado", "Réinitialiser par défaut", "Auf Standard zurücksetzen", "Ripristina predefinito", "Сбросить по умолчанию", "Repor predefinição", "إعادة ضبط للافتراضي", "デフォルトに戻す", "恢复默认");
+        add("Disable", "अक्षम करें", "Desactivar", "Désactiver", "Deaktivieren", "Disattiva", "Отключить", "Desativar", "تعطيل", "無効にする", "禁用");
+        add("Download CleanYourTV", "CleanYourTV डाउनलोड करें", "Descargar CleanYourTV", "Télécharger CleanYourTV", "CleanYourTV herunterladen", "Scarica CleanYourTV", "Скачать CleanYourTV", "Transferir CleanYourTV", "تنزيل CleanYourTV", "CleanYourTV をダウンロード", "下载 CleanYourTV");
+        add("Re-download CleanYourTV", "CleanYourTV पुनः डाउनलोड करें", "Volver a descargar CleanYourTV", "Retélécharger CleanYourTV", "CleanYourTV erneut herunterladen", "Riscarica CleanYourTV", "Перекачать CleanYourTV", "Voltar a transferir CleanYourTV", "إعادة تنزيل CleanYourTV", "CleanYourTV を再ダウンロード", "重新下载 CleanYourTV");
+        add("minute", "मिनट", "minuto", "minute", "Minute", "minuto", "минута", "minuto", "دقيقة", "分", "分钟");
+        add("minutes", "मिनट", "minutos", "minutes", "Minuten", "minuti", "минут", "minutos", "دقائق", "分", "分钟");
+        add(" minute", " मिनट", " minuto", " minute", " Minute", " minuto", " минута", " minuto", " دقيقة", " 分", " 分钟");
+        add(" minutes", " मिनट", " minutos", " minutes", " Minuten", " minuti", " минут", " minutos", " دقائق", " 分", " 分钟");
     }
 
     private static void sv(String en, String svVal) {
@@ -987,9 +1039,32 @@ public final class I18n {
         sv("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
                 "Länka Nuvio-forkar (som Nuvio Native Legacy) som loggar in med samma Nuvio-konto. Deras ruta i dockan visar då Nuvios Fortsätt titta, och Sök öppnar titlar i dem.");
         sv("Most Watched", "Mest sedda");
+        sv("dash_cricket", "Live-cricketresultat");
+        sv("dash_news", "Livenyheter");
+        sv("dash_top_media", "Toppfilmer och serier");
+        sv("Live Cricket Scores", "Live-cricketresultat");
+        sv("Live News", "Livenyheter");
+        sv("Top Movies & Series", "Toppfilmer och serier");
         sv("Loading titles…", "Laddar titlar…");
         sv("Most Watched countries", "Mest sedda länder");
         sv("Automatic (Sync with UI language)", "Automatisk (synka med gränssnittsspråk)");
+        sv("Dock rows", "Dockrader");
+        sv("Small clock", "Liten klocka");
+        sv("Applications", "Applikationer");
+        sv("Show on Home Screen", "Visa på hemskärmen");
+        sv("UNINSTALL", "AVINSTALLERA");
+        sv("Uninstall tvOS Launcher", "Avinstallera tvOS Launcher");
+        sv("Hide input", "Dölj ingång");
+        sv("Custom label", "Anpassad etikett");
+        sv("Change name of input", "Ändra namn på ingång");
+        sv("Reset to default", "Återställ till standard");
+        sv("Disable", "Inaktivera");
+        sv("Download CleanYourTV", "Ladda ner CleanYourTV");
+        sv("Re-download CleanYourTV", "Ladda ner CleanYourTV igen");
+        sv("minute", "minut");
+        sv("minutes", "minuter");
+        sv(" minute", " minut");
+        sv(" minutes", " minuter");
     }
 
     private static void ko(String en, String koVal) {
@@ -1354,9 +1429,32 @@ public final class I18n {
         ko("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
                 "같은 Nuvio 계정으로 로그인하는 Nuvio 포크(예: Nuvio Native Legacy)를 연결하세요. 해당 앱의 독 타일에 Nuvio의 이어서 보기가 표시되고, 검색에서 작품이 그 앱으로 열립니다.");
         ko("Most Watched", "인기 콘텐츠");
+        ko("dash_cricket", "실시간 크리켓 스코어");
+        ko("dash_news", "실시간 뉴스");
+        ko("dash_top_media", "인기 영화 및 시리즈");
+        ko("Live Cricket Scores", "실시간 크리켓 스코어");
+        ko("Live News", "실시간 뉴스");
+        ko("Top Movies & Series", "인기 영화 및 시리즈");
         ko("Loading titles…", "콘텐츠 불러오는 중…");
         ko("Most Watched countries", "인기 콘텐츠 국가");
         ko("Automatic (Sync with UI language)", "자동 (UI 언어와 동기화)");
+        ko("Dock rows", "독 줄 수");
+        ko("Small clock", "작은 시계");
+        ko("Applications", "애플리케이션");
+        ko("Show on Home Screen", "홈 화면에 표시");
+        ko("UNINSTALL", "설치 삭제");
+        ko("Uninstall tvOS Launcher", "tvOS Launcher 설치 삭제");
+        ko("Hide input", "입력 숨기기");
+        ko("Custom label", "사용자 지정 이름");
+        ko("Change name of input", "입력 이름 변경");
+        ko("Reset to default", "기본값으로 재설정");
+        ko("Disable", "사용 안 함");
+        ko("Download CleanYourTV", "CleanYourTV 다운로드");
+        ko("Re-download CleanYourTV", "CleanYourTV 다시 다운로드");
+        ko("minute", "분");
+        ko("minutes", "분");
+        ko(" minute", "분");
+        ko(" minutes", "분");
     }
 
     private static void az(String en, String azVal) {
@@ -1368,6 +1466,12 @@ public final class I18n {
         az("dash_prayer_times", "Namaz Vaxtları");
         az("dash_football", "Futbol Oyunları");
         az("dash_latest_releases", "Çox İzlənənlər");
+        az("dash_cricket", "Canlı Kriket Xalları");
+        az("dash_news", "Canlı Xəbərlər");
+        az("dash_top_media", "Ən Yaxşı Film və Seriallar");
+        az("Live Cricket Scores", "Canlı Kriket Xalları");
+        az("Live News", "Canlı Xəbərlər");
+        az("Top Movies & Series", "Ən Yaxşı Film və Seriallar");
         az("weather", "Hava Proqnozu");
         az("prayer_fajr", "Sübh");
         az("prayer_sunrise", "Günəş");
@@ -1547,6 +1651,23 @@ public final class I18n {
         az("Suggested", "Tövsiyə olunur");
         az("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
                 "Eyni Nuvio hesabı ilə daxil olan Nuvio versiyalarını (Nuvio Native Legacy kimi) əlaqələndirin. Onda onların dock plitəsi Nuvio-nun İzləməyə davam et siyahısını göstərəcək, Axtarış isə başlıqları onlarda açacaq.");
+        az("Dock rows", "Dock sətirləri");
+        az("Small clock", "Kiçik saat");
+        az("Applications", "Tətbiqlər");
+        az("Show on Home Screen", "Ana ekranda göstər");
+        az("UNINSTALL", "SİL");
+        az("Uninstall tvOS Launcher", "tvOS Launcher-i sil");
+        az("Hide input", "Girişi gizlət");
+        az("Custom label", "Xüsusi ad");
+        az("Change name of input", "Girişin adını dəyiş");
+        az("Reset to default", "Varsayılana sıfırla");
+        az("Disable", "Deaktiv et");
+        az("Download CleanYourTV", "CleanYourTV yüklə");
+        az("Re-download CleanYourTV", "CleanYourTV yenidən yüklə");
+        az("minute", "dəqiqə");
+        az("minutes", "dəqiqə");
+        az(" minute", " dəqiqə");
+        az(" minutes", " dəqiqə");
     }
 
     private static void pl(String en, String plVal) {
@@ -2331,7 +2452,8 @@ public final class I18n {
 
     /** True when the active language is written right to left and the UI should be mirrored. */
     public static boolean isRtl(Context c) {
-        return LANG_HE.equals(getLang(c));
+        String lang = getLang(c);
+        return LANG_HE.equals(lang) || LANG_AR.equals(lang);
     }
 
     /**
@@ -2343,7 +2465,7 @@ public final class I18n {
         try {
             android.content.res.Configuration conf =
                     new android.content.res.Configuration(base.getResources().getConfiguration());
-            conf.setLayoutDirection(isRtl(base) ? Locale.forLanguageTag("he-IL") : Locale.US);
+            conf.setLayoutDirection(isRtl(base) ? locale(base) : Locale.US);
             return base.createConfigurationContext(conf);
         } catch (Throwable t) {
             return base;

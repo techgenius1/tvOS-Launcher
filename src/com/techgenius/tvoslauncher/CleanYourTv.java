@@ -197,39 +197,202 @@ public final class CleanYourTv {
                 .setTitle(title);
     }
 
-    // ================================================================ Model Index & Parsing
+    // ================================================================ Model Index, Download & Parsing
 
-    public static synchronized List<ModelEntry> loadIndex(Context c) {
-        if (cachedModels != null) return cachedModels;
-        List<ModelEntry> list = new ArrayList<>();
-        try (InputStream is = c.getAssets().open("cleanyourtv/index.txt");
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.isEmpty()) continue;
-                String[] parts = line.split("\t", -1);
-                if (parts.length < 4) continue;
-                String slug = parts[0].trim();
-                String title = parts[1].trim();
-                String meta = parts[2].trim();
-                String[] pkgArr = parts[3].split(",");
-                List<String> pkgs = new ArrayList<>(pkgArr.length);
-                for (String p : pkgArr) {
-                    String pt = p.trim();
-                    if (!pt.isEmpty()) pkgs.add(pt);
+    public static File getCleanYourTvDir(Context c) {
+        File pub = new File("/storage/emulated/0/Download/cleanyourtv");
+        try {
+            File parent = pub.getParentFile();
+            if (parent != null && (parent.exists() || parent.mkdirs())) {
+                if (pub.exists() || pub.mkdirs()) {
+                    if (pub.canWrite()) return pub;
                 }
-                list.add(new ModelEntry(slug, title.isEmpty() ? slug : title, meta, pkgs));
             }
         } catch (Throwable ignored) {
         }
+        return new File(c.getFilesDir(), "cleanyourtv");
+    }
+
+    public static File findExamplesDir(File baseDir) {
+        if (baseDir == null || !baseDir.exists() || !baseDir.isDirectory()) return null;
+        File direct = new File(baseDir, "examples");
+        if (direct.isDirectory()) return direct;
+        File[] children = baseDir.listFiles();
+        if (children != null) {
+            for (File ch : children) {
+                if (ch.isDirectory() && ch.getName().toLowerCase(Locale.US).startsWith("cleanyourtv")) {
+                    File ex = new File(ch, "examples");
+                    if (ex.isDirectory()) return ex;
+                }
+            }
+            for (File ch : children) {
+                if (ch.isDirectory()) {
+                    File ex = new File(ch, "examples");
+                    if (ex.isDirectory()) return ex;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static int getExtractedModelCountOnDisk(Context c) {
+        File baseDir = getCleanYourTvDir(c);
+        File ex = findExamplesDir(baseDir);
+        if (ex != null && ex.isDirectory()) {
+            File[] dirs = ex.listFiles();
+            if (dirs != null) {
+                int count = 0;
+                for (File d : dirs) {
+                    if (d.isDirectory()) count++;
+                }
+                return count;
+            }
+        }
+        if (new File(baseDir, "debloat.txt").isFile()) return 1;
+        return 0;
+    }
+
+    public static boolean hasFullExamplesExtracted(Context c) {
+        return getExtractedModelCountOnDisk(c) > 1;
+    }
+
+    public static boolean hasSelectedModelFileOnDisk(Context c) {
+        String slug = getSelectedModelSlug(c);
+        if (slug.isEmpty()) return false;
+        File f = resolveDebloatFileForModel(c, slug);
+        return f != null && f.isFile();
+    }
+
+    public static boolean hasCleanYourTvFiles(Context c) {
+        File dir = getCleanYourTvDir(c);
+        if (!dir.exists() || !dir.isDirectory()) return false;
+        String sel = getSelectedModelSlug(c);
+        if (!sel.isEmpty()) {
+            return hasSelectedModelFileOnDisk(c);
+        }
+        return getExtractedModelCountOnDisk(c) > 0;
+    }
+
+    public static String getDownloadStatusSummary(Context c) {
+        int n = loadIndex(c).size();
+        if (n > 1) {
+            return tr(c, "Downloaded (" + n + " TV models ready)", "İndirildi (" + n + " TV modeli hazır)");
+        }
+        if (n == 1 && hasCleanYourTvFiles(c)) {
+            String slug = getSelectedModelSlug(c);
+            return tr(c,
+                    "1 model kept (" + (slug.isEmpty() ? loadIndex(c).get(0).slug : slug) + ") · Tap to download all",
+                    "1 model korundu (" + (slug.isEmpty() ? loadIndex(c).get(0).slug : slug) + ") · Tümünü indirmek için dokunun");
+        }
+        return tr(c, "Not downloaded · Tap to download ›", "İndirilmedi · İndirmek için dokunun ›");
+    }
+
+    private static void deleteRecursive(File f) {
+        if (f == null || !f.exists()) return;
+        if (f.isDirectory()) {
+            File[] children = f.listFiles();
+            if (children != null) {
+                for (File c : children) {
+                    deleteRecursive(c);
+                }
+            }
+        }
+        //noinspection ResultOfMethodCallIgnored
+        f.delete();
+    }
+
+    private static ModelEntry parseDebloatTxtToModelEntry(String slug, File debloatFile) {
+        if (debloatFile == null || !debloatFile.isFile()) return null;
+        String title = "";
+        StringBuilder metaSb = new StringBuilder();
+        List<String> pkgs = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new java.io.InputStreamReader(
+                new java.io.FileInputStream(debloatFile), StandardCharsets.UTF_8))) {
+            String raw;
+            int commentLineIdx = 0;
+            while ((raw = br.readLine()) != null) {
+                String line = raw.trim();
+                if (line.isEmpty()) continue;
+                if (line.startsWith("#")) {
+                    String after = line.substring(1).trim();
+                    if (!after.isEmpty()) {
+                        commentLineIdx++;
+                        if (commentLineIdx == 1) {
+                            title = after;
+                        } else if (commentLineIdx <= 6 && !after.startsWith("Apply:") && !after.startsWith("Undo:")) {
+                            if (metaSb.length() > 0) metaSb.append(" ");
+                            metaSb.append(after);
+                        }
+                    }
+                    continue;
+                }
+                int h = line.indexOf('#');
+                String pkg = (h >= 0 ? line.substring(0, h) : line).trim();
+                if (looksLikePackageName(pkg) && !pkgs.contains(pkg)) {
+                    pkgs.add(pkg);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        if (title.isEmpty()) title = slug;
+        return new ModelEntry(slug, title, metaSb.toString(), pkgs);
+    }
+
+    public static synchronized List<ModelEntry> loadIndex(Context c) {
+        if (cachedModels != null && !cachedModels.isEmpty()) return cachedModels;
+        List<ModelEntry> list = new ArrayList<>();
+        File baseDir = getCleanYourTvDir(c);
+        File examplesDir = findExamplesDir(baseDir);
+        if (examplesDir != null && examplesDir.isDirectory()) {
+            File[] modelDirs = examplesDir.listFiles();
+            if (modelDirs != null) {
+                for (File md : modelDirs) {
+                    if (!md.isDirectory()) continue;
+                    File deb = new File(md, "debloat.txt");
+                    if (deb.isFile()) {
+                        ModelEntry entry = parseDebloatTxtToModelEntry(md.getName(), deb);
+                        if (entry != null) list.add(entry);
+                    }
+                }
+            }
+            Collections.sort(list, (a, b) -> a.slug.compareToIgnoreCase(b.slug));
+        }
+        if (baseDir.isDirectory()) {
+            File rootDeb = new File(baseDir, "debloat.txt");
+            String slug = getSelectedModelSlug(c);
+            if (!slug.isEmpty() && rootDeb.isFile()) {
+                boolean alreadyInList = false;
+                for (ModelEntry m : list) {
+                    if (m.slug.equalsIgnoreCase(slug)) {
+                        alreadyInList = true;
+                        break;
+                    }
+                }
+                if (!alreadyInList) {
+                    ModelEntry entry = parseDebloatTxtToModelEntry(slug, rootDeb);
+                    if (entry != null) list.add(0, entry);
+                }
+            } else if (list.isEmpty() && rootDeb.isFile()) {
+                ModelEntry entry = parseDebloatTxtToModelEntry(slug.isEmpty() ? "selected-tv" : slug, rootDeb);
+                if (entry != null) list.add(entry);
+            }
+        }
         cachedModels = list;
         return list;
+    }
+
+    public static synchronized void invalidateModelCache() {
+        cachedModels = null;
     }
 
     public static ModelEntry findModelBySlug(Context c, String slug) {
         if (slug == null || slug.isEmpty()) return null;
         for (ModelEntry m : loadIndex(c)) {
             if (m.slug.equalsIgnoreCase(slug)) return m;
+        }
+        File f = resolveDebloatFileForModel(c, slug);
+        if (f != null && f.isFile()) {
+            return parseDebloatTxtToModelEntry(slug, f);
         }
         return null;
     }
@@ -240,6 +403,13 @@ public final class CleanYourTv {
 
     public static String getSelectedModelSummary(Context c) {
         String slug = getSelectedModelSlug(c);
+        if (!slug.isEmpty() && !hasSelectedModelFileOnDisk(c)) {
+            return tr(c, "⚠️ Selected TV files missing (" + slug + ") — Download CleanYourTV again",
+                    "⚠️ Seçili TV dosyaları eksik (" + slug + ") — CleanYourTV'yi tekrar indirin");
+        }
+        if (loadIndex(c).isEmpty()) {
+            return tr(c, "Download CleanYourTV first", "Önce CleanYourTV'yi indirin");
+        }
         if (slug.isEmpty()) {
             return tr(c, "Tap to detect / select…", "Algılamak / seçmek için dokunun…");
         }
@@ -251,12 +421,326 @@ public final class CleanYourTv {
         return savedTitle + " (" + slug + ")";
     }
 
-    public static void setSelectedModel(Context c, ModelEntry entry) {
+    public static synchronized void setSelectedModel(Context c, ModelEntry entry) {
         if (entry == null) return;
         prefs(c).edit()
                 .putString(KEY_MODEL_SLUG, entry.slug)
                 .putString(KEY_MODEL_TITLE, entry.title)
                 .apply();
+    }
+
+    /**
+     * Asks the user if they want to delete unnecessary CleanYourTV model files to save space.
+     * If Yes, shows a progress popup while moving the selected model's files and deleting the rest on a background thread.
+     */
+    public static void promptCleanUpUnnecessaryFiles(final Activity activity, final ModelEntry selectedEntry, final Runnable onDone) {
+        if (selectedEntry == null || !hasFullExamplesExtracted(activity)) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+        dialog(activity, tr(activity, "Clean Up Space?", "Alan Temizlensin mi?"))
+                .setMessage(tr(activity,
+                        "Selected TV model:\n" + selectedEntry.title + "\n\nWould you like to delete the other unnecessary CleanYourTV model files to clean up storage space?",
+                        "Seçilen TV modeli:\n" + selectedEntry.title + "\n\nDepolama alanından yer açmak için diğer gereksiz CleanYourTV dosyalarını silmek ister misiniz?"))
+                .setPositiveButton(tr(activity, "Yes, Delete Unnecessary Files", "Evet, Gereksiz Dosyaları Sil"), (d, w) -> {
+                    final AlertDialog delProgress = dialog(activity, tr(activity, "Cleaning Up Files…", "Dosyalar Temizleniyor…"))
+                            .setMessage(tr(activity, "Preparing to clean up unnecessary files…", "Gereksiz dosyalar silinmeye hazırlanıyor…"))
+                            .setCancelable(false)
+                            .create();
+                    delProgress.show();
+
+                    new Thread(() -> {
+                        try {
+                            File baseDir = getCleanYourTvDir(activity);
+                            File examplesDir = findExamplesDir(baseDir);
+                            if (examplesDir != null && examplesDir.isDirectory()) {
+                                File modelDir = new File(examplesDir, selectedEntry.slug);
+                                if (modelDir.isDirectory()) {
+                                    // 1. Copy selected model's files directly into baseDir FIRST so they are safe
+                                    File[] mFiles = modelDir.listFiles();
+                                    if (mFiles != null) {
+                                        for (File mf : mFiles) {
+                                            if (mf.isFile()) {
+                                                File dst = new File(baseDir, mf.getName());
+                                                try (java.io.FileInputStream fis = new java.io.FileInputStream(mf);
+                                                     FileOutputStream fos = new FileOutputStream(dst)) {
+                                                    byte[] buf = new byte[8192];
+                                                    int r;
+                                                    while ((r = fis.read(buf)) != -1) {
+                                                        fos.write(buf, 0, r);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    try (FileOutputStream sfos = new FileOutputStream(new File(baseDir, ".selected_slug"))) {
+                                        sfos.write(selectedEntry.slug.getBytes(StandardCharsets.UTF_8));
+                                    }
+                                }
+
+                                // 2. Delete all model folders in examplesDir with live progress
+                                File[] allDirs = examplesDir.listFiles();
+                                if (allDirs != null) {
+                                    final int total = allDirs.length;
+                                    long lastUi = 0L;
+                                    for (int i = 0; i < total; i++) {
+                                        deleteRecursive(allDirs[i]);
+                                        long now = System.currentTimeMillis();
+                                        if (now - lastUi > 120L || i == total - 1) {
+                                            lastUi = now;
+                                            final int done = i + 1;
+                                            activity.runOnUiThread(() -> {
+                                                if (!activity.isFinishing() && delProgress.isShowing()) {
+                                                    delProgress.setMessage(tr(activity,
+                                                            "Deleting unnecessary model files… (" + done + " / " + total + ")",
+                                                            "Gereksiz model dosyaları siliniyor… (" + done + " / " + total + ")"));
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+
+                                // 3. Delete the empty cleanyourtv-x.x.x wrapper directory
+                                File[] topChildren = baseDir.listFiles();
+                                if (topChildren != null) {
+                                    for (File ch : topChildren) {
+                                        if (ch.isDirectory()) {
+                                            deleteRecursive(ch);
+                                        }
+                                    }
+                                }
+                            }
+                            synchronized (CleanYourTv.class) {
+                                cachedModels = Collections.singletonList(selectedEntry);
+                            }
+                        } catch (Throwable ignored) {
+                        }
+                        activity.runOnUiThread(() -> {
+                            if (activity.isFinishing()) return;
+                            try {
+                                delProgress.dismiss();
+                            } catch (Throwable ignored) {
+                            }
+                            if (onDone != null) onDone.run();
+                        });
+                    }, "cyt-cleanup").start();
+                })
+                .setNegativeButton(tr(activity, "No, Keep All", "Hayır, Tümünü Tut"), (d, w) -> {
+                    if (onDone != null) onDone.run();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    public static void downloadAndExtractLatestRelease(final Activity activity, final Runnable onDone) {
+        final AlertDialog progress = dialog(activity, tr(activity, "Downloading CleanYourTV…", "CleanYourTV İndiriliyor…"))
+                .setMessage(tr(activity,
+                        "Downloading to Download folder…",
+                        "Download klasörüne indiriliyor…"))
+                .setCancelable(false)
+                .create();
+        progress.show();
+
+        new Thread(() -> {
+            boolean ok = false;
+            int modelCount = 0;
+            String errMsg = "";
+            File baseDir = getCleanYourTvDir(activity);
+            File tempZip = new File(baseDir, "cleanyourtv-latest.zip");
+            try {
+                if (!baseDir.exists()) baseDir.mkdirs();
+                File[] existing = baseDir.listFiles();
+                if (existing != null && existing.length > 0) {
+                    activity.runOnUiThread(() -> {
+                        if (!activity.isFinishing() && progress.isShowing()) {
+                            progress.setMessage(tr(activity, "Preparing Download folder…", "Download klasörü hazırlanıyor…"));
+                        }
+                    });
+                    for (File f : existing) {
+                        deleteRecursive(f);
+                    }
+                }
+
+                // 1. Resolve latest release zip URL from https://api.github.com/repos/Gathin23/cleanyourtv/releases/latest
+                String zipUrl = null;
+                try {
+                    java.net.HttpURLConnection apiConn = (java.net.HttpURLConnection)
+                            new java.net.URL("https://api.github.com/repos/Gathin23/cleanyourtv/releases/latest").openConnection();
+                    apiConn.setConnectTimeout(8000);
+                    apiConn.setReadTimeout(8000);
+                    apiConn.setRequestProperty("User-Agent", "tvOS-Launcher");
+                    apiConn.setRequestProperty("Accept", "application/vnd.github+json");
+                    if (apiConn.getResponseCode() == 200) {
+                        StringBuilder sb = new StringBuilder();
+                        try (BufferedReader br = new BufferedReader(new InputStreamReader(apiConn.getInputStream(), StandardCharsets.UTF_8))) {
+                            String line;
+                            while ((line = br.readLine()) != null) sb.append(line);
+                        }
+                        org.json.JSONObject json = new org.json.JSONObject(sb.toString());
+                        String tag = json.optString("tag_name", "").trim();
+                        if (!tag.isEmpty()) {
+                            zipUrl = "https://codeload.github.com/Gathin23/cleanyourtv/zip/refs/tags/" + tag;
+                        } else {
+                            zipUrl = json.optString("zipball_url", null);
+                        }
+                    }
+                    apiConn.disconnect();
+                } catch (Throwable ignored) {
+                }
+                if (zipUrl == null || zipUrl.isEmpty()) {
+                    zipUrl = "https://codeload.github.com/Gathin23/cleanyourtv/zip/refs/heads/main";
+                }
+
+                // 2. Download source code zip to Download folder with live progress
+                java.net.HttpURLConnection dlConn = (java.net.HttpURLConnection) new java.net.URL(zipUrl).openConnection();
+                dlConn.setInstanceFollowRedirects(true);
+                dlConn.setConnectTimeout(12000);
+                dlConn.setReadTimeout(25000);
+                dlConn.setRequestProperty("User-Agent", "tvOS-Launcher");
+                final int contentLen = dlConn.getContentLength();
+                long totalRead = 0L;
+                long lastUiUpdate = 0L;
+                try (InputStream in = dlConn.getInputStream();
+                     FileOutputStream fos = new FileOutputStream(tempZip)) {
+                    byte[] buf = new byte[16384];
+                    int r;
+                    while ((r = in.read(buf)) != -1) {
+                        fos.write(buf, 0, r);
+                        totalRead += r;
+                        long now = System.currentTimeMillis();
+                        if (now - lastUiUpdate > 120L) {
+                            lastUiUpdate = now;
+                            final long kb = totalRead / 1024L;
+                            final int pct = contentLen > 0 ? (int) Math.min(100L, (totalRead * 100L) / contentLen) : -1;
+                            activity.runOnUiThread(() -> {
+                                if (!activity.isFinishing() && progress.isShowing()) {
+                                    String progStr = pct >= 0 ? (pct + "% · " + kb + " KB") : (kb + " KB");
+                                    progress.setMessage(tr(activity,
+                                            "Downloading to Download folder… (" + progStr + ")",
+                                            "Download klasörüne indiriliyor… (" + progStr + ")"));
+                                }
+                            });
+                        }
+                    }
+                } finally {
+                    dlConn.disconnect();
+                }
+
+                // 3. Unzip cleanyourtv-x.x.x/examples/... with live progress
+                String canonicalBase = baseDir.getCanonicalPath();
+                int extractedFiles = 0;
+                long lastUnzipUi = 0L;
+                try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(
+                        new java.io.BufferedInputStream(new java.io.FileInputStream(tempZip)))) {
+                    java.util.zip.ZipEntry ze;
+                    byte[] buf = new byte[16384];
+                    while ((ze = zis.getNextEntry()) != null) {
+                        String name = ze.getName();
+                        if (!ze.isDirectory() && name.contains("/examples/")) {
+                            File outFile = new File(baseDir, name);
+                            if (outFile.getCanonicalPath().startsWith(canonicalBase)) {
+                                File parent = outFile.getParentFile();
+                                if (parent != null && !parent.exists()) parent.mkdirs();
+                                try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                    int r;
+                                    while ((r = zis.read(buf)) != -1) {
+                                        fos.write(buf, 0, r);
+                                    }
+                                }
+                                extractedFiles++;
+                                long now = System.currentTimeMillis();
+                                if (now - lastUnzipUi > 120L) {
+                                    lastUnzipUi = now;
+                                    final int extCount = extractedFiles;
+                                    activity.runOnUiThread(() -> {
+                                        if (!activity.isFinishing() && progress.isShowing()) {
+                                            progress.setMessage(tr(activity,
+                                                    "Unzipping TV models in Download folder… (" + extCount + " files)",
+                                                    "Download klasöründe TV modelleri çıkartılıyor… (" + extCount + " dosya)"));
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // 4. Delete the temporary zip file so no zip leftover remains
+                if (tempZip.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    tempZip.delete();
+                }
+
+                // 5. Load models from cleanyourtv-x.x.x/examples
+                activity.runOnUiThread(() -> {
+                    if (!activity.isFinishing() && progress.isShowing()) {
+                        progress.setMessage(tr(activity, "Loading TV models…", "TV modelleri yükleniyor…"));
+                    }
+                });
+                invalidateModelCache();
+                List<ModelEntry> loaded = loadIndex(activity);
+                modelCount = loaded.size();
+                ok = modelCount > 0;
+            } catch (Throwable t) {
+                errMsg = t.getMessage() != null ? t.getMessage() : t.toString();
+            } finally {
+                if (tempZip.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    tempZip.delete();
+                }
+            }
+
+            final boolean finalOk = ok;
+            final int finalCount = modelCount;
+            final String finalErr = errMsg;
+            activity.runOnUiThread(() -> {
+                if (activity.isFinishing()) return;
+                try {
+                    progress.dismiss();
+                } catch (Throwable ignored) {
+                }
+                if (finalOk) {
+                    if (onDone != null) onDone.run();
+                } else {
+                    dialog(activity, tr(activity, "Download Failed", "İndirme Başarısız"))
+                            .setMessage(tr(activity,
+                                    "Could not download CleanYourTV from GitHub.\n\n" + finalErr,
+                                    "CleanYourTV GitHub üzerinden indirilemedi.\n\n" + finalErr))
+                            .setPositiveButton(tr(activity, "Retry", "Tekrar Dene"),
+                                    (d, w) -> downloadAndExtractLatestRelease(activity, onDone))
+                            .setNegativeButton(tr(activity, "Cancel", "İptal"), null)
+                            .show();
+                }
+            });
+        }, "cyt-download").start();
+    }
+
+    public static void promptDownloadRequired(final Activity activity, final boolean deletedWarning, final Runnable onDownloaded) {
+        int count = loadIndex(activity).size();
+        boolean onlyOneKept = !deletedWarning && count == 1;
+        String title = deletedWarning
+                ? tr(activity, "⚠️ CleanYourTV Files Missing", "⚠️ CleanYourTV Dosyaları Bulunamadı")
+                : (onlyOneKept
+                        ? tr(activity, "Download All TV Models Again?", "Tüm TV Modelleri Tekrar İndirilsin mi?")
+                        : tr(activity, "Download CleanYourTV Required", "CleanYourTV İndirilmesi Gerekli"));
+        String msg = deletedWarning
+                ? tr(activity,
+                     "Your selected TV model's files in the Download folder were deleted.\n\nWould you like to download CleanYourTV again to continue?",
+                     "Download klasöründeki seçili TV modelinizin dosyaları silinmiş.\n\nDevam etmek için CleanYourTV'yi tekrar indirmek ister misiniz?")
+                : (onlyOneKept
+                        ? tr(activity,
+                             "Only your currently selected TV model is kept in the Download folder.\n\nWould you like to download all CleanYourTV models again to choose a different TV model?",
+                             "Download klasöründe yalnızca seçili TV modeliniz tutuluyor.\n\nFarklı bir TV modeli seçmek için tüm CleanYourTV modellerini tekrar indirmek ister misiniz?")
+                        : tr(activity,
+                             "Please download CleanYourTV first. It will download the latest release to your Download folder and extract the TV profiles.",
+                             "Lütfen önce CleanYourTV'yi indirin. En güncel sürüm Download klasörünüze indirilecek ve TV profilleri çıkartılacaktır."));
+        dialog(activity, title)
+                .setMessage(msg)
+                .setPositiveButton(tr(activity, "Download CleanYourTV Now", "CleanYourTV'yi Şimdi İndir"),
+                        (d, w) -> downloadAndExtractLatestRelease(activity, onDownloaded))
+                .setNegativeButton(tr(activity, "Cancel", "İptal"), null)
+                .show();
     }
 
     // ================================================================ Status & Saved Disabled Data
@@ -1337,60 +1821,83 @@ public final class CleanYourTv {
      * checklist of packages present on this TV, including both default bloat/telemetry packages
      * and optional user-choice packages (Assistant, YouTube Music, Play Games, TalkBack, Chromecast, Stock Launcher, etc.).
      */
+    private static File resolveDebloatFileForModel(Context c, String slug) {
+        File baseDir = getCleanYourTvDir(c);
+        File rootDeb = new File(baseDir, "debloat.txt");
+        if (rootDeb.isFile()) return rootDeb;
+        if (slug != null && !slug.isEmpty()) {
+            File subDeb = new File(new File(baseDir, slug), "debloat.txt");
+            if (subDeb.isFile()) return subDeb;
+            File ex = findExamplesDir(baseDir);
+            if (ex != null) {
+                File exDeb = new File(new File(ex, slug), "debloat.txt");
+                if (exDeb.isFile()) return exDeb;
+            }
+        }
+        return null;
+    }
+
     public static List<DebloatItem> buildChecklistForModel(Context c, String slug,
                                                            Set<String> installedPkgs,
                                                            boolean skipSetupwraithAndLauncher) {
         Map<String, String> activePkgComments = new LinkedHashMap<>();
         Map<String, String> optionalPkgComments = new LinkedHashMap<>();
 
-        String assetPath = "cleanyourtv/examples/" + slug + "/debloat.txt";
+        File debloatFile = resolveDebloatFileForModel(c, slug);
         String currentSection = "";
-        try (InputStream is = c.getAssets().open(assetPath);
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            String raw;
-            while ((raw = br.readLine()) != null) {
-                String line = raw.trim();
-                if (line.isEmpty()) continue;
+        if (debloatFile != null && debloatFile.isFile()) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new java.io.FileInputStream(debloatFile), StandardCharsets.UTF_8))) {
+                String raw;
+                while ((raw = br.readLine()) != null) {
+                    String line = raw.trim();
+                    if (line.isEmpty()) continue;
 
-                if (line.startsWith("#")) {
-                    String afterHash = line.substring(1).trim();
-                    // Check if this is a commented-out package line like:
-                    // # com.google.android.katniss  # Google Assistant (kept by user choice)
-                    String candidatePkg = afterHash;
+                    if (line.startsWith("#")) {
+                        String afterHash = line.substring(1).trim();
+                        String candidatePkg = afterHash;
+                        String inlineComment = "";
+                        int hashIdx = afterHash.indexOf('#');
+                        if (hashIdx >= 0) {
+                            candidatePkg = afterHash.substring(0, hashIdx).trim();
+                            inlineComment = afterHash.substring(hashIdx + 1).trim();
+                        }
+                        if (looksLikePackageName(candidatePkg)) {
+                            String desc = !inlineComment.isEmpty() ? inlineComment : currentSection;
+                            optionalPkgComments.put(candidatePkg, desc);
+                        } else if (!afterHash.startsWith("Disabled ")
+                                && !afterHash.startsWith("Already ")
+                                && !afterHash.startsWith("System ")
+                                && !afterHash.startsWith("Android ")
+                                && !afterHash.startsWith("Restore:")
+                                && !afterHash.startsWith("while ")
+                                && !afterHash.contains("pm enable")) {
+                            currentSection = afterHash;
+                        }
+                        continue;
+                    }
+
+                    String pkg = line;
                     String inlineComment = "";
-                    int hashIdx = afterHash.indexOf('#');
+                    int hashIdx = line.indexOf('#');
                     if (hashIdx >= 0) {
-                        candidatePkg = afterHash.substring(0, hashIdx).trim();
-                        inlineComment = afterHash.substring(hashIdx + 1).trim();
+                        pkg = line.substring(0, hashIdx).trim();
+                        inlineComment = line.substring(hashIdx + 1).trim();
                     }
-                    if (looksLikePackageName(candidatePkg)) {
+                    if (looksLikePackageName(pkg)) {
                         String desc = !inlineComment.isEmpty() ? inlineComment : currentSection;
-                        optionalPkgComments.put(candidatePkg, desc);
-                    } else if (!afterHash.startsWith("Disabled ")
-                            && !afterHash.startsWith("Already ")
-                            && !afterHash.startsWith("System ")
-                            && !afterHash.startsWith("Android ")
-                            && !afterHash.startsWith("Restore:")
-                            && !afterHash.startsWith("while ")
-                            && !afterHash.contains("pm enable")) {
-                        currentSection = afterHash;
+                        activePkgComments.put(pkg, desc);
                     }
-                    continue;
                 }
-
-                String pkg = line;
-                String inlineComment = "";
-                int hashIdx = line.indexOf('#');
-                if (hashIdx >= 0) {
-                    pkg = line.substring(0, hashIdx).trim();
-                    inlineComment = line.substring(hashIdx + 1).trim();
-                }
-                if (looksLikePackageName(pkg)) {
-                    String desc = !inlineComment.isEmpty() ? inlineComment : currentSection;
-                    activePkgComments.put(pkg, desc);
+            } catch (Throwable ignored) {
+            }
+        } else {
+            ModelEntry model = findModelBySlug(c, slug);
+            if (model != null && model.packages != null) {
+                for (String pkg : model.packages) {
+                    activePkgComments.put(pkg, "");
                 }
             }
-        } catch (Throwable ignored) {
         }
 
         // Also add standard CleanYourTV prompt preference-dependent optional packages if installed on this TV

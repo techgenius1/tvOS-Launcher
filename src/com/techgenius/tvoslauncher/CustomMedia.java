@@ -70,7 +70,7 @@ public final class CustomMedia {
         "wallpapers", "EarthPorn", "CityPorn", "SkyPorn",
         "amoledbackgrounds", "MinimalWallpaper", "SpacePorn", "ArchitecturePorn"
     };
-    public static final int[] REDDIT_INTERVAL_MINS = { 1, 5, 15, 30, 60, 180 };
+    public static final int[] REDDIT_INTERVAL_MINS = { 1, 2, 3, 5, 10, 15, 20, 25, 30, 60, 180 };
 
     private static final Map<String, Bitmap> redditBmpMap = new HashMap<>();
     private static final Map<String, Long> redditLastFetchMap = new HashMap<>();

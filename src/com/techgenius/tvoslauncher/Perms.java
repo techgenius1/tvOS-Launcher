@@ -134,6 +134,42 @@ final class Perms {
         return STOCK_TV_HOME_PACKAGES;
     }
 
+    private static volatile java.util.Set<String> cachedHomePackages;
+    private static volatile long cachedHomePackagesTimeMs = 0L;
+
+    public static boolean isAnySystemLauncherPackage(android.content.Context c, String pkg) {
+        if (c == null || pkg == null || pkg.isEmpty()) return false;
+        if (pkg.equals(c.getPackageName()) || pkg.contains("settings")) return false;
+        for (String stock : STOCK_TV_HOME_PACKAGES) {
+            if (stock.equals(pkg)) return true;
+        }
+        long now = android.os.SystemClock.uptimeMillis();
+        java.util.Set<String> set = cachedHomePackages;
+        if (set == null || (now - cachedHomePackagesTimeMs) > 60_000L) {
+            java.util.Set<String> fresh = new java.util.HashSet<>();
+            try {
+                PackageManager pm = c.getPackageManager();
+                Intent homeIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+                java.util.List<android.content.pm.ResolveInfo> list = pm.queryIntentActivities(homeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                if (list != null) {
+                    for (android.content.pm.ResolveInfo ri : list) {
+                        if (ri != null && ri.activityInfo != null && ri.activityInfo.packageName != null) {
+                            String p = ri.activityInfo.packageName;
+                            if (!p.equals(c.getPackageName()) && !p.contains("settings")) {
+                                fresh.add(p);
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+            cachedHomePackages = fresh;
+            cachedHomePackagesTimeMs = now;
+            set = fresh;
+        }
+        return set.contains(pkg);
+    }
+
     static boolean hasEnabledStockLauncher(android.content.Context c) {
         if (c == null) return false;
         PackageManager pm = c.getPackageManager();

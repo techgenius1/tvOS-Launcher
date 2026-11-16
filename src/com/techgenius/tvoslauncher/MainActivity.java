@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
     int focusedIndex = 0;
     int moveIndex = -1;
     boolean folderMode;
-    boolean resumed;
+    public boolean resumed;
     /** Package of the last app the launcher opened; read and cleared on the next resume. */
     String lastLaunchedPkg;
     ObjectAnimator wiggle;
@@ -226,7 +226,7 @@ public class MainActivity extends Activity {
     /** Full-screen card that zooms out of a tile when an app is launched. */
     View launchOverlay;
     View launchTile;
-    static MainActivity activeInstance;
+    public static MainActivity activeInstance;
     SceneHome sceneHome;
     String activeLang;
     String activeLook;
@@ -324,6 +324,7 @@ public class MainActivity extends Activity {
         };
         registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
         LocalAdb.ensureKeepAliveWatchdog(this);
+        AppUpdater.cleanupUpdatesFolderOnStartup(this);
     }
 
     @Override
@@ -2524,7 +2525,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM | Gravity.START);
         wlp.leftMargin = side - padH;
-        wlp.bottomMargin = dp(26);
+        wlp.bottomMargin = dp(14);
         shelf.addView(classicCwBox, wlp);
 
         rebuildClassicDashboardBox(shelf);
@@ -2542,7 +2543,7 @@ public class MainActivity extends Activity {
         FrameLayout.LayoutParams dlp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM | Gravity.START);
-        dlp.bottomMargin = dp(32);
+        dlp.bottomMargin = dp(16);
         shelf.addView(classicDashboardBox, dlp);
     }
 
@@ -2942,6 +2943,20 @@ public class MainActivity extends Activity {
         }
         int dashIdx = classicDashboardCards.indexOf(f);
         if (dashIdx >= 0) {
+            if (HomeDashboard.isMovingWidget()) {
+                if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    if (down) HomeDashboard.moveActiveWidget(this, -1);
+                    return true;
+                }
+                if (k == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    if (down) HomeDashboard.moveActiveWidget(this, 1);
+                    return true;
+                }
+                if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_DPAD_UP || k == KeyEvent.KEYCODE_DPAD_DOWN) {
+                    if (down) HomeDashboard.endMovingWidget(this);
+                    return true;
+                }
+            }
             if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
                 if (down && dashIdx > 0) classicDashboardCards.get(dashIdx - 1).requestFocus();
                 return true;

@@ -60,8 +60,11 @@ public final class Scenes {
     public static final String CLOCK_STYLE_TALL = "tall";
     public static final String[] CLOCK_STYLES = {CLOCK_STYLE_DUO, CLOCK_STYLE_ROUNDED, CLOCK_STYLE_TALL};
 
-    public static final int[] STAY_OPTIONS = {10, 15, 20, 30, 45, 60, 120};
-    public static final int[] LOCK_IDLE_OPTIONS = {0, 2, 5, 10, 15, 30, 60};
+    public static final int[] STAY_OPTIONS = {
+        10, 15, 20, 30, 45,
+        60, 120, 180, 300, 600, 900, 1200, 1500, 1800, 3600
+    };
+    public static final int[] LOCK_IDLE_OPTIONS = {0, 1, 2, 3, 5, 10, 15, 20, 25, 30, 60};
 
     public static final class Spec {
         public final String id;
@@ -359,6 +362,44 @@ public final class Scenes {
         prefs(c).edit().putInt("dock_scale_pct", clamped).apply();
     }
 
+    public static int getDockRows(Context c) {
+        if (c == null) return 1;
+        int rows = prefs(c).getInt("dock_rows", 1);
+        return Math.max(1, Math.min(3, rows));
+    }
+
+    public static void setDockRows(Context c, int rows) {
+        if (c == null) return;
+        int clamped = Math.max(1, Math.min(3, rows));
+        prefs(c).edit().putInt("dock_rows", clamped).apply();
+    }
+
+    public static int cycleDockRows(Context c) {
+        int cur = getDockRows(c);
+        int next = (cur % 3) + 1;
+        setDockRows(c, next);
+        return next;
+    }
+
+    public static String dockRowsLabel(Context c) {
+        int r = getDockRows(c);
+        return r + " " + I18n.s(c, r == 1 ? "row" : "rows", "satır");
+    }
+
+    public static boolean isSmallClockEnabled(Context c) {
+        if (c == null) return false;
+        return prefs(c).getBoolean("scene_small_clock", false);
+    }
+
+    public static void setSmallClockEnabled(Context c, boolean enabled) {
+        if (c == null) return;
+        SharedPreferences.Editor ed = prefs(c).edit().putBoolean("scene_small_clock", enabled);
+        if (enabled && CLOCK_POS_DYNAMIC.equals(prefs(c).getString("default_clock_pos", CLOCK_POS_DYNAMIC))) {
+            ed.putString("default_clock_pos", CLOCK_POS_CENTER);
+        }
+        ed.apply();
+    }
+
     public static float getDockScaleFactor(Context c) {
         return getDockScalePercent(c) / 100f;
     }
@@ -547,6 +588,9 @@ public final class Scenes {
         if (CLOCK_POS_LEFT.equals(pos) || CLOCK_POS_CENTER.equals(pos) || CLOCK_POS_RIGHT.equals(pos)) {
             return pos;
         }
+        if (isSmallClockEnabled(c)) {
+            return CLOCK_POS_CENTER;
+        }
         return CLOCK_POS_DYNAMIC;
     }
 
@@ -555,11 +599,12 @@ public final class Scenes {
     }
 
     public static String cycleDefaultClockPos(Context c) {
+        String[] opts = isSmallClockEnabled(c) ? CLOCK_POSITIONS : DEFAULT_CLOCK_POSITIONS;
         String cur = getDefaultClockPos(c);
-        String next = DEFAULT_CLOCK_POSITIONS[0];
-        for (int i = 0; i < DEFAULT_CLOCK_POSITIONS.length; i++) {
-            if (DEFAULT_CLOCK_POSITIONS[i].equals(cur)) {
-                next = DEFAULT_CLOCK_POSITIONS[(i + 1) % DEFAULT_CLOCK_POSITIONS.length];
+        String next = opts[0];
+        for (int i = 0; i < opts.length; i++) {
+            if (opts[i].equals(cur)) {
+                next = opts[(i + 1) % opts.length];
                 break;
             }
         }
@@ -821,6 +866,15 @@ public final class Scenes {
         }
         prefs(c).edit().putInt("scene_seconds", next).apply();
         return next;
+    }
+
+    public static String getStayIntervalLabel(Context c) {
+        int sec = getStaySeconds(c);
+        if (sec >= 60 && sec % 60 == 0) {
+            int mins = sec / 60;
+            return mins + " " + I18n.s(c, mins == 1 ? "minute" : "minutes", "dakika");
+        }
+        return sec + " " + I18n.s(c, "seconds", "saniye");
     }
 
     /** The small app-name bubble above the focused Night Scenes dock icon. On by default. */
@@ -1552,6 +1606,7 @@ public final class Scenes {
                     Context ctx = getContext();
                     int cSlot = Math.max(1, customSlotFromId(baseSceneId(currentId)));
                     String frameKey = currentId + "|" + lockScreenMode + "|" + classicClockOnlyMode + "|"
+                            + isSmallClockEnabled(ctx) + "|"
                             + formatTime(ctx) + "|"
                             + I18n.formatSceneDate(ctx, new Date()) + "|"
                             + (lockScreenMode ? "" : (weatherTemp != null ? weatherTemp : "")) + "|"
@@ -1686,9 +1741,10 @@ public final class Scenes {
                 activeClockPos = CLOCK_POS_CENTER;
             }
 
+            boolean smallClockMode = !classicClockOnlyMode && !lockScreenMode && isSmallClockEnabled(ctx);
             boolean isRightAligned = !lockScreenMode && useUserClockPos && CLOCK_POS_RIGHT.equals(activeClockPos);
             float topOffsetU = isRightAligned ? 62f : 19f;
-            float baseDateTopU = classicClockOnlyMode ? 45f : sp.dateTopU;
+            float baseDateTopU = (classicClockOnlyMode || smallClockMode) ? 45f : sp.dateTopU;
             float baseClockTopU = classicClockOnlyMode ? 68f : sp.clockTopU;
             float dateBaselineY = Math.max((46f + topOffsetU) * u, (baseDateTopU + topOffsetU) * u);
             float greetBaselineY = dateBaselineY - (18.5f * u);
@@ -1764,28 +1820,30 @@ public final class Scenes {
                 clockShadowPaint.setColor(Color.argb(brightBehind ? 34 : 46, 0, 0, 0));
             }
 
-            if (!classicClockOnlyMode && sp.waterSplit) {
-                float waterY = h * 0.55f;
-                canvas.save();
-                canvas.clipRect(0, 0, w, waterY);
-                drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, false, ls, darkClk);
-                canvas.restore();
+            if (!smallClockMode) {
+                if (!classicClockOnlyMode && sp.waterSplit) {
+                    float waterY = h * 0.55f;
+                    canvas.save();
+                    canvas.clipRect(0, 0, w, waterY);
+                    drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
+                            isDuo, isRounded, false, ls, darkClk);
+                    canvas.restore();
 
-                canvas.save();
-                canvas.clipRect(0, waterY, w, h);
-                if (ls.glassWetShader != null && ls.glassWetBaked != null) {
-                    shaderMatrix.reset();
-                    shaderMatrix.setScale((float) w / ls.glassWetBaked.getWidth(), (float) h / ls.glassWetBaked.getHeight());
-                    ls.glassWetShader.setLocalMatrix(shaderMatrix);
-                    clockWetPaint.setShader(ls.glassWetShader);
+                    canvas.save();
+                    canvas.clipRect(0, waterY, w, h);
+                    if (ls.glassWetShader != null && ls.glassWetBaked != null) {
+                        shaderMatrix.reset();
+                        shaderMatrix.setScale((float) w / ls.glassWetBaked.getWidth(), (float) h / ls.glassWetBaked.getHeight());
+                        ls.glassWetShader.setLocalMatrix(shaderMatrix);
+                        clockWetPaint.setShader(ls.glassWetShader);
+                    }
+                    drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
+                            isDuo, isRounded, true, ls, darkClk);
+                    canvas.restore();
+                } else {
+                    drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
+                            isDuo, isRounded, false, ls, darkClk);
                 }
-                drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, true, ls, darkClk);
-                canvas.restore();
-            } else {
-                drawStylizedClock(canvas, timeStr, clockX, baselineY, scaleY, rawCapH, clockPx, u,
-                        isDuo, isRounded, false, ls, darkClk);
             }
 
             // 4. Foreground cutout (mountain ridge / volcano / fog hills / rainforest canopy)
@@ -1807,7 +1865,7 @@ public final class Scenes {
             }
             float greetW = greetPaint.measureText(greeting);
             float greetX;
-            if (useUserClockPos) {
+            if (useUserClockPos || smallClockMode) {
                 if (CLOCK_POS_LEFT.equals(activeClockPos)) {
                     greetX = 52f * u;
                 } else if (CLOCK_POS_RIGHT.equals(activeClockPos)) {
@@ -1838,7 +1896,7 @@ public final class Scenes {
             }
             float dateW = datePaint.measureText(fullHeader);
             float dateX;
-            if (useUserClockPos) {
+            if (useUserClockPos || smallClockMode) {
                 if (CLOCK_POS_LEFT.equals(activeClockPos)) {
                     dateX = 52f * u;
                 } else if (CLOCK_POS_RIGHT.equals(activeClockPos)) {
@@ -1850,6 +1908,25 @@ public final class Scenes {
                 dateX = sp.leftAlign ? (sp.dateLeftU * u) : ((w - dateW) * 0.5f);
             }
             canvas.drawText(fullHeader, dateX, dateBaselineY, datePaint);
+
+            if (smallClockMode) {
+                float smallClockPx = datePx + (2f * u);
+                datePaint.setTextSize(smallClockPx);
+                datePaint.setLetterSpacing(0.02f);
+                float smallW = datePaint.measureText(timeStr);
+                float smallX;
+                if (CLOCK_POS_LEFT.equals(activeClockPos)) {
+                    smallX = 52f * u;
+                } else if (CLOCK_POS_RIGHT.equals(activeClockPos)) {
+                    smallX = w - smallW - (52f * u);
+                } else {
+                    smallX = (w - smallW) * 0.5f;
+                }
+                float smallY = dateBaselineY + (21f * u);
+                canvas.drawText(timeStr, smallX, smallY, datePaint);
+                datePaint.setTextSize(datePx);
+                datePaint.setLetterSpacing(0.01f);
+            }
 
             if (layerSave) {
                 canvas.restore();

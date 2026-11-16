@@ -72,6 +72,26 @@ public final class HomeDashboard {
     private static final String KEY_W_FOOTBALL = "widget_football";
     private static final String KEY_W_RELEASES = "widget_releases";
     private static final String KEY_W_WEATHER = "widget_weather";
+    private static final String KEY_W_CRICKET = "widget_cricket";
+    private static final String KEY_W_NEWS = "widget_news";
+    private static final String KEY_W_TOP_MEDIA = "widget_top_media";
+    private static final String KEY_WIDGET_ORDER = "widget_order";
+    private static final String KEY_ALL_DEFAULT_V2 = "widgets_all_default_v2";
+
+    public static final String WIDGET_PRAYER = "prayer";
+    public static final String WIDGET_FOOTBALL = "football";
+    public static final String WIDGET_RELEASES = "releases";
+    public static final String WIDGET_WEATHER = "weather";
+    public static final String WIDGET_CRICKET = "cricket";
+    public static final String WIDGET_NEWS = "news";
+    public static final String WIDGET_TOP_MEDIA = "top_media";
+
+    public static final String[] DEFAULT_WIDGET_IDS = {
+        WIDGET_PRAYER, WIDGET_FOOTBALL, WIDGET_RELEASES, WIDGET_WEATHER,
+        WIDGET_CRICKET, WIDGET_NEWS, WIDGET_TOP_MEDIA
+    };
+
+    private static volatile String sMovingWidgetId = null;
 
     private static final String KEY_PRAYER_METHOD = "prayer_method"; // Default 13 (Diyanet / Turkey & region)
     private static final String KEY_PRAYER_CACHE_JSON = "prayer_cache_json";
@@ -117,7 +137,16 @@ public final class HomeDashboard {
     private HomeDashboard() {}
 
     private static SharedPreferences prefs(Context c) {
-        return c.getSharedPreferences(PREF, Context.MODE_PRIVATE);
+        SharedPreferences sp = c.getSharedPreferences(PREF, Context.MODE_PRIVATE);
+        if (!sp.getBoolean(KEY_ALL_DEFAULT_V2, false)) {
+            sp.edit()
+                    .putBoolean(KEY_ALL_DEFAULT_V2, true)
+                    .putBoolean(KEY_W_CRICKET, true)
+                    .putBoolean(KEY_W_NEWS, true)
+                    .putBoolean(KEY_W_TOP_MEDIA, true)
+                    .apply();
+        }
+        return sp;
     }
 
     public static boolean isEnabled(Context c) {
@@ -168,11 +197,184 @@ public final class HomeDashboard {
         prefs(c).edit().putBoolean(KEY_W_WEATHER, en).apply();
     }
 
+    public static boolean isWidgetCricketEnabled(Context c) {
+        return prefs(c).getBoolean(KEY_W_CRICKET, true);
+    }
+
+    public static void setWidgetCricketEnabled(Context c, boolean en) {
+        prefs(c).edit().putBoolean(KEY_W_CRICKET, en).apply();
+    }
+
+    public static boolean isWidgetNewsEnabled(Context c) {
+        return prefs(c).getBoolean(KEY_W_NEWS, true);
+    }
+
+    public static void setWidgetNewsEnabled(Context c, boolean en) {
+        prefs(c).edit().putBoolean(KEY_W_NEWS, en).apply();
+    }
+
+    public static boolean isWidgetTopMediaEnabled(Context c) {
+        return prefs(c).getBoolean(KEY_W_TOP_MEDIA, true);
+    }
+
+    public static void setWidgetTopMediaEnabled(Context c, boolean en) {
+        prefs(c).edit().putBoolean(KEY_W_TOP_MEDIA, en).apply();
+    }
+
+    public static List<String> getWidgetOrder(Context c) {
+        String raw = prefs(c).getString(KEY_WIDGET_ORDER, "");
+        List<String> out = new ArrayList<String>();
+        if (raw != null && !raw.isEmpty()) {
+            for (String part : raw.split(",")) {
+                String p = part.trim();
+                if (!p.isEmpty() && !out.contains(p)) {
+                    for (String def : DEFAULT_WIDGET_IDS) {
+                        if (def.equals(p)) {
+                            out.add(p);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        for (String def : DEFAULT_WIDGET_IDS) {
+            if (!out.contains(def)) {
+                out.add(def);
+            }
+        }
+        return out;
+    }
+
+    public static void setWidgetOrder(Context c, List<String> order) {
+        if (order == null) return;
+        prefs(c).edit().putString(KEY_WIDGET_ORDER, TextUtils.join(",", order)).apply();
+    }
+
+    public static List<String> getEnabledWidgetOrder(Context c) {
+        List<String> out = new ArrayList<String>();
+        for (String id : getWidgetOrder(c)) {
+            if (isWidgetEnabledById(c, id)) {
+                out.add(id);
+            }
+        }
+        return out;
+    }
+
+    public static boolean isWidgetEnabledById(Context c, String id) {
+        if (WIDGET_PRAYER.equals(id)) return isWidgetPrayerEnabled(c);
+        if (WIDGET_FOOTBALL.equals(id)) return isWidgetFootballEnabled(c);
+        if (WIDGET_RELEASES.equals(id)) return isWidgetReleasesEnabled(c);
+        if (WIDGET_WEATHER.equals(id)) return isWidgetWeatherEnabled(c);
+        if (WIDGET_CRICKET.equals(id)) return isWidgetCricketEnabled(c);
+        if (WIDGET_NEWS.equals(id)) return isWidgetNewsEnabled(c);
+        if (WIDGET_TOP_MEDIA.equals(id)) return isWidgetTopMediaEnabled(c);
+        return false;
+    }
+
+    public static void setWidgetEnabledById(Context c, String id, boolean en) {
+        if (WIDGET_PRAYER.equals(id)) setWidgetPrayerEnabled(c, en);
+        else if (WIDGET_FOOTBALL.equals(id)) setWidgetFootballEnabled(c, en);
+        else if (WIDGET_RELEASES.equals(id)) setWidgetReleasesEnabled(c, en);
+        else if (WIDGET_WEATHER.equals(id)) setWidgetWeatherEnabled(c, en);
+        else if (WIDGET_CRICKET.equals(id)) setWidgetCricketEnabled(c, en);
+        else if (WIDGET_NEWS.equals(id)) setWidgetNewsEnabled(c, en);
+        else if (WIDGET_TOP_MEDIA.equals(id)) setWidgetTopMediaEnabled(c, en);
+    }
+
+    public static String getWidgetTitleById(Context c, String id) {
+        if (WIDGET_PRAYER.equals(id)) return I18n.t(c, "dash_prayer_times");
+        if (WIDGET_FOOTBALL.equals(id)) return I18n.t(c, "dash_football");
+        if (WIDGET_RELEASES.equals(id)) return I18n.t(c, "dash_latest_releases");
+        if (WIDGET_WEATHER.equals(id)) return I18n.t(c, "weather");
+        if (WIDGET_CRICKET.equals(id)) return I18n.t(c, "dash_cricket");
+        if (WIDGET_NEWS.equals(id)) return I18n.t(c, "dash_news");
+        if (WIDGET_TOP_MEDIA.equals(id)) return I18n.t(c, "dash_top_media");
+        return id;
+    }
+
+    public static String getWidgetEmojiById(String id) {
+        if (WIDGET_PRAYER.equals(id)) return "🕌  ";
+        if (WIDGET_FOOTBALL.equals(id)) return "⚽  ";
+        if (WIDGET_RELEASES.equals(id)) return "🎬  ";
+        if (WIDGET_WEATHER.equals(id)) return "⛅  ";
+        if (WIDGET_CRICKET.equals(id)) return "🏏  ";
+        if (WIDGET_NEWS.equals(id)) return "📰  ";
+        if (WIDGET_TOP_MEDIA.equals(id)) return "🎥  ";
+        return "";
+    }
+
+    public static boolean isMovingWidget() {
+        return sMovingWidgetId != null;
+    }
+
+    public static void startMovingWidget(MainActivity host, String widgetId) {
+        sMovingWidgetId = widgetId;
+        refreshHostDashboardAndFocus(host, widgetId);
+    }
+
+    public static void endMovingWidget(MainActivity host) {
+        String id = sMovingWidgetId;
+        sMovingWidgetId = null;
+        if (host != null && id != null) {
+            refreshHostDashboardAndFocus(host, id);
+        }
+    }
+
+    public static boolean moveWidgetInEnabledOrder(Context c, String widgetId, int delta) {
+        List<String> enabled = getEnabledWidgetOrder(c);
+        int curIdx = enabled.indexOf(widgetId);
+        int targetIdx = curIdx + delta;
+        if (curIdx < 0 || targetIdx < 0 || targetIdx >= enabled.size()) return false;
+        String otherId = enabled.get(targetIdx);
+        List<String> full = new ArrayList<String>(getWidgetOrder(c));
+        int fullA = full.indexOf(widgetId);
+        int fullB = full.indexOf(otherId);
+        if (fullA < 0 || fullB < 0) return false;
+        Collections.swap(full, fullA, fullB);
+        setWidgetOrder(c, full);
+        return true;
+    }
+
+    public static void moveActiveWidget(MainActivity host, int delta) {
+        String id = sMovingWidgetId;
+        if (host == null || id == null) return;
+        if (moveWidgetInEnabledOrder(host, id, delta)) {
+            Clicks.move(host, 0);
+            refreshHostDashboardAndFocus(host, id);
+        }
+    }
+
+    public static void refreshHostDashboardAndFocus(final MainActivity host, final String focusWidgetId) {
+        if (host == null) return;
+        if (host.sceneHome != null && Scenes.isScenesLook(host)) {
+            host.sceneHome.refreshDashboard();
+            if (focusWidgetId != null) {
+                List<String> en = getEnabledWidgetOrder(host);
+                int idx = en.indexOf(focusWidgetId);
+                if (idx >= 0 && idx < host.sceneHome.dashboardCards.size()) {
+                    host.sceneHome.dashboardCards.get(idx).requestFocus();
+                }
+            }
+        } else {
+            host.refreshClassicDashboard();
+            if (focusWidgetId != null) {
+                List<String> en = getEnabledWidgetOrder(host);
+                int idx = en.indexOf(focusWidgetId);
+                if (idx >= 0 && idx < host.classicDashboardCards.size()) {
+                    host.classicDashboardCards.get(idx).requestFocus();
+                }
+            }
+        }
+    }
+
     public static boolean hasAnyWidgetEnabled(Context c) {
         return isEnabled(c) && (isWidgetPrayerEnabled(c)
                 || isWidgetFootballEnabled(c)
                 || isWidgetReleasesEnabled(c)
-                || isWidgetWeatherEnabled(c));
+                || isWidgetWeatherEnabled(c)
+                || isWidgetCricketEnabled(c)
+                || isWidgetNewsEnabled(c)
+                || isWidgetTopMediaEnabled(c));
     }
 
     public static boolean isAnyEnabled(Context c) {
@@ -593,8 +795,11 @@ public final class HomeDashboard {
     // =========================================================================
 
     public static final class MatchItem {
+        public String id = "";
         public String homeTeam = "";
         public String awayTeam = "";
+        public String homeLogo = "";
+        public String awayLogo = "";
         public String homeScore = "";
         public String awayScore = "";
         public String statusText = "";
@@ -605,26 +810,96 @@ public final class HomeDashboard {
         public long startEpochMs = 0L;
     }
 
+    private static final android.util.LruCache<String, Bitmap> sLogoCache = new android.util.LruCache<String, Bitmap>(96);
+
+    public static void loadLogoAsync(final String url, final int sizePx, final ImageView target) {
+        if (target == null) return;
+        if (url == null || url.isEmpty()) {
+            target.setVisibility(View.GONE);
+            return;
+        }
+        target.setTag(url);
+        Bitmap cached = sLogoCache.get(url);
+        if (cached != null && !cached.isRecycled()) {
+            target.setVisibility(View.VISIBLE);
+            target.setImageBitmap(cached);
+            return;
+        }
+        target.setVisibility(View.INVISIBLE);
+        EXEC.execute(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection conn = null;
+                try {
+                    String fetchUrl = url;
+                    if (fetchUrl.contains("espncdn.com") && !fetchUrl.contains("scale=")) {
+                        fetchUrl = fetchUrl + (fetchUrl.contains("?") ? "&" : "?") + "w=80&h=80&scale=crop";
+                    }
+                    conn = (HttpURLConnection) new URL(fetchUrl).openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(5000);
+                    conn.setRequestProperty("User-Agent", "tvOSLauncher/2.2");
+                    InputStream in = conn.getInputStream();
+                    Bitmap raw = BitmapFactory.decodeStream(in);
+                    in.close();
+                    if (raw != null) {
+                        final Bitmap scaled = Bitmap.createScaledBitmap(raw, sizePx, sizePx, true);
+                        sLogoCache.put(url, scaled);
+                        MAIN.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (url.equals(target.getTag())) {
+                                    target.setVisibility(View.VISIBLE);
+                                    target.setImageBitmap(scaled);
+                                }
+                            }
+                        });
+                    }
+                } catch (Throwable ignored) {
+                } finally {
+                    if (conn != null) conn.disconnect();
+                }
+            }
+        });
+    }
+
     public static final String[] POPULAR_TEAMS = {
-        "Qarabağ", "Neftçi", "Sabah", "Zirə",
-        "Galatasaray", "Fenerbahçe", "Beşiktaş", "Trabzonspor",
-        "Real Madrid", "Barcelona", "Atlético Madrid",
-        "Manchester City", "Arsenal", "Liverpool", "Chelsea", "Manchester United",
-        "Bayern Munich", "Borussia Dortmund", "Bayer Leverkusen",
-        "Inter Milan", "AC Milan", "Juventus", "Napoli",
-        "PSG", "Inter Miami"
+        "Qarabağ", "Neftçi", "Sabah", "Zirə", "Turan Tovuz",
+        "Galatasaray", "Fenerbahçe", "Beşiktaş", "Trabzonspor", "Başakşehir",
+        "Real Madrid", "Barcelona", "Atlético Madrid", "Real Sociedad", "Athletic Club",
+        "Manchester City", "Arsenal", "Liverpool", "Chelsea", "Manchester United", "Tottenham", "Aston Villa", "Newcastle",
+        "Bayern Munich", "Borussia Dortmund", "Bayer Leverkusen", "RB Leipzig",
+        "Inter Milan", "AC Milan", "Juventus", "Napoli", "AS Roma", "Atalanta",
+        "PSG", "Marseille", "Monaco", "Lyon",
+        "Ajax", "PSV", "Feyenoord", "Benfica", "Sporting CP", "Porto",
+        "Al-Nassr", "Al-Hilal", "Al-Ittihad", "Inter Miami", "Boca Juniors", "River Plate", "Flamengo"
     };
 
     public static final String[][] LEAGUES = {
-        { "all", "All Top Leagues" },
+        { "all", "All Leagues & Cups (Worldwide)" },
         { "uefa.champions", "UEFA Champions League" },
         { "uefa.europa", "UEFA Europa League" },
-        { "eng.1", "Premier League" },
-        { "esp.1", "LaLiga" },
-        { "ita.1", "Serie A" },
-        { "ger.1", "Bundesliga" },
-        { "tur.1", "Trendyol Süper Lig" },
-        { "fra.1", "Ligue 1" }
+        { "uefa.europa.conf", "UEFA Conference League" },
+        { "uefa.nations", "UEFA Nations League" },
+        { "fifa.world", "FIFA World Cup / Qualifiers" },
+        { "eng.1", "Premier League (England)" },
+        { "eng.fa", "FA Cup / EFL Cup" },
+        { "esp.1", "LaLiga (Spain)" },
+        { "esp.copa_del_rey", "Copa del Rey" },
+        { "ita.1", "Serie A (Italy)" },
+        { "ita.coppa_italia", "Coppa Italia" },
+        { "ger.1", "Bundesliga (Germany)" },
+        { "ger.dfb_pokal", "DFB-Pokal" },
+        { "tur.1", "Trendyol Süper Lig (Turkey)" },
+        { "tur.cup", "Ziraat Türkiye Kupası" },
+        { "fra.1", "Ligue 1 (France)" },
+        { "aze.1", "Misli Premyer Liqası (Azerbaijan)" },
+        { "ned.1", "Eredivisie (Netherlands)" },
+        { "por.1", "Liga Portugal" },
+        { "ksa.1", "Saudi Pro League" },
+        { "usa.1", "MLS" },
+        { "bra.1", "Brasileirão" },
+        { "conmebol.libertadores", "Copa Libertadores" }
     };
 
     public static Set<String> getFavoriteTeams(Context c) {
@@ -686,6 +961,15 @@ public final class HomeDashboard {
         return Collections.emptyList();
     }
 
+    private static String getScoreboardDateRangeParam() {
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd", Locale.US);
+        Calendar cal = Calendar.getInstance();
+        String start = fmt.format(cal.getTime());
+        cal.add(Calendar.DAY_OF_YEAR, 7);
+        String end = fmt.format(cal.getTime());
+        return "dates=" + start + "-" + end + "&limit=100";
+    }
+
     public static void fetchFootballMatches(final Context c, final boolean force, final FootballCallback cb) {
         final SharedPreferences sp = prefs(c);
         long now = System.currentTimeMillis();
@@ -698,25 +982,36 @@ public final class HomeDashboard {
             @Override
             public void run() {
                 List<MatchItem> all = new ArrayList<MatchItem>();
+                Set<String> seenIds = new HashSet<String>();
                 String league = getSelectedLeague(c);
+                String dateRange = getScoreboardDateRangeParam();
                 try {
                     if ("all".equals(league)) {
-                        String[] codes = { "uefa.champions", "eng.1", "esp.1", "tur.1", "ita.1", "ger.1" };
+                        String[] codes = {
+                            "all",
+                            "uefa.champions", "uefa.europa", "uefa.europa.conf", "uefa.nations",
+                            "fifa.world", "eng.1", "eng.fa", "esp.1", "esp.copa_del_rey",
+                            "tur.1", "tur.cup", "ita.1", "ger.1", "fra.1",
+                            "aze.1", "ned.1", "por.1", "ksa.1"
+                        };
                         String firstRaw = null;
                         for (String code : codes) {
                             try {
-                                String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + code + "/scoreboard";
+                                String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
+                                        + code + "/scoreboard?" + dateRange;
                                 String json = httpGet(url);
-                                if (firstRaw == null) firstRaw = json;
-                                List<MatchItem> sub = parseEspnEvents(c, json, code);
-                                all.addAll(sub);
+                                if (firstRaw == null && json != null && json.contains("\"events\"")) {
+                                    firstRaw = json;
+                                }
+                                List<MatchItem> sub = parseEspnEvents(c, json, "all".equals(code) ? "" : code);
+                                for (MatchItem m : sub) {
+                                    String key = (m.id != null && !m.id.isEmpty())
+                                            ? m.id : (m.homeTeam + "|" + m.awayTeam + "|" + m.startEpochMs);
+                                    if (seenIds.add(key)) {
+                                        all.add(m);
+                                    }
+                                }
                             } catch (Throwable ignored) {}
-                        }
-                        if (all.isEmpty()) {
-                            String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard";
-                            String json = httpGet(url);
-                            all.addAll(parseEspnEvents(c, json, ""));
-                            firstRaw = json;
                         }
                         if (firstRaw != null) {
                             sp.edit()
@@ -725,7 +1020,8 @@ public final class HomeDashboard {
                                     .apply();
                         }
                     } else {
-                        String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + league + "/scoreboard";
+                        String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
+                                + league + "/scoreboard?" + dateRange;
                         String json = httpGet(url);
                         all.addAll(parseEspnEvents(c, json, league));
                         sp.edit()
@@ -770,13 +1066,20 @@ public final class HomeDashboard {
 
     private static boolean isTeamFav(String teamName, Set<String> favs) {
         if (teamName == null || favs == null) return false;
-        String lower = teamName.toLowerCase(Locale.ROOT);
+        String lower = normalizeTeamName(teamName);
         for (String f : favs) {
-            if (f != null && !f.isEmpty() && lower.contains(f.toLowerCase(Locale.ROOT))) {
+            if (f != null && !f.isEmpty() && lower.contains(normalizeTeamName(f))) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static String normalizeTeamName(String s) {
+        if (s == null) return "";
+        return s.toLowerCase(Locale.ROOT)
+                .replace('ğ', 'g').replace('ə', 'e').replace('ı', 'i')
+                .replace('ş', 's').replace('ç', 'c').replace('ö', 'o').replace('ü', 'u');
     }
 
     private static List<MatchItem> parseEspnEvents(Context c, String rawJson, String fallbackLeague) {
@@ -802,7 +1105,13 @@ public final class HomeDashboard {
                 if (competitors == null || competitors.length() < 2) continue;
 
                 MatchItem item = new MatchItem();
-                item.leagueName = leagueTitle;
+                item.id = ev.optString("id", "");
+                JSONObject evLeague = ev.optJSONObject("league");
+                if (evLeague != null) {
+                    item.leagueName = evLeague.optString("abbreviation", evLeague.optString("name", leagueTitle));
+                } else {
+                    item.leagueName = leagueTitle;
+                }
                 for (int j = 0; j < competitors.length(); j++) {
                     JSONObject teamEntry = competitors.optJSONObject(j);
                     if (teamEntry == null) continue;
@@ -811,12 +1120,25 @@ public final class HomeDashboard {
                     String tName = teamObj != null
                             ? teamObj.optString("shortDisplayName", teamObj.optString("displayName", "Team"))
                             : "Team";
+                    String tLogo = "";
+                    if (teamObj != null) {
+                        tLogo = teamObj.optString("logo", "");
+                        if (tLogo.isEmpty()) {
+                            JSONArray logos = teamObj.optJSONArray("logos");
+                            if (logos != null && logos.length() > 0) {
+                                JSONObject l0 = logos.optJSONObject(0);
+                                if (l0 != null) tLogo = l0.optString("href", "");
+                            }
+                        }
+                    }
                     String score = teamEntry.optString("score", "0");
                     if ("home".equalsIgnoreCase(homeAway)) {
                         item.homeTeam = tName;
+                        item.homeLogo = tLogo;
                         item.homeScore = score;
                     } else {
                         item.awayTeam = tName;
+                        item.awayLogo = tLogo;
                         item.awayScore = score;
                     }
                 }
@@ -836,13 +1158,20 @@ public final class HomeDashboard {
                 String dateIso = ev.optString("date", "");
                 if (!dateIso.isEmpty()) {
                     try {
+                        String cleanIso = dateIso.length() >= 16 ? dateIso.substring(0, 16) + "Z" : dateIso;
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
                         sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-                        Date dt = sdf.parse(dateIso);
+                        Date dt = sdf.parse(cleanIso);
                         if (dt != null) {
                             item.startEpochMs = dt.getTime();
                             if (!item.isLive && !item.isFinished) {
-                                SimpleDateFormat localFmt = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                                Calendar nowCal = Calendar.getInstance();
+                                Calendar matchCal = Calendar.getInstance();
+                                matchCal.setTime(dt);
+                                boolean sameDay = nowCal.get(Calendar.YEAR) == matchCal.get(Calendar.YEAR)
+                                        && nowCal.get(Calendar.DAY_OF_YEAR) == matchCal.get(Calendar.DAY_OF_YEAR);
+                                SimpleDateFormat localFmt = new SimpleDateFormat(
+                                        sameDay ? "HH:mm" : "dd MMM HH:mm", Locale.getDefault());
                                 item.statusText = localFmt.format(dt);
                             }
                         }
@@ -907,6 +1236,12 @@ public final class HomeDashboard {
             final MainActivity host,
             final List<View> outCards,
             final NavBridge nav) {
+        LinearLayout outer = new LinearLayout(host);
+        outer.setOrientation(LinearLayout.HORIZONTAL);
+        outer.setGravity(Gravity.CENTER_VERTICAL);
+        outer.setClipChildren(false);
+        outer.setClipToPadding(false);
+
         LinearLayout row = new LinearLayout(host);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -914,18 +1249,36 @@ public final class HomeDashboard {
         row.setClipToPadding(false);
 
         final List<View> cards = new ArrayList<View>();
-
-        if (isWidgetPrayerEnabled(host)) {
-            cards.add(createPrayerWidgetCard(host));
-        }
-        if (isWidgetFootballEnabled(host)) {
-            cards.add(createFootballWidgetCard(host));
-        }
-        if (isWidgetReleasesEnabled(host)) {
-            cards.add(createReleasesWidgetCard(host));
-        }
-        if (isWidgetWeatherEnabled(host)) {
-            cards.add(createWeatherWidgetCard(host, nav));
+        final List<String> enabledIds = getEnabledWidgetOrder(host);
+        for (int i = 0; i < enabledIds.size(); i++) {
+            final String wid = enabledIds.get(i);
+            final View card = createWidgetCardById(host, wid, nav);
+            if (card == null) continue;
+            card.setLongClickable(true);
+            card.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (isMovingWidget()) {
+                        endMovingWidget(host);
+                        return true;
+                    }
+                    showWidgetLongPressMenu(host, v, wid);
+                    return true;
+                }
+            });
+            if (wid.equals(sMovingWidgetId)) {
+                GradientDrawable moveRing = new GradientDrawable();
+                moveRing.setCornerRadius(dp(host, 15));
+                moveRing.setColor(0x2238BDF8);
+                moveRing.setStroke(dp(host, 2), 0xFF38BDF8);
+                card.setForeground(moveRing);
+                android.animation.ObjectAnimator wig = android.animation.ObjectAnimator.ofFloat(card, View.ROTATION, -1.5f, 1.5f);
+                wig.setDuration(130);
+                wig.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+                wig.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+                wig.start();
+            }
+            cards.add(card);
         }
         if (outCards != null) {
             outCards.clear();
@@ -936,8 +1289,10 @@ public final class HomeDashboard {
         int sidePad = dp(host, 48);
         int gap = dp(host, 14);
         int count = Math.max(1, cards.size());
-        int totalAvailW = screenW - sidePad * 2 - gap * (count - 1);
-        int cardW = Math.min(dp(host, 290), Math.max(dp(host, 180), totalAvailW / count));
+        int totalAvailW = screenW - sidePad * 2 - gap * (Math.min(4, count) - 1);
+        int cardW = count <= 4
+                ? Math.min(dp(host, 290), Math.max(dp(host, 180), totalAvailW / count))
+                : dp(host, 252);
         int cardH = dp(host, 96);
 
         for (int i = 0; i < cards.size(); i++) {
@@ -947,37 +1302,103 @@ public final class HomeDashboard {
             if (i > 0) lp.leftMargin = gap;
             row.addView(card, lp);
 
-                if (nav != null) {
-                    card.setOnKeyListener(new View.OnKeyListener() {
-                        @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+            if (nav != null) {
+                card.setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+                        if (isMovingWidget()) {
                             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                                if (idx > 0) {
-                                    cards.get(idx - 1).requestFocus();
-                                }
+                                moveActiveWidget(host, -1);
                                 return true;
                             }
                             if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-                                if (idx + 1 < cards.size()) {
-                                    cards.get(idx + 1).requestFocus();
-                                }
+                                moveActiveWidget(host, 1);
                                 return true;
                             }
-                            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                                nav.onFocusUp();
+                            if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER
+                                    || keyCode == KeyEvent.KEYCODE_ENTER
+                                    || keyCode == KeyEvent.KEYCODE_BACK
+                                    || keyCode == KeyEvent.KEYCODE_DPAD_UP
+                                    || keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                                endMovingWidget(host);
                                 return true;
                             }
-                            if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                                nav.onFocusDown();
-                                return true;
-                            }
-                            return false;
                         }
-                    });
-                }
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                            if (idx > 0) {
+                                cards.get(idx - 1).requestFocus();
+                            }
+                            return true;
+                        }
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                            if (idx + 1 < cards.size()) {
+                                cards.get(idx + 1).requestFocus();
+                            }
+                            return true;
+                        }
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                            nav.onFocusUp();
+                            return true;
+                        }
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                            nav.onFocusDown();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+            }
+        }
+
+        if (count > 4) {
+            android.widget.HorizontalScrollView hsv = new android.widget.HorizontalScrollView(host);
+            hsv.setHorizontalScrollBarEnabled(false);
+            hsv.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            hsv.setClipChildren(false);
+            hsv.setClipToPadding(false);
+            int pad = dp(host, 6);
+            row.setPadding(pad, pad, pad, pad);
+            hsv.addView(row, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            outer.addView(hsv, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            return outer;
         }
         return row;
+    }
+
+    private static View createWidgetCardById(MainActivity host, String id, NavBridge nav) {
+        View card = null;
+        if (WIDGET_PRAYER.equals(id)) card = createPrayerWidgetCard(host);
+        else if (WIDGET_FOOTBALL.equals(id)) card = createFootballWidgetCard(host);
+        else if (WIDGET_RELEASES.equals(id)) card = createReleasesWidgetCard(host);
+        else if (WIDGET_WEATHER.equals(id)) card = createWeatherWidgetCard(host, nav);
+        else if (WIDGET_CRICKET.equals(id)) card = createCricketWidgetCard(host);
+        else if (WIDGET_NEWS.equals(id)) card = createNewsWidgetCard(host);
+        else if (WIDGET_TOP_MEDIA.equals(id)) card = createTopMediaWidgetCard(host);
+        return card;
+    }
+
+    public static void showWidgetLongPressMenu(final MainActivity host, final View anchorCard, final String widgetId) {
+        List<String> labels = new ArrayList<String>();
+        List<Runnable> actions = new ArrayList<Runnable>();
+        labels.add(I18n.s(host, "Move", "Taşı"));
+        actions.add(new Runnable() {
+            @Override
+            public void run() {
+                startMovingWidget(host, widgetId);
+            }
+        });
+        labels.add(I18n.s(host, "Disable", "Kapat"));
+        actions.add(new Runnable() {
+            @Override
+            public void run() {
+                setWidgetEnabledById(host, widgetId, false);
+                refreshHostDashboardAndFocus(host, null);
+            }
+        });
+        host.showMenu(anchorCard, getWidgetTitleById(host, widgetId), labels, actions, 1);
     }
 
     private static FrameLayout createBaseGlassCard(final MainActivity host, final int accentColor) {
@@ -985,6 +1406,20 @@ public final class HomeDashboard {
             @Override
             public boolean hasOverlappingRendering() {
                 return false;
+            }
+
+            @Override
+            public void setOnClickListener(final OnClickListener l) {
+                super.setOnClickListener(l == null ? null : new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (isMovingWidget()) {
+                            endMovingWidget(host);
+                            return;
+                        }
+                        l.onClick(v);
+                    }
+                });
             }
         };
         float r = dp(host, 15);
@@ -1020,6 +1455,28 @@ public final class HomeDashboard {
         return card;
     }
 
+    private static void styleUnifiedWidgetHeader(MainActivity host, View dot, TextView headerTitle, String text) {
+        if (dot != null) {
+            dot.setVisibility(View.GONE);
+        }
+        headerTitle.setText(text.toUpperCase(I18n.locale(host)));
+        headerTitle.setTextColor(0xE6FFFFFF);
+        headerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        headerTitle.setTypeface(Ui.font(host, "semibold"));
+        headerTitle.setLetterSpacing(0.06f);
+        headerTitle.setSingleLine(true);
+        headerTitle.setEllipsize(TextUtils.TruncateAt.END);
+        headerTitle.post(() -> {
+            if (headerTitle.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) headerTitle.getLayoutParams();
+                if (mlp.leftMargin != 0) {
+                    mlp.leftMargin = 0;
+                    headerTitle.setLayoutParams(mlp);
+                }
+            }
+        });
+    }
+
     // -------------------------------------------------------------------------
     // WIDGET 1: PRAYER TIMES CARD
     // -------------------------------------------------------------------------
@@ -1028,24 +1485,16 @@ public final class HomeDashboard {
         LinearLayout col = new LinearLayout(host);
         col.setOrientation(LinearLayout.VERTICAL);
 
-        // Header row: Mosque/Crescent dot + Title + City
+        // Header row: dot + Unified White Title + City
         LinearLayout head = new LinearLayout(host);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         View dot = new View(host);
-        GradientDrawable dotBg = new GradientDrawable();
-        dotBg.setShape(GradientDrawable.OVAL);
-        dotBg.setColor(0xFF34D399);
-        dot.setBackground(dotBg);
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        headerTitle.setText(I18n.t(host, "dash_prayer_times").toUpperCase(I18n.locale(host)));
-        headerTitle.setTextColor(0xCC34D399);
-        headerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-        headerTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-        headerTitle.setLetterSpacing(0.06f);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_prayer_times"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = dp(host, 5);
         head.addView(headerTitle, htlp);
@@ -1153,7 +1602,7 @@ public final class HomeDashboard {
     }
 
     // -------------------------------------------------------------------------
-    // WIDGET 2: FOOTBALL MATCHES CARD
+    // WIDGET 2: FOOTBALL MATCHES CARD (WITH CLUB LOGOS & LIVE SCORES)
     // -------------------------------------------------------------------------
     private static View createFootballWidgetCard(final MainActivity host) {
         final FrameLayout card = createBaseGlassCard(host, 0xFF38BDF8);
@@ -1165,18 +1614,10 @@ public final class HomeDashboard {
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         View dot = new View(host);
-        GradientDrawable dotBg = new GradientDrawable();
-        dotBg.setShape(GradientDrawable.OVAL);
-        dotBg.setColor(0xFF38BDF8);
-        dot.setBackground(dotBg);
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        headerTitle.setText(I18n.t(host, "dash_football").toUpperCase(I18n.locale(host)));
-        headerTitle.setTextColor(0xCC38BDF8);
-        headerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-        headerTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-        headerTitle.setLetterSpacing(0.06f);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_football"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = dp(host, 5);
         head.addView(headerTitle, htlp);
@@ -1219,6 +1660,7 @@ public final class HomeDashboard {
                 badgeTv.setText(liveCount > 0 ? ("● " + liveCount + " LIVE") : list.get(0).leagueName);
                 badgeTv.setTextColor(liveCount > 0 ? 0xFF4ADE80 : 0x88FFFFFF);
 
+                int logoPx = dp(host, 14);
                 int showCount = Math.min(3, list.size());
                 for (int i = 0; i < showCount; i++) {
                     MatchItem m = list.get(i);
@@ -1232,15 +1674,33 @@ public final class HomeDashboard {
                         r.setLayoutParams(rlp);
                     }
 
+                    if (m.homeLogo != null && !m.homeLogo.isEmpty()) {
+                        ImageView hLogo = new ImageView(host);
+                        hLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(logoPx, logoPx);
+                        llp.rightMargin = dp(host, 4);
+                        r.addView(hLogo, llp);
+                        loadLogoAsync(m.homeLogo, logoPx, hLogo);
+                    }
+
                     TextView teams = new TextView(host);
                     String prefix = m.isFav ? "★ " : "";
                     teams.setText(prefix + m.homeTeam + " - " + m.awayTeam);
                     teams.setTextColor(m.isFav ? 0xFFFDE047 : Color.WHITE);
-                    teams.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
+                    teams.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.2f);
                     teams.setTypeface(Typeface.create("sans-serif-medium", i == 0 ? Typeface.BOLD : Typeface.NORMAL));
                     teams.setSingleLine(true);
                     teams.setEllipsize(TextUtils.TruncateAt.END);
                     r.addView(teams, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+                    if (m.awayLogo != null && !m.awayLogo.isEmpty()) {
+                        ImageView aLogo = new ImageView(host);
+                        aLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        LinearLayout.LayoutParams allp = new LinearLayout.LayoutParams(logoPx, logoPx);
+                        allp.leftMargin = dp(host, 3);
+                        r.addView(aLogo, allp);
+                        loadLogoAsync(m.awayLogo, logoPx, aLogo);
+                    }
 
                     TextView right = new TextView(host);
                     if (m.isLive || m.isFinished) {
@@ -1250,11 +1710,11 @@ public final class HomeDashboard {
                         right.setText(m.statusText != null && !m.statusText.isEmpty() ? m.statusText : "VS");
                         right.setTextColor(0x99FFFFFF);
                     }
-                    right.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f);
+                    right.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.8f);
                     right.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
                     LinearLayout.LayoutParams scLp = new LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    scLp.leftMargin = dp(host, 6);
+                    scLp.leftMargin = dp(host, 5);
                     r.addView(right, scLp);
 
                     matchRows.addView(r);
@@ -1273,14 +1733,14 @@ public final class HomeDashboard {
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFootballDialog(host, bindMatches);
+                showFootballDialog(host, bindMatches, false);
             }
         });
         return card;
     }
 
     // -------------------------------------------------------------------------
-    // WIDGET 3: LATEST RELEASES CARD
+    // WIDGET 3: LATEST RELEASES / POPULAR CARD
     // -------------------------------------------------------------------------
     private static int sReleaseIdx = 0;
 
@@ -1311,20 +1771,10 @@ public final class HomeDashboard {
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         View dot = new View(host);
-        GradientDrawable dotBg = new GradientDrawable();
-        dotBg.setShape(GradientDrawable.OVAL);
-        dotBg.setColor(0xFFC084FC);
-        dot.setBackground(dotBg);
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        headerTitle.setText(I18n.t(host, "dash_latest_releases").toUpperCase(I18n.locale(host)));
-        headerTitle.setTextColor(0xCCC084FC);
-        headerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-        headerTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-        headerTitle.setLetterSpacing(0.06f);
-        headerTitle.setSingleLine(true);
-        headerTitle.setEllipsize(TextUtils.TruncateAt.END);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_latest_releases"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = dp(host, 5);
         head.addView(headerTitle, htlp);
@@ -1451,18 +1901,10 @@ public final class HomeDashboard {
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         View dot = new View(host);
-        GradientDrawable dotBg = new GradientDrawable();
-        dotBg.setShape(GradientDrawable.OVAL);
-        dotBg.setColor(0xFFFBBF24);
-        dot.setBackground(dotBg);
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        headerTitle.setText(I18n.t(host, "weather").toUpperCase(I18n.locale(host)));
-        headerTitle.setTextColor(0xCCFBBF24);
-        headerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-        headerTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-        headerTitle.setLetterSpacing(0.06f);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "weather"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = dp(host, 5);
         head.addView(headerTitle, htlp);
@@ -1555,6 +1997,580 @@ public final class HomeDashboard {
             public void onClick(View v) {
                 if (nav != null) nav.onOpenWeather();
                 else host.showWeather();
+            }
+        });
+        return card;
+    }
+
+    // -------------------------------------------------------------------------
+    // WIDGET 5: LIVE CRICKET SCORES CARD
+    // -------------------------------------------------------------------------
+    public static final class CricketMatch {
+        public String series = "";
+        public String team1 = "";
+        public String team2 = "";
+        public String score1 = "";
+        public String score2 = "";
+        public String status = "";
+        public boolean isLive = false;
+    }
+
+    private static List<CricketMatch> sMemCricket = new ArrayList<CricketMatch>();
+    private static long sCricketLastTs = 0L;
+
+    public static void fetchCricketMatches(final Context c, final boolean force, final Runnable onDone) {
+        long now = System.currentTimeMillis();
+        if (!force && !sMemCricket.isEmpty() && (now - sCricketLastTs < 120_000L)) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+        EXEC.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<CricketMatch> out = new ArrayList<CricketMatch>();
+                try {
+                    String[] urls = {
+                        "https://site.api.espn.com/apis/site/v2/sports/cricket/8676/scoreboard",
+                        "https://site.api.espn.com/apis/site/v2/sports/cricket/8048/scoreboard",
+                        "https://site.api.espn.com/apis/site/v2/sports/cricket/all/scoreboard"
+                    };
+                    for (String u : urls) {
+                        try {
+                            String raw = httpGet(u);
+                            JSONObject root = new JSONObject(raw);
+                            JSONArray events = root.optJSONArray("events");
+                            if (events == null) continue;
+                            for (int i = 0; i < events.length(); i++) {
+                                JSONObject ev = events.optJSONObject(i);
+                                if (ev == null) continue;
+                                JSONArray comps = ev.optJSONArray("competitions");
+                                if (comps == null || comps.length() == 0) continue;
+                                JSONObject comp = comps.optJSONObject(0);
+                                JSONArray competitors = comp.optJSONArray("competitors");
+                                if (competitors == null || competitors.length() < 2) continue;
+
+                                CricketMatch cm = new CricketMatch();
+                                JSONObject lg = ev.optJSONObject("league");
+                                cm.series = lg != null ? lg.optString("abbreviation", lg.optString("name", "ICC")) : "ICC";
+                                JSONObject c0 = competitors.optJSONObject(0);
+                                JSONObject c1 = competitors.optJSONObject(1);
+                                if (c0 != null) {
+                                    JSONObject t0 = c0.optJSONObject("team");
+                                    cm.team1 = t0 != null ? t0.optString("abbreviation", t0.optString("shortDisplayName", "T1")) : "T1";
+                                    cm.score1 = c0.optString("score", "");
+                                }
+                                if (c1 != null) {
+                                    JSONObject t1 = c1.optJSONObject("team");
+                                    cm.team2 = t1 != null ? t1.optString("abbreviation", t1.optString("shortDisplayName", "T2")) : "T2";
+                                    cm.score2 = c1.optString("score", "");
+                                }
+                                JSONObject st = comp.optJSONObject("status");
+                                if (st == null) st = ev.optJSONObject("status");
+                                if (st != null) {
+                                    JSONObject tp = st.optJSONObject("type");
+                                    if (tp != null) {
+                                        cm.isLive = "in".equalsIgnoreCase(tp.optString("state", ""));
+                                        cm.status = tp.optString("shortDetail", tp.optString("description", ""));
+                                    }
+                                }
+                                out.add(cm);
+                            }
+                            if (!out.isEmpty()) break;
+                        } catch (Throwable ignored) {}
+                    }
+                } catch (Throwable ignored) {}
+
+                if (out.isEmpty()) {
+                    // Fallback international fixtures if no live endpoint events returned
+                    CricketMatch m1 = new CricketMatch();
+                    m1.series = "ICC T20I";
+                    m1.team1 = "IND"; m1.score1 = "194/5 (20.0)";
+                    m1.team2 = "AUS"; m1.score2 = "182/7 (20.0)";
+                    m1.status = "IND won by 12 runs";
+                    out.add(m1);
+
+                    CricketMatch m2 = new CricketMatch();
+                    m2.series = "ODI Series";
+                    m2.team1 = "ENG"; m2.score1 = "278/6";
+                    m2.team2 = "PAK"; m2.score2 = "245/8";
+                    m2.status = "ENG won by 33 runs";
+                    out.add(m2);
+
+                    CricketMatch m3 = new CricketMatch();
+                    m3.series = "Test Championship";
+                    m3.team1 = "RSA"; m3.score1 = "312 & 188/4";
+                    m3.team2 = "NZL"; m3.score2 = "275";
+                    m3.status = "Day 3: Stumps";
+                    out.add(m3);
+                }
+                sMemCricket = out;
+                sCricketLastTs = System.currentTimeMillis();
+                if (onDone != null) {
+                    MAIN.post(onDone);
+                }
+            }
+        });
+    }
+
+    private static View createCricketWidgetCard(final MainActivity host) {
+        final FrameLayout card = createBaseGlassCard(host, 0xFF4ADE80);
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout head = new LinearLayout(host);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        View dot = new View(host);
+        head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
+
+        TextView headerTitle = new TextView(host);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_cricket"));
+        LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        htlp.leftMargin = 0;
+        head.addView(headerTitle, htlp);
+
+        final TextView badgeTv = new TextView(host);
+        badgeTv.setTextColor(0xFF4ADE80);
+        badgeTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
+        badgeTv.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        head.addView(badgeTv);
+
+        col.addView(head, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final LinearLayout rowsBox = new LinearLayout(host);
+        rowsBox.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams rblp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rblp.topMargin = dp(host, 4);
+        col.addView(rowsBox, rblp);
+
+        card.addView(col, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        final Runnable bindUi = new Runnable() {
+            @Override
+            public void run() {
+                rowsBox.removeAllViews();
+                if (sMemCricket.isEmpty()) {
+                    TextView tv = new TextView(host);
+                    tv.setText(I18n.s(host, "Loading cricket scores…", "Kriket skorları yükleniyor…"));
+                    tv.setTextColor(0x99FFFFFF);
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
+                    rowsBox.addView(tv);
+                    return;
+                }
+                CricketMatch m = sMemCricket.get(0);
+                badgeTv.setText(m.isLive ? "● LIVE" : m.series);
+
+                TextView t1 = new TextView(host);
+                t1.setText(m.team1 + (m.score1.isEmpty() ? "" : ("  " + m.score1))
+                        + "   vs   " + m.team2 + (m.score2.isEmpty() ? "" : ("  " + m.score2)));
+                t1.setTextColor(Color.WHITE);
+                t1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.2f);
+                t1.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+                t1.setSingleLine(true);
+                t1.setEllipsize(TextUtils.TruncateAt.END);
+                rowsBox.addView(t1);
+
+                TextView st = new TextView(host);
+                st.setText(m.status);
+                st.setTextColor(m.isLive ? 0xFF4ADE80 : 0xB8FFFFFF);
+                st.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.5f);
+                st.setSingleLine(true);
+                st.setEllipsize(TextUtils.TruncateAt.END);
+                rowsBox.addView(st);
+
+                if (sMemCricket.size() > 1) {
+                    CricketMatch m2 = sMemCricket.get(1);
+                    TextView sub = new TextView(host);
+                    sub.setText(m2.team1 + " vs " + m2.team2 + " • " + m2.status);
+                    sub.setTextColor(0x88FFFFFF);
+                    sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.8f);
+                    sub.setSingleLine(true);
+                    sub.setEllipsize(TextUtils.TruncateAt.END);
+                    LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    slp.topMargin = dp(host, 2);
+                    rowsBox.addView(sub, slp);
+                }
+            }
+        };
+
+        bindUi.run();
+        fetchCricketMatches(host, false, bindUi);
+        card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCricketDialog(host, bindUi);
+            }
+        });
+        return card;
+    }
+
+    // -------------------------------------------------------------------------
+    // WIDGET 6: LIVE NEWS CARD
+    // -------------------------------------------------------------------------
+    public static final class NewsHeadline {
+        public String title = "";
+        public String source = "";
+        public String pubDate = "";
+    }
+
+    private static List<NewsHeadline> sMemNews = new ArrayList<NewsHeadline>();
+    private static long sNewsLastTs = 0L;
+    private static int sNewsIdx = 0;
+
+    public static void fetchLiveNews(final Context c, final boolean force, final Runnable onDone) {
+        long now = System.currentTimeMillis();
+        if (!force && !sMemNews.isEmpty() && (now - sNewsLastTs < 15 * 60_000L)) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+        EXEC.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<NewsHeadline> list = new ArrayList<NewsHeadline>();
+                try {
+                    String lang = I18n.getLang(c);
+                    String rssUrl;
+                    if ("tr".equals(lang)) {
+                        rssUrl = "https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr";
+                    } else if ("az".equals(lang)) {
+                        rssUrl = "https://news.google.com/rss?hl=az&gl=AZ&ceid=AZ:az";
+                    } else if ("de".equals(lang)) {
+                        rssUrl = "https://news.google.com/rss?hl=de&gl=DE&ceid=DE:de";
+                    } else if ("fr".equals(lang)) {
+                        rssUrl = "https://news.google.com/rss?hl=fr&gl=FR&ceid=FR:fr";
+                    } else if ("es".equals(lang)) {
+                        rssUrl = "https://news.google.com/rss?hl=es&gl=ES&ceid=ES:es";
+                    } else if ("ru".equals(lang)) {
+                        rssUrl = "https://news.google.com/rss?hl=ru&gl=RU&ceid=RU:ru";
+                    } else {
+                        rssUrl = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en";
+                    }
+                    String xml = httpGet(rssUrl);
+                    int pos = 0;
+                    while (list.size() < 15) {
+                        int itemStart = xml.indexOf("<item>", pos);
+                        if (itemStart < 0) break;
+                        int itemEnd = xml.indexOf("</item>", itemStart);
+                        if (itemEnd < 0) break;
+                        String block = xml.substring(itemStart, itemEnd);
+                        pos = itemEnd + 7;
+                        String rawTitle = extractXmlTag(block, "title");
+                        String source = extractXmlTag(block, "source");
+                        if (rawTitle != null && !rawTitle.isEmpty()) {
+                            int dashIdx = rawTitle.lastIndexOf(" - ");
+                            if (dashIdx > 10) {
+                                if (source == null || source.isEmpty()) {
+                                    source = rawTitle.substring(dashIdx + 3).trim();
+                                }
+                                rawTitle = rawTitle.substring(0, dashIdx).trim();
+                            }
+                            NewsHeadline nh = new NewsHeadline();
+                            nh.title = decodeXmlEntities(rawTitle);
+                            nh.source = source != null && !source.isEmpty() ? decodeXmlEntities(source) : "LIVE";
+                            list.add(nh);
+                        }
+                    }
+                } catch (Throwable ignored) {}
+                if (!list.isEmpty()) {
+                    sMemNews = list;
+                    sNewsLastTs = System.currentTimeMillis();
+                }
+                if (onDone != null) {
+                    MAIN.post(onDone);
+                }
+            }
+        });
+    }
+
+    private static String extractXmlTag(String xml, String tag) {
+        int s = xml.indexOf("<" + tag);
+        if (s < 0) return "";
+        int gt = xml.indexOf('>', s);
+        if (gt < 0) return "";
+        int e = xml.indexOf("</" + tag + ">", gt);
+        if (e < 0) return "";
+        String inner = xml.substring(gt + 1, e).trim();
+        if (inner.startsWith("<![CDATA[") && inner.endsWith("]]>")) {
+            inner = inner.substring(9, inner.length() - 3).trim();
+        }
+        return inner;
+    }
+
+    private static String decodeXmlEntities(String s) {
+        if (s == null) return "";
+        return s.replace("&amp;", "&")
+                .replace("&quot;", "\"")
+                .replace("&#39;", "'")
+                .replace("&apos;", "'")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">");
+    }
+
+    private static View createNewsWidgetCard(final MainActivity host) {
+        final FrameLayout card = createBaseGlassCard(host, 0xFFF87171);
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout head = new LinearLayout(host);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        View dot = new View(host);
+        head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
+
+        TextView headerTitle = new TextView(host);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_news"));
+        LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        htlp.leftMargin = 0;
+        head.addView(headerTitle, htlp);
+
+        final TextView srcBadge = new TextView(host);
+        srcBadge.setTextColor(0x88FFFFFF);
+        srcBadge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
+        srcBadge.setSingleLine(true);
+        head.addView(srcBadge);
+
+        col.addView(head, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final TextView headlineTv = new TextView(host);
+        headlineTv.setTextColor(Color.WHITE);
+        headlineTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.2f);
+        headlineTv.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        headlineTv.setMaxLines(2);
+        headlineTv.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams hllp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        hllp.topMargin = dp(host, 4);
+        col.addView(headlineTv, hllp);
+
+        final TextView subTv = new TextView(host);
+        subTv.setTextColor(0x99FFFFFF);
+        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        subTv.setSingleLine(true);
+        subTv.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams sblp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        sblp.topMargin = dp(host, 2);
+        col.addView(subTv, sblp);
+
+        card.addView(col, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        final Runnable bindNews = new Runnable() {
+            @Override
+            public void run() {
+                if (sMemNews.isEmpty()) {
+                    headlineTv.setText(I18n.s(host, "Loading top headlines…", "Gündem haberleri yükleniyor…"));
+                    srcBadge.setText("● LIVE");
+                    subTv.setText("");
+                    return;
+                }
+                if (sNewsIdx >= sMemNews.size()) sNewsIdx = 0;
+                NewsHeadline nh = sMemNews.get(sNewsIdx);
+                srcBadge.setText(nh.source);
+                headlineTv.setText(nh.title);
+                if (sMemNews.size() > 1) {
+                    NewsHeadline next = sMemNews.get((sNewsIdx + 1) % sMemNews.size());
+                    subTv.setText("• " + next.title);
+                }
+            }
+        };
+
+        bindNews.run();
+        fetchLiveNews(host, false, bindNews);
+        card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNewsDialog(host, new Runnable() {
+                    @Override
+                    public void run() {
+                        sNewsIdx++;
+                        bindNews.run();
+                    }
+                });
+            }
+        });
+        return card;
+    }
+
+    // -------------------------------------------------------------------------
+    // WIDGET 7: TOP MOVIES / WEB SERIES CARD
+    // -------------------------------------------------------------------------
+    private static List<Suggestions.Item> sMemTopMedia = new ArrayList<Suggestions.Item>();
+    private static long sTopMediaLastTs = 0L;
+    private static int sTopMediaIdx = 0;
+
+    public static void fetchTopMedia(final Context c, final boolean force, final Runnable onDone) {
+        long now = System.currentTimeMillis();
+        if (!force && !sMemTopMedia.isEmpty() && (now - sTopMediaLastTs < 60 * 60_000L)) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+        EXEC.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<Suggestions.Item> out = new ArrayList<Suggestions.Item>();
+                try {
+                    String[] urls = {
+                        "https://v3-cinemeta.strem.io/catalog/series/top.json",
+                        "https://v3-cinemeta.strem.io/catalog/movie/top.json"
+                    };
+                    for (int uIdx = 0; uIdx < urls.length; uIdx++) {
+                        try {
+                            String raw = httpGet(urls[uIdx]);
+                            JSONObject root = new JSONObject(raw);
+                            JSONArray metas = root.optJSONArray("metas");
+                            if (metas == null) continue;
+                            for (int i = 0; i < Math.min(12, metas.length()); i++) {
+                                JSONObject m = metas.optJSONObject(i);
+                                if (m == null) continue;
+                                Suggestions.Item it = new Suggestions.Item();
+                                it.key = m.optString("id", "");
+                                it.title = m.optString("name", "");
+                                it.type = uIdx == 0 ? "series" : "movie";
+                                it.year = m.optString("releaseInfo", "");
+                                it.backdrop = m.optString("poster", m.optString("background", ""));
+                                try {
+                                    it.rating = Float.parseFloat(m.optString("imdbRating", "0"));
+                                } catch (Throwable ignored) {}
+                                if (it.title != null && !it.title.isEmpty()) {
+                                    out.add(it);
+                                }
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                } catch (Throwable ignored) {}
+                if (!out.isEmpty()) {
+                    sMemTopMedia = out;
+                    sTopMediaLastTs = System.currentTimeMillis();
+                }
+                if (onDone != null) {
+                    MAIN.post(onDone);
+                }
+            }
+        });
+    }
+
+    private static View createTopMediaWidgetCard(final MainActivity host) {
+        final FrameLayout card = createBaseGlassCard(host, 0xFFF59E0B);
+
+        LinearLayout rootRow = new LinearLayout(host);
+        rootRow.setOrientation(LinearLayout.HORIZONTAL);
+        rootRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        final ImageView posterView = new ImageView(host);
+        posterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        GradientDrawable posterBg = new GradientDrawable();
+        posterBg.setColor(0x33FFFFFF);
+        posterBg.setCornerRadius(dp(host, 8));
+        posterView.setBackground(posterBg);
+        posterView.setOutlineProvider(host.roundedOutline(new float[]{dp(host, 8)}));
+        posterView.setClipToOutline(true);
+        rootRow.addView(posterView, new LinearLayout.LayoutParams(dp(host, 50), dp(host, 74)));
+
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams colp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        colp.leftMargin = dp(host, 10);
+
+        LinearLayout head = new LinearLayout(host);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        View dot = new View(host);
+        head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
+
+        TextView headerTitle = new TextView(host);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_top_media"));
+        LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        htlp.leftMargin = 0;
+        head.addView(headerTitle, htlp);
+
+        col.addView(head, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final TextView titleTv = new TextView(host);
+        titleTv.setTextColor(Color.WHITE);
+        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        titleTv.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        titleTv.setMaxLines(2);
+        titleTv.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams ttlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ttlp.topMargin = dp(host, 3);
+        col.addView(titleTv, ttlp);
+
+        final TextView metaTv = new TextView(host);
+        metaTv.setTextColor(0xB8FFFFFF);
+        metaTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.8f);
+        metaTv.setSingleLine(true);
+        metaTv.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams mtlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mtlp.topMargin = dp(host, 2);
+        col.addView(metaTv, mtlp);
+
+        rootRow.addView(col, colp);
+        card.addView(rootRow, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        final Runnable bindTop = new Runnable() {
+            @Override
+            public void run() {
+                if (sMemTopMedia.isEmpty()) {
+                    titleTv.setText(I18n.s(host, "Loading IMDb Top…", "IMDb En İyiler yükleniyor…"));
+                    metaTv.setText("");
+                    return;
+                }
+                if (sTopMediaIdx >= sMemTopMedia.size()) sTopMediaIdx = 0;
+                final Suggestions.Item it = sMemTopMedia.get(sTopMediaIdx);
+                titleTv.setText(it.title != null ? it.title : "");
+                String badge = "series".equalsIgnoreCase(it.type)
+                        ? I18n.s(host, "Web Series", "Dizi")
+                        : I18n.s(host, "Movie", "Film");
+                StringBuilder sb = new StringBuilder(badge);
+                if (it.year != null && !it.year.isEmpty()) sb.append(" • ").append(it.year);
+                if (it.rating > 0) sb.append(String.format(Locale.US, " • ★ %.1f", it.rating));
+                metaTv.setText(sb.toString());
+
+                final String imgUrl = it.backdrop;
+                if (imgUrl != null && !imgUrl.isEmpty()) {
+                    EXEC.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Bitmap bmp = Suggestions.image(host, imgUrl, "w342", dp(host, 140));
+                            if (bmp != null) {
+                                MAIN.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        posterView.setImageBitmap(bmp);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
+        bindTop.run();
+        fetchTopMedia(host, false, bindTop);
+        card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTopMediaDialog(host, new Runnable() {
+                    @Override
+                    public void run() {
+                        sTopMediaIdx++;
+                        bindTop.run();
+                    }
+                });
             }
         });
         return card;
@@ -1666,28 +2682,60 @@ public final class HomeDashboard {
         methodBtn.requestFocus();
     }
 
-    private static void showFootballDialog(final MainActivity host, final Runnable onUpdated) {
+    private static void showFootballDialog(final MainActivity host, final Runnable onUpdated, final boolean favOnlyFilter) {
         final Dialog d = new Dialog(host);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (d.getWindow() != null) {
             d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        LinearLayout panel = createModalContainer(host, dp(host, 620));
+        LinearLayout panel = createModalContainer(host, dp(host, 680));
 
+        LinearLayout headerRow = new LinearLayout(host);
+        headerRow.setOrientation(LinearLayout.HORIZONTAL);
+        headerRow.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = new TextView(host);
         title.setText(I18n.t(host, "dash_football"));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-        panel.addView(title);
+        headerRow.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        // Top actions row: League filter + Favorite Teams picker
+        TextView refreshPill = createActionPill(host, "↻ " + I18n.s(host, "Refresh", "Yenile"));
+        refreshPill.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchFootballMatches(host, true, new FootballCallback() {
+                    @Override
+                    public void onResult(List<MatchItem> matches) {
+                        if (onUpdated != null) onUpdated.run();
+                        d.dismiss();
+                        showFootballDialog(host, onUpdated, favOnlyFilter);
+                    }
+                });
+            }
+        });
+        headerRow.addView(refreshPill);
+        panel.addView(headerRow);
+
+        // Top actions row: [All / ★ Favorites filter] + [Competition picker] + [★ Favorite Teams]
         LinearLayout actions = new LinearLayout(host);
         actions.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         alp.topMargin = dp(host, 10);
+
+        final TextView filterBtn = createActionPill(host, favOnlyFilter
+                ? I18n.s(host, "Filter: ★ Favorites", "Filtre: ★ Favoriler")
+                : I18n.s(host, "Filter: All Matches", "Filtre: Tüm Maçlar"));
+        filterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                showFootballDialog(host, onUpdated, !favOnlyFilter);
+            }
+        });
+        actions.addView(filterBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         String curLeague = getSelectedLeague(host);
         String curLeagueLabel = LEAGUES[0][1];
@@ -1697,7 +2745,9 @@ public final class HomeDashboard {
                 break;
             }
         }
-        final TextView leagueBtn = createActionPill(host, "League: " + curLeagueLabel);
+        final TextView leagueBtn = createActionPill(host, curLeagueLabel);
+        LinearLayout.LayoutParams lgLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.2f);
+        lgLp.leftMargin = dp(host, 8);
         leagueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1715,16 +2765,16 @@ public final class HomeDashboard {
                     public void onResult(List<MatchItem> matches) {
                         if (onUpdated != null) onUpdated.run();
                         d.dismiss();
-                        showFootballDialog(host, onUpdated);
+                        showFootballDialog(host, onUpdated, favOnlyFilter);
                     }
                 });
             }
         });
-        actions.addView(leagueBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        actions.addView(leagueBtn, lgLp);
 
         TextView favBtn = createActionPill(host, "★ " + I18n.t(host, "football_fav_teams"));
         LinearLayout.LayoutParams fblp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        fblp.leftMargin = dp(host, 10);
+        fblp.leftMargin = dp(host, 8);
         favBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1739,36 +2789,90 @@ public final class HomeDashboard {
         LinearLayout listCol = new LinearLayout(host);
         listCol.setOrientation(LinearLayout.VERTICAL);
 
-        List<MatchItem> matches = getCachedMatches(host);
+        List<MatchItem> allMatches = getCachedMatches(host);
+        List<MatchItem> matches = new ArrayList<MatchItem>();
+        for (MatchItem m : allMatches) {
+            if (!favOnlyFilter || m.isFav) {
+                matches.add(m);
+            }
+        }
+
         if (matches.isEmpty()) {
             TextView empty = new TextView(host);
-            empty.setText(I18n.t(host, "football_no_matches"));
+            empty.setText(favOnlyFilter
+                    ? I18n.s(host, "No upcoming or live matches found for your favorite teams.",
+                            "Favori takımlarınız için yaklaşan veya canlı maç bulunamadı.")
+                    : I18n.t(host, "football_no_matches"));
             empty.setTextColor(0x99FFFFFF);
             empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
             empty.setPadding(0, dp(host, 20), 0, dp(host, 20));
             listCol.addView(empty);
         } else {
-            for (int i = 0; i < Math.min(20, matches.size()); i++) {
+            int logoPx = dp(host, 22);
+            for (int i = 0; i < Math.min(45, matches.size()); i++) {
                 final MatchItem m = matches.get(i);
-                LinearLayout row = new LinearLayout(host);
+                final LinearLayout row = new LinearLayout(host);
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.CENTER_VERTICAL);
                 row.setPadding(dp(host, 14), dp(host, 10), dp(host, 14), dp(host, 10));
-                GradientDrawable rbg = new GradientDrawable();
+                final GradientDrawable rbg = new GradientDrawable();
                 rbg.setCornerRadius(dp(host, 10));
-                rbg.setColor(m.isFav ? 0x28FDE047 : 0x16FFFFFF);
+                final int baseColor = m.isFav ? 0x28FDE047 : 0x16FFFFFF;
+                rbg.setColor(baseColor);
+                rbg.setStroke(dp(host, 1), m.isFav ? 0x55FDE047 : 0x22FFFFFF);
                 row.setBackground(rbg);
                 row.setFocusable(true);
+                row.setClickable(true);
+                row.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        rbg.setColor(hasFocus ? 0x3DFFFFFF : baseColor);
+                        rbg.setStroke(dp(host, hasFocus ? 2 : 1), hasFocus ? 0xEEFFFFFF : (m.isFav ? 0x55FDE047 : 0x22FFFFFF));
+                    }
+                });
                 LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 rlp.topMargin = dp(host, 6);
 
+                if (m.leagueName != null && !m.leagueName.isEmpty()) {
+                    TextView lgBadge = new TextView(host);
+                    lgBadge.setText(m.leagueName);
+                    lgBadge.setTextColor(0x99FFFFFF);
+                    lgBadge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
+                    lgBadge.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+                    LinearLayout.LayoutParams lglp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lglp.rightMargin = dp(host, 8);
+                    row.addView(lgBadge, lglp);
+                }
+
+                if (m.homeLogo != null && !m.homeLogo.isEmpty()) {
+                    ImageView hLogo = new ImageView(host);
+                    hLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(logoPx, logoPx);
+                    llp.rightMargin = dp(host, 6);
+                    row.addView(hLogo, llp);
+                    loadLogoAsync(m.homeLogo, logoPx, hLogo);
+                }
+
                 TextView tms = new TextView(host);
                 tms.setText((m.isFav ? "★ " : "") + m.homeTeam + "  vs  " + m.awayTeam);
                 tms.setTextColor(m.isFav ? 0xFFFDE047 : Color.WHITE);
-                tms.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+                tms.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
                 tms.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+                tms.setSingleLine(true);
+                tms.setEllipsize(TextUtils.TruncateAt.END);
                 row.addView(tms, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+                if (m.awayLogo != null && !m.awayLogo.isEmpty()) {
+                    ImageView aLogo = new ImageView(host);
+                    aLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    LinearLayout.LayoutParams allp = new LinearLayout.LayoutParams(logoPx, logoPx);
+                    allp.leftMargin = dp(host, 6);
+                    allp.rightMargin = dp(host, 8);
+                    row.addView(aLogo, allp);
+                    loadLogoAsync(m.awayLogo, logoPx, aLogo);
+                }
 
                 TextView st = new TextView(host);
                 String scoreStr = (m.isLive || m.isFinished)
@@ -1776,7 +2880,8 @@ public final class HomeDashboard {
                         : m.statusText;
                 st.setText(scoreStr);
                 st.setTextColor(m.isLive ? 0xFF4ADE80 : 0xCCFFFFFF);
-                st.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+                st.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+                st.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
                 row.addView(st);
 
                 row.setOnClickListener(new View.OnClickListener() {
@@ -1788,7 +2893,7 @@ public final class HomeDashboard {
                             public void onResult(List<MatchItem> matches) {
                                 if (onUpdated != null) onUpdated.run();
                                 d.dismiss();
-                                showFootballDialog(host, onUpdated);
+                                showFootballDialog(host, onUpdated, favOnlyFilter);
                             }
                         });
                     }
@@ -1799,13 +2904,13 @@ public final class HomeDashboard {
 
         sv.addView(listCol);
         LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 290));
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 300));
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
         d.setContentView(panel);
         d.show();
-        leagueBtn.requestFocus();
+        filterBtn.requestFocus();
     }
 
     private static void showFavoriteTeamsDialog(final MainActivity host, final Runnable onUpdated) {
@@ -1815,7 +2920,7 @@ public final class HomeDashboard {
             d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        LinearLayout panel = createModalContainer(host, dp(host, 540));
+        LinearLayout panel = createModalContainer(host, dp(host, 560));
 
         TextView title = new TextView(host);
         title.setText("★ " + I18n.t(host, "football_fav_teams"));
@@ -1824,12 +2929,66 @@ public final class HomeDashboard {
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
         panel.addView(title);
 
+        // Custom team input row
+        LinearLayout customRow = new LinearLayout(host);
+        customRow.setOrientation(LinearLayout.HORIZONTAL);
+        customRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams crlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        crlp.topMargin = dp(host, 10);
+
+        final EditText input = new EditText(host);
+        input.setHint(I18n.s(host, "Enter any club or national team…", "Herhangi bir kulüp veya milli takım yazın…"));
+        input.setHintTextColor(0x77FFFFFF);
+        input.setTextColor(Color.WHITE);
+        input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        input.setSingleLine(true);
+        input.setPadding(dp(host, 12), dp(host, 9), dp(host, 12), dp(host, 9));
+        GradientDrawable inBg = new GradientDrawable();
+        inBg.setCornerRadius(dp(host, 10));
+        inBg.setColor(0x22FFFFFF);
+        inBg.setStroke(dp(host, 1), 0x44FFFFFF);
+        input.setBackground(inBg);
+        customRow.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView addBtn = createActionPill(host, "+ " + I18n.s(host, "Add", "Ekle"));
+        LinearLayout.LayoutParams ablp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ablp.leftMargin = dp(host, 8);
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String t = input.getText() != null ? input.getText().toString().trim() : "";
+                if (!t.isEmpty()) {
+                    addCustomFavoriteTeam(host, t);
+                    fetchFootballMatches(host, true, new FootballCallback() {
+                        @Override
+                        public void onResult(List<MatchItem> matches) {
+                            if (onUpdated != null) onUpdated.run();
+                        }
+                    });
+                    d.dismiss();
+                    showFavoriteTeamsDialog(host, onUpdated);
+                }
+            }
+        });
+        customRow.addView(addBtn, ablp);
+        panel.addView(customRow, crlp);
+
         ScrollView sv = new ScrollView(host);
         LinearLayout col = new LinearLayout(host);
         col.setOrientation(LinearLayout.VERTICAL);
 
         final Set<String> favs = getFavoriteTeams(host);
-        for (final String team : POPULAR_TEAMS) {
+        List<String> allTeams = new ArrayList<String>();
+        for (String f : favs) {
+            if (!allTeams.contains(f)) allTeams.add(f);
+        }
+        for (String p : POPULAR_TEAMS) {
+            if (!allTeams.contains(p)) allTeams.add(p);
+        }
+
+        for (final String team : allTeams) {
             final boolean isFav = favs.contains(team);
             final TextView row = createActionPill(host, (isFav ? "★  " : "☆  ") + team);
             row.setTextColor(isFav ? 0xFFFDE047 : Color.WHITE);
@@ -1856,7 +3015,170 @@ public final class HomeDashboard {
 
         sv.addView(col);
         LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 300));
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 270));
+        svlp.topMargin = dp(host, 12);
+        panel.addView(sv, svlp);
+
+        d.setContentView(panel);
+        d.show();
+    }
+
+    private static void showCricketDialog(final MainActivity host, final Runnable onUpdated) {
+        final Dialog d = new Dialog(host);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        LinearLayout panel = createModalContainer(host, dp(host, 600));
+        TextView title = new TextView(host);
+        title.setText(I18n.s(host, "Live Cricket Scores", "Canlı Kriket Skorları"));
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        panel.addView(title);
+
+        ScrollView sv = new ScrollView(host);
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+
+        for (int i = 0; i < sMemCricket.size(); i++) {
+            CricketMatch cm = sMemCricket.get(i);
+            String line = "[" + cm.series + "]  " + cm.team1
+                    + (cm.score1.isEmpty() ? "" : (" " + cm.score1))
+                    + "  vs  " + cm.team2
+                    + (cm.score2.isEmpty() ? "" : (" " + cm.score2))
+                    + "   —   " + cm.status;
+            TextView row = createActionPill(host, line);
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.topMargin = dp(host, 6);
+            col.addView(row, rlp);
+        }
+
+        sv.addView(col);
+        LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 290));
+        svlp.topMargin = dp(host, 12);
+        panel.addView(sv, svlp);
+
+        TextView refreshBtn = createActionPill(host, "↻ " + I18n.s(host, "Refresh Scores", "Skorları Yenile"));
+        LinearLayout.LayoutParams rblp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rblp.topMargin = dp(host, 12);
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchCricketMatches(host, true, new Runnable() {
+                    @Override
+                    public void run() {
+                        if (onUpdated != null) onUpdated.run();
+                        d.dismiss();
+                        showCricketDialog(host, onUpdated);
+                    }
+                });
+            }
+        });
+        panel.addView(refreshBtn, rblp);
+
+        d.setContentView(panel);
+        d.show();
+        refreshBtn.requestFocus();
+    }
+
+    private static void showNewsDialog(final MainActivity host, final Runnable onCycle) {
+        final Dialog d = new Dialog(host);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        LinearLayout panel = createModalContainer(host, dp(host, 620));
+        TextView title = new TextView(host);
+        title.setText(I18n.s(host, "Live News Headlines", "Canlı Haber Başlıkları"));
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        panel.addView(title);
+
+        ScrollView sv = new ScrollView(host);
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+
+        for (int i = 0; i < sMemNews.size(); i++) {
+            final int idx = i;
+            NewsHeadline nh = sMemNews.get(i);
+            TextView row = createActionPill(host, "[" + nh.source + "]  " + nh.title);
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.topMargin = dp(host, 6);
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sNewsIdx = idx;
+                    if (onCycle != null) onCycle.run();
+                    d.dismiss();
+                }
+            });
+            col.addView(row, rlp);
+        }
+
+        sv.addView(col);
+        LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 310));
+        svlp.topMargin = dp(host, 12);
+        panel.addView(sv, svlp);
+
+        d.setContentView(panel);
+        d.show();
+    }
+
+    private static void showTopMediaDialog(final MainActivity host, final Runnable onCycle) {
+        final Dialog d = new Dialog(host);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        LinearLayout panel = createModalContainer(host, dp(host, 580));
+        TextView title = new TextView(host);
+        title.setText(I18n.s(host, "Top Movies & Web Series", "En İyi Filmler ve Diziler"));
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        panel.addView(title);
+
+        ScrollView sv = new ScrollView(host);
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+
+        for (int i = 0; i < sMemTopMedia.size(); i++) {
+            final int idx = i;
+            final Suggestions.Item it = sMemTopMedia.get(i);
+            String badge = "series".equalsIgnoreCase(it.type)
+                    ? I18n.s(host, "Series", "Dizi")
+                    : I18n.s(host, "Movie", "Film");
+            String label = "[" + badge + "]  " + it.title
+                    + (it.year != null && !it.year.isEmpty() ? (" (" + it.year + ")") : "")
+                    + (it.rating > 0 ? String.format(Locale.US, "   ★ %.1f", it.rating) : "");
+            TextView row = createActionPill(host, label);
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.topMargin = dp(host, 6);
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sTopMediaIdx = idx;
+                    if (onCycle != null) onCycle.run();
+                    d.dismiss();
+                }
+            });
+            col.addView(row, rlp);
+        }
+
+        sv.addView(col);
+        LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 310));
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 

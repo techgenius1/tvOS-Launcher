@@ -33,7 +33,7 @@ if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
 
 & "$BT\aapt2.exe" link -o build\unsigned.apk -I "$JAR" --manifest AndroidManifest.xml `
     --java build\gen --min-sdk-version 24 --target-sdk-version 34 `
-    --version-code 15 --version-name "2.1.5" build\res.zip
+    --version-code 16 --version-name "2.2.0" build\res.zip
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed" }
 
 $javaFiles = Get-ChildItem -Recurse -Path src, build\gen -Filter "*.java" | Select-Object -ExpandProperty FullName
@@ -55,7 +55,7 @@ try {
 
     # Package assets with POSIX forward slashes (Windows aapt2 -A writes backslashes which Android AssetManager cannot open)
     $assetsRoot = (Resolve-Path "assets").Path
-    $noCompressExts = @(".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp3", ".wav", ".ogg", ".mp4", ".webm")
+    $noCompressExts = @(".mp3", ".wav", ".ogg", ".mp4", ".webm")
     Get-ChildItem -Recurse -File -Path $assetsRoot | ForEach-Object {
         $rel = $_.FullName.Substring($assetsRoot.Length + 1).Replace('\', '/')
         $entryName = "assets/$rel"

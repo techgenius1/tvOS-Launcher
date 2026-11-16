@@ -171,8 +171,29 @@ public final class ButtonMapper {
         return I18n.s(c, "Mode 1 (Standard · Default)", "Mod 1 (Standart · Varsayılan)");
     }
 
+    public static int extractKeyCode(int keyId) {
+        return keyId > 0 ? (keyId & 0xFFFF) : keyId;
+    }
+
+    public static int extractScanCode(int keyId) {
+        return keyId > 0 ? ((keyId >>> 16) & 0xFFFF) : 0;
+    }
+
+    public static int makeKeyId(int keyCode, int scanCode) {
+        if (keyCode <= 0) return keyCode;
+        if (scanCode > 0 && scanCode <= 0x7FFF) {
+            return ((scanCode & 0x7FFF) << 16) | (keyCode & 0xFFFF);
+        }
+        return keyCode & 0xFFFF;
+    }
+
     public static boolean isKeyCustomMapped(Context c, int keyCode) {
-        return hasAnyMapping(c, keyCode);
+        if (hasAnyMapping(c, keyCode)) return true;
+        int rawCode = extractKeyCode(keyCode);
+        for (int mapped : getMappedKeys(c)) {
+            if (extractKeyCode(mapped) == rawCode) return true;
+        }
+        return false;
     }
 
     private static final String KEY_HOME_FIX = "home_button_fix";
@@ -222,7 +243,8 @@ public final class ButtonMapper {
         return false;
     }
 
-    public static boolean isCapturableKey(int keyCode) {
+    public static boolean isCapturableKey(int keyId) {
+        int keyCode = extractKeyCode(keyId);
         switch (keyCode) {
             case KeyEvent.KEYCODE_UNKNOWN:
             case KeyEvent.KEYCODE_DPAD_UP:
@@ -402,41 +424,64 @@ public final class ButtonMapper {
         return TextUtils.join("  ·  ", parts);
     }
 
-    public static String keyLabel(Context c, int keyCode) {
+    public static String keyLabel(Context c, int keyId) {
+        int keyCode = extractKeyCode(keyId);
+        int scanCode = extractScanCode(keyId);
+        // Philips TV remote special buttons sharing keyCode 602 with distinct scanCodes
+        if (keyCode == 602) {
+            if (scanCode == 757) {
+                return I18n.s(c, "Sources / Input (#602 · Scan 757)", "Kaynaklar / Giriş (#602 · Scan 757)");
+            }
+            if (scanCode == 641) {
+                return I18n.s(c, "Settings (#602 · Scan 641)", "Ayarlar (#602 · Scan 641)");
+            }
+        }
+        String base;
         switch (keyCode) {
-            case KeyEvent.KEYCODE_PROG_RED: return I18n.s(c, "Red Button", "Kırmızı Tuş");
-            case KeyEvent.KEYCODE_PROG_GREEN: return I18n.s(c, "Green Button", "Yeşil Tuş");
-            case KeyEvent.KEYCODE_PROG_YELLOW: return I18n.s(c, "Yellow Button", "Sarı Tuş");
-            case KeyEvent.KEYCODE_PROG_BLUE: return I18n.s(c, "Blue Button", "Mavi Tuş");
-            case KeyEvent.KEYCODE_MENU: return I18n.s(c, "Menu Button", "Menü Tuşu");
-            case KeyEvent.KEYCODE_GUIDE: return I18n.s(c, "Guide Button", "Rehber Tuşu");
-            case KeyEvent.KEYCODE_INFO: return I18n.s(c, "Info Button", "Bilgi Tuşu");
-            case KeyEvent.KEYCODE_CAPTIONS: return I18n.s(c, "Subtitles / CC", "Altyazı Tuşu");
-            case KeyEvent.KEYCODE_TV_INPUT: return I18n.s(c, "TV Input / Source", "Giriş / Kaynak Tuşu");
-            case KeyEvent.KEYCODE_CHANNEL_UP: return I18n.s(c, "Channel Up", "Kanal Yukarı");
-            case KeyEvent.KEYCODE_CHANNEL_DOWN: return I18n.s(c, "Channel Down", "Kanal Aşağı");
-            case KeyEvent.KEYCODE_BOOKMARK: return I18n.s(c, "Bookmark / Favorite", "Favori Tuşu");
-            case KeyEvent.KEYCODE_DVR: return "DVR";
-            case KeyEvent.KEYCODE_LAST_CHANNEL: return I18n.s(c, "Last Channel", "Son Kanal");
-            case KeyEvent.KEYCODE_SETTINGS: return I18n.s(c, "Settings Button", "Ayarlar Tuşu");
-            case KeyEvent.KEYCODE_SEARCH: return I18n.s(c, "Search Button", "Arama Tuşu");
-            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: return I18n.s(c, "Play / Pause", "Oynat / Duraklat");
-            case KeyEvent.KEYCODE_MEDIA_PLAY: return I18n.s(c, "Play", "Oynat");
-            case KeyEvent.KEYCODE_MEDIA_PAUSE: return I18n.s(c, "Pause", "Duraklat");
-            case KeyEvent.KEYCODE_MEDIA_STOP: return I18n.s(c, "Stop", "Durdur");
-            case KeyEvent.KEYCODE_MEDIA_REWIND: return I18n.s(c, "Rewind", "Geri Sar");
-            case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD: return I18n.s(c, "Fast Forward", "İleri Sar");
-            case KeyEvent.KEYCODE_MEDIA_NEXT: return I18n.s(c, "Next Track", "Sonraki Parça");
-            case KeyEvent.KEYCODE_MEDIA_PREVIOUS: return I18n.s(c, "Previous Track", "Önceki Parça");
-            case KeyEvent.KEYCODE_MEDIA_RECORD: return I18n.s(c, "Record Button", "Kayıt Tuşu");
+            case KeyEvent.KEYCODE_PROG_RED: base = I18n.s(c, "Red Button", "Kırmızı Tuş"); break;
+            case KeyEvent.KEYCODE_PROG_GREEN: base = I18n.s(c, "Green Button", "Yeşil Tuş"); break;
+            case KeyEvent.KEYCODE_PROG_YELLOW: base = I18n.s(c, "Yellow Button", "Sarı Tuş"); break;
+            case KeyEvent.KEYCODE_PROG_BLUE: base = I18n.s(c, "Blue Button", "Mavi Tuş"); break;
+            case KeyEvent.KEYCODE_MENU: base = I18n.s(c, "Menu Button", "Menü Tuşu"); break;
+            case KeyEvent.KEYCODE_GUIDE: base = I18n.s(c, "Guide Button", "Rehber Tuşu"); break;
+            case KeyEvent.KEYCODE_INFO: base = I18n.s(c, "Info Button", "Bilgi Tuşu"); break;
+            case KeyEvent.KEYCODE_CAPTIONS: base = I18n.s(c, "Subtitles / CC", "Altyazı Tuşu"); break;
+            case KeyEvent.KEYCODE_TV_INPUT: base = I18n.s(c, "TV Input / Source", "Giriş / Kaynak Tuşu"); break;
+            case KeyEvent.KEYCODE_CHANNEL_UP: base = I18n.s(c, "Channel Up", "Kanal Yukarı"); break;
+            case KeyEvent.KEYCODE_CHANNEL_DOWN: base = I18n.s(c, "Channel Down", "Kanal Aşağı"); break;
+            case KeyEvent.KEYCODE_BOOKMARK: base = I18n.s(c, "Bookmark / Favorite", "Favori Tuşu"); break;
+            case KeyEvent.KEYCODE_DVR: base = "DVR"; break;
+            case KeyEvent.KEYCODE_LAST_CHANNEL: base = I18n.s(c, "Last Channel", "Son Kanal"); break;
+            case KeyEvent.KEYCODE_SETTINGS: base = I18n.s(c, "Settings Button", "Ayarlar Tuşu"); break;
+            case KeyEvent.KEYCODE_SEARCH: base = I18n.s(c, "Search Button", "Arama Tuşu"); break;
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: base = I18n.s(c, "Play / Pause", "Oynat / Duraklat"); break;
+            case KeyEvent.KEYCODE_MEDIA_PLAY: base = I18n.s(c, "Play", "Oynat"); break;
+            case KeyEvent.KEYCODE_MEDIA_PAUSE: base = I18n.s(c, "Pause", "Duraklat"); break;
+            case KeyEvent.KEYCODE_MEDIA_STOP: base = I18n.s(c, "Stop", "Durdur"); break;
+            case KeyEvent.KEYCODE_MEDIA_REWIND: base = I18n.s(c, "Rewind", "Geri Sar"); break;
+            case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD: base = I18n.s(c, "Fast Forward", "İleri Sar"); break;
+            case KeyEvent.KEYCODE_MEDIA_NEXT: base = I18n.s(c, "Next Track", "Sonraki Parça"); break;
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS: base = I18n.s(c, "Previous Track", "Önceki Parça"); break;
+            case KeyEvent.KEYCODE_MEDIA_RECORD: base = I18n.s(c, "Record Button", "Kayıt Tuşu"); break;
             default: {
                 String raw = KeyEvent.keyCodeToString(keyCode);
                 if (raw != null && raw.startsWith("KEYCODE_")) {
                     raw = raw.substring(8).replace('_', ' ');
                 }
+                if (scanCode > 0) {
+                    return raw + " (#" + keyCode + " · Scan " + scanCode + ")";
+                }
                 return raw + " (#" + keyCode + ")";
             }
         }
+        if (scanCode > 0 && c != null) {
+            for (int mapped : getMappedKeys(c)) {
+                if (mapped != keyId && extractKeyCode(mapped) == keyCode) {
+                    return base + " (Scan " + scanCode + ")";
+                }
+            }
+        }
+        return base;
     }
 
     public static String targetLabel(Context c, String target) {
@@ -524,7 +569,13 @@ public final class ButtonMapper {
             return false;
         }
 
-        // Never intercept or lock core navigation, selection, back, or volume keys under any scenario.
+        // Never intercept or lock core navigation, selection, back, volume, or gamepad keys under any scenario.
+        int src = ev.getSource();
+        if ((src & android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD
+                || (src & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK
+                || KeyEvent.isGamepadButton(code)) {
+            return false;
+        }
         switch (code) {
             case KeyEvent.KEYCODE_DPAD_UP:
             case KeyEvent.KEYCODE_DPAD_DOWN:
@@ -553,6 +604,9 @@ public final class ButtonMapper {
             return false;
         }
 
+        final int scanCode = ev.getScanCode();
+        final int compositeKeyId = makeKeyId(code, scanCode);
+
         KeyCaptureListener cap = captureListener;
         if (cap != null) {
             AlertDialog activeDlg = captureDialogRef != null ? captureDialogRef.get() : null;
@@ -562,7 +616,7 @@ public final class ButtonMapper {
             } else {
                 if (isCapturableKey(code)) {
                     if (action == KeyEvent.ACTION_DOWN && ev.getRepeatCount() == 0) {
-                        MAIN.post(() -> cap.onKeyCaptured(code));
+                        MAIN.post(() -> cap.onKeyCaptured(compositeKeyId));
                     }
                     return true;
                 }
@@ -570,9 +624,11 @@ public final class ButtonMapper {
             }
         }
 
-        String t1 = getTarget(c, code, TAP_SINGLE);
-        String t2 = getTarget(c, code, TAP_DOUBLE);
-        String t3 = getTarget(c, code, TAP_TRIPLE);
+        // Resolve scanCode+keyCode mapping first; fall back to keyCode-only mapping for legacy saved mappings
+        final int activeKeyId = hasAnyMapping(c, compositeKeyId) ? compositeKeyId : code;
+        String t1 = getTarget(c, activeKeyId, TAP_SINGLE);
+        String t2 = getTarget(c, activeKeyId, TAP_DOUBLE);
+        String t3 = getTarget(c, activeKeyId, TAP_TRIPLE);
         if (t1.isEmpty() && t2.isEmpty() && t3.isEmpty()) {
             return false;
         }
@@ -581,32 +637,32 @@ public final class ButtonMapper {
             final Context appCtx = c.getApplicationContext();
             int maxTap = !t3.isEmpty() ? TAP_TRIPLE : (!t2.isEmpty() ? TAP_DOUBLE : TAP_SINGLE);
 
-            Runnable existing = pendingTapRunnables.remove(code);
+            Runnable existing = pendingTapRunnables.remove(activeKeyId);
             if (existing != null) {
                 MAIN.removeCallbacks(existing);
             }
 
-            int prevCount = pendingTapCounts.containsKey(code) ? pendingTapCounts.get(code) : 0;
+            int prevCount = pendingTapCounts.containsKey(activeKeyId) ? pendingTapCounts.get(activeKeyId) : 0;
             final int newCount = prevCount + 1;
 
             if (newCount >= maxTap) {
-                pendingTapCounts.remove(code);
-                final String targetToRun = getTargetForTapOrFallback(c, code, newCount);
+                pendingTapCounts.remove(activeKeyId);
+                final String targetToRun = getTargetForTapOrFallback(c, activeKeyId, newCount);
                 if (!targetToRun.isEmpty()) {
                     MAIN.post(() -> executeTarget(appCtx, targetToRun));
                 }
             } else {
-                pendingTapCounts.put(code, newCount);
+                pendingTapCounts.put(activeKeyId, newCount);
                 Runnable dispatch = () -> {
-                    pendingTapRunnables.remove(code);
-                    Integer finalCountObj = pendingTapCounts.remove(code);
+                    pendingTapRunnables.remove(activeKeyId);
+                    Integer finalCountObj = pendingTapCounts.remove(activeKeyId);
                     int finalCount = finalCountObj != null ? finalCountObj : newCount;
-                    String targetToRun = getTargetForTapOrFallback(appCtx, code, finalCount);
+                    String targetToRun = getTargetForTapOrFallback(appCtx, activeKeyId, finalCount);
                     if (!targetToRun.isEmpty()) {
                         executeTarget(appCtx, targetToRun);
                     }
                 };
-                pendingTapRunnables.put(code, dispatch);
+                pendingTapRunnables.put(activeKeyId, dispatch);
                 MAIN.postDelayed(dispatch, MULTI_TAP_WINDOW_MS);
             }
         }
@@ -729,12 +785,13 @@ public final class ButtonMapper {
             }
             if (isCapturableKey(keyCode)) {
                 if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                    int capturedKeyId = makeKeyId(keyCode, event.getScanCode());
                     captureListener = null;
                     d.dismiss();
                     if (a instanceof SettingsActivity) {
-                        ((SettingsActivity) a).openButtonKeySubMenu(keyCode);
+                        ((SettingsActivity) a).openButtonKeySubMenu(capturedKeyId);
                     } else {
-                        showConfigureKeyDialog(a, keyCode, onChanged);
+                        showConfigureKeyDialog(a, capturedKeyId, onChanged);
                     }
                 }
                 return true;

@@ -442,8 +442,36 @@ final class SceneHome {
     // ---------------------------------------------------------------- Keep Watching Glass Shelf
 
     /** Where the Keep Watching shelf sits. WatchPopup lines its row up with the same spot. */
-    static final float SHELF_LEFT_DP = 40, SHELF_TOP_DP = 312, SHELF_HEADER_GAP_DP = 7;
+    static final float SHELF_LEFT_DP = 40, SHELF_TOP_DP = 336, SHELF_HEADER_GAP_DP = 7;
     static final float SHELF_CARD_W_DP = 282, SHELF_CARD_H_DP = 64, SHELF_CARD_GAP_DP = 12;
+
+    int getShelfTopPx() {
+        int rows = Scenes.getDockRows(host);
+        float scale = Scenes.getDockScaleFactor(host);
+        int tileSize = Math.max(dp(26), Math.round(dp(54) * scale));
+        int tileGap = Math.max(dp(4), Math.round(dp(10) * scale));
+        int extraRowsH = Math.max(0, rows - 1) * (tileSize + tileGap);
+        return Math.max(dp(190), dp(SHELF_TOP_DP) - extraRowsH);
+    }
+
+    void updateShelfAndDashboardTopMargin() {
+        int topPx = getShelfTopPx();
+        if (shelfBox != null && shelfBox.getLayoutParams() instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams slp = (FrameLayout.LayoutParams) shelfBox.getLayoutParams();
+            if (slp.topMargin != topPx) {
+                slp.topMargin = topPx;
+                shelfBox.setLayoutParams(slp);
+            }
+        }
+        if (dashboardBox != null && dashboardBox.getLayoutParams() instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams dlp = (FrameLayout.LayoutParams) dashboardBox.getLayoutParams();
+            int dbTop = topPx - dp(2);
+            if (dlp.topMargin != dbTop) {
+                dlp.topMargin = dbTop;
+                dashboardBox.setLayoutParams(dlp);
+            }
+        }
+    }
 
     private void buildKeepWatchingShelf() {
         int pad = dp(SHELF_HEADER_GAP_DP);
@@ -491,7 +519,7 @@ final class SceneHome {
                 Gravity.TOP | Gravity.START);
         slp.leftMargin = dp(SHELF_LEFT_DP) - pad;
         slp.rightMargin = dp(SHELF_LEFT_DP) - pad;
-        slp.topMargin = dp(SHELF_TOP_DP);
+        slp.topMargin = getShelfTopPx();
         overlay.addView(shelfBox, slp);
     }
 
@@ -507,7 +535,7 @@ final class SceneHome {
                 Gravity.TOP | Gravity.START);
         dlp.leftMargin = dp(SHELF_LEFT_DP);
         dlp.rightMargin = dp(SHELF_LEFT_DP);
-        dlp.topMargin = dp(SHELF_TOP_DP - 4);
+        dlp.topMargin = getShelfTopPx() - dp(2);
         overlay.addView(dashboardBox, dlp);
     }
 
@@ -526,6 +554,9 @@ final class SceneHome {
     }
 
     void syncDashboardIfFocusChanged() {
+        if (host.menuLayer != null) {
+            return;
+        }
         if (!HomeDashboard.isEnabled(host) || moreExpanded || moveDockIdx >= 0 || sheetLayer != null) {
             hideDashboard();
             return;
@@ -1310,6 +1341,8 @@ final class SceneHome {
         dockContainer.setGravity(Gravity.CENTER_HORIZONTAL);
         dockContainer.setClipChildren(false);
         dockContainer.setClipToPadding(false);
+        dockContainer.setElevation(dp(24));
+        dockContainer.setTranslationZ(dp(24));
 
         int ptrH = dp(5f);
         dockLabel = new TextView(host);
@@ -1321,6 +1354,8 @@ final class SceneHome {
         dockLabel.setEllipsize(TextUtils.TruncateAt.END);
         dockLabel.setPadding(dp(12), dp(5), dp(12), dp(5) + ptrH);
         dockLabel.setBackground(createMacTooltipDrawable());
+        dockLabel.setElevation(dp(32));
+        dockLabel.setTranslationZ(dp(32));
         dockLabel.setVisibility(View.INVISIBLE);
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
                 dp(340), dp(26) + ptrH);
@@ -1447,16 +1482,22 @@ final class SceneHome {
             return;
         }
         dockLabel.setText(text);
+        dockLabel.setElevation(dp(32));
+        dockLabel.setTranslationZ(dp(32));
+        if (dockContainer != null) {
+            dockContainer.setElevation(dp(24));
+            dockContainer.setTranslationZ(dp(24));
+        }
         dockLabel.setVisibility(View.VISIBLE);
         Runnable align = () -> {
             if (dockBox == null || dockBox.getWidth() <= 0 || tile.getWidth() <= 0) return;
             View parent = (View) tile.getParent();
             int rowLeft = parent != null ? parent.getLeft() : 0;
-            int rowTop = parent != null ? parent.getTop() : 0;
             float tileCenterInDock = rowLeft + tile.getLeft() + tile.getWidth() / 2f;
             float dockCenter = dockBox.getWidth() / 2f;
             dockLabel.setTranslationX(tileCenterInDock - dockCenter);
-            dockLabel.setTranslationY(rowTop - dockBox.getPaddingTop());
+            // Always position tooltip above the top of the dock as always-on-top
+            dockLabel.setTranslationY(0f);
         };
         if (dockBox != null && dockBox.getWidth() > 0 && tile.getWidth() > 0
                 && !dockBox.isLayoutRequested() && !tile.isLayoutRequested()) {
@@ -1468,6 +1509,129 @@ final class SceneHome {
         }
     }
 
+    static Drawable createSmoothSquircleDrawable(final Bitmap bmp, final float cornerRadiusPx, final float zoom, final int bgColor) {
+        if (bmp == null || bmp.isRecycled()) return null;
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
+        final android.graphics.BitmapShader shader = new android.graphics.BitmapShader(
+                bmp, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        paint.setShader(shader);
+        final Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        bgPaint.setStyle(Paint.Style.FILL);
+        bgPaint.setColor(bgColor);
+        final android.graphics.Matrix matrix = new android.graphics.Matrix();
+        final RectF dstRect = new RectF();
+        return new Drawable() {
+            @Override
+            protected void onBoundsChange(Rect bounds) {
+                super.onBoundsChange(bounds);
+                dstRect.set(bounds);
+                float vw = bounds.width();
+                float vh = bounds.height();
+                float bw = bmp.getWidth();
+                float bh = bmp.getHeight();
+                if (vw > 0 && vh > 0 && bw > 0 && bh > 0) {
+                    float scale = Math.max(vw / bw, vh / bh) * zoom;
+                    float dx = bounds.left + (vw - bw * scale) * 0.5f;
+                    float dy = bounds.top + (vh - bh * scale) * 0.5f;
+                    matrix.reset();
+                    matrix.setScale(scale, scale);
+                    matrix.postTranslate(dx, dy);
+                    shader.setLocalMatrix(matrix);
+                }
+            }
+
+            @Override
+            public void draw(Canvas canvas) {
+                if (dstRect.isEmpty()) return;
+                if (bgColor != 0) {
+                    canvas.drawRoundRect(dstRect, cornerRadiusPx, cornerRadiusPx, bgPaint);
+                }
+                canvas.drawRoundRect(dstRect, cornerRadiusPx, cornerRadiusPx, paint);
+            }
+
+            @Override
+            public void setAlpha(int alpha) {
+                paint.setAlpha(alpha);
+                bgPaint.setAlpha(alpha);
+            }
+
+            @Override
+            public void setColorFilter(android.graphics.ColorFilter colorFilter) {
+                paint.setColorFilter(colorFilter);
+            }
+
+            @Override
+            public int getOpacity() {
+                return android.graphics.PixelFormat.TRANSLUCENT;
+            }
+        };
+    }
+
+    static boolean hasWhiteCorners(Bitmap bmp) {
+        if (bmp == null || bmp.isRecycled()) return false;
+        int w = bmp.getWidth(), h = bmp.getHeight();
+        if (w <= 4 || h <= 4) return false;
+        float[][] pts = {
+            {0.14f, 0.14f}, {0.86f, 0.14f},
+            {0.14f, 0.86f}, {0.86f, 0.86f},
+            {0.50f, 0.08f}, {0.50f, 0.92f},
+            {0.08f, 0.50f}, {0.92f, 0.50f}
+        };
+        float sumLum = 0f;
+        int count = 0;
+        for (float[] pt : pts) {
+            int px = Math.max(0, Math.min(w - 1, Math.round(pt[0] * (w - 1))));
+            int py = Math.max(0, Math.min(h - 1, Math.round(pt[1] * (h - 1))));
+            int c = bmp.getPixel(px, py);
+            if (Color.alpha(c) < 128) continue;
+            float r = ((c >> 16) & 0xFF) / 255f;
+            float g = ((c >> 8) & 0xFF) / 255f;
+            float b = (c & 0xFF) / 255f;
+            sumLum += (0.2126f * r + 0.7152f * g + 0.0722f * b);
+            count++;
+        }
+        return count > 0 && (sumLum / count) >= 0.78f;
+    }
+
+    static Drawable createIconFocusRingDrawable(final float cornerRadiusPx, final float strokeWidthPx, final boolean useBlackRing) {
+        final Paint ringPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        ringPaint.setStyle(Paint.Style.STROKE);
+        ringPaint.setStrokeWidth(strokeWidthPx);
+        ringPaint.setColor(useBlackRing ? 0xFF111114 : Color.WHITE);
+
+        final RectF ringRect = new RectF();
+        return new Drawable() {
+            @Override
+            protected void onBoundsChange(Rect bounds) {
+                super.onBoundsChange(bounds);
+                float half = strokeWidthPx * 0.5f;
+                ringRect.set(bounds.left + half, bounds.top + half, bounds.right - half, bounds.bottom - half);
+            }
+
+            @Override
+            public void draw(Canvas canvas) {
+                if (ringRect.isEmpty()) return;
+                float r = Math.max(1f, cornerRadiusPx - strokeWidthPx * 0.5f);
+                canvas.drawRoundRect(ringRect, r, r, ringPaint);
+            }
+
+            @Override
+            public void setAlpha(int alpha) {
+                ringPaint.setAlpha(alpha);
+            }
+
+            @Override
+            public void setColorFilter(android.graphics.ColorFilter colorFilter) {
+                ringPaint.setColorFilter(colorFilter);
+            }
+
+            @Override
+            public int getOpacity() {
+                return android.graphics.PixelFormat.TRANSLUCENT;
+            }
+        };
+    }
+
     void rebuildDock() {
         if (dockBox == null) return;
         int savedFocusIdx = focusedDockIdx;
@@ -1475,6 +1639,8 @@ final class SceneHome {
         dockBox.removeAllViews();
         dockTiles.clear();
         dockEntries.clear();
+        moreExpanded = false;
+        updateShelfAndDashboardTopMargin();
 
         float scale = Scenes.getDockScaleFactor(host);
         int tileSize = Math.max(dp(26), Math.round(dp(54) * scale));
@@ -1487,6 +1653,8 @@ final class SceneHome {
         int maxColsFit = Math.max(4, (maxDockInnerW + tileGap) / (tileSize + tileGap));
         int cols = Math.min(12, maxColsFit);
         currentDockCols = cols;
+        int dockRows = Scenes.getDockRows(host);
+        int totalSlots = cols * dockRows;
 
         // Collect installed apps for Home and Other Apps
         List<MainActivity.AppEntry> homePool = new ArrayList<>();
@@ -1511,27 +1679,13 @@ final class SceneHome {
         }
 
         // Determine if Other Apps (...) button is needed:
-        // Hidden when otherPool is empty AND all homePool apps + Gear fit in a single row (cols).
-        boolean hasAnyOtherOrOverflow = !otherPool.isEmpty() || (homePool.size() + 1 > cols);
-        if (!hasAnyOtherOrOverflow && moreExpanded) {
-            moreExpanded = false;
-            if (shelfBox != null) {
-                shelfBox.setVisibility((!host.cwEnabled() || shelfCards.isEmpty()) ? View.GONE : View.VISIBLE);
-            }
-        }
+        // Hidden when otherPool is empty AND all homePool apps + Gear fit in totalSlots.
+        boolean hasAnyOtherOrOverflow = !otherPool.isEmpty() || (homePool.size() + 1 > totalSlots);
 
-        int maxFirstRowApps = hasAnyOtherOrOverflow ? Math.max(1, cols - 2) : Math.max(1, cols - 1);
-        currentMaxSingleRowApps = maxFirstRowApps;
+        int maxDockApps = hasAnyOtherOrOverflow ? Math.max(1, totalSlots - 2) : Math.max(1, totalSlots - 1);
+        currentMaxSingleRowApps = maxDockApps;
 
-        List<MainActivity.AppEntry> visibleApps;
-        if (moreExpanded) {
-            visibleApps = new ArrayList<>(homePool.size() + otherPool.size());
-            visibleApps.addAll(homePool);
-            visibleApps.addAll(otherPool);
-        } else {
-            visibleApps = homePool.subList(0, Math.min(maxFirstRowApps, homePool.size()));
-        }
-
+        List<MainActivity.AppEntry> visibleApps = homePool.subList(0, Math.min(maxDockApps, homePool.size()));
         dockEntries.addAll(visibleApps);
 
         // Add Gear tile
@@ -1544,9 +1698,7 @@ final class SceneHome {
         if (hasAnyOtherOrOverflow) {
             MainActivity.AppEntry moreEntry = new MainActivity.AppEntry();
             moreEntry.key = MORE_KEY;
-            moreEntry.label = moreExpanded
-                    ? I18n.s(host, "Fewer apps", "Daha az uygulama")
-                    : I18n.s(host, "Other apps", "Diğer uygulamalar");
+            moreEntry.label = I18n.s(host, "Other apps", "Diğer uygulamalar");
             dockEntries.add(moreEntry);
         }
 
@@ -1589,58 +1741,66 @@ final class SceneHome {
 
         boolean isGear = GEAR_KEY.equals(a.key);
         boolean isMore = MORE_KEY.equals(a.key);
+        boolean whiteCorners = isMore;
 
-        GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(rad);
         if (isGear || isMore) {
-            bg.setColor(0x1EFFFFFF);
-            bg.setStroke(Math.max(1, dp(0.8f)), 0x24FFFFFF);
+            Bitmap assetIcon = getSpecialDockIconBitmap(isGear ? "icons/System Settings.png" : "icons/Apps.png");
+            if (assetIcon != null) {
+                whiteCorners = hasWhiteCorners(assetIcon);
+                tile.setBackground(createSmoothSquircleDrawable(assetIcon, rad, 1.0f, isGear ? 0xFF707075 : 0xFFF2F2F4));
+                tile.setClipToOutline(false);
+            } else {
+                GradientDrawable bg = new GradientDrawable();
+                bg.setCornerRadius(rad);
+                bg.setColor(0x1EFFFFFF);
+                bg.setStroke(Math.max(1, dp(0.8f)), 0x24FFFFFF);
+                tile.setBackground(bg);
+                tile.setOutlineProvider(host.roundedOutline(new float[]{rad}));
+                tile.setClipToOutline(true);
+            }
         } else {
             boolean hasCustom = CustomMedia.hasCustomAppIcon(host, a.key, a.pkg);
-            Bitmap logo = getSquareAppLogo(a.pkg);
-            bg.setColor((hasCustom || logo != null) ? 0xFF141519 : (a.color != 0 ? a.color : 0xFF1A1C22));
+            Bitmap sq = getSquareAppIcon(a);
+            int baseBg = (hasCustom || getSquareAppLogo(a.pkg) != null)
+                    ? 0xFF141519 : (a.color != 0 ? a.color : 0xFF1A1C22);
+            if (sq != null) {
+                whiteCorners = hasWhiteCorners(sq);
+                float z = hasCustom ? 1.0f : 1.05f;
+                tile.setBackground(createSmoothSquircleDrawable(sq, rad, z, baseBg));
+                tile.setClipToOutline(false);
+            } else {
+                GradientDrawable bg = new GradientDrawable();
+                bg.setCornerRadius(rad);
+                bg.setColor(baseBg);
+                tile.setBackground(bg);
+                tile.setOutlineProvider(host.roundedOutline(new float[]{rad}));
+                tile.setClipToOutline(true);
+            }
         }
-        tile.setBackground(bg);
-        tile.setOutlineProvider(host.roundedOutline(new float[]{rad}));
-        tile.setClipToOutline(true);
         // Zero elevation on dock tiles avoids Android's dark inner/outer shadow artifact bleeding through translucent Gear/More tiles
         tile.setElevation(0f);
 
         int glyphSize = Math.max(dp(14), Math.round(dp(26) * scale));
-        ImageView iv = new ImageView(host);
-        if (isGear) {
+        if (isGear && tile.getBackground() instanceof GradientDrawable) {
+            ImageView iv = new ImageView(host);
             iv.setScaleType(ImageView.ScaleType.CENTER);
             iv.setImageBitmap(Glyphs.get("gear", glyphSize, 0xEBF4F4F6));
             tile.addView(iv, host.match());
-        } else if (isMore) {
+        } else if (isMore && tile.getBackground() instanceof GradientDrawable) {
+            ImageView iv = new ImageView(host);
             iv.setScaleType(ImageView.ScaleType.CENTER);
             iv.setImageBitmap(Glyphs.get("more", glyphSize, 0xEBF4F4F6));
             tile.addView(iv, host.match());
-        } else {
-            boolean hasCustom = CustomMedia.hasCustomAppIcon(host, a.key, a.pkg);
-            Bitmap sq = getSquareAppIcon(a);
-            if (sq != null) {
-                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                iv.setImageBitmap(sq);
-                // Custom icons from App Icon Editor already match the exact preview bounds (1.0f);
-                // built-in app icons zoom slightly (+5%) for edge-to-edge infill
-                float z = hasCustom ? 1.0f : 1.05f;
-                iv.setScaleX(z);
-                iv.setScaleY(z);
-                tile.addView(iv, host.match());
-            } else if (a.icon != null) {
-                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                iv.setImageDrawable(a.icon);
-                iv.setScaleX(1.05f);
-                iv.setScaleY(1.05f);
-                tile.addView(iv, host.match());
-            }
+        } else if (!isGear && !isMore && tile.getBackground() instanceof GradientDrawable && a.icon != null) {
+            ImageView iv = new ImageView(host);
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            iv.setImageDrawable(a.icon);
+            iv.setScaleX(1.05f);
+            iv.setScaleY(1.05f);
+            tile.addView(iv, host.match());
         }
 
-        GradientDrawable focusRing = new GradientDrawable();
-        focusRing.setCornerRadius(rad);
-        focusRing.setColor(Color.TRANSPARENT);
-        focusRing.setStroke(dp(2.2f), Color.WHITE);
+        Drawable focusRing = createIconFocusRingDrawable(rad, dp(2.2f), whiteCorners);
 
         tile.setOnFocusChangeListener((v, has) -> {
             WatchPopup popup = isGear || isMore ? null : watchPopupFor(a.pkg);
@@ -1680,7 +1840,7 @@ final class SceneHome {
             if (isGear) {
                 showGearSheet(v);
             } else if (isMore) {
-                toggleMoreApps();
+                showOtherAppsSheet(v);
             } else {
                 openDockApp(v, a);
             }
@@ -1733,13 +1893,424 @@ final class SceneHome {
     }
 
     private void toggleMoreApps() {
-        moreExpanded = !moreExpanded;
-        if (moreExpanded) {
-            hideShelf();
-            hideDashboard();
+        View returnTile = (focusedDockIdx >= 0 && focusedDockIdx < dockTiles.size())
+                ? dockTiles.get(focusedDockIdx) : null;
+        showOtherAppsSheet(returnTile);
+    }
+
+    private void moveVisibleDockAppToOtherApps(MainActivity.AppEntry targetApp) {
+        if (targetApp == null) return;
+        // Collect any implicit overflow apps in homePool beyond the currently visible dock apps
+        // so moving 1 visible dock app to Other Apps immediately reduces the dock length by 1 icon!
+        List<MainActivity.AppEntry> homePool = new ArrayList<>();
+        for (MainActivity.AppEntry e : host.apps) {
+            if (MainActivity.SETTINGS_KEY.equals(e.key) || MainActivity.TV_SETTINGS.equals(e.pkg)) {
+                continue;
+            }
+            homePool.add(e);
         }
-        rebuildDock();
-        focusDock(Math.min(focusedDockIdx, dockTiles.size() - 1));
+        int visibleCount = Math.min(currentMaxSingleRowApps, homePool.size());
+        if (homePool.size() > visibleCount) {
+            List<MainActivity.AppEntry> overflowToMove = new ArrayList<>(
+                    homePool.subList(visibleCount, homePool.size()));
+            for (MainActivity.AppEntry ov : overflowToMove) {
+                if (ov != targetApp) {
+                    host.setOtherApp(ov, true);
+                }
+            }
+        }
+        host.setOtherApp(targetApp, true);
+    }
+
+    private void showAppOnHomeDock(MainActivity.AppEntry targetApp) {
+        if (targetApp == null) return;
+        host.setOtherApp(targetApp, false);
+        int idx = host.apps.indexOf(targetApp);
+        if (idx >= 0 && idx >= currentMaxSingleRowApps) {
+            host.apps.remove(idx);
+            int insertAt = Math.max(0, Math.min(currentMaxSingleRowApps - 1, host.apps.size()));
+            host.apps.add(insertAt, targetApp);
+            host.saveOrder();
+        }
+    }
+
+    /**
+     * macOS 26 style "Applications" (App Library) popup modal for Other Apps.
+     */
+    void showOtherAppsSheet(View returnTo) {
+        closeSheet();
+        sheetReturnFocus = returnTo;
+        sheetLayer = new FrameLayout(host);
+        sheetLayer.setClickable(true);
+        sheetLayer.setClipChildren(false);
+        sheetLayer.setClipToPadding(false);
+        host.addBlurredBackdrop(sheetLayer, 0x55000000);
+        if (shelfBox != null && shelfBox.getVisibility() == View.VISIBLE) {
+            shelfBox.animate().alpha(0f).setDuration(150).start();
+        }
+        if (dashboardBox != null && dashboardBox.getVisibility() == View.VISIBLE) {
+            dashboardBox.animate().alpha(0f).setDuration(150).start();
+        }
+
+        // Gather overflow apps from homePool + apps in otherApps
+        List<MainActivity.AppEntry> homePool = new ArrayList<>();
+        Set<String> seenPkgs = new HashSet<>();
+        for (MainActivity.AppEntry e : host.apps) {
+            if (MainActivity.SETTINGS_KEY.equals(e.key) || MainActivity.TV_SETTINGS.equals(e.pkg)) {
+                continue;
+            }
+            homePool.add(e);
+            if (e.pkg != null) seenPkgs.add(e.pkg);
+        }
+        List<MainActivity.AppEntry> popupApps = new ArrayList<>();
+        if (homePool.size() > currentMaxSingleRowApps) {
+            popupApps.addAll(homePool.subList(currentMaxSingleRowApps, homePool.size()));
+        }
+        for (MainActivity.AppEntry o : host.otherApps) {
+            if (MainActivity.SETTINGS_KEY.equals(o.key) || MainActivity.TV_SETTINGS.equals(o.pkg)) {
+                continue;
+            }
+            if (o.pkg == null || !seenPkgs.contains(o.pkg)) {
+                popupApps.add(o);
+                if (o.pkg != null) seenPkgs.add(o.pkg);
+            }
+        }
+        if (popupApps.isEmpty()) {
+            popupApps.addAll(homePool);
+        }
+
+        int panelW = dp(636);
+        int panelH = dp(404);
+        LinearLayout card = new LinearLayout(host);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setClipChildren(true);
+        card.setClipToPadding(true);
+        MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
+                dp(24), 0xB8181A22, host.glassSource, host.screenW, host.screenH, host.unit);
+        glass.lens = dp(10);
+        glass.rimStrength = 0.45f;
+        card.setBackground(glass);
+        card.setOutlineProvider(host.roundedOutline(new float[]{dp(24)}));
+        card.setClipToOutline(true);
+        card.setElevation(dp(28));
+
+        // Top Header Bar: [2x2 Grid Icon] Applications .................... [(...)]
+        LinearLayout header = new LinearLayout(host);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPadding(dp(22), dp(15), dp(18), dp(13));
+
+        View gridGlyph = new View(host) {
+            private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private final RectF r = new RectF();
+            @Override
+            protected void onDraw(Canvas c) {
+                p.setColor(0xFFF4F4F6);
+                float w = getWidth(), h = getHeight();
+                float gap = dp(2.2f);
+                float sq = (Math.min(w, h) - gap) / 2f;
+                float rad = dp(2.2f);
+                r.set(0, 0, sq, sq);
+                c.drawRoundRect(r, rad, rad, p);
+                r.set(sq + gap, 0, sq * 2 + gap, sq);
+                c.drawRoundRect(r, rad, rad, p);
+                r.set(0, sq + gap, sq, sq * 2 + gap);
+                c.drawRoundRect(r, rad, rad, p);
+                r.set(sq + gap, sq + gap, sq * 2 + gap, sq * 2 + gap);
+                c.drawRoundRect(r, rad, rad, p);
+            }
+        };
+        LinearLayout.LayoutParams glp = new LinearLayout.LayoutParams(dp(16), dp(16));
+        glp.rightMargin = dp(9);
+        header.addView(gridGlyph, glp);
+
+        TextView titleTv = new TextView(host);
+        Ui.textSize(titleTv, 15.5f);
+        titleTv.setTypeface(Ui.font(host, "semibold"));
+        titleTv.setTextColor(0xFFF4F4F6);
+        titleTv.setText(I18n.s(host, "Applications", "Uygulamalar"));
+        header.addView(titleTv, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        // Options (...) circular button on top-right of Applications header
+        FrameLayout optBtn = new FrameLayout(host);
+        optBtn.setFocusable(true);
+        optBtn.setClickable(true);
+        int optSz = dp(28);
+        GradientDrawable optBg = new GradientDrawable();
+        optBg.setShape(GradientDrawable.OVAL);
+        optBg.setColor(0x1EFFFFFF);
+        optBg.setStroke(Math.max(1, dp(0.8f)), 0x2EFFFFFF);
+        optBtn.setBackground(optBg);
+        ImageView optIv = new ImageView(host);
+        optIv.setScaleType(ImageView.ScaleType.CENTER);
+        optIv.setImageBitmap(Glyphs.get("more", dp(15), 0xEBF4F4F6));
+        optBtn.addView(optIv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        optBtn.setOnFocusChangeListener((v, has) -> {
+            optBg.setColor(has ? 0xF2FFFFFF : 0x1EFFFFFF);
+            optIv.setImageBitmap(Glyphs.get("more", dp(15), has ? 0xFF111114 : 0xEBF4F4F6));
+            v.animate().scaleX(has ? 1.08f : 1f).scaleY(has ? 1.08f : 1f).setDuration(140).start();
+        });
+        optBtn.setOnClickListener(v -> {
+            List<String> mLabels = new ArrayList<>();
+            List<Runnable> mActions = new ArrayList<>();
+            mLabels.add(I18n.s(host, "Reset Layout", "Düzeni Sıfırla"));
+            mActions.add(() -> {
+                closeSheetImmediate();
+                host.prefs.edit().remove(MainActivity.PREF_ORDER).remove(MainActivity.PREF_OTHER).apply();
+                host.loadApps();
+                rebuildDock();
+                focusDock(0);
+            });
+            host.showMenu(v, I18n.s(host, "Applications", "Uygulamalar"), mLabels, mActions, -1);
+        });
+        header.addView(optBtn, new LinearLayout.LayoutParams(optSz, optSz));
+        card.addView(header, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        // Subtle 1dp horizontal divider
+        View div = new View(host);
+        div.setBackgroundColor(0x1FFFFFFF);
+        card.addView(div, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, dp(0.8f))));
+
+        // Scrollable 5-column App Grid
+        final android.widget.ScrollView scroll = new android.widget.ScrollView(host);
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        scroll.setClipChildren(false);
+        scroll.setClipToPadding(false);
+
+        LinearLayout grid = new LinearLayout(host);
+        grid.setOrientation(LinearLayout.VERTICAL);
+        grid.setClipChildren(false);
+        grid.setClipToPadding(false);
+        grid.setPadding(dp(20), dp(16), dp(20), dp(18));
+
+        final int cols = 5;
+        final int cellW = dp(116);
+        final int cellH = dp(102);
+        final int iconSz = dp(60);
+        final float iconRad = dp(14.5f);
+        LinearLayout curRow = null;
+        final List<View> cells = new ArrayList<>();
+
+        for (int i = 0; i < popupApps.size(); i++) {
+            if (i % cols == 0) {
+                curRow = new LinearLayout(host);
+                curRow.setOrientation(LinearLayout.HORIZONTAL);
+                curRow.setClipChildren(false);
+                curRow.setClipToPadding(false);
+                LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                if (i > 0) rlp.topMargin = dp(10);
+                grid.addView(curRow, rlp);
+            }
+            final MainActivity.AppEntry app = popupApps.get(i);
+            final LinearLayout cell = new LinearLayout(host);
+            cell.setId(View.generateViewId());
+            cell.setOrientation(LinearLayout.VERTICAL);
+            cell.setGravity(Gravity.CENTER_HORIZONTAL);
+            cell.setClipChildren(false);
+            cell.setClipToPadding(false);
+            cell.setFocusable(true);
+            cell.setClickable(true);
+            cell.setLongClickable(true);
+            cell.setPadding(dp(4), dp(4), dp(4), dp(4));
+
+            final FrameLayout iconBox = new FrameLayout(host);
+            boolean hasCustom = CustomMedia.hasCustomAppIcon(host, app.key, app.pkg);
+            Bitmap sq = getSquareAppIcon(app);
+            int baseBg = (hasCustom || getSquareAppLogo(app.pkg) != null)
+                    ? 0xFF141519 : (app.color != 0 ? app.color : 0xFF1A1C22);
+            if (sq != null) {
+                float z = hasCustom ? 1.0f : 1.05f;
+                iconBox.setBackground(createSmoothSquircleDrawable(sq, iconRad, z, baseBg));
+            } else {
+                GradientDrawable ibg = new GradientDrawable();
+                ibg.setCornerRadius(iconRad);
+                ibg.setColor(baseBg);
+                iconBox.setBackground(ibg);
+                iconBox.setOutlineProvider(host.roundedOutline(new float[]{iconRad}));
+                iconBox.setClipToOutline(true);
+                if (app.icon != null) {
+                    ImageView iv = new ImageView(host);
+                    iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    iv.setImageDrawable(app.icon);
+                    iv.setScaleX(1.05f);
+                    iv.setScaleY(1.05f);
+                    iconBox.addView(iv, host.match());
+                }
+            }
+            final Drawable focusRing = createIconFocusRingDrawable(iconRad, dp(2.2f), sq != null && hasWhiteCorners(sq));
+
+            cell.addView(iconBox, new LinearLayout.LayoutParams(iconSz, iconSz));
+
+            final TextView lbl = new TextView(host);
+            Ui.textSize(lbl, 10.5f);
+            lbl.setTypeface(Ui.font(host, "medium"));
+            lbl.setTextColor(0xD9F4F4F6);
+            lbl.setGravity(Gravity.CENTER_HORIZONTAL);
+            lbl.setMaxLines(2);
+            lbl.setEllipsize(TextUtils.TruncateAt.END);
+            lbl.setText(app.label);
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            llp.topMargin = dp(6);
+            cell.addView(lbl, llp);
+
+            final LinearLayout rowRef = curRow;
+            cell.setOnFocusChangeListener((v, has) -> {
+                iconBox.setForeground(has ? focusRing : null);
+                lbl.setTextColor(has ? 0xFFFFFFFF : 0xD9F4F4F6);
+                iconBox.animate().scaleX(has ? 1.11f : 1f).scaleY(has ? 1.11f : 1f)
+                        .setDuration(170).setInterpolator(MainActivity.LIFT).start();
+                if (has && rowRef != null) {
+                    int rowTop = rowRef.getTop();
+                    int rowBot = rowRef.getBottom();
+                    int sy = scroll.getScrollY();
+                    int sh = scroll.getHeight();
+                    if (sh > 0) {
+                        if (rowTop < sy + dp(12)) {
+                            scroll.smoothScrollTo(0, Math.max(0, rowTop - dp(16)));
+                        } else if (rowBot > sy + sh - dp(12)) {
+                            scroll.smoothScrollTo(0, Math.max(0, rowBot - sh + dp(16)));
+                        }
+                    }
+                }
+            });
+
+            cell.setOnClickListener(v -> {
+                closeSheetImmediate();
+                openDockApp(v, app);
+            });
+
+            cell.setOnLongClickListener(v -> {
+                showOtherAppItemMenu(app, v);
+                return true;
+            });
+
+            curRow.addView(cell, new LinearLayout.LayoutParams(cellW, cellH));
+            cells.add(cell);
+        }
+
+        optBtn.setId(View.generateViewId());
+        for (int i = 0; i < cells.size(); i++) {
+            View c = cells.get(i);
+            int r = i / cols;
+            int col = i % cols;
+            c.setNextFocusLeftId(col > 0 ? cells.get(i - 1).getId() : c.getId());
+            c.setNextFocusRightId((col < cols - 1 && i + 1 < cells.size()) ? cells.get(i + 1).getId() : c.getId());
+            if (r == 0) {
+                c.setNextFocusUpId(optBtn.getId());
+            } else {
+                c.setNextFocusUpId(cells.get(i - cols).getId());
+            }
+            if (i + cols < cells.size()) {
+                c.setNextFocusDownId(cells.get(i + cols).getId());
+            } else if ((r + 1) * cols < cells.size()) {
+                c.setNextFocusDownId(cells.get(cells.size() - 1).getId());
+            } else {
+                c.setNextFocusDownId(c.getId());
+            }
+        }
+        if (!cells.isEmpty()) {
+            optBtn.setNextFocusDownId(cells.get(Math.min(cols - 1, cells.size() - 1)).getId());
+            optBtn.setNextFocusLeftId(cells.get(0).getId());
+        }
+
+        scroll.addView(grid, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        card.addView(scroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        FrameLayout.LayoutParams clp = new FrameLayout.LayoutParams(panelW, panelH, Gravity.CENTER);
+        clp.bottomMargin = dp(18);
+        sheetLayer.addView(card, clp);
+        host.root.addView(sheetLayer, host.match());
+        sheetLayer.setAlpha(0f);
+        card.setScaleX(0.94f);
+        card.setScaleY(0.94f);
+        sheetLayer.animate().alpha(1f).setDuration(180).start();
+        card.animate().scaleX(1f).scaleY(1f).setDuration(220).setInterpolator(MainActivity.LIFT).start();
+        if (!cells.isEmpty()) {
+            cells.get(0).requestFocus();
+        } else {
+            optBtn.requestFocus();
+        }
+    }
+
+    private void showOtherAppItemMenu(MainActivity.AppEntry a, View anchor) {
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+        labels.add(I18n.s(host, "Open", "Aç"));
+        actions.add(() -> {
+            closeSheetImmediate();
+            openDockApp(anchor, a);
+        });
+
+        labels.add(I18n.s(host, "Show on Home Screen", "Ana Ekranda Göster"));
+        actions.add(() -> {
+            showAppOnHomeDock(a);
+            rebuildDock();
+            if (sheetLayer != null) {
+                View ret = sheetReturnFocus;
+                closeSheetImmediate();
+                showOtherAppsSheet(ret);
+            }
+        });
+
+        labels.add(I18n.s(host, "Rename", "Yeniden Adlandır"));
+        actions.add(() -> host.promptRenameApp(a, () -> {
+            rebuildDock();
+            if (sheetLayer != null) {
+                View ret = sheetReturnFocus;
+                closeSheetImmediate();
+                showOtherAppsSheet(ret);
+            }
+        }));
+
+        labels.add(I18n.s(host, "Change app icon", "Uygulama simgesini değiştir"));
+        actions.add(() -> host.promptChangeAppIcon(a, () -> {
+            invalidateAppLogoCache(a);
+            host.loadApps();
+            host.buildGrid();
+            rebuildDock();
+            if (sheetLayer != null) {
+                View ret = sheetReturnFocus;
+                closeSheetImmediate();
+                showOtherAppsSheet(ret);
+            }
+        }));
+
+        if (!host.isSettings(a)) {
+            labels.add(I18n.s(host, "Hide", "Gizle"));
+            actions.add(() -> {
+                host.setHidden(a, true);
+                rebuildDock();
+                if (sheetLayer != null) {
+                    View ret = sheetReturnFocus;
+                    closeSheetImmediate();
+                    showOtherAppsSheet(ret);
+                }
+            });
+        }
+
+        if (a.pkg != null && !a.key.startsWith("demo_app:") && !MainActivity.INPUTS_KEY.equals(a.key)) {
+            labels.add(I18n.s(host, "App Info", "Uygulama Bilgileri"));
+            actions.add(() -> {
+                closeSheetImmediate();
+                host.startSafe(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + a.pkg)));
+            });
+            if (!a.system) {
+                labels.add(I18n.s(host, "Uninstall", "Kaldır"));
+                actions.add(() -> {
+                    closeSheetImmediate();
+                    host.startSafe(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + a.pkg)));
+                });
+            }
+        }
+
+        int uninstIdx = labels.indexOf(I18n.s(host, "Uninstall", "Kaldır"));
+        host.showMenu(anchor, a.label, labels, actions, uninstIdx);
     }
 
     private void showDockAppMenu(int index, MainActivity.AppEntry a, View tile) {
@@ -1774,19 +2345,19 @@ final class SceneHome {
             focusDock(targetIdx);
         }));
 
-        boolean inOtherApps = host.otherApps.contains(a) || (moreExpanded && index >= currentMaxSingleRowApps);
+        boolean inOtherApps = host.otherApps.contains(a);
         if (!host.isSettings(a)) {
             if (inOtherApps) {
                 labels.add(I18n.s(host, "Show on Home Screen", "Ana Ekranda Göster"));
                 actions.add(() -> {
-                    host.setOtherApp(a, false);
+                    showAppOnHomeDock(a);
                     rebuildDock();
                     focusDock(Math.min(index, Math.max(0, dockTiles.size() - 1)));
                 });
             } else {
                 labels.add(I18n.s(host, "Move to Other Apps", "Diğer Uygulamalara Taşı"));
                 actions.add(() -> {
-                    host.setOtherApp(a, true);
+                    moveVisibleDockAppToOtherApps(a);
                     rebuildDock();
                     focusDock(Math.min(index, Math.max(0, dockTiles.size() - 1)));
                 });
@@ -1912,9 +2483,9 @@ final class SceneHome {
             Bitmap custom = CustomMedia.getCustomAppIcon(host, a.key, a.pkg);
             if (custom != null && !custom.isRecycled()) {
                 if ((custom.getPixel(0, 0) >>> 24) == 255) {
-                    return Bitmap.createScaledBitmap(custom, 256, 256, true);
+                    return Bitmap.createScaledBitmap(custom, 384, 384, true);
                 }
-                return CustomMedia.prepareFullBleedAppIcon(custom, 256, 256);
+                return CustomMedia.prepareFullBleedAppIcon(custom, 384, 384);
             }
         }
         String cacheKey = a.key != null ? a.key : a.pkg;
@@ -1932,7 +2503,7 @@ final class SceneHome {
     }
 
     private Bitmap buildFullSquareIcon(MainActivity.AppEntry a) {
-        int s = 256;
+        int s = 384;
         Bitmap out = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(out);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
@@ -2069,9 +2640,9 @@ final class SceneHome {
         String assetName = mapPkgToLogoAsset(pkg);
         Bitmap bmp = null;
         if (assetName != null) {
-            Bitmap raw = Scenes.loadAssetBitmap(host, "app-logos/" + assetName, 256, 256);
+            Bitmap raw = Scenes.loadAssetBitmap(host, "app-logos/" + assetName, 384, 384);
             if (raw != null) {
-                int s = 256;
+                int s = 384;
                 Bitmap out = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888);
                 Canvas cv = new Canvas(out);
                 Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
@@ -2084,7 +2655,7 @@ final class SceneHome {
                     int topY = (s - badgeH) / 2;
                     cv.drawBitmap(raw, null, new Rect(padX, topY, padX + badgeW, topY + badgeH), p);
                 } else {
-                    int zoom = 6;
+                    int zoom = 9;
                     cv.drawBitmap(raw, null, new Rect(-zoom, -zoom, s + zoom, s + zoom), p);
                 }
                 if (raw != out) raw.recycle();
@@ -2093,6 +2664,16 @@ final class SceneHome {
         }
         logoCache.put(pkg, bmp);
         return bmp;
+    }
+
+    Bitmap getSpecialDockIconBitmap(String assetPath) {
+        if (assetPath == null || assetPath.isEmpty()) return null;
+        if (logoCache.containsKey(assetPath)) return logoCache.get(assetPath);
+        Bitmap raw = Scenes.loadAssetBitmap(host, assetPath, 384, 384);
+        if (raw != null) {
+            logoCache.put(assetPath, raw);
+        }
+        return raw;
     }
 
     private static String mapPkgToLogoAsset(String pkg) {
@@ -2524,6 +3105,13 @@ final class SceneHome {
                 if (!down) closeSheet();
                 return true;
             }
+            if (k == KeyEvent.KEYCODE_MENU && !down) {
+                View sf = host.getCurrentFocus();
+                if (sf != null && sf.isLongClickable()) {
+                    sf.performLongClick();
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -2626,6 +3214,20 @@ final class SceneHome {
         // Home Dashboard navigation
         int dbIdx = dashboardCards.indexOf(f);
         if (dbIdx >= 0) {
+            if (HomeDashboard.isMovingWidget()) {
+                if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    if (down) HomeDashboard.moveActiveWidget(host, -1);
+                    return true;
+                }
+                if (k == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    if (down) HomeDashboard.moveActiveWidget(host, 1);
+                    return true;
+                }
+                if (k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_DPAD_UP || k == KeyEvent.KEYCODE_DPAD_DOWN) {
+                    if (down) HomeDashboard.endMovingWidget(host);
+                    return true;
+                }
+            }
             if (k == KeyEvent.KEYCODE_DPAD_LEFT) {
                 if (down && dbIdx > 0) dashboardCards.get(dbIdx - 1).requestFocus();
                 return true;
