@@ -1388,7 +1388,8 @@ final class LocalAdb {
                     continue;
                 }
 
-                // Phase 2: Commit session in detached setsid/nohup background shell so app replacement & relaunch complete cleanly
+                // Phase 2: Commit session synchronously (system_server receives the commit immediately;
+                // even if replacing our process closes the ADB socket, system_server completes the install)
                 String existingAcc = "";
                 try {
                     existingAcc = Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
@@ -1396,26 +1397,24 @@ final class LocalAdb {
                 }
                 String newAcc = buildCleanAccessibilityServicesList(c, existingAcc);
 
-                String innerScript = "sleep 1; "
-                        + "pm install-commit " + sid + " >/dev/null 2>&1; "
+                String commitCmd = "pm install-commit " + sid + " 2>&1; "
                         + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
                         + "settings put secure enabled_accessibility_services \"" + newAcc + "\" 2>/dev/null; "
                         + "settings put secure accessibility_enabled 1 2>/dev/null; "
                         + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null "
                         + "|| am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null";
 
-                String commitCmd = "if command -v setsid >/dev/null 2>&1; then "
-                        + "setsid sh -c '" + innerScript + "' </dev/null >/dev/null 2>&1 & "
-                        + "else "
-                        + "nohup sh -c '" + innerScript + "' </dev/null >/dev/null 2>&1 & "
-                        + "fi; echo STARTED";
+                portReachable = true;
+                setPaired(c, true);
                 String out = runShellCommandOutput(c, h, port, commitCmd);
-                if (out != null && out.contains("STARTED")) {
-                    portReachable = true;
-                    setPaired(c, true);
+                if (out == null || out.contains("Success") || out.trim().isEmpty()) {
                     return true;
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable t) {
+                // If socket closed/reset because system_server killed our process during pm install-commit, install is succeeding!
+                if (t instanceof java.io.EOFException || t instanceof java.net.SocketException) {
+                    return true;
+                }
             }
         }
         return false;

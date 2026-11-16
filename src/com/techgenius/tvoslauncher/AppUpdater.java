@@ -927,6 +927,16 @@ public final class AppUpdater {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null) return;
+            if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+                try {
+                    cleanupUpdatesFolderOnStartup(context);
+                    Intent launch = new Intent(context, MainActivity.class);
+                    launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    context.startActivity(launch);
+                } catch (Throwable ignored) {
+                }
+                return;
+            }
             int status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1);
             if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
                 Intent confirm = intent.getParcelableExtra(Intent.EXTRA_INTENT);
