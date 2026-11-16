@@ -1403,18 +1403,18 @@ final class LocalAdb {
                 String installCmd = "nohup sh -c '"
                         + "chmod 644 " + remoteTmp + " \"" + apkAbsPath + "\" \"" + sdcardUpdatesPath + "\" 2>/dev/null; "
                         + "sleep 1; "
-                        + "pm install -r -d -g \"" + sdcardUpdatesPath + "\" 2>/dev/null "
-                        + "|| pm install -r \"" + sdcardUpdatesPath + "\" 2>/dev/null "
-                        + "|| pm install -r -d -g " + remoteTmp + " 2>/dev/null "
-                        + "|| pm install -r -d " + remoteTmp + " 2>/dev/null "
-                        + "|| pm install -r " + remoteTmp + " 2>/dev/null; "
+                        + "pm install -r -d -g " + remoteTmp + " 2>/dev/null "
+                        + "|| pm install -r -g " + remoteTmp + " 2>/dev/null "
+                        + "|| pm install -r " + remoteTmp + " 2>/dev/null "
+                        + "|| pm install -r -d -g \"" + sdcardUpdatesPath + "\" 2>/dev/null "
+                        + "|| pm install -r \"" + sdcardUpdatesPath + "\" 2>/dev/null; "
                         + "rm -f " + remoteTmp + " 2>/dev/null; "
                         + "appops set " + pkg + " ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; "
                         + "settings put secure enabled_accessibility_services \"" + newAcc + "\" 2>/dev/null; "
                         + "settings put secure accessibility_enabled 1 2>/dev/null; "
                         + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null "
                         + "|| am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null"
-                        + "' >/dev/null 2>&1 & echo STARTED";
+                        + "' </dev/null >/dev/null 2>&1 & echo STARTED";
                 String out = runShellCommandOutput(c, h, port, installCmd);
                 if (out != null && out.contains("STARTED")) {
                     portReachable = true;
