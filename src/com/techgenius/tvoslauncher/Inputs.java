@@ -23,9 +23,41 @@ final class Inputs {
     }
 
     static final class Input {
-        String id, label;
+        String id, label, origLabel;
         int type;
         boolean passthrough, disconnected, usb;
+    }
+
+    static String getInputKey(Input in) {
+        if (in == null) return "";
+        if (in.id != null && !in.id.isEmpty()) return in.id;
+        if (in.origLabel != null && !in.origLabel.isEmpty()) return in.origLabel;
+        return in.label != null ? in.label : "";
+    }
+
+    static boolean isInputHidden(Context c, String key) {
+        if (key == null || key.isEmpty()) return false;
+        return prefs(c).getBoolean("hide_" + key, false);
+    }
+
+    static void setInputHidden(Context c, String key, boolean hidden) {
+        if (key == null || key.isEmpty()) return;
+        prefs(c).edit().putBoolean("hide_" + key, hidden).apply();
+    }
+
+    static String getCustomInputLabel(Context c, String key) {
+        if (key == null || key.isEmpty()) return "";
+        return prefs(c).getString("label_" + key, "").trim();
+    }
+
+    static void setCustomInputLabel(Context c, String key, String customLabel) {
+        if (key == null || key.isEmpty()) return;
+        String trimmed = customLabel != null ? customLabel.trim() : "";
+        if (trimmed.isEmpty()) {
+            prefs(c).edit().remove("label_" + key).apply();
+        } else {
+            prefs(c).edit().putString("label_" + key, trimmed).apply();
+        }
     }
 
     /** File/media apps that can browse a USB drive, in order of preference. */
@@ -46,6 +78,56 @@ final class Inputs {
 
     /** Hardware inputs in a natural order: HDMI first, then AV and the rest, tuner last. */
     static List<Input> list(Context c) {
+        List<Input> raw = listAllRaw(c);
+        List<Input> out = new ArrayList<>();
+        for (Input in : raw) {
+            String key = getInputKey(in);
+            if (isInputHidden(c, key)) continue;
+            String customName = getCustomInputLabel(c, key);
+            if (!customName.isEmpty()) {
+                in.label = customName;
+            }
+            out.add(in);
+        }
+        return out;
+    }
+
+    /** Returns all inputs (including hidden ones) for Settings -> Control Panel -> Inputs manager. */
+    static List<Input> listAllForSettings(Context c) {
+        List<Input> all = listAllRaw(c);
+        if (all.isEmpty()) {
+            String[][] fallbacks = {
+                {"fallback:hdmi1", "HDMI 1", String.valueOf(TvInputInfo.TYPE_HDMI)},
+                {"fallback:hdmi2", "HDMI 2", String.valueOf(TvInputInfo.TYPE_HDMI)},
+                {"fallback:hdmi3", "HDMI 3", String.valueOf(TvInputInfo.TYPE_HDMI)},
+                {"fallback:hdmi4", "HDMI 4", String.valueOf(TvInputInfo.TYPE_HDMI)},
+                {"fallback:tv", "TV", String.valueOf(TvInputInfo.TYPE_TUNER)},
+                {"fallback:av", "AV", String.valueOf(TvInputInfo.TYPE_COMPOSITE)}
+            };
+            for (String[] fb : fallbacks) {
+                Input in = new Input();
+                in.id = fb[0];
+                in.origLabel = fb[1];
+                in.label = fb[1];
+                in.type = Integer.parseInt(fb[2]);
+                in.passthrough = in.type != TvInputInfo.TYPE_TUNER;
+                all.add(in);
+            }
+        }
+        for (Input in : all) {
+            if (in.origLabel == null || in.origLabel.isEmpty()) {
+                in.origLabel = in.label;
+            }
+            String key = getInputKey(in);
+            String customName = getCustomInputLabel(c, key);
+            if (!customName.isEmpty()) {
+                in.label = customName;
+            }
+        }
+        return all;
+    }
+
+    private static List<Input> listAllRaw(Context c) {
         List<Input> out = new ArrayList<>();
         TvInputManager tm;
         try {
@@ -72,7 +154,8 @@ final class Inputs {
                 in.type = info.getType();
                 in.passthrough = info.isPassthroughInput();
                 CharSequence custom = info.loadCustomLabel(c), label = info.loadLabel(c);
-                in.label = custom != null && custom.length() > 0 ? custom.toString() : label != null ? tidy(label.toString(), in.type) : I18n.t(c, "Input");
+                in.origLabel = custom != null && custom.length() > 0 ? custom.toString() : label != null ? tidy(label.toString(), in.type) : I18n.t(c, "Input");
+                in.label = in.origLabel;
                 in.disconnected = tm.getInputState(in.id) == TvInputManager.INPUT_STATE_DISCONNECTED;
                 out.add(in);
             } catch (Exception ignored) {
@@ -91,7 +174,8 @@ final class Inputs {
                     in.id = "usb:" + v.getUuid();
                     in.usb = true;
                     String d = v.getDescription(c);
-                    in.label = d == null || d.isEmpty() ? "USB" : "USB \u00b7 " + d;
+                    in.origLabel = d == null || d.isEmpty() ? "USB" : "USB \u00b7 " + d;
+                    in.label = in.origLabel;
                     out.add(in);
                 }
             } catch (Exception ignored) {

@@ -74,13 +74,17 @@ public class BootReceiver extends BroadcastReceiver {
     public static void launchHomeImmediately(Context context) {
         if (context == null) return;
         try {
-            Intent i = new Intent(context, MainActivity.class);
+            Context launchCtx = com.techgenius.tvoslauncher.PowerService.getActiveContextOr(context);
+            Intent i = new Intent(launchCtx, MainActivity.class);
+            i.setAction(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_HOME);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TOP
                     | Intent.FLAG_ACTIVITY_SINGLE_TOP
                     | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                    | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            context.startActivity(i);
+                    | Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            launchCtx.startActivity(i);
         } catch (Throwable ignored) {
         }
     }
@@ -93,10 +97,14 @@ public class BootReceiver extends BroadcastReceiver {
         launchHomeImmediately(appCtx);
         Handler h = new Handler(Looper.getMainLooper());
         // Multi-stage rapid re-assertion so if an OEM/Chinese TV stock launcher starts slightly later
-        // during boot, tvOS Launcher immediately takes the foreground on top of it.
-        long[] delays = {500L, 1400L, 2800L, 5000L};
+        // during boot, tvOS Launcher immediately takes the foreground on top of it with zero 5s delay.
+        long[] delays = {80L, 250L, 550L, 1000L, 1600L, 2500L, 3800L, 5200L};
         for (long d : delays) {
-            h.postDelayed(() -> launchHomeImmediately(appCtx), d);
+            h.postDelayed(() -> {
+                if (MainActivity.activeInstance == null || !MainActivity.activeInstance.resumed) {
+                    launchHomeImmediately(appCtx);
+                }
+            }, d);
         }
     }
 

@@ -839,7 +839,7 @@ final class WatchPopup {
     private void position() {
         int any = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         panel.measure(any, any);
-        int shelfCardsBottom = dp(SceneHome.SHELF_TOP_DP) + headerTextH
+        int shelfCardsBottom = home.getShelfTopPx() + headerTextH
                 + dp(SceneHome.SHELF_HEADER_GAP_DP) + dp(SceneHome.SHELF_CARD_H_DP);
         int contentBottom = panel.getMeasuredHeight() - rowInset;  // the card row has rowInset below it
         // Placed with layout margins (not translation) so translationY stays free for the
