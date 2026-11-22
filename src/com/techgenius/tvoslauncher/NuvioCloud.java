@@ -148,7 +148,7 @@ final class NuvioCloud extends WatchCloud {
             p.name = o.isNull("name") ? "" : o.optString("name", "").trim();
             out.add(p);
         }
-        out.sort((x, y) -> Integer.compare(x.index, y.index));
+        java.util.Collections.sort(out, (x, y) -> Integer.compare(x.index, y.index));
         JSONArray cache = new JSONArray();
         for (Profile p : out) cache.put(new JSONObject().put("i", p.index).put("n", p.name));
         prefs.edit().putString(K_PROFILES, cache.toString()).apply();
@@ -277,7 +277,7 @@ final class NuvioCloud extends WatchCloud {
         }
 
         List<Item> recent = new ArrayList<>(latest.values());
-        recent.sort((a, b) -> Long.compare(b.lastWatched, a.lastWatched));
+        java.util.Collections.sort(recent, (a, b) -> Long.compare(b.lastWatched, a.lastWatched));
         List<Item> out = new ArrayList<>();
         int lookups = 0;
         for (Item it : recent) {

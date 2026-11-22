@@ -30,6 +30,7 @@ public final class I18n {
     public static final String LANG_RU = "ru";
     public static final String LANG_PL = "pl";
     public static final String LANG_PT = "pt";
+    public static final String LANG_PT_BR = "pt-BR";
     public static final String LANG_AR = "ar";
     public static final String LANG_JA = "ja";
     public static final String LANG_ZH = "zh";
@@ -47,7 +48,8 @@ public final class I18n {
         {LANG_DE, "Deutsch", "tvOS Launcher auf Deutsch verwenden"},
         {LANG_IT, "Italiano", "Usa tvOS Launcher in italiano"},
         {LANG_RU, "Русский", "Использовать tvOS Launcher на русском"},
-        {LANG_PT, "Português", "Usar o tvOS Launcher em português"},
+        {LANG_PT, "Português (Portugal)", "Usar o tvOS Launcher em português (Portugal)"},
+        {LANG_PT_BR, "Português (Brasil)", "Usar o tvOS Launcher em português do Brasil"},
         {LANG_PL, "Polski", "Użyj tvOS Launcher w języku polskim"},
         {LANG_AR, "العربية", "استخدم tvOS Launcher باللغة العربية"},
         {LANG_JA, "日本語", "tvOS Launcher を日本語で使用する"},
@@ -58,7 +60,7 @@ public final class I18n {
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
             LANG_EN, LANG_TR, LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
-            LANG_IT, LANG_RU, LANG_PT, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE
+            LANG_IT, LANG_RU, LANG_PT, LANG_PT_BR, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE
     ));
 
     private static String cachedLang;
@@ -176,6 +178,8 @@ public final class I18n {
         EN_MAP.put("keep_watching", "Keep watching");
         EN_MAP.put("releases_country_setting", "Most Watched countries");
         EN_MAP.put("releases_country_auto", "Automatic (Sync with UI language)");
+        EN_MAP.put("news_country_setting", "Live News country");
+        EN_MAP.put("news_country_auto", "Automatic (Sync with UI language)");
 
         TR_MAP.put("dash_prayer_times", "Namaz Vakitleri");
         TR_MAP.put("dash_football", "Futbol Maçları");
@@ -218,13 +222,17 @@ public final class I18n {
         TR_MAP.put("keep_watching", "İzlemeye devam et");
         TR_MAP.put("releases_country_setting", "Çok İzlenenler ülkeleri");
         TR_MAP.put("releases_country_auto", "Otomatik (Arayüz diliyle eşitle)");
+        TR_MAP.put("news_country_setting", "Canlı Haberler ülkesi");
+        TR_MAP.put("news_country_auto", "Otomatik (Arayüz diliyle eşitle)");
 
-        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE};
+        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_PT_BR, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
 
         initTranslations();
+        LANG_MAPS.get(LANG_PT_BR).putAll(LANG_MAPS.get(LANG_PT));
+        initPortugueseBrazil();
         initSwedish();
         initKorean();
         initAzerbaijani();
@@ -235,6 +243,9 @@ public final class I18n {
         LANG_MAPS.get(LANG_HE).put("dash_top_media", "סרטים וסדרות מובילים");
         LANG_MAPS.get(LANG_HE).put("Live Cricket Scores", "תוצאות קריקט בשידור חי");
         LANG_MAPS.get(LANG_HE).put("Live News", "חדשות בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("Live News country", "מדינת חדשות בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("news_country_setting", "מדינת חדשות בשידור חי");
+        LANG_MAPS.get(LANG_HE).put("news_country_auto", "אוטומטי (סנכרון עם שפת הממשק)");
         LANG_MAPS.get(LANG_HE).put("Top Movies & Series", "סרטים וסדרות מובילים");
         LANG_MAPS.get(LANG_HE).put("Dock rows", "שורות בדוק");
         LANG_MAPS.get(LANG_HE).put("Small clock", "שעון קטן");
@@ -279,6 +290,7 @@ public final class I18n {
         add("Most Watched", "सबसे ज़्यादा देखे गए", "Más vistos", "Les plus regardés", "Meistgesehen", "Più visti", "Самое популярное", "Mais vistos", "الأكثر مشاهدة", "人気コンテンツ", "热门观看");
         add("Loading titles…", "शीर्षक लोड हो रहे हैं…", "Cargando títulos…", "Chargement des titres…", "Titel werden geladen…", "Caricamento titoli…", "Загрузка контента…", "A carregar títulos…", "جارٍ تحميل العناوين…", "タイトルを読み込み中…", "正在加载内容…");
         add("Most Watched countries", "सबसे ज़्यादा देखे गए देश", "Países de Más vistos", "Pays des plus regardés", "Meistgesehen-Länder", "Paesi Più visti", "Страны популярного", "Países de Mais vistos", "بلدان الأكثر مشاهدة", "人気コンテンツの国", "热门观看国家/地区");
+        add("Live News country", "लाइव समाचार देश", "País de Noticias en Vivo", "Pays des Actualités en Direct", "Land der Live-Nachrichten", "Paese Notizie in Diretta", "Страна новостей в прямом эфире", "País de Notícias em Direto", "بلد الأخبار المباشرة", "ライブニュースの国", "实时新闻国家/地区");
         add("Automatic (Sync with UI language)", "स्वचालित (UI भाषा के साथ सिंक)", "Automático (sincronizar con idioma)", "Automatique (synchroniser avec la langue)", "Automatisch (mit UI-Sprache synchronisieren)", "Automatico (sincronizza con lingua UI)", "Автоматически (по языку интерфейса)", "Automático (sincronizar com idioma)", "تلقائي (مزامنة مع لغة الواجهة)", "自動（表示言語と同期）", "自动（与界面语言同步）");
         add("Good morning", "सुप्रभात", "Buenos días", "Bonjour", "Guten Morgen", "Buongiorno", "Доброе утро", "Bom dia", "صباح الخير", "おはようございます", "早上好");
         add("Good afternoon", "नमस्कार", "Buenas tardes", "Bon après-midi", "Guten Tag", "Buon pomeriggio", "Добрый день", "Boa tarde", "مساء الخير", "こんにちは", "下午好");
@@ -2234,22 +2246,128 @@ public final class I18n {
         pl("OK to open  ·  Hold OK to restore  ·  Back to go back", "OK, aby otworzyć  ·  Przytrzymaj OK, aby przywrócić  ·  Wstecz, aby wrócić");
     }
 
+    private static void ptBr(String en, String br) {
+        LANG_MAPS.get(LANG_PT_BR).put(en, br);
+    }
+
+    private static void initPortugueseBrazil() {
+        ptBr("Settings", "Configurações");
+        ptBr("Home settings", "Configurações da tela inicial");
+        ptBr("Home Settings", "Configurações da Tela Inicial");
+        ptBr("TV settings", "Configurações da TV");
+        ptBr("TV Settings", "Configurações da TV");
+        ptBr("Quick settings", "Configurações rápidas");
+        ptBr("Quick buttons", "Configurações rápidas");
+        ptBr("Language, weather, scenes, apps and people", "Idioma, clima, cenas, aplicativos e pessoas");
+        ptBr("Wi-Fi, picture, sound and the rest of the TV", "Wi-Fi, imagem, som e configurações da TV");
+        ptBr("Apps", "Aplicativos");
+        ptBr("Applications", "Aplicativos");
+        ptBr("More apps", "Mais aplicativos");
+        ptBr("Fewer apps", "Menos aplicativos");
+        ptBr("One photo and a grid of app banners", "Uma foto e uma grade de aplicativos");
+        ptBr("dash_news", "Notícias ao Vivo");
+        ptBr("Live News", "Notícias ao Vivo");
+        ptBr("dash_cricket", "Placar de Críquete ao Vivo");
+        ptBr("Live Cricket Scores", "Placar de Críquete ao Vivo");
+        ptBr("dash_top_media", "Melhores Filmes e Séries");
+        ptBr("Top Movies & Series", "Melhores Filmes e Séries");
+        ptBr("dash_latest_releases", "Mais Assistidos");
+        ptBr("Most Watched", "Mais Assistidos");
+        ptBr("Most Watched countries", "Países de Mais Assistidos");
+        ptBr("Live News country", "País das Notícias ao Vivo");
+        ptBr("news_country_setting", "País das Notícias ao Vivo");
+        ptBr("news_country_auto", "Automático (Sincronizar com o idioma)");
+        ptBr("releases_country_auto", "Automático (Sincronizar com o idioma)");
+        ptBr("Automatic (Sync with UI language)", "Automático (Sincronizar com o idioma)");
+        ptBr("Loading titles…", "Carregando títulos…");
+        ptBr("releases_loading", "Carregando títulos…");
+        ptBr("Loading matches…", "Carregando partidas…");
+        ptBr("football_loading", "Carregando partidas…");
+        ptBr("Updating…", "Atualizando…");
+        ptBr("weather_updating", "Atualizando…");
+        ptBr("Continue Watching", "Continuar Assistindo");
+        ptBr("Keep watching", "Continuar assistindo");
+        ptBr("keep_watching", "Continuar assistindo");
+        ptBr("Recent Apps", "Aplicativos Recentes");
+        ptBr("No recent apps yet", "Nenhum aplicativo recente ainda");
+        ptBr("Press ▲ on an app to close it", "Pressione ▲ em um aplicativo para fechá-lo");
+        ptBr("Persistent ADB Mode Required", "Modo ADB Persistente Necessário");
+        ptBr("Open Settings", "Abrir Configurações");
+        ptBr("Close", "Fechar");
+        ptBr("Show on Home Screen", "Mostrar na Tela Inicial");
+        ptBr("Control Panel background", "Fundo do Painel de Controle");
+        ptBr("cp_bg_mode", "Fundo do Painel de Controle");
+        ptBr("Blurry (Current content blur)", "Desfocado (Desfoque do conteúdo atual)");
+        ptBr("cp_bg_blurry", "Desfocado (Desfoque do conteúdo atual)");
+        ptBr("Transparent", "Transparente");
+        ptBr("cp_bg_transparent", "Transparente");
+        ptBr("Next Wallpaper", "Próximo Papel de Parede");
+        ptBr("next_wallpaper", "Próximo Papel de Parede");
+        ptBr("Sleep Timer", "Temporizador de Desligamento");
+        ptBr("sleep_timer", "Temporizador de Desligamento");
+        ptBr("Sleep timer", "Temporizador de desligamento");
+        ptBr("Screen", "Tela Inicial");
+        ptBr("Home Screen", "Tela Inicial");
+        ptBr("Download", "Baixar");
+        ptBr("Download CleanYourTV", "Baixar CleanYourTV");
+        ptBr("Re-download CleanYourTV", "Baixar CleanYourTV novamente");
+        ptBr("Uninstall", "Desinstalar");
+        ptBr("Uninstall tvOS Launcher", "Desinstalar tvOS Launcher");
+        ptBr("Updates", "Atualizações");
+        ptBr("UPDATES", "ATUALIZAÇÕES");
+        ptBr("Automatic updates", "Atualizações automáticas");
+        ptBr("Check for updates", "Verificar atualizações");
+        ptBr("Current version", "Versão atual");
+        ptBr("Refresh", "Atualizar");
+        ptBr("Search", "Pesquisar");
+        ptBr("Foggy", "Neblina");
+        ptBr("Thunderstorms", "Tempestades");
+        ptBr("Sleet", "Chuva congelante");
+        ptBr("On", "Ativado");
+        ptBr("Off", "Desativado");
+        ptBr("Enabled", "Ativado");
+        ptBr("Disabled", "Desativado");
+        ptBr("Enable", "Ativar");
+        ptBr("Disable", "Desativar");
+        ptBr("Cancel", "Cancelar");
+        ptBr("Delete", "Excluir");
+        ptBr("Remove", "Remover");
+        ptBr("Save", "Salvar");
+        ptBr("Back", "Voltar");
+        ptBr("Next", "Próximo");
+        ptBr("Done", "Concluído");
+        ptBr("Not done", "Não concluído");
+        ptBr("Selected", "Selecionado");
+        ptBr("REGION MODE", "MODO DE REGIÃO");
+        ptBr("COUNTRY", "PAÍS");
+        ptBr("Currently synced to: ", "Sincronizado atualmente com: ");
+        ptBr("Press OK to select this country", "Pressione OK para selecionar este país");
+        ptBr("WIDGET SETTINGS", "CONFIGURAÇÕES DE WIDGETS");
+    }
+
     private I18n() { }
 
     public static String detectSystemLang(Context c) {
-        String raw = null;
+        Locale loc = null;
         try {
             if (c != null && c.getResources() != null && c.getResources().getConfiguration() != null) {
-                android.os.LocaleList locales = c.getResources().getConfiguration().getLocales();
-                if (locales != null && !locales.isEmpty()) {
-                    raw = locales.get(0).getLanguage();
+                if (android.os.Build.VERSION.SDK_INT >= 24) {
+                    android.os.LocaleList locales = c.getResources().getConfiguration().getLocales();
+                    if (locales != null && !locales.isEmpty()) {
+                        loc = locales.get(0);
+                    }
+                } else {
+                    @SuppressWarnings("deprecation")
+                    Locale confLoc = c.getResources().getConfiguration().locale;
+                    loc = confLoc;
                 }
             }
         } catch (Throwable ignored) {
         }
-        if (raw == null || raw.isEmpty()) {
-            raw = Locale.getDefault().getLanguage();
+        if (loc == null) {
+            loc = Locale.getDefault();
         }
+        String raw = loc != null ? loc.getLanguage() : null;
         if (raw == null || raw.isEmpty()) {
             return LANG_EN;
         }
@@ -2260,6 +2378,9 @@ public final class I18n {
         }
         // Older Android/Java versions report Hebrew with the legacy code "iw".
         if ("iw".equals(code)) code = LANG_HE;
+        if (LANG_PT.equals(code) && loc != null && "BR".equalsIgnoreCase(loc.getCountry())) {
+            return LANG_PT_BR;
+        }
         return SUPPORTED.contains(code) ? code : LANG_EN;
     }
 
@@ -2318,6 +2439,7 @@ public final class I18n {
             case LANG_IT: return Locale.forLanguageTag("it-IT");
             case LANG_RU: return Locale.forLanguageTag("ru-RU");
             case LANG_PT: return Locale.forLanguageTag("pt-PT");
+            case LANG_PT_BR: return Locale.forLanguageTag("pt-BR");
             case LANG_PL: return Locale.forLanguageTag("pl-PL");
             case LANG_AR: return Locale.forLanguageTag("ar-SA");
             case LANG_JA: return Locale.forLanguageTag("ja-JP");
@@ -2387,11 +2509,11 @@ public final class I18n {
         // Dynamic pattern translations
         if (en.endsWith("% used · Recent Apps") && map != null) {
             String num = en.substring(0, en.length() - "% used · Recent Apps".length());
-            return num + "% · " + map.getOrDefault("Recent Apps", "Recent Apps");
+            return num + "% · " + mapGet(map, "Recent Apps", "Recent Apps");
         }
         if (en.endsWith("% used · Clean") && map != null) {
             String num = en.substring(0, en.length() - "% used · Clean".length());
-            return num + "% · " + map.getOrDefault("Clean", "Clean");
+            return num + "% · " + mapGet(map, "Clean", "Clean");
         }
         if (en.endsWith(" min left")) {
             String num = en.substring(0, en.length() - " min left".length());
@@ -2400,22 +2522,27 @@ public final class I18n {
         if (en.startsWith("Move ") && map != null) {
             String rest = en.substring("Move ".length());
             if (!rest.equals("left in dock") && !rest.equals("right in dock")) {
-                return map.getOrDefault("Move", "Move") + " " + rest;
+                return mapGet(map, "Move", "Move") + " " + rest;
             }
         }
         if (en.startsWith("Switch to ") && map != null) {
             String rest = en.substring("Switch to ".length());
-            return map.getOrDefault("Switch", "Switch") + ": " + rest;
+            return mapGet(map, "Switch", "Switch") + ": " + rest;
         }
         if (en.startsWith("Done (") && en.endsWith(" apps disabled)") && map != null) {
             String num = en.substring("Done (".length(), en.length() - " apps disabled)".length());
-            return map.getOrDefault("Done", "Done") + " (" + num + " " + map.getOrDefault("apps", "apps") + ")";
+            return mapGet(map, "Done", "Done") + " (" + num + " " + mapGet(map, "apps", "apps") + ")";
         }
         if (en.startsWith("Not done (") && en.endsWith(" disabled)") && map != null) {
             String ratio = en.substring("Not done (".length(), en.length() - " disabled)".length());
-            return map.getOrDefault("Not done", "Not done") + " (" + ratio + ")";
+            return mapGet(map, "Not done", "Not done") + " (" + ratio + ")";
         }
         return en;
+    }
+
+    private static String mapGet(Map<String, String> map, String key, String def) {
+        String v = map != null ? map.get(key) : null;
+        return v != null ? v : def;
     }
 
     /** Formats the date line above the scene clock according to the active language. */
@@ -2435,6 +2562,8 @@ public final class I18n {
                 return new SimpleDateFormat("EEEE, d \u05d1MMMM", loc).format(date);
             case LANG_DE:
                 return new SimpleDateFormat("EEEE, d. MMMM", loc).format(date);
+            case LANG_PT_BR:
+                return new SimpleDateFormat("EEEE, d 'de' MMMM", loc).format(date);
             case LANG_SV:
             case LANG_ES:
             case LANG_FR:

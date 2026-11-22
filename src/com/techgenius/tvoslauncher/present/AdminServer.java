@@ -156,7 +156,7 @@ final class AdminServer {
             if (colon > 0) r.headers.put(h.substring(0, colon).trim().toLowerCase(Locale.US), h.substring(colon + 1).trim());
         }
         try {
-            r.contentLength = Long.parseLong(r.headers.getOrDefault("content-length", "0"));
+            r.contentLength = Long.parseLong(headerOr(r.headers, "content-length", "0"));
         } catch (NumberFormatException e) {
             r.contentLength = 0;
         }
@@ -174,6 +174,11 @@ final class AdminServer {
         }
         if (ch == -1 && b.size() == 0) return null;
         return b.toString("ISO-8859-1");
+    }
+
+    private static String headerOr(Map<String, String> h, String k, String def) {
+        String v = h.get(k);
+        return v != null ? v : def;
     }
 
     private void route(Req r, OutputStream out) throws Exception {
@@ -197,7 +202,7 @@ final class AdminServer {
         }
         if (!p.startsWith("/api/")) { asset(out, "index.html", "text/html; charset=utf-8"); return; }
 
-        String auth = r.headers.getOrDefault("authorization", "");
+        String auth = headerOr(r.headers, "authorization", "");
         String token = auth.startsWith("Bearer") ? auth.substring(6).trim() : r.query.get("token");
         if (!pairing.valid(token)) {
             drain(r);
@@ -298,7 +303,7 @@ final class AdminServer {
             try (OutputStream fo = new FileOutputStream(raw)) {
                 copy(r.body, fo, r.contentLength);
             }
-            String type = r.headers.getOrDefault("content-type", "");
+            String type = headerOr(r.headers, "content-type", "");
             String name = header(r, "x-file-name");
             String mime = header(r, "x-file-type");
             File payload;

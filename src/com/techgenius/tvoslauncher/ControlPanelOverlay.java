@@ -509,11 +509,16 @@ public final class ControlPanelOverlay {
                     }, false));
         }
         if (isItemEnabled(c, ITEM_POWER)) {
+            boolean nativePowerMenu = isPowerNativeMenuMode(c);
             capsules.add(new CapsuleSpec("power", I18n.s(c, "Power Off", "Kapat"),
-                    () -> I18n.s(c, "Screen Off", "Ekranı Kapat"),
+                    () -> nativePowerMenu
+                            ? I18n.s(c, "Power Menu", "Güç Menüsü")
+                            : (hasCustomAction(c, ACTION_POWER)
+                                    ? getActionSummary(c, ACTION_POWER)
+                                    : I18n.s(c, "Screen Off", "Ekranı Kapat")),
                     v -> {
                         dismissAll(c);
-                        SleepReceiver.sleepNow(c);
+                        triggerPowerAction(c);
                     }, false));
         }
 
@@ -1194,10 +1199,15 @@ public final class ControlPanelOverlay {
     public static final String ACTION_SOUND = "sound";
     public static final String ACTION_INPUTS = "inputs";
     public static final String ACTION_AMBIENT = "ambient";
+    public static final String ACTION_POWER = "power";
 
     public static final String AMBIENT_MODE_DEFAULT = "default";
     public static final String AMBIENT_MODE_LOCK_SCREEN = "lock_screen";
     public static final String AMBIENT_MODE_CUSTOM = "custom";
+
+    public static final String POWER_MODE_DEFAULT = "default";
+    public static final String POWER_MODE_NATIVE_MENU = "native_menu";
+    public static final String POWER_MODE_CUSTOM = "custom";
 
     public static final String BG_MODE_BLURRY = "blur";
     public static final String BG_MODE_TRANSPARENT = "transparent";
@@ -1299,8 +1309,27 @@ public final class ControlPanelOverlay {
                 .apply();
     }
 
+    public static boolean isPowerNativeMenuMode(Context c) {
+        if (c == null) return false;
+        return POWER_MODE_NATIVE_MENU.equals(
+                cpPrefs(c).getString("power_mode_type", POWER_MODE_DEFAULT));
+    }
+
+    public static void setPowerNativeMenuMode(Context c, boolean nativeMenu) {
+        if (c == null) return;
+        cpPrefs(c).edit()
+                .putString("power_mode_type", nativeMenu ? POWER_MODE_NATIVE_MENU : POWER_MODE_DEFAULT)
+                .remove(ACTION_POWER + "_pkg")
+                .remove(ACTION_POWER + "_cls")
+                .remove(ACTION_POWER + "_label")
+                .apply();
+    }
+
     public static boolean hasCustomAction(Context c, String key) {
         if (ACTION_AMBIENT.equals(key) && isAmbientLockScreenMode(c)) {
+            return false;
+        }
+        if (ACTION_POWER.equals(key) && isPowerNativeMenuMode(c)) {
             return false;
         }
         String pkg = cpPrefs(c).getString(key + "_pkg", "");
@@ -1319,8 +1348,14 @@ public final class ControlPanelOverlay {
         if (ACTION_AMBIENT.equals(key) && isAmbientLockScreenMode(c)) {
             return I18n.s(c, "Lock Screen", "Kilit Ekranı");
         }
+        if (ACTION_POWER.equals(key) && isPowerNativeMenuMode(c)) {
+            return I18n.s(c, "Android Power Menu", "Android Güç Menüsü");
+        }
         String pkg = getCustomPkg(c, key);
         if (pkg == null || pkg.isEmpty()) {
+            if (ACTION_POWER.equals(key)) {
+                return I18n.s(c, "Default (Screen Off)", "Varsayılan (Ekranı Kapat)");
+            }
             return I18n.s(c, "Default (Automatic)", "Varsayılan (Otomatik)");
         }
         String label = cpPrefs(c).getString(key + "_label", "");
@@ -1336,6 +1371,8 @@ public final class ControlPanelOverlay {
                 .putString(key + "_label", label != null ? label : "");
         if (ACTION_AMBIENT.equals(key)) {
             ed.putString("ambient_mode_type", AMBIENT_MODE_CUSTOM);
+        } else if (ACTION_POWER.equals(key)) {
+            ed.putString("power_mode_type", POWER_MODE_CUSTOM);
         }
         ed.apply();
     }
@@ -1347,16 +1384,19 @@ public final class ControlPanelOverlay {
                 .remove(key + "_label");
         if (ACTION_AMBIENT.equals(key)) {
             ed.putString("ambient_mode_type", AMBIENT_MODE_DEFAULT);
+        } else if (ACTION_POWER.equals(key)) {
+            ed.putString("power_mode_type", POWER_MODE_DEFAULT);
         }
         ed.apply();
     }
 
     public static void clearAllCustomActions(Context c) {
         android.content.SharedPreferences.Editor ed = cpPrefs(c).edit();
-        for (String k : new String[]{ACTION_WIFI, ACTION_BLUETOOTH, ACTION_SOUND, ACTION_INPUTS, ACTION_AMBIENT}) {
+        for (String k : new String[]{ACTION_WIFI, ACTION_BLUETOOTH, ACTION_SOUND, ACTION_INPUTS, ACTION_AMBIENT, ACTION_POWER}) {
             ed.remove(k + "_pkg").remove(k + "_cls").remove(k + "_label");
         }
         ed.putString("ambient_mode_type", AMBIENT_MODE_DEFAULT);
+        ed.putString("power_mode_type", POWER_MODE_DEFAULT);
         ed.apply();
     }
 
@@ -1962,6 +2002,34 @@ public final class ControlPanelOverlay {
      * keeping projectors (such as Wanbo) running. Wakes immediately on any remote key press.
      */
     private static WindowManager blackoutWm;
+    public static void triggerPowerAction(Context c) {
+        if (isPowerNativeMenuMode(c)) {
+            openNativePowerMenu(c);
+            return;
+        }
+        if (launchCustomAction(c, ACTION_POWER)) {
+            return;
+        }
+        SleepReceiver.sleepNow(c);
+    }
+
+    public static void openNativePowerMenu(Context c) {
+        final Context appCtx = c.getApplicationContext();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (PowerService.showPowerDialog()) {
+                return;
+            }
+            if (LocalAdb.sendLongPressKeyEventViaAdbAsync(appCtx, KeyEvent.KEYCODE_POWER)) {
+                return;
+            }
+            Toast.makeText(appCtx,
+                    I18n.s(appCtx,
+                            "Enable Accessibility Service in Settings to open the Android Power Menu",
+                            "Android Güç Menüsünü açmak için Ayarlar'dan Erişilebilirlik Servisini etkinleştirin"),
+                    Toast.LENGTH_LONG).show();
+        }, 80);
+    }
+
     private static View blackoutView;
     private static long blackoutEnterTime = 0L;
     private static final java.util.Set<Integer> blackoutDownKeys = new java.util.HashSet<>();

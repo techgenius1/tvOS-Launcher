@@ -713,14 +713,15 @@ public class SetupActivity extends Activity {
 
     void weather() {
         title(tr("Weather", "Hava Durumu"));
-        subtitle(tr("A small weather display on Home, with a 5-day forecast.",
-                "Ana Ekranda 5 g\u00fcnl\u00fck tahminle birlikte hava durumu g\u00f6r\u00fcn\u00fcm\u00fc."));
+        subtitle(tr("A small weather display on Home with a 5-day forecast (also syncs Prayer Times location).",
+                "Ana Ekranda 5 g\u00fcnl\u00fck tahminle birlikte hava durumu g\u00f6r\u00fcn\u00fcm\u00fc (Namaz Vakitleri konumunu da e\u015fitler)."));
         LinearLayout l = list();
         String city = Weather.place(this);
         option(l, tr("Use My Location", "Konumumu Kullan"),
                 city.isEmpty() ? tr("Found from your internet connection", "\u0130nternet ba\u011flant\u0131n\u0131zdan bulunur") : tr("Looks like ", "Tahmini konum: ") + city,
                 Weather.enabled(this) && !Weather.manual(this), () -> {
                     Weather.prefs(this).edit().putBoolean(Weather.K_ENABLED, true).apply();
+                    HomeDashboard.setPrayerLocationAuto(this);
                     Weather.setPlace(this, null);
                     next();
                 });
@@ -790,6 +791,7 @@ public class SetupActivity extends Activity {
                 .setItems(names, (d, w) -> {
                     Weather.Place picked = res.get(w);
                     Weather.prefs(this).edit().putBoolean(Weather.K_ENABLED, true).apply();
+                    HomeDashboard.setPrayerLocationAuto(this);
                     Weather.setPlace(this, picked);
                     Weather.refresh(this, true, null);
                     show(index, 0);

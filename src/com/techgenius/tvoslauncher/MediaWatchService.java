@@ -66,7 +66,7 @@ public class MediaWatchService extends NotificationListenerService {
                 }
             } catch (Throwable ignored) {
             }
-            MAIN_HANDLER.postDelayed(this, 4000L);
+            MAIN_HANDLER.postDelayed(this, 30_000L);
         }
     };
 
@@ -156,7 +156,7 @@ public class MediaWatchService extends NotificationListenerService {
 
                 if (!periodicPollScheduled) {
                     periodicPollScheduled = true;
-                    MAIN_HANDLER.postDelayed(PERIODIC_POLL_TICK, 4000L);
+                    MAIN_HANDLER.postDelayed(PERIODIC_POLL_TICK, 30_000L);
                 }
 
                 ComponentName me = new ComponentName(appCtx, MediaWatchService.class);
@@ -442,11 +442,23 @@ public class MediaWatchService extends NotificationListenerService {
         }
 
         static synchronized void remove(Context c, String key) {
+            remove(c, key, null, null);
+        }
+
+        static synchronized void remove(Context c, String key, String pkg, String title) {
             markDismissed(c, key);
+            String altKey = (pkg != null && !pkg.isEmpty() && title != null && !title.isEmpty())
+                    ? (pkg + "|" + title) : "";
+            if (!altKey.isEmpty() && !altKey.equals(key)) {
+                markDismissed(c, altKey);
+            }
             JSONArray old = read(c), out = new JSONArray();
             for (int i = 0; i < old.length(); i++) {
                 JSONObject o = old.optJSONObject(i);
-                if (o != null && !key.equals(o.optString("key"))) out.put(o);
+                if (o == null) continue;
+                String ok = o.optString("key");
+                if (key.equals(ok) || (!altKey.isEmpty() && altKey.equals(ok))) continue;
+                out.put(o);
             }
             write(c, out);
         }
@@ -537,8 +549,10 @@ public class MediaWatchService extends NotificationListenerService {
                 String oPkg = o.optString("pkg");
                 if (!matchesPackage(pkg, oPkg)) continue;
                 String k = o.optString("key");
-                String tNorm = normalizeTitleKey(o.optString("title"));
-                if (dismissed.contains(k) || tNorm.isEmpty() || !seenTitles.add(tNorm)) continue;
+                String rawTitle = o.optString("title");
+                String tNorm = normalizeTitleKey(rawTitle);
+                if (dismissed.contains(k) || dismissed.contains(pkg + "|" + rawTitle)
+                        || tNorm.isEmpty() || !seenTitles.add(tNorm)) continue;
                 Suggestions.Item it = itemFromJson(o);
                 it.pkg = pkg;
                 out.add(it);
@@ -549,7 +563,7 @@ public class MediaWatchService extends NotificationListenerService {
                 List<Suggestions.Item> tvItems = queryTvProviderForPackage(c, pkg, max * 2);
                 for (Suggestions.Item tvIt : tvItems) {
                     if (out.size() >= max) break;
-                    if (dismissed.contains(tvIt.key)) continue;
+                    if (dismissed.contains(tvIt.key) || dismissed.contains(pkg + "|" + tvIt.title)) continue;
                     String tNorm = normalizeTitleKey(tvIt.title);
                     if (tNorm.isEmpty() || !seenTitles.add(tNorm)) continue;
                     out.add(tvIt);
@@ -629,14 +643,16 @@ public class MediaWatchService extends NotificationListenerService {
                 cur = c.getContentResolver().query(uri, null, null, null, null);
                 if (cur != null) {
                     while (cur.moveToNext()) {
-                        if (colInt(cur, "browsable", 1) == 0) continue;
+                        long pos = colLong(cur, "last_playback_position_millis", -1L);
+                        if (colInt(cur, "browsable", 1) == 0 && pos <= 0) continue;
                         String p = colStr(cur, "package_name");
                         if (p.isEmpty() || !Suggestions.installed(c, p)) continue;
                         RawTvProgram r = parseTvProgramRow(cur, p, "", "", 0);
                         if (r != null) rows.add(r);
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable t) {
+                android.util.Log.w("tvOSLauncher", "watch_next_program query failed: " + t);
             } finally {
                 if (cur != null) {
                     try { cur.close(); } catch (Throwable ignored) { }
@@ -653,89 +669,242 @@ public class MediaWatchService extends NotificationListenerService {
             return out;
         }
 
+        private static boolean isPriorityChannelName(String dName) {
+            if (dName == null || dName.isEmpty()) return false;
+            String low = dName.toLowerCase(java.util.Locale.ROOT);
+            return low.contains("continue") || low.contains("watch next")
+                    || low.contains("resume") || low.contains("recent")
+                    || low.contains("history") || low.contains("up next")
+                    || low.contains("favorite") || low.contains("devam")
+                    || low.contains("son ") || low.contains("favori")
+                    || low.contains("시청")
+                    || low.contains("продолж") || low.contains("смотреть")
+                    || low.contains("истор") || low.contains("избран")
+                    || low.contains("позже") || low.contains("сейчас")
+                    || low.contains("continu") || low.contains("assistir")
+                    || low.contains("weiter") || low.contains("reprendre");
+        }
+
+        private static void collectChannelRow(
+                android.database.Cursor chCur,
+                List<Long> channelIds,
+                Map<Long, String> channelNames,
+                Map<Long, String> channelLinks,
+                Map<Long, Boolean> channelPriority) {
+            long cid = colLong(chCur, "_id", -1L);
+            if (cid < 0) return;
+            String dName = colStr(chCur, "display_name");
+            String cLink = colStr(chCur, "app_link_intent_uri");
+            if (!channelNames.containsKey(cid)) channelIds.add(cid);
+            channelNames.put(cid, dName);
+            channelLinks.put(cid, cLink);
+            channelPriority.put(cid, isPriorityChannelName(dName));
+        }
+
+        private static int collectPreviewProgramRows(
+                android.database.Cursor ppCur,
+                String pkg,
+                boolean filterByPkg,
+                Map<Long, String> channelNames,
+                Map<Long, String> channelLinks,
+                Map<Long, Boolean> channelPriority,
+                java.util.Set<Long> seenPpIds,
+                List<RawTvProgram> rows) {
+            int added = 0;
+            if (ppCur == null) return 0;
+            while (ppCur.moveToNext()) {
+                long cid = colLong(ppCur, "channel_id", -1L);
+                String rowPkg = colStr(ppCur, "package_name");
+                if (filterByPkg) {
+                    boolean pkgMatch = !rowPkg.isEmpty() && matchesPackage(pkg, rowPkg);
+                    boolean chMatch = channelNames.containsKey(cid);
+                    if (!pkgMatch && !chMatch) continue;
+                }
+                long id = colLong(ppCur, "_id", -1L);
+                if (id >= 0 && !seenPpIds.add(id)) continue;
+
+                String chName = channelNames.get(cid);
+                if (chName == null) chName = "";
+                String chLink = channelLinks.get(cid);
+                if (chLink == null) chLink = "";
+                boolean isPriCh = Boolean.TRUE.equals(channelPriority.get(cid));
+                long pos = colLong(ppCur, "last_playback_position_millis", -1L);
+                String effPkg = rowPkg.isEmpty() ? pkg : rowPkg;
+                // YouTube publishes unrelated old recommended/trending videos in preview_program;
+                // only include YouTube preview rows that have playback progress or a priority CW channel.
+                boolean isYouTube = effPkg.startsWith("com.google.android.youtube");
+                if (isYouTube && pos <= 0 && !isPriCh) continue;
+
+                int bucket = (pos > 0) ? 1 : (isPriCh ? 2 : 3);
+                RawTvProgram r = parseTvProgramRow(ppCur, pkg, chName, chLink, bucket);
+                if (r != null) {
+                    rows.add(r);
+                    added++;
+                }
+            }
+            return added;
+        }
+
         static List<Suggestions.Item> queryTvProviderForPackage(Context c, String pkg, int max) {
             List<Suggestions.Item> out = new ArrayList<>();
             if (c == null || pkg == null || pkg.isEmpty() || max <= 0) return out;
             List<RawTvProgram> rows = new ArrayList<>();
+            java.util.Set<Long> seenWnIds = new java.util.HashSet<>();
 
-            for (String queryPkg : packageCandidates(pkg)) {
-                // 1. Query watch_next_program?package=<queryPkg>
-                android.database.Cursor wnCur = null;
-                try {
-                    android.net.Uri wnUri = android.net.Uri.parse("content://android.media.tv/watch_next_program")
-                            .buildUpon().appendQueryParameter("package", queryPkg).build();
-                    wnCur = c.getContentResolver().query(wnUri, null, null, null, null);
-                    if (wnCur != null) {
-                        while (wnCur.moveToNext()) {
-                            if (colInt(wnCur, "browsable", 1) == 0) continue;
-                            RawTvProgram r = parseTvProgramRow(wnCur, pkg, "", "", 0);
-                            if (r != null) rows.add(r);
+            // 1. Query watch_next_program unfiltered first (works with READ_TV_LISTINGS), then ?package= fallback
+            int wnMatched = 0;
+            android.database.Cursor wnAllCur = null;
+            try {
+                android.net.Uri wnUri = android.net.Uri.parse("content://android.media.tv/watch_next_program");
+                wnAllCur = c.getContentResolver().query(wnUri, null, null, null, null);
+                if (wnAllCur != null) {
+                    while (wnAllCur.moveToNext()) {
+                        String rowPkg = colStr(wnAllCur, "package_name");
+                        if (!matchesPackage(pkg, rowPkg)) continue;
+                        long pos = colLong(wnAllCur, "last_playback_position_millis", -1L);
+                        if (colInt(wnAllCur, "browsable", 1) == 0 && pos <= 0) continue;
+                        long id = colLong(wnAllCur, "_id", -1L);
+                        if (id >= 0 && !seenWnIds.add(id)) continue;
+                        RawTvProgram r = parseTvProgramRow(wnAllCur, pkg, "", "", 0);
+                        if (r != null) {
+                            rows.add(r);
+                            wnMatched++;
                         }
-                    }
-                } catch (Throwable ignored) {
-                } finally {
-                    if (wnCur != null) {
-                        try { wnCur.close(); } catch (Throwable ignored) { }
                     }
                 }
+            } catch (Throwable t) {
+                android.util.Log.w("tvOSLauncher", "watch_next_program query failed for " + pkg + ": " + t);
+            } finally {
+                if (wnAllCur != null) {
+                    try { wnAllCur.close(); } catch (Throwable ignored) { }
+                }
+            }
 
-                // 2. Query channel?package=<queryPkg> to map channel_id -> display_name & app_link_intent_uri
-                Map<Long, String> channelNames = new HashMap<>();
-                Map<Long, String> channelLinks = new HashMap<>();
-                Map<Long, Boolean> channelPriority = new HashMap<>();
-                android.database.Cursor chCur = null;
-                try {
-                    android.net.Uri chUri = android.net.Uri.parse("content://android.media.tv/channel")
-                            .buildUpon().appendQueryParameter("package", queryPkg).build();
-                    chCur = c.getContentResolver().query(chUri, null, null, null, null);
-                    if (chCur != null) {
-                        while (chCur.moveToNext()) {
-                            long cid = colLong(chCur, "_id", -1L);
-                            if (cid < 0) continue;
-                            String dName = colStr(chCur, "display_name");
-                            String cLink = colStr(chCur, "app_link_intent_uri");
-                            channelNames.put(cid, dName);
-                            channelLinks.put(cid, cLink);
-                            String low = dName.toLowerCase(java.util.Locale.ROOT);
-                            boolean isPriority = low.contains("continue") || low.contains("watch next")
-                                    || low.contains("resume") || low.contains("recent")
-                                    || low.contains("history") || low.contains("up next")
-                                    || low.contains("favorite") || low.contains("devam")
-                                    || low.contains("son ") || low.contains("favori")
-                                    || low.contains("시청");
-                            channelPriority.put(cid, isPriority);
+            if (wnMatched == 0) {
+                for (String queryPkg : packageCandidates(pkg)) {
+                    android.database.Cursor wnCur = null;
+                    try {
+                        android.net.Uri wnUri = android.net.Uri.parse("content://android.media.tv/watch_next_program")
+                                .buildUpon().appendQueryParameter("package", queryPkg).build();
+                        wnCur = c.getContentResolver().query(wnUri, null, null, null, null);
+                        if (wnCur != null) {
+                            while (wnCur.moveToNext()) {
+                                long pos = colLong(wnCur, "last_playback_position_millis", -1L);
+                                if (colInt(wnCur, "browsable", 1) == 0 && pos <= 0) continue;
+                                long id = colLong(wnCur, "_id", -1L);
+                                if (id >= 0 && !seenWnIds.add(id)) continue;
+                                RawTvProgram r = parseTvProgramRow(wnCur, pkg, "", "", 0);
+                                if (r != null) rows.add(r);
+                            }
                         }
-                    }
-                } catch (Throwable ignored) {
-                } finally {
-                    if (chCur != null) {
-                        try { chCur.close(); } catch (Throwable ignored) { }
+                    } catch (Throwable t) {
+                        android.util.Log.w("tvOSLauncher", "watch_next_program?package query failed for " + queryPkg + ": " + t);
+                    } finally {
+                        if (wnCur != null) {
+                            try { wnCur.close(); } catch (Throwable ignored) { }
+                        }
                     }
                 }
+            }
 
-                // 3. Query preview_program?package=<queryPkg>
-                android.database.Cursor ppCur = null;
-                try {
-                    android.net.Uri ppUri = android.net.Uri.parse("content://android.media.tv/preview_program")
-                            .buildUpon().appendQueryParameter("package", queryPkg).build();
-                    ppCur = c.getContentResolver().query(ppUri, null, null, null, null);
-                    if (ppCur != null) {
-                        while (ppCur.moveToNext()) {
-                            if (colInt(ppCur, "browsable", 1) == 0) continue;
-                            long cid = colLong(ppCur, "channel_id", -1L);
-                            String chName = channelNames.getOrDefault(cid, "");
-                            String chLink = channelLinks.getOrDefault(cid, "");
-                            boolean isPriCh = Boolean.TRUE.equals(channelPriority.get(cid));
-                            long pos = colLong(ppCur, "last_playback_position_millis", -1L);
-                            int bucket = (pos > 0) ? 1 : (isPriCh ? 2 : 3);
-                            RawTvProgram r = parseTvProgramRow(ppCur, pkg, chName, chLink, bucket);
-                            if (r != null) rows.add(r);
+            // 2. Query channels unfiltered first, then ?package= fallback
+            List<Long> channelIds = new ArrayList<>();
+            Map<Long, String> channelNames = new HashMap<>();
+            Map<Long, String> channelLinks = new HashMap<>();
+            Map<Long, Boolean> channelPriority = new HashMap<>();
+            android.database.Cursor chAllCur = null;
+            try {
+                android.net.Uri chUri = android.net.Uri.parse("content://android.media.tv/channel");
+                chAllCur = c.getContentResolver().query(chUri, null, null, null, null);
+                if (chAllCur != null) {
+                    while (chAllCur.moveToNext()) {
+                        String rowPkg = colStr(chAllCur, "package_name");
+                        if (!matchesPackage(pkg, rowPkg)) continue;
+                        collectChannelRow(chAllCur, channelIds, channelNames, channelLinks, channelPriority);
+                    }
+                }
+            } catch (Throwable t) {
+                android.util.Log.w("tvOSLauncher", "channel query failed for " + pkg + ": " + t);
+            } finally {
+                if (chAllCur != null) {
+                    try { chAllCur.close(); } catch (Throwable ignored) { }
+                }
+            }
+
+            if (channelIds.isEmpty()) {
+                for (String queryPkg : packageCandidates(pkg)) {
+                    android.database.Cursor chCur = null;
+                    try {
+                        android.net.Uri chUri = android.net.Uri.parse("content://android.media.tv/channel")
+                                .buildUpon().appendQueryParameter("package", queryPkg).build();
+                        chCur = c.getContentResolver().query(chUri, null, null, null, null);
+                        if (chCur != null) {
+                            while (chCur.moveToNext()) {
+                                collectChannelRow(chCur, channelIds, channelNames, channelLinks, channelPriority);
+                            }
+                        }
+                    } catch (Throwable t) {
+                        android.util.Log.w("tvOSLauncher", "channel?package query failed for " + queryPkg + ": " + t);
+                    } finally {
+                        if (chCur != null) {
+                            try { chCur.close(); } catch (Throwable ignored) { }
                         }
                     }
-                } catch (Throwable ignored) {
+                }
+            }
+
+            // 3. Query preview_program per channel (?channel=<cid>) first (standard AOSP READ_TV_LISTINGS URI),
+            //    with unfiltered and ?package= fallbacks.
+            java.util.Set<Long> seenPpIds = new java.util.HashSet<>();
+            int ppAdded = 0;
+            for (Long cidObj : channelIds) {
+                android.database.Cursor ppChCur = null;
+                try {
+                    android.net.Uri ppChUri = android.net.Uri.parse("content://android.media.tv/preview_program")
+                            .buildUpon().appendQueryParameter("channel", String.valueOf(cidObj)).build();
+                    ppChCur = c.getContentResolver().query(ppChUri, null, null, null, null);
+                    ppAdded += collectPreviewProgramRows(
+                            ppChCur, pkg, false, channelNames, channelLinks, channelPriority, seenPpIds, rows);
+                } catch (Throwable t) {
+                    android.util.Log.w("tvOSLauncher", "preview_program?channel query failed for cid=" + cidObj + ": " + t);
                 } finally {
-                    if (ppCur != null) {
-                        try { ppCur.close(); } catch (Throwable ignored) { }
+                    if (ppChCur != null) {
+                        try { ppChCur.close(); } catch (Throwable ignored) { }
+                    }
+                }
+            }
+
+            if (ppAdded == 0) {
+                android.database.Cursor ppAllCur = null;
+                try {
+                    android.net.Uri ppUri = android.net.Uri.parse("content://android.media.tv/preview_program");
+                    ppAllCur = c.getContentResolver().query(ppUri, null, null, null, null);
+                    ppAdded += collectPreviewProgramRows(
+                            ppAllCur, pkg, true, channelNames, channelLinks, channelPriority, seenPpIds, rows);
+                } catch (Throwable t) {
+                    android.util.Log.w("tvOSLauncher", "preview_program query failed for " + pkg + ": " + t);
+                } finally {
+                    if (ppAllCur != null) {
+                        try { ppAllCur.close(); } catch (Throwable ignored) { }
+                    }
+                }
+            }
+
+            if (ppAdded == 0) {
+                for (String queryPkg : packageCandidates(pkg)) {
+                    android.database.Cursor ppCur = null;
+                    try {
+                        android.net.Uri ppUri = android.net.Uri.parse("content://android.media.tv/preview_program")
+                                .buildUpon().appendQueryParameter("package", queryPkg).build();
+                        ppCur = c.getContentResolver().query(ppUri, null, null, null, null);
+                        collectPreviewProgramRows(
+                                ppCur, pkg, false, channelNames, channelLinks, channelPriority, seenPpIds, rows);
+                    } catch (Throwable t) {
+                        android.util.Log.w("tvOSLauncher", "preview_program?package query failed for " + queryPkg + ": " + t);
+                    } finally {
+                        if (ppCur != null) {
+                            try { ppCur.close(); } catch (Throwable ignored) { }
+                        }
                     }
                 }
             }
@@ -770,6 +939,13 @@ public class MediaWatchService extends NotificationListenerService {
             if (title.isEmpty() && !epTitle.isEmpty()) {
                 title = epTitle;
                 epTitle = "";
+            }
+            if (title.isEmpty() && !shortDesc.isEmpty()) {
+                title = shortDesc;
+                shortDesc = "";
+            }
+            if (title.isEmpty() && channelName != null && !channelName.isEmpty()) {
+                title = channelName;
             }
             if (title.isEmpty()) return null;
 

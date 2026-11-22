@@ -196,6 +196,22 @@ final class WatchPopup {
         }
     }
 
+    void clearTransientMemory() {
+        thumbs.evictAll();
+        if (!visible) {
+            qrBitmap = null;
+        }
+    }
+
+    void release() {
+        host.handler.removeCallbacks(applyFocusedProfile);
+        host.handler.removeCallbacks(followUpLoad);
+        stopPolling();
+        thumbs.evictAll();
+        qrBitmap = null;
+        exec.shutdownNow();
+    }
+
     /** Called from the focus listener of this app's dock tile. */
     void onTileFocus(View tile, String pkg, boolean has) {
         if (has) {

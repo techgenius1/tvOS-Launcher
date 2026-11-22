@@ -162,10 +162,10 @@ final class Inputs {
                 // skip inputs that can't be read
             }
         }
-        out.sort((a, b) -> Integer.compare(rank(a), rank(b)) != 0 ? Integer.compare(rank(a), rank(b))
+        java.util.Collections.sort(out, (a, b) -> Integer.compare(rank(a), rank(b)) != 0 ? Integer.compare(rank(a), rank(b))
                 : a.label.compareToIgnoreCase(b.label));
         // A plugged-in USB drive shows as its own source (opens the TV's file or media app).
-        if (!out.isEmpty()) {
+        if (!out.isEmpty() && android.os.Build.VERSION.SDK_INT >= 24) {
             try {
                 android.os.storage.StorageManager sm = c.getSystemService(android.os.storage.StorageManager.class);
                 for (android.os.storage.StorageVolume v : sm.getStorageVolumes()) {

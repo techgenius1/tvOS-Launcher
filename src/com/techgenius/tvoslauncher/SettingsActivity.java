@@ -508,6 +508,19 @@ public class SettingsActivity extends Activity {
         });
     }
 
+    public static void clearPrewarmCache() {
+        Bitmap backdrop = sCachedBackdropBmp;
+        sCachedBackdropBmp = null;
+        sCachedBackdropKey = null;
+        if (backdrop != null && !backdrop.isRecycled()) {
+            backdrop.recycle();
+        }
+        for (Bitmap b : SCENE_THUMB_CACHE.values()) {
+            if (b != null && !b.isRecycled()) b.recycle();
+        }
+        SCENE_THUMB_CACHE.clear();
+    }
+
     private void buildSidebarRows() {
         sideList.removeAllViews();
         sideRowViews.clear();
@@ -585,8 +598,6 @@ public class SettingsActivity extends Activity {
                 } else {
                     updateSidebarStyles();
                 }
-                v.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                        .setDuration(160).start();
             });
 
             // FORK PATCH (mouse/touch): in touch mode a click never gives the row
@@ -626,7 +637,7 @@ public class SettingsActivity extends Activity {
         }
         sideList.removeCallbacks(pendingSidebarRebuild);
         pendingSidebarRebuildScheduled = true;
-        sideList.postDelayed(pendingSidebarRebuild, 32);
+        sideList.postDelayed(pendingSidebarRebuild, 140);
     }
 
     private void flushPendingSidebarRebuild() {
@@ -1121,6 +1132,12 @@ public class SettingsActivity extends Activity {
                             SceneHome.setWeatherShortcutEnabled(this, !SceneHome.isWeatherShortcutEnabled(this));
                             refreshAll();
                         });
+                row(tr("Top-right search shortcut", "Sağ üst arama kısayolu"),
+                        () -> SceneHome.isSearchShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                        () -> {
+                            SceneHome.setSearchShortcutEnabled(this, !SceneHome.isSearchShortcutEnabled(this));
+                            refreshAll();
+                        });
             } else {
                 row(tr("Clock", "Saat"),
                         () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
@@ -1202,6 +1219,13 @@ public class SettingsActivity extends Activity {
                 () -> {
                     boolean next = !SceneHome.isWeatherShortcutEnabled(this);
                     SceneHome.setWeatherShortcutEnabled(this, next);
+                    refreshAll();
+                });
+        row(tr("Home screen search shortcut", "Ana ekranda arama kısayolu"),
+                () -> SceneHome.isSearchShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                () -> {
+                    boolean next = !SceneHome.isSearchShortcutEnabled(this);
+                    SceneHome.setSearchShortcutEnabled(this, next);
                     refreshAll();
                 });
         row(tr("Clear Continue Watching history", "İzlemeye Devam Et geçmişini temizle"),
@@ -1473,8 +1497,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             v.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -1626,6 +1648,9 @@ public class SettingsActivity extends Activity {
                     () -> Scenes.lockClockPosLabel(this) + " · " + Scenes.lockIdleLabel(this),
                     () -> openSubMenu("lock_screen_settings"));
         }
+        row(tr("Power Off", "Kapat"),
+                () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_POWER),
+                () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_POWER));
 
         section(tr("CONTROL PANEL ITEMS (SHOW / HIDE)", "DENETİM PANELİ ÖĞELERİ (GÖSTER / GİZLE)"));
         for (final String[] itemRow : ControlPanelOverlay.ALL_CP_ITEMS) {
@@ -1814,7 +1839,7 @@ public class SettingsActivity extends Activity {
                         : tr("Off", "Kapalı"),
                 this::toggleAdbPort);
         row(tr("Check permissions", "İzinleri kontrol et"),
-                this::permissionsSummaryCount,
+                () -> advPermSummary != null ? advPermSummary : "…",
                 () -> openSubMenu("check_permissions"));
         row(tr("Remove / revoke all permissions", "Tüm izinleri kaldır / geri al"),
                 () -> tr("Revoke ›", "Kaldır ›"),
@@ -1854,7 +1879,7 @@ public class SettingsActivity extends Activity {
 
         section(tr("CLEANYOURTV (BETA)", "CLEANYOURTV (BETA)"));
         twoLineRow(tr("Download CleanYourTV", "CleanYourTV'yi İndir"),
-                () -> CleanYourTv.getDownloadStatusSummary(this),
+                () -> advCytDownloadSummary != null ? advCytDownloadSummary : "…",
                 () -> CleanYourTv.downloadAndExtractLatestRelease(this, () -> {
                     loadAdvancedSummariesAsync();
                     rebuildMainRows();
@@ -1862,10 +1887,10 @@ public class SettingsActivity extends Activity {
                             "CleanYourTV Download klasörüne indirildi."));
                 }));
         twoLineRow(tr("Choose TV model", "TV modelini seçin"),
-                () -> CleanYourTv.getSelectedModelSummary(this),
+                () -> advCytModelSummary != null ? advCytModelSummary : "…",
                 () -> {
                     cytAutoContinueToDebloat = false;
-                    int count = CleanYourTv.loadIndex(this).size();
+                    int count = CleanYourTv.getExtractedModelCountOnDisk(this);
                     if (count <= 1 || (!CleanYourTv.getSelectedModelSlug(this).isEmpty() && !CleanYourTv.hasSelectedModelFileOnDisk(this))) {
                         boolean wasDeleted = !CleanYourTv.getSelectedModelSlug(this).isEmpty()
                                 && !CleanYourTv.hasSelectedModelFileOnDisk(this);
@@ -1935,39 +1960,60 @@ public class SettingsActivity extends Activity {
         // page's first frames aren't blocked; rows show "…" until the values arrive.
         loadAdvancedSummariesAsync();
         if (LocalAdb.getAdbMode(this) == LocalAdb.ADB_MODE_PERSISTENT) {
-            LocalAdb.probePortAsync(this, () -> runOnUiThread(() -> {
-                if (!isFinishing()) refreshAll();
+            LocalAdb.probePortAsync(getApplicationContext(), () -> runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed() && ADVANCED.equals(currentSection) && activeSubMenu == null) {
+                    refreshAll();
+                }
             }));
         } else {
             LocalAdb.portReachable = false;
         }
     }
 
-    private volatile String advLaunchersSummary, advDebloatSummary, advSavedSummary;
-    private boolean advSummariesLoading;
+    private volatile String advPermSummary, advCytDownloadSummary, advCytModelSummary,
+            advLaunchersSummary, advDebloatSummary, advSavedSummary;
+    private volatile boolean advSummariesLoading;
 
     private void loadAdvancedSummariesAsync() {
         if (advSummariesLoading) return;
         advSummariesLoading = true;
-        final android.content.Context app = this;
+        final android.content.Context app = getApplicationContext();
         new Thread(() -> {
-            String launchers, debloat, saved;
+            String perm, cytDl, cytModel, launchers, debloat, saved;
             try {
+                perm = permissionsSummaryCount();
+                cytDl = CleanYourTv.getDownloadStatusSummary(app);
+                cytModel = CleanYourTv.getSelectedModelSummary(app);
                 launchers = CleanYourTv.getSystemLaunchersSummary(app);
                 debloat = CleanYourTv.getDebloatStatusSummary(app);
                 saved = CleanYourTv.getSavedDisabledSummary(app);
             } catch (Throwable t) {
-                launchers = debloat = saved = "";
+                perm = cytDl = cytModel = launchers = debloat = saved = "";
             }
-            final String l = launchers, d = debloat, s = saved;
+            final String p = perm != null ? perm : "";
+            final String dl = cytDl != null ? cytDl : "";
+            final String cm = cytModel != null ? cytModel : "";
+            final String l = launchers != null ? launchers : "";
+            final String d = debloat != null ? debloat : "";
+            final String s = saved != null ? saved : "";
             runOnUiThread(() -> {
                 advSummariesLoading = false;
-                boolean changed = !l.equals(advLaunchersSummary) || !d.equals(advDebloatSummary)
-                        || !s.equals(advSavedSummary);
+                boolean changed = !java.util.Objects.equals(p, advPermSummary)
+                        || !java.util.Objects.equals(dl, advCytDownloadSummary)
+                        || !java.util.Objects.equals(cm, advCytModelSummary)
+                        || !java.util.Objects.equals(l, advLaunchersSummary)
+                        || !java.util.Objects.equals(d, advDebloatSummary)
+                        || !java.util.Objects.equals(s, advSavedSummary);
+                advPermSummary = p;
+                advCytDownloadSummary = dl;
+                advCytModelSummary = cm;
                 advLaunchersSummary = l;
                 advDebloatSummary = d;
                 advSavedSummary = s;
-                if (changed && !isFinishing()) refreshAll();
+                if (changed && !isFinishing() && !isDestroyed()
+                        && ADVANCED.equals(currentSection) && activeSubMenu == null) {
+                    refreshAll();
+                }
             });
         }, "adv-summaries").start();
     }
@@ -2536,6 +2582,10 @@ public class SettingsActivity extends Activity {
             subMenuHomeDashboard();
         } else if ("releases_countries".equals(subId)) {
             subMenuReleasesCountries();
+        } else if ("news_country".equals(subId)) {
+            subMenuNewsCountry();
+        } else if ("prayer_location".equals(subId)) {
+            subMenuPrayerLocation();
         } else if ("cp_inputs_mgr".equals(subId)) {
             subMenuControlPanelInputs();
         } else if (subId.startsWith("custom_wall:")) {
@@ -2722,6 +2772,12 @@ public class SettingsActivity extends Activity {
         row("🌍  " + I18n.t(this, "releases_country_setting") + "…",
                 () -> HomeDashboard.getReleasesCountriesSummary(this),
                 () -> openSubMenu("releases_countries"));
+        row("📰  " + I18n.t(this, "news_country_setting") + "…",
+                () -> HomeDashboard.getNewsCountrySummary(this),
+                () -> openSubMenu("news_country"));
+        row("🕌  " + tr("Prayer times location", "Namaz vakti konumu") + "…",
+                () -> HomeDashboard.getPrayerLocationSummary(this),
+                () -> openSubMenu("prayer_location"));
         row(tr("Prayer calculation method", "Namaz vakti hesaplama yöntemi"),
                 () -> HomeDashboard.getPrayerMethodName(this),
                 this::promptPrayerMethodDialog);
@@ -2774,6 +2830,147 @@ public class SettingsActivity extends Activity {
         }
         infoNote(tr("By default, Most Watched automatically syncs with your selected UI language. Selecting any country above switches to custom multi-country mode.",
                 "Varsayılan olarak Çok İzlenenler widget'ı seçili arayüz diliyle otomatik eşitlenir. Yukarıdan ülke seçtiğinizde özel çoklu ülke moduna geçilir."));
+    }
+
+    private void subMenuNewsCountry() {
+        mainHeadView.setText(I18n.t(this, "news_country_setting"));
+        backSubMenuRow();
+
+        boolean autoMode = HomeDashboard.isNewsCountryAuto(this);
+        String autoCode = HomeDashboard.defaultCountryForUiLang(this);
+        String autoLabel = HomeDashboard.getNewsCountryDisplayName(autoCode) + " (" + autoCode + ")";
+
+        section(tr("REGION MODE", "BÖLGE MODU"));
+        choiceRow(I18n.t(this, "news_country_auto"),
+                tr("Currently synced to: ", "Şu anda eşitlenen ülke: ") + autoLabel,
+                autoMode,
+                () -> {
+                    HomeDashboard.setNewsCountry(this, null);
+                    HomeDashboard.fetchLiveNews(this, true, null);
+                    rebuildMainRows();
+                });
+
+        section(tr("COUNTRY", "ÜLKE"));
+        String activeCode = HomeDashboard.getEffectiveNewsCountry(this);
+        for (int i = 0; i < HomeDashboard.NEWS_COUNTRIES.length; i++) {
+            final String code = HomeDashboard.NEWS_COUNTRIES[i][0];
+            final String name = HomeDashboard.NEWS_COUNTRIES[i][1];
+            boolean selected = !autoMode && code.equalsIgnoreCase(activeCode);
+            choiceRow(name + " (" + code + ")",
+                    selected ? tr("Selected", "Seçili")
+                             : tr("Press OK to select this country", "Bu ülkeyi seçmek için OK'a basın"),
+                    selected,
+                    () -> {
+                        HomeDashboard.setNewsCountry(this, code);
+                        HomeDashboard.fetchLiveNews(this, true, null);
+                        rebuildMainRows();
+                    });
+        }
+        infoNote(tr("By default, Live News automatically syncs with your selected launcher language. Selecting a country above overrides it for the News widget.",
+                "Varsayılan olarak Canlı Haberler widget'ı seçili başlatıcı diliyle otomatik eşitlenir. Yukarıdan bir ülke seçtiğinizde Haberler widget'ı o ülkenin haberlerini gösterir."));
+    }
+
+    private void subMenuPrayerLocation() {
+        mainHeadView.setText(tr("Prayer times location", "Namaz vakti konumu"));
+        backSubMenuRow();
+
+        boolean autoMode = HomeDashboard.isPrayerLocationAuto(this);
+        String wxCity = Weather.place(this);
+
+        section(tr("LOCATION MODE", "KONUM MODU"));
+        choiceRow(tr("Sync with Weather location", "Hava Durumu konumu ile eşitle"),
+                (wxCity != null && !wxCity.isEmpty())
+                        ? tr("Currently synced to: ", "Şu anda eşitlenen konum: ") + wxCity
+                        : tr("Automatically follows your Weather location", "Hava Durumu konumunuzu otomatik olarak takip eder"),
+                autoMode,
+                () -> {
+                    HomeDashboard.setPrayerLocationAuto(this);
+                    HomeDashboard.fetchPrayerTimes(this, true, null);
+                    rebuildMainRows();
+                });
+        row(tr("Search city or country…", "Şehir veya ülke ara…"),
+                () -> chev(),
+                this::promptPrayerCitySearchDialog);
+
+        section(tr("POPULAR CITIES", "POPÜLER ŞEHİRLER"));
+        String curCustom = HomeDashboard.getEffectivePrayerCity(this);
+        for (int i = 0; i < HomeDashboard.PRAYER_POPULAR_CITIES.length; i++) {
+            final String label = HomeDashboard.PRAYER_POPULAR_CITIES[i][0];
+            final double lat = Double.parseDouble(HomeDashboard.PRAYER_POPULAR_CITIES[i][1]);
+            final double lon = Double.parseDouble(HomeDashboard.PRAYER_POPULAR_CITIES[i][2]);
+            boolean selected = !autoMode && label.equalsIgnoreCase(curCustom);
+            choiceRow(label,
+                    selected ? tr("Selected", "Seçili")
+                             : tr("Press OK to select this city", "Bu şehri seçmek için OK'a basın"),
+                    selected,
+                    () -> {
+                        HomeDashboard.setPrayerLocation(this, label, lat, lon);
+                        HomeDashboard.fetchPrayerTimes(this, true, null);
+                        rebuildMainRows();
+                    });
+        }
+        infoNote(tr("By default, Prayer Times syncs with the Weather location chosen during setup or in Weather settings. Search or pick any city above to set a separate location for Prayer Times.",
+                "Varsayılan olarak Namaz Vakitleri, ilk kurulumda veya Hava Durumu ayarlarında seçilen konumla eşitlenir. Namaz Vakitleri için ayrı bir konum belirlemek üzere yukarıdan şehir arayabilir veya seçebilirsiniz."));
+    }
+
+    private void promptPrayerCitySearchDialog() {
+        android.widget.EditText in = new android.widget.EditText(this);
+        in.setSingleLine(true);
+        in.setHint(tr("City or country, e.g. Istanbul, London", "Şehir veya ülke, örn. İstanbul, Londra"));
+        in.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        int pad = u(14);
+        FrameLayout box = new FrameLayout(this);
+        box.setPaddingRelative(pad, pad / 2, pad, 0);
+        box.addView(in);
+        AlertDialog dlg = dialog(tr("Search City or Country", "Şehir veya Ülke Ara"))
+                .setView(box)
+                .setPositiveButton(tr("Search", "Ara"), (d, w) -> {
+                    String q = in.getText().toString().trim();
+                    if (q.isEmpty()) return;
+                    showStatusMsg(tr("Searching…", "Aranıyor…"));
+                    new Thread(() -> {
+                        List<Weather.Place> found;
+                        try {
+                            found = Weather.search(q);
+                        } catch (Exception e) {
+                            found = null;
+                        }
+                        List<Weather.Place> res = found;
+                        runOnUiThread(() -> showPrayerCityMatches(q, res));
+                    }).start();
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
+        Ui.setupDialogEditText(in, dlg);
+        in.requestFocus();
+    }
+
+    private void showPrayerCityMatches(String q, List<Weather.Place> res) {
+        if (isFinishing()) return;
+        showStatusMsg(null);
+        if (res == null) {
+            showStatusMsg(tr("Couldn't search. Check the internet connection.", "Arama yapılamadı. İnternet bağlantısını kontrol edin."));
+            return;
+        }
+        if (res.isEmpty()) {
+            showStatusMsg(tr("No place found for \u201c" + q + "\u201d.", "\u201c" + q + "\u201d için konum bulunamadı."));
+            return;
+        }
+        String[] names = new String[res.size()];
+        for (int i = 0; i < res.size(); i++) {
+            Weather.Place pl = res.get(i);
+            names[i] = pl.detail.isEmpty() ? pl.name : (pl.name + "  \u00b7  " + pl.detail);
+        }
+        dialog(tr("Matching places", "Eşleşen konumlar"))
+                .setItems(names, (d, which) -> {
+                    Weather.Place picked = res.get(which);
+                    String label = picked.detail.isEmpty() ? picked.name : (picked.name + ", " + picked.detail);
+                    HomeDashboard.setPrayerLocation(this, label, picked.lat, picked.lon);
+                    HomeDashboard.fetchPrayerTimes(this, true, null);
+                    rebuildMainRows();
+                })
+                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .show();
     }
 
     private void promptPrayerMethodDialog() {
@@ -2925,6 +3122,29 @@ public class SettingsActivity extends Activity {
                                     CustomMedia.setActiveCustomSlot(this, scope, slot);
                                     rebuildMainRows();
                                 }));
+                if (isScene) {
+                    final boolean hasFg = CustomMedia.hasCustomSceneForeground(this, slot);
+                    row("   ✦  " + tr("Depth Effect Foreground (PNG) #", "Derinlik Efekti Ön Planı (PNG) #") + slot,
+                            () -> hasFg ? tr("Set (PNG cutout) ›", "Ayarlandı (PNG kesim) ›") : tr("None — Choose PNG ›", "Yok — PNG seç ›"),
+                            () -> CustomMedia.showImageFilePicker(
+                                    this,
+                                    tr("Select Transparent PNG Foreground", "Şeffaf PNG Ön Plan Seçin") + " (#" + slot + ")",
+                                    false,
+                                    1920,
+                                    1080,
+                                    hasFg ? tr("Remove foreground cutout", "Ön plan kesimini kaldır") : null,
+                                    hasFg ? () -> {
+                                        CustomMedia.clearCustomSceneForeground(this, slot);
+                                        rebuildMainRows();
+                                        showStatusMsg(tr("Depth effect foreground removed.", "Derinlik efekti ön planı kaldırıldı."));
+                                    } : null,
+                                    bmp -> {
+                                        CustomMedia.setCustomSceneForeground(this, slot, bmp);
+                                        CustomMedia.setActiveCustomSlot(this, scope, slot);
+                                        rebuildMainRows();
+                                        showStatusMsg(tr("Depth effect foreground updated.", "Derinlik efekti ön planı güncellendi."));
+                                    }));
+                }
                 row("   🗑  " + tr("Remove Wallpaper #", "Duvar Kağıdını Kaldır #") + slot,
                         () -> "",
                         () -> {
@@ -3131,6 +3351,7 @@ public class SettingsActivity extends Activity {
         if (ControlPanelOverlay.ACTION_SOUND.equals(actionKey)) return tr("Sound", "Ses");
         if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) return tr("Inputs", "Girişler");
         if (ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey)) return tr("Ambient Mode", "Ortam Modu");
+        if (ControlPanelOverlay.ACTION_POWER.equals(actionKey)) return tr("Power Off", "Kapat");
         return actionKey;
     }
 
@@ -3143,17 +3364,30 @@ public class SettingsActivity extends Activity {
         String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
         boolean isAmbient = ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey);
         boolean isLockMode = isAmbient && ControlPanelOverlay.isAmbientLockScreenMode(this);
+        boolean isPower = ControlPanelOverlay.ACTION_POWER.equals(actionKey);
+        boolean isPowerNative = isPower && ControlPanelOverlay.isPowerNativeMenuMode(this);
 
-        choiceRow("↺  " + (isAmbient ? tr("Default (Ambient Mode)", "Varsayılan (Ortam Modu)")
-                                     : tr("Default (Automatic)", "Varsayılan (Otomatik)")),
-                isAmbient ? tr("Open TV Ambient Mode / Screensaver (or built-in fallback)",
-                               "TV Ortam Modunu / Ekran Koruyucuyu aç (veya yerleşik görünüm)")
-                          : tr("Use built-in Android TV shortcut", "Yerleşik Android TV kısayolunu kullan"),
-                curPkg.isEmpty() && !isLockMode,
+        String defaultTitle = isAmbient
+                ? tr("Default (Ambient Mode)", "Varsayılan (Ortam Modu)")
+                : (isPower
+                        ? tr("Default (Screen Off)", "Varsayılan (Ekranı Kapat)")
+                        : tr("Default (Automatic)", "Varsayılan (Otomatik)"));
+        String defaultSubtitle = isAmbient
+                ? tr("Open TV Ambient Mode / Screensaver (or built-in fallback)",
+                        "TV Ortam Modunu / Ekran Koruyucuyu aç (veya yerleşik görünüm)")
+                : (isPower
+                        ? tr("Turn off screen / put TV to sleep", "Ekranı kapat / TV'yi uyku moduna al")
+                        : tr("Use built-in Android TV shortcut", "Yerleşik Android TV kısayolunu kullan"));
+
+        choiceRow("↺  " + defaultTitle,
+                defaultSubtitle,
+                curPkg.isEmpty() && !isLockMode && !isPowerNative,
                 () -> {
                     ControlPanelOverlay.clearCustomAction(this, actionKey);
                     closeSubMenu();
-                    showStatusMsg(actionTitle + ": " + tr("Default (Automatic)", "Varsayılan (Otomatik)"));
+                    showStatusMsg(actionTitle + ": " + (isPower
+                            ? tr("Default (Screen Off)", "Varsayılan (Ekranı Kapat)")
+                            : tr("Default (Automatic)", "Varsayılan (Otomatik)")));
                 });
 
         if (isAmbient) {
@@ -3165,6 +3399,19 @@ public class SettingsActivity extends Activity {
                         ControlPanelOverlay.setAmbientLockScreenMode(this, true);
                         closeSubMenu();
                         showStatusMsg(actionTitle + ": " + tr("Lock Screen", "Kilit Ekranı"));
+                    });
+        }
+
+        if (isPower) {
+            choiceRow("⏻  " + tr("Android Power Menu (Shutdown / Reboot / Standby)",
+                            "Android Güç Menüsü (Kapat / Yeniden Başlat / Bekleme)"),
+                    tr("Show native Android shutdown, reboot, and standby menu",
+                       "Yerel Android kapatma, yeniden başlatma ve bekleme menüsünü göster"),
+                    isPowerNative,
+                    () -> {
+                        ControlPanelOverlay.setPowerNativeMenuMode(this, true);
+                        closeSubMenu();
+                        showStatusMsg(actionTitle + ": " + tr("Android Power Menu", "Android Güç Menüsü"));
                     });
         }
 
@@ -4322,8 +4569,6 @@ public class SettingsActivity extends Activity {
             if (checked) {
                 mark.setImageBitmap(has ? cachedCheckDark : cachedCheckWhite);
             }
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> onClick.run());
 
@@ -4407,10 +4652,17 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
-            float scale = has ? (isLifted ? 1.04f : 1.02f) : 1f;
-            float tx = has && isLifted ? u(6) : 0f;
-            view.animate().scaleX(scale).scaleY(scale).translationX(tx)
-                    .setDuration(160).start();
+            if (isLifted) {
+                float scale = has ? 1.04f : 1f;
+                float tx = has ? u(6) : 0f;
+                view.animate().scaleX(scale).scaleY(scale).translationX(tx)
+                        .setDuration(160).start();
+            } else {
+                view.animate().cancel();
+                view.setScaleX(1f);
+                view.setScaleY(1f);
+                view.setTranslationX(0f);
+            }
         });
 
         r.setOnClickListener(view -> {
@@ -4418,7 +4670,7 @@ public class SettingsActivity extends Activity {
                 liftedSceneId = null;
                 updateHintText(true);
                 refreshAll();
-                view.animate().scaleX(1.02f).scaleY(1.02f).translationX(0f).setDuration(150).start();
+                view.animate().scaleX(1f).scaleY(1f).translationX(0f).setDuration(150).start();
                 return;
             }
             if (!Scenes.toggleScene(this, spec.id)) {
@@ -4438,8 +4690,8 @@ public class SettingsActivity extends Activity {
             updateHintText(true);
             updateCheck.run();
             boolean nowLifted = spec.id.equals(liftedSceneId);
-            view.animate().scaleX(nowLifted ? 1.04f : 1.02f)
-                    .scaleY(nowLifted ? 1.04f : 1.02f)
+            view.animate().scaleX(nowLifted ? 1.04f : 1f)
+                    .scaleY(nowLifted ? 1.04f : 1f)
                     .translationX(nowLifted ? u(6) : 0f)
                     .setDuration(160).start();
             return true;
@@ -4573,8 +4825,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -4720,8 +4970,6 @@ public class SettingsActivity extends Activity {
             if (checked) {
                 mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
             }
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -4856,8 +5104,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -5002,8 +5248,6 @@ public class SettingsActivity extends Activity {
             if (checked) {
                 mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
             }
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -5160,8 +5404,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -5266,8 +5508,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -5404,8 +5644,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             updateCheck.run();
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
 
         r.setOnClickListener(view -> {
@@ -5502,8 +5740,6 @@ public class SettingsActivity extends Activity {
             if (checked) {
                 mark.setImageBitmap(Glyphs.get("check", cs, has ? 0xFF111114 : Color.WHITE));
             }
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> onClick.run());
 
@@ -5569,8 +5805,6 @@ public class SettingsActivity extends Activity {
             bg.setColor(has ? Color.WHITE : 0x14FFFFFF);
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             v.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> {
             action.run();
@@ -5653,8 +5887,6 @@ public class SettingsActivity extends Activity {
             l.setTextColor(has ? 0xFF111114 : 0xEBF4F4F6);
             v.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
             chev.setTextColor(has ? 0x99000000 : 0x9EFFFFFF);
-            view.animate().scaleX(has ? 1.02f : 1f).scaleY(has ? 1.02f : 1f)
-                    .setDuration(160).start();
         });
         r.setOnClickListener(view -> {
             action.run();
@@ -5956,7 +6188,7 @@ public class SettingsActivity extends Activity {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception e) {
-            return "2.2.0";
+            return "2.2.5";
         }
     }
 

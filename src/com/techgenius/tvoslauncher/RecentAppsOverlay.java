@@ -190,11 +190,31 @@ public final class RecentAppsOverlay {
                     ((ViewGroup) root.getParent()).removeView(root);
                 } catch (Exception ignored) { }
             }
+            if (cachedSceneBlur != null) {
+                if (!cachedSceneBlur.isRecycled()) cachedSceneBlur.recycle();
+                cachedSceneBlur = null;
+            }
+        }
+    }
+
+    public static void clearCaches() {
+        if (activeRoot != null) return;
+        if (cachedSceneBlur != null) {
+            if (!cachedSceneBlur.isRecycled()) cachedSceneBlur.recycle();
+            cachedSceneBlur = null;
+        }
+        if (cachedShadowBmp != null) {
+            if (!cachedShadowBmp.isRecycled()) cachedShadowBmp.recycle();
+            cachedShadowBmp = null;
         }
     }
 
     /** Records an app package as recently opened/used (newest first, up to 12 apps). */
     public static void recordAppUsed(Context c, String pkg) {
+        recordAppUsed(c, pkg, false);
+    }
+
+    public static void recordAppUsed(Context c, String pkg, boolean explicitLaunch) {
         if (c == null || pkg == null || pkg.isEmpty()) return;
         String myPkg = c.getPackageName();
         if (pkg.equals(myPkg)
@@ -207,6 +227,12 @@ public final class RecentAppsOverlay {
 
         // 1. Update SharedPreferences("recents") order & clear any old closed_ timestamp
         SharedPreferences recSp = c.getSharedPreferences("recents", Context.MODE_PRIVATE);
+        if (!explicitLaunch) {
+            long closedAt = recSp.getLong("closed_" + pkg, 0L);
+            if (closedAt > 0L && (System.currentTimeMillis() - closedAt) < 5000L) {
+                return;
+            }
+        }
         List<String> order = new ArrayList<>();
         for (String p : recSp.getString("order", "").split(",")) {
             if (!p.isEmpty() && !p.equals(pkg)) order.add(p);
@@ -469,6 +495,105 @@ public final class RecentAppsOverlay {
         tlp.topMargin = dp(unit, 34);
         tlp.leftMargin = dp(unit, 55);
         root.addView(title, tlp);
+
+        // 2b. Secure ADB Mode warning overlay (Recent Apps clearing requires Persistent ADB Mode)
+        if (LocalAdb.getAdbMode(c) == LocalAdb.ADB_MODE_SECURE_CLOSE) {
+            LinearLayout card = new LinearLayout(c);
+            card.setOrientation(LinearLayout.VERTICAL);
+            card.setGravity(Gravity.CENTER_HORIZONTAL);
+            card.setClickable(true);
+            card.setClipChildren(false);
+            card.setClipToPadding(false);
+            MainActivity.LiquidGlass cardGlass = new MainActivity.LiquidGlass(
+                    dp(unit, 28), 0x28FFFFFF, glassBackdrop, screenW, screenH, unit).adaptive().darker(0x70);
+            cardGlass.lens = dp(unit, 8);
+            card.setBackground(cardGlass);
+            card.setPadding(dp(unit, 40), dp(unit, 34), dp(unit, 40), dp(unit, 34));
+
+            TextView badge = new TextView(c);
+            badge.setText("\u26A0");
+            badge.setTextColor(0xFFFFB340);
+            badge.setGravity(Gravity.CENTER);
+            Ui.textSize(badge, 22f);
+            GradientDrawable badgeBg = new GradientDrawable();
+            badgeBg.setShape(GradientDrawable.OVAL);
+            badgeBg.setColor(0x33FF9F0A);
+            badgeBg.setStroke(Math.max(1, Math.round(1.5f * unit)), 0xAAFF9F0A);
+            badge.setBackground(badgeBg);
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(dp(unit, 48), dp(unit, 48));
+            blp.bottomMargin = dp(unit, 16);
+            card.addView(badge, blp);
+
+            TextView heading = new TextView(c);
+            heading.setText(I18n.s(c, "Persistent ADB Mode Required", "Kalıcı ADB Modu Gerekli"));
+            heading.setTextColor(Color.WHITE);
+            heading.setTypeface(Ui.font(c, "semibold"));
+            Ui.textSize(heading, 20f);
+            heading.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams hdlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            hdlp.bottomMargin = dp(unit, 12);
+            card.addView(heading, hdlp);
+
+            TextView body = new TextView(c);
+            body.setText(I18n.s(c,
+                    "Recent Apps Manager cannot clear apps while Secure ADB Mode is active.\n\nEnable Persistent ADB Mode in Settings › Advanced › ADB operating mode to use the Recent Apps feature.",
+                    "Güvenli ADB Modu etkinken Son Uygulamalar Yöneticisi uygulamaları kapatamaz.\n\nSon Uygulamalar özelliğini kullanmak için Ayarlar › Gelişmiş › ADB çalışma modu bölümünden Kalıcı ADB Modunu etkinleştirin."));
+            body.setTextColor(0xCCFFFFFF);
+            body.setTypeface(Ui.font(c, "regular"));
+            Ui.textSize(body, 14f);
+            body.setGravity(Gravity.CENTER);
+            body.setLineSpacing(0f, 1.25f);
+            LinearLayout.LayoutParams bdLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            bdLp.bottomMargin = dp(unit, 26);
+            card.addView(body, bdLp);
+
+            LinearLayout btnRow = new LinearLayout(c);
+            btnRow.setOrientation(LinearLayout.HORIZONTAL);
+            btnRow.setGravity(Gravity.CENTER);
+            btnRow.setClipChildren(false);
+            btnRow.setClipToPadding(false);
+
+            TextView openSettingsBtn = buildWarningButton(
+                    c,
+                    I18n.s(c, "Open Settings", "Ayarları Aç"),
+                    unit,
+                    () -> {
+                        dismiss();
+                        try {
+                            Intent i = new Intent(c, SettingsActivity.class)
+                                    .putExtra("page", "advanced")
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            c.startActivity(i);
+                        } catch (Exception ignored) { }
+                    });
+            btnRow.addView(openSettingsBtn, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            TextView closeBtn = buildWarningButton(
+                    c,
+                    I18n.s(c, "Close", "Kapat"),
+                    unit,
+                    RecentAppsOverlay::dismiss);
+            LinearLayout.LayoutParams cblp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            cblp.leftMargin = dp(unit, 16);
+            btnRow.addView(closeBtn, cblp);
+
+            card.addView(btnRow, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            int cardW = Math.min(dp(unit, 620), Math.round(screenW * 0.68f));
+            FrameLayout.LayoutParams clp = new FrameLayout.LayoutParams(
+                    cardW, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+            root.addView(card, clp);
+
+            card.setTranslationY(dp(unit, 24));
+            card.animate().translationY(0f).setDuration(260).setInterpolator(ENTER_DECEL).start();
+            openSettingsBtn.post(openSettingsBtn::requestFocus);
+            return root;
+        }
 
         // 3. Top-Right RAM Usage Liquid Glass Pill
         LinearLayout ramPill = new LinearLayout(c);
@@ -880,6 +1005,10 @@ public final class RecentAppsOverlay {
     }
 
     private static void closeSingleCard(Context c, View cardView, int cardW, int screenH, float unit, boolean refocusAfter) {
+        closeSingleCard(c, cardView, cardW, screenH, unit, refocusAfter, true);
+    }
+
+    private static void closeSingleCard(Context c, View cardView, int cardW, int screenH, float unit, boolean refocusAfter, boolean killNow) {
         if (activeRow == null || !(cardView.getTag() instanceof RecentAppItem)) return;
         RecentAppItem item = (RecentAppItem) cardView.getTag();
         cardView.setTag(null);
@@ -924,11 +1053,31 @@ public final class RecentAppsOverlay {
                         return;
                     }
                     if (refocusAfter) {
-                        // Offset cards that shifted left by +step so they smoothly glide into place
-                        for (int i = idx; i < activeRow.getChildCount(); i++) {
-                            View shifted = activeRow.getChildAt(i);
-                            shifted.animate().cancel();
-                            shifted.setTranslationX(shifted.getTranslationX() + step);
+                        // Only offset shifted siblings when removing a left/middle card (idx <= lastAppIdx);
+                        // removing the rightmost card snaps scrollX to the new deck end and offsets
+                        // preceding cards by -deltaScroll so they glide smoothly left without layout clamping.
+                        if (idx <= lastAppIdx) {
+                            for (int i = idx; i < activeRow.getChildCount(); i++) {
+                                View shifted = activeRow.getChildAt(i);
+                                shifted.animate().cancel();
+                                shifted.setTranslationX(shifted.getTranslationX() + step);
+                            }
+                        } else {
+                            int newScrollX = Math.max(0, lastAppIdx * step);
+                            int deltaScroll = currentScrollX - newScrollX;
+                            if (scrollAnimator != null) {
+                                scrollAnimator.cancel();
+                                scrollAnimator = null;
+                            }
+                            currentScrollX = newScrollX;
+                            if (activeScroll != null) {
+                                activeScroll.scrollTo(newScrollX, 0);
+                            }
+                            for (int i = 0; i <= lastAppIdx; i++) {
+                                View prevCard = activeRow.getChildAt(i);
+                                prevCard.animate().cancel();
+                                prevCard.setTranslationX(prevCard.getTranslationX() - deltaScroll);
+                            }
                         }
                         int nextIdx = Math.min(idx, lastAppIdx);
                         View nextChild = activeRow.getChildAt(nextIdx);
@@ -940,8 +1089,10 @@ public final class RecentAppsOverlay {
                 })
                 .start();
 
-        removeAndKillApp(c, item.pkg);
-        MAIN.postDelayed(() -> updateRamUsage(c), 600);
+        if (killNow) {
+            removeAndKillApp(c, item.pkg, true);
+            MAIN.postDelayed(() -> updateRamUsage(c), 600);
+        }
     }
 
     private static void closeAllCards(Context c, int cardW, int screenH, float unit) {
@@ -952,13 +1103,16 @@ public final class RecentAppsOverlay {
         for (int i = lastAppIdx; i >= 0; i--) {
             final View child = activeRow.getChildAt(i);
             if (child.getTag() instanceof RecentAppItem) {
-                allPkgs.add(((RecentAppItem) child.getTag()).pkg);
+                String pkg = ((RecentAppItem) child.getTag()).pkg;
+                allPkgs.add(pkg);
+                removeAndKillApp(c, pkg, false);
             }
             long delay = (long) (lastAppIdx - i) * 70L;
-            MAIN.postDelayed(() -> closeSingleCard(c, child, cardW, screenH, unit, false), delay);
+            MAIN.postDelayed(() -> closeSingleCard(c, child, cardW, screenH, unit, false, false), delay);
         }
         if (!allPkgs.isEmpty()) {
             LocalAdb.forceStopPackagesAsync(c, allPkgs);
+            MAIN.postDelayed(() -> updateRamUsage(c), 600);
         } else {
             final Context appCtx = c.getApplicationContext();
             MAIN.postDelayed(() -> dismissAndReturnHome(appCtx), 1500L);
@@ -973,6 +1127,8 @@ public final class RecentAppsOverlay {
         }
         try {
             Intent home = new Intent(c, MainActivity.class)
+                    .setAction(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_HOME)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                             | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                             | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -980,7 +1136,7 @@ public final class RecentAppsOverlay {
         } catch (Exception ignored) { }
     }
 
-    private static void removeAndKillApp(Context c, String pkg) {
+    private static void removeAndKillApp(Context c, String pkg, boolean adbForceStop) {
         if (pkg == null || pkg.isEmpty()) return;
         long now = System.currentTimeMillis();
 
@@ -1007,12 +1163,14 @@ public final class RecentAppsOverlay {
             }
         } catch (Exception ignored) { }
 
-        LocalAdb.forceStopPackagesAsync(c, Collections.singletonList(pkg));
+        if (adbForceStop) {
+            LocalAdb.forceStopPackagesAsync(c, Collections.singletonList(pkg));
+        }
     }
 
     private static void launchRecentApp(Context c, RecentAppItem item) {
         if (item == null || item.pkg == null) return;
-        recordAppUsed(c, item.pkg);
+        recordAppUsed(c, item.pkg, true);
         PackageManager pm = c.getPackageManager();
         Intent launch = pm.getLeanbackLaunchIntentForPackage(item.pkg);
         if (launch == null) launch = pm.getLaunchIntentForPackage(item.pkg);
@@ -1197,6 +1355,34 @@ public final class RecentAppsOverlay {
         b.recycle();
         if (n == 0) return 0xFF2C2C2E;
         return Color.rgb((int) (r / n), (int) (g / n), (int) (bl / n));
+    }
+
+    private static TextView buildWarningButton(Context c, String label, float unit, Runnable onClick) {
+        TextView btn = new TextView(c);
+        btn.setText(label);
+        btn.setGravity(Gravity.CENTER);
+        btn.setPadding(dp(unit, 26), dp(unit, 12), dp(unit, 26), dp(unit, 12));
+        btn.setTypeface(Ui.font(c, "semibold"));
+        Ui.textSize(btn, 14f);
+        btn.setFocusable(true);
+        btn.setClickable(true);
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(unit, 22));
+        bg.setColor(0x26FFFFFF);
+        btn.setBackground(bg);
+        btn.setTextColor(0xE6FFFFFF);
+
+        btn.setOnFocusChangeListener((v, hasFocus) -> {
+            bg.setColor(hasFocus ? Color.WHITE : 0x26FFFFFF);
+            btn.setTextColor(hasFocus ? 0xFF111111 : 0xE6FFFFFF);
+            v.animate().scaleX(hasFocus ? 1.06f : 1f).scaleY(hasFocus ? 1.06f : 1f)
+                    .setDuration(140).start();
+        });
+        btn.setOnClickListener(v -> {
+            if (onClick != null) onClick.run();
+        });
+        return btn;
     }
 
     private static int dp(float unit, float v) {

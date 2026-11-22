@@ -274,15 +274,15 @@ public final class CleanYourTv {
     }
 
     public static String getDownloadStatusSummary(Context c) {
-        int n = loadIndex(c).size();
+        int n = getExtractedModelCountOnDisk(c);
         if (n > 1) {
             return tr(c, "Downloaded (" + n + " TV models ready)", "İndirildi (" + n + " TV modeli hazır)");
         }
         if (n == 1 && hasCleanYourTvFiles(c)) {
             String slug = getSelectedModelSlug(c);
             return tr(c,
-                    "1 model kept (" + (slug.isEmpty() ? loadIndex(c).get(0).slug : slug) + ") · Tap to download all",
-                    "1 model korundu (" + (slug.isEmpty() ? loadIndex(c).get(0).slug : slug) + ") · Tümünü indirmek için dokunun");
+                    "1 model kept (" + (slug.isEmpty() ? "selected-tv" : slug) + ") · Tap to download all",
+                    "1 model korundu (" + (slug.isEmpty() ? "selected-tv" : slug) + ") · Tümünü indirmek için dokunun");
         }
         return tr(c, "Not downloaded · Tap to download ›", "İndirilmedi · İndirmek için dokunun ›");
     }
@@ -387,12 +387,18 @@ public final class CleanYourTv {
 
     public static ModelEntry findModelBySlug(Context c, String slug) {
         if (slug == null || slug.isEmpty()) return null;
-        for (ModelEntry m : loadIndex(c)) {
-            if (m.slug.equalsIgnoreCase(slug)) return m;
+        List<ModelEntry> cached = cachedModels;
+        if (cached != null) {
+            for (ModelEntry m : cached) {
+                if (m.slug.equalsIgnoreCase(slug)) return m;
+            }
         }
         File f = resolveDebloatFileForModel(c, slug);
         if (f != null && f.isFile()) {
             return parseDebloatTxtToModelEntry(slug, f);
+        }
+        for (ModelEntry m : loadIndex(c)) {
+            if (m.slug.equalsIgnoreCase(slug)) return m;
         }
         return null;
     }
@@ -407,17 +413,14 @@ public final class CleanYourTv {
             return tr(c, "⚠️ Selected TV files missing (" + slug + ") — Download CleanYourTV again",
                     "⚠️ Seçili TV dosyaları eksik (" + slug + ") — CleanYourTV'yi tekrar indirin");
         }
-        if (loadIndex(c).isEmpty()) {
+        if (!hasCleanYourTvFiles(c)) {
             return tr(c, "Download CleanYourTV first", "Önce CleanYourTV'yi indirin");
         }
         if (slug.isEmpty()) {
             return tr(c, "Tap to detect / select…", "Algılamak / seçmek için dokunun…");
         }
-        ModelEntry entry = findModelBySlug(c, slug);
-        if (entry != null) {
-            return entry.title + " (" + entry.slug + ")";
-        }
         String savedTitle = prefs(c).getString(KEY_MODEL_TITLE, slug);
+        if (savedTitle == null || savedTitle.isEmpty()) savedTitle = slug;
         return savedTitle + " (" + slug + ")";
     }
 
@@ -2046,6 +2049,7 @@ public final class CleanYourTv {
         {"com.homwee.launcher", "Haier / Homwee TV Launcher", "Haier OEM TV Home screen"},
         {"com.zeasn.whaleos.launcher", "WhaleOS / Zeasn TV Launcher", "Zeasn OEM TV Home screen"},
         {"com.sdmc.launcher", "SDMC TV Launcher", "SDMC OEM TV Home screen"},
+        {"com.droidlogic.mboxlauncher", "Amlogic / Droidlogic MBox Launcher", "Amlogic OEM TV Box Home — Caution: disabling may bootloop some boxes; try Set Default + Launch on Boot first"},
         {"com.amazon.tv.launcher", "Fire TV Home Launcher", "Amazon OEM TV Home screen"},
         {"com.amazon.firehomestarter", "Fire TV Home Starter", "Amazon Fire OS Home button interceptor"}
     };
