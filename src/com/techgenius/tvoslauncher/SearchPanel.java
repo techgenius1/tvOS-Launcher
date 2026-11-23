@@ -66,6 +66,8 @@ final class SearchPanel {
     final ScrollView results;
     final StringBuilder query = new StringBuilder();
     final Search.Apps apps;
+    private android.content.res.Resources[] keywordResources;
+    private final Map<Integer, String> keywordCache = new java.util.HashMap<>();
     final ExecutorService net = Executors.newFixedThreadPool(2), img = Executors.newSingleThreadExecutor();
     /** Recent searches' results, so deleting a letter shows the earlier results at once. */
     final Map<String, List<Search.Title>> cache = new LinkedHashMap<String, List<Search.Title>>(24, 0.75f, true) {
@@ -155,7 +157,7 @@ final class SearchPanel {
 
         TextView headerTitle = a.text(15.5f, Ui.font(a, "semibold"), 1f);
         headerTitle.setTextColor(0xFFF4F4F6);
-        headerTitle.setText(tr("Search", "Ara"));
+        headerTitle.setText(I18n.resourceString(SearchPanel.this.a, R.string.text_search_946f53));
         headerTitle.setShadowLayer(0, 0, 0, 0);
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -253,14 +255,6 @@ final class SearchPanel {
 
     // ---------------------------------------------------------------- keyboard
 
-    String tr(String en, String trStr) {
-        return I18n.s(a, en, trStr);
-    }
-
-    String tr(String en, String trStr, Object... args) {
-        return I18n.s(a, en, trStr, args);
-    }
-
     /** The one-row keyboard for the current mode, then space, delete, mode switches and the mic. */
     void buildKeys(String focusLabel) {
         keys.removeAllViews();
@@ -273,12 +267,12 @@ final class SearchPanel {
             String ch = String.valueOf(chars.charAt(i));
             made.add(key(ch, a.dp(30), () -> type(ch)));
         }
-        made.add(key(tr("space", "bo\u015fluk"), a.dp(64), () -> type(" ")));
+        made.add(key(I18n.resourceString(SearchPanel.this.a, R.string.text_space), a.dp(64), () -> type(" ")));
         made.add(key("\u232b", a.dp(40), this::backspace));
         made.add(key(mode == 1 ? (isHe ? "\u05d0\u05d1\u05d2" : "abc") : "123", a.dp(48), () -> switchMode(mode == 1 ? 0 : 1)));
         if (isHe) made.add(key(mode == 2 ? "\u05d0\u05d1\u05d2" : "abc", a.dp(48), () -> switchMode(mode == 2 ? 0 : 2)));
         else if (!isTr) made.add(key(mode == 2 ? "abc" : "\u0905\u0906", a.dp(48), () -> switchMode(mode == 2 ? 0 : 2)));
-        made.add(key(tr("clear", "temizle"), a.dp(56), this::clear));
+        made.add(key(I18n.resourceString(SearchPanel.this.a, R.string.text_clear_d47414), a.dp(56), this::clear));
         View focus = made.get(0);
         for (View k : made) {
             if (mic != null) k.setNextFocusUpId(mic.getId());
@@ -412,13 +406,13 @@ final class SearchPanel {
                 .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 .putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, a.getPackageName())
-                .putExtra(RecognizerIntent.EXTRA_PROMPT, tr("Say a movie, show or app", "Bir film, dizi veya uygulama s\u00f6yleyin"));
+                .putExtra(RecognizerIntent.EXTRA_PROMPT, I18n.resourceString(SearchPanel.this.a, R.string.text_say_a_movie_show_or_app));
     }
 
     /** The TV's own voice prompt (Google's on Android TV); the answer arrives in onVoice. */
     void prompt() {
         if (!voice) {
-            a.toast(tr("Voice input isn't available on this TV", "Bu TV'de sesli arama kullan\u0131lam\u0131yor"));
+            a.toast(I18n.resourceString(SearchPanel.this.a, R.string.text_voice_input_isn_t_available_on_this_tv));
             return;
         }
         try {
@@ -426,7 +420,7 @@ final class SearchPanel {
             i.removeExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS);
             a.startActivityForResult(i, REQ_VOICE);
         } catch (Exception e) {
-            a.toast(tr("Voice input isn't available on this TV", "Bu TV'de sesli arama kullan\u0131lam\u0131yor"));
+            a.toast(I18n.resourceString(SearchPanel.this.a, R.string.text_voice_input_isn_t_available_on_this_tv));
         }
     }
 
@@ -478,8 +472,8 @@ final class SearchPanel {
                 prompt();  // the service won't dictate for us: use the TV's voice prompt
             } else if (!wasHeard) {
                 queryView.setText(error == SpeechRecognizer.ERROR_NETWORK || error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT
-                        ? tr("Voice needs the internet", "Sesli arama i\u00e7in internet gerekli")
-                        : tr("Didn\u2019t catch that \u2014 press the mic to try again", "Anla\u015f\u0131lamad\u0131 \u2014 tekrar denemek i\u00e7in mikrofona bas\u0131n"));
+                        ? I18n.resourceString(SearchPanel.this.a, R.string.text_voice_needs_the_internet)
+                        : I18n.resourceString(SearchPanel.this.a, R.string.text_didn_t_catch_that_press_the_mic_to_try_a));
                 queryView.setAlpha(0.6f);
             }
         }
@@ -498,7 +492,7 @@ final class SearchPanel {
 
     void showQuery() {
         boolean empty = query.length() == 0;
-        queryView.setText(empty ? (listening ? tr("Listening\u2026", "Dinleniyor\u2026") : tr("Search apps, movies and shows", "Uygulama, film ve dizi ara")) : query);
+        queryView.setText(empty ? (listening ? I18n.resourceString(SearchPanel.this.a, R.string.text_listening) : I18n.resourceString(SearchPanel.this.a, R.string.text_search_apps_movies_and_shows)) : query);
         queryView.setAlpha(empty ? 0.45f : 1f);
     }
 
@@ -532,7 +526,7 @@ final class SearchPanel {
             renderSuggestions();
         } else {
             List<View> local = localResults(q);
-            if (!local.isEmpty()) addRow(tr("Apps & Settings", "Uygulamalar ve Ayarlar"), local, a.dp(92));
+            if (!local.isEmpty()) addRow(I18n.resourceString(SearchPanel.this.a, R.string.text_apps_settings), local, a.dp(92));
             boolean hasAppTargets = false;
             if (q.length() >= 2) {
                 List<Search.AppSearchTarget> targets = Search.appSearchTargets(searchableApps, q);
@@ -542,22 +536,22 @@ final class SearchPanel {
                     for (Search.AppSearchTarget t : targets) {
                         chips.add(chip(t.label, () -> Search.openAppSearch(a, t)));
                     }
-                    addRow(tr("Search in Apps", "Uygulamalarda Ara"), chips, a.dp(40));
+                    addRow(I18n.resourceString(SearchPanel.this.a, R.string.text_search_in_apps), chips, a.dp(40));
                 }
                 List<Search.InAppResult> inAppHits = inAppCache.get(q.toLowerCase());
                 if (inAppHits != null && !inAppHits.isEmpty()) fillInApp(inAppHits);
             }
             if (q.length() >= 2 && Search.titlesEnabled(a)) {
-                titleRow = addRow(tr("Movies & TV", "Filmler ve Diziler"), new ArrayList<>(), a.dp(162));
+                titleRow = addRow(I18n.resourceString(SearchPanel.this.a, R.string.text_movies_tv), new ArrayList<>(), a.dp(162));
                 List<Search.Title> hit = cache.get(q.toLowerCase());
                 if (hit != null) fillTitles(hit);
-                else titleStatus(q.equals(failed) ? tr("Can\u2019t reach the internet", "\u0130nternete ula\u015f\u0131lam\u0131yor") : tr("Searching\u2026", "Aran\u0131yor\u2026"));
+                else titleStatus(q.equals(failed) ? I18n.resourceString(SearchPanel.this.a, R.string.text_can_t_reach_the_internet) : I18n.resourceString(SearchPanel.this.a, R.string.text_searching));
                 if (Search.hasStremioApp(a)) {
                     List<Search.Title> sh = stremioCache.get(q.toLowerCase());
                     if (sh != null) fillStremio(sh);
                 }
             } else if (local.isEmpty() && !hasAppTargets) {
-                addNote(q.length() < 2 ? tr("Keep typing to search movies and shows", "Film ve dizileri aramak i\u00e7in yazmaya devam edin") : tr("No results", "Sonu\u00e7 bulunamad\u0131"));
+                addNote(q.length() < 2 ? I18n.resourceString(SearchPanel.this.a, R.string.text_keep_typing_to_search_movies_and_shows) : I18n.resourceString(SearchPanel.this.a, R.string.text_no_results));
             }
         }
         if (inResults) firstKey().requestFocus();
@@ -578,12 +572,12 @@ final class SearchPanel {
         if (!recent.isEmpty()) {
             List<View> chips = new ArrayList<>();
             for (String r : recent) chips.add(chip(r, () -> setQuery(r)));
-            chips.add(chip(tr("Clear", "Temizle"), () -> {
+            chips.add(chip(I18n.resourceString(SearchPanel.this.a, R.string.text_clear_aeec76), () -> {
                 Search.clearRecent(a);
                 render();
                 firstKey().requestFocus();
             }));
-            addRow(tr("Recent Searches", "Son Aramalar"), chips, a.dp(44));
+            addRow(I18n.resourceString(SearchPanel.this.a, R.string.text_recent_searches), chips, a.dp(44));
         }
         List<View> trend = new ArrayList<>();
         Set<String> seen = new HashSet<>();
@@ -597,8 +591,8 @@ final class SearchPanel {
                 if (trend.size() >= 10) break;
             }
         }
-        if (!trend.isEmpty()) addRow(tr("Trending", "Trendler"), trend, a.dp(44));
-        if (recent.isEmpty() && trend.isEmpty()) addNote(tr("Type to search your apps, settings, movies and shows", "Uygulamalar\u0131n\u0131z\u0131, ayarlar\u0131n\u0131z\u0131, filmleri ve dizileri aramak i\u00e7in yaz\u0131n"));
+        if (!trend.isEmpty()) addRow(I18n.resourceString(SearchPanel.this.a, R.string.text_trending), trend, a.dp(44));
+        if (recent.isEmpty() && trend.isEmpty()) addNote(I18n.resourceString(SearchPanel.this.a, R.string.text_type_to_search_your_apps_settings_movies));
     }
 
     /** Apps (including hidden ones), TV inputs, tvOS Launcher actions and TV settings matching q, best first. */
@@ -610,7 +604,7 @@ final class SearchPanel {
             if (s >= 0) hits.add(new Object[]{s, appCard(e)});
         }
         for (Inputs.Input in : a.inputs) {
-            int s = Search.score(in.label, "input hdmi av tv source giri\u015f kaynak", q);
+            int s = Search.score(in.label, keywords(R.string.search_keywords_input), q);
             if (s >= 0) hits.add(new Object[]{s, actionCard(in.label, Inputs.glyph(in), () -> Inputs.open(a, in))});
         }
         for (Object[] act : actions()) {
@@ -623,27 +617,46 @@ final class SearchPanel {
         return out;
     }
 
+    private String keywords(int resourceId) {
+        if (keywordResources == null) keywordResources = I18n.languageResources(a);
+        String value = keywordCache.get(resourceId);
+        if (value == null) {
+            value = mergeKeywords(keywordResources, resourceId);
+            keywordCache.put(resourceId, value);
+        }
+        return value;
+    }
+
+    static String mergeKeywords(android.content.res.Resources[] resources, int resourceId) {
+        Set<String> values = new java.util.LinkedHashSet<>();
+        for (android.content.res.Resources resource : resources) {
+            String value = resource.getString(resourceId);
+            if (!value.isEmpty()) values.add(value);
+        }
+        return android.text.TextUtils.join(" ", values);
+    }
+
     /** tvOS Launcher's own screens and the TV settings people look for: name, keywords, glyph, action. */
     List<Object[]> actions() {
         List<Object[]> l = new ArrayList<>();
-        l.add(new Object[]{tr("Control Center", "Denetim Merkezi"), "controls power sleep denetim g\u00fc\u00e7 uyku \u05dc\u05d5\u05d7 \u05d1\u05e7\u05e8\u05d4 \u05db\u05d9\u05d1\u05d5\u05d9 \u05e9\u05d9\u05e0\u05d4", "controls", (Runnable) () -> { close(); a.showControlCenter(); }});
-        l.add(new Object[]{tr("Weather Forecast", "Hava Durumu Tahmini"), "weather temperature rain hava s\u0131cakl\u0131k ya\u011fmur \u05de\u05d6\u05d2 \u05d0\u05d5\u05d5\u05d9\u05e8 \u05d8\u05de\u05e4\u05e8\u05d8\u05d5\u05e8\u05d4 \u05d2\u05e9\u05dd \u05ea\u05d7\u05d6\u05d9\u05ea", "refresh", (Runnable) () -> { close(); a.showWeather(); }});
-        l.add(new Object[]{tr("Switch Profile", "Profil De\u011fi\u015ftir"), "profile user who profil kullan\u0131c\u0131 ki\u015fi \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc \u05de\u05e9\u05ea\u05de\u05e9 \u05e6\u05d5\u05e4\u05d4", "controls", (Runnable) () -> { close(); a.showProfilePicker(false); }});
-        l.add(new Object[]{tr("Home Settings", "tvOS Launcher Ayarlar\u0131"), "settings launcher preferences ayarlar g\u00f6r\u00fcn\u00fcm sahneler dil \u05d4\u05d2\u05d3\u05e8\u05d5\u05ea \u05de\u05e1\u05da \u05d4\u05d1\u05d9\u05ea \u05e9\u05e4\u05d4 \u05e1\u05e6\u05e0\u05d5\u05ea", "gear", (Runnable) () -> {
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_control_center), keywords(R.string.search_keywords_control_center), "controls", (Runnable) () -> { close(); a.showControlCenter(); }});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_weather_forecast_0d1601), keywords(R.string.search_keywords_weather), "refresh", (Runnable) () -> { close(); a.showWeather(); }});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_switch_profile), keywords(R.string.search_keywords_profile), "controls", (Runnable) () -> { close(); a.showProfilePicker(false); }});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_home_settings_c5e57e), keywords(R.string.search_keywords_home_settings), "gear", (Runnable) () -> {
             a.returningFromSettings = true;
             a.startActivity(new Intent(a, SettingsActivity.class));
         }});
-        l.add(new Object[]{tr("Refresh Carousel", "Vitrin Yenile"), "refresh reload news recommendations yenile haberler \u00f6neriler \u05e8\u05e2\u05e0\u05d5\u05df \u05d7\u05d3\u05e9\u05d5\u05ea \u05d4\u05de\u05dc\u05e6\u05d5\u05ea", "refresh", (Runnable) () -> { close(); a.refreshAll(); }});
-        l.add(new Object[]{"Wi-Fi", "wifi network internet a\u011f \u05e8\u05e9\u05ea \u05d0\u05d9\u05e0\u05d8\u05e8\u05e0\u05d8 \u05d0\u05dc\u05d7\u05d5\u05d8\u05d9", "wifi", settings(Settings.ACTION_WIFI_SETTINGS)});
-        l.add(new Object[]{"Bluetooth", "bluetooth remote controller headphones speaker pair kumanda kulakl\u0131k hoparl\u00f6r \u05e9\u05dc\u05d8 \u05d0\u05d5\u05d6\u05e0\u05d9\u05d5\u05ea \u05e8\u05de\u05e7\u05d5\u05dc \u05e6\u05d9\u05de\u05d5\u05d3", "gamepad", settings(Settings.ACTION_BLUETOOTH_SETTINGS)});
-        l.add(new Object[]{tr("Sound", "Ses"), "sound audio volume speaker ses hoparl\u00f6r \u05e6\u05dc\u05d9\u05dc \u05e9\u05de\u05e2 \u05e2\u05d5\u05e6\u05de\u05d4 \u05e8\u05de\u05e7\u05d5\u05dc", "audio", settings("android.settings.SOUND_SETTINGS")});
-        l.add(new Object[]{tr("Display", "Ekran"), "display resolution screen picture ekran \u00e7\u00f6z\u00fcn\u00fcrl\u00fck g\u00f6r\u00fcnt\u00fc \u05ea\u05e6\u05d5\u05d2\u05d4 \u05de\u05e1\u05da \u05e8\u05d6\u05d5\u05dc\u05d5\u05e6\u05d9\u05d4 \u05ea\u05de\u05d5\u05e0\u05d4", "present", settings(Settings.ACTION_DISPLAY_SETTINGS)});
-        l.add(new Object[]{tr("Screen Saver", "Ekran Koruyucu"), "screensaver dream ambient ekran koruyucu \u05e9\u05d5\u05de\u05e8 \u05de\u05e1\u05da \u05de\u05e6\u05d1 \u05d0\u05d5\u05d5\u05d9\u05e8\u05d4", "moon", settings("android.settings.DREAM_SETTINGS")});
-        l.add(new Object[]{tr("Date & Time", "Tarih ve Saat"), "date time clock tarih saat \u05ea\u05d0\u05e8\u05d9\u05da \u05e9\u05e2\u05d4 \u05e9\u05e2\u05d5\u05df", "timer", settings(Settings.ACTION_DATE_SETTINGS)});
-        l.add(new Object[]{tr("Accessibility", "Eri\u015filebilirlik"), "accessibility captions eri\u015filebilirlik altyaz\u0131 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea \u05db\u05ea\u05d5\u05d1\u05d9\u05d5\u05ea", "accessibility", settings(Settings.ACTION_ACCESSIBILITY_SETTINGS)});
-        l.add(new Object[]{tr("Apps", "Uygulamalar"), "apps applications uninstall storage uygulamalar kald\u0131r depolama \u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d5\u05ea \u05d4\u05e1\u05e8\u05d4 \u05d0\u05d7\u05e1\u05d5\u05df", "memory", settings(Settings.ACTION_APPLICATION_SETTINGS)});
-        l.add(new Object[]{tr("Storage", "Depolama"), "storage space memory depolama alan bellek \u05d0\u05d7\u05e1\u05d5\u05df \u05de\u05e7\u05d5\u05dd \u05d6\u05d9\u05db\u05e8\u05d5\u05df", "memory", settings(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)});
-        l.add(new Object[]{tr("TV Settings", "TV Ayarlar\u0131"), "settings system device ayarlar sistem cihaz", "gear", settings(Settings.ACTION_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_refresh_carousel), keywords(R.string.search_keywords_refresh), "refresh", (Runnable) () -> { close(); a.refreshAll(); }});
+        l.add(new Object[]{"Wi-Fi", keywords(R.string.search_keywords_wifi), "wifi", settings(Settings.ACTION_WIFI_SETTINGS)});
+        l.add(new Object[]{"Bluetooth", keywords(R.string.search_keywords_bluetooth), "gamepad", settings(Settings.ACTION_BLUETOOTH_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_sound), keywords(R.string.search_keywords_sound), "audio", settings("android.settings.SOUND_SETTINGS")});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_display), keywords(R.string.search_keywords_display), "present", settings(Settings.ACTION_DISPLAY_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_screen_saver), keywords(R.string.search_keywords_screen_saver), "moon", settings("android.settings.DREAM_SETTINGS")});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_date_time), keywords(R.string.search_keywords_date_time), "timer", settings(Settings.ACTION_DATE_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_accessibility), keywords(R.string.search_keywords_accessibility), "accessibility", settings(Settings.ACTION_ACCESSIBILITY_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_apps_825c0a), keywords(R.string.search_keywords_apps), "memory", settings(Settings.ACTION_APPLICATION_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_storage), keywords(R.string.search_keywords_storage), "memory", settings(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)});
+        l.add(new Object[]{I18n.resourceString(SearchPanel.this.a, R.string.text_tv_settings_32ce87), keywords(R.string.search_keywords_tv_settings), "gear", settings(Settings.ACTION_SETTINGS)});
         return l;
     }
 
@@ -734,7 +747,7 @@ final class SearchPanel {
                     else failed = q;
                     if (g != gen) return;
                     if (res != null) fillTitles(res);
-                    else titleStatus(tr("Can\u2019t reach the internet", "\u0130nternete ula\u015f\u0131lam\u0131yor"));
+                    else titleStatus(I18n.resourceString(SearchPanel.this.a, R.string.text_can_t_reach_the_internet));
                 });
             });
         }
@@ -768,7 +781,7 @@ final class SearchPanel {
     void fillTitles(List<Search.Title> ts) {
         if (titleRow == null) return;
         if (ts.isEmpty()) {
-            titleStatus(tr("No movies or shows found", "Film veya dizi bulunamad\u0131"));
+            titleStatus(I18n.resourceString(SearchPanel.this.a, R.string.text_no_movies_or_shows_found));
             return;
         }
         List<View> cards = new ArrayList<>();
@@ -792,7 +805,8 @@ final class SearchPanel {
             List<String> names = new ArrayList<>();
             for (Suggestions.Provider p : Suggestions.stremioApps(a)) names.add(p.name);
             if (names.isEmpty()) names.add(Suggestions.stremioApp(a).name);
-            stremioRow = addRow(tr("On ", "") + android.text.TextUtils.join(" \u00b7 ", names) + tr("", " \u00fczerinde"), cards, a.dp(162));
+            stremioRow = addRow(I18n.resourceString(SearchPanel.this.a, R.string.search_available_on,
+                    android.text.TextUtils.join(" \u00b7 ", names)), cards, a.dp(162));
         }
         else setItems(stremioRow, cards);
     }
@@ -802,7 +816,7 @@ final class SearchPanel {
         List<View> cards = new ArrayList<>();
         for (Search.InAppResult r : items) cards.add(inAppCard(r));
         if (inAppRow == null) {
-            inAppRow = addRow(tr("In-App Results", "Uygulama İçi Sonuçlar"), cards, a.dp(162));
+            inAppRow = addRow(I18n.resourceString(SearchPanel.this.a, R.string.text_in_app_results), cards, a.dp(162));
         } else {
             setItems(inAppRow, cards);
         }
@@ -1061,7 +1075,7 @@ final class SearchPanel {
         col.addView(title, new LinearLayout.LayoutParams(a.dp(480), ViewGroup.LayoutParams.WRAP_CONTENT));
         List<String> meta = new ArrayList<>();
         if (!t.year.isEmpty()) meta.add(t.year);
-        meta.add(t.type.equals("tv") ? tr("Series", "Dizi") : tr("Movie", "Film"));
+        meta.add(t.type.equals("tv") ? I18n.resourceString(SearchPanel.this.a, R.string.text_series) : I18n.resourceString(SearchPanel.this.a, R.string.text_movie));
         if (!t.genres.isEmpty()) meta.add(t.genres);
         if (t.rating > 0) meta.add(String.format(java.util.Locale.US, "IMDb %.1f", t.rating));
         TextView m = a.text(13, Ui.font(a, "medium"), 0.78f);
@@ -1080,7 +1094,7 @@ final class SearchPanel {
             col.addView(o, olp);
         }
         TextView how = a.text(12, Ui.font(a, "semibold"), 0.72f);
-        how.setText(tr("HOW TO WATCH", "NASIL \u0130ZLEN\u0130R"));
+        how.setText(I18n.resourceString(SearchPanel.this.a, R.string.text_how_to_watch));
         how.setLetterSpacing(0.06f);
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         hlp.topMargin = a.dp(18);
@@ -1097,7 +1111,7 @@ final class SearchPanel {
         }
         if (buttons.isEmpty()) {
             TextView none = a.text(14, Ui.font(a, "regular"), 0.7f);
-            none.setText(tr("Not streaming right now.", "\u015eu anda yay\u0131nda de\u011fil."));
+            none.setText(I18n.resourceString(SearchPanel.this.a, R.string.text_not_streaming_right_now));
             col.addView(none);
         }
         card.addView(col, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1148,12 +1162,12 @@ final class SearchPanel {
         name.setSingleLine(true);
         name.setEllipsize(TextUtils.TruncateAt.END);
         boolean have = o.installed();
-        name.setText(have ? tr("\u25b6  Open in " + o.service, "\u25b6  " + o.service + " ile A\u00e7") : tr("Get " + o.service, o.service + " \u0130ndir"));
+        name.setText(I18n.resourceString(a, have ? R.string.search_open_in : R.string.search_get_app, o.service));
         b.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView kind = a.text(12, Ui.font(a, "medium"), 0.7f);
         kind.setShadowLayer(0, 0, 0, 0);
-        String notInstalled = tr("Not installed", "Y\u00fckl\u00fc de\u011fil");
-        String kindLabel = I18n.t(a, o.label());
+        String notInstalled = I18n.resourceString(SearchPanel.this.a, R.string.text_not_installed);
+        String kindLabel = o.label(a);
         kind.setText(have ? kindLabel : kindLabel.isEmpty() ? notInstalled : kindLabel + "  \u00b7  " + notInstalled);
         b.addView(kind);
         b.setOnFocusChangeListener((v, has) -> {

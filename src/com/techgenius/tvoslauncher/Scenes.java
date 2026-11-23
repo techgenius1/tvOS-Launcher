@@ -68,8 +68,7 @@ public final class Scenes {
 
     public static final class Spec {
         public final String id;
-        public final String nameEn;
-        public final String nameTr;
+        private final int titleResource;
         public final String bgAsset;
         public final String glassAsset;
         public final String fgAsset; // null for water (uses waterline reflection instead)
@@ -83,14 +82,13 @@ public final class Scenes {
         public final float dateLeftU;
         public final boolean darkDate;
 
-        Spec(String id, String nameEn, String nameTr,
+        Spec(String id, int titleResource,
              String bgAsset, String glassAsset, String fgAsset,
              boolean waterSplit, boolean leftAlign, boolean darkClock,
              float clockTopU, float clockSizeU, float clockLeftU,
              float dateTopU, float dateLeftU, boolean darkDate) {
             this.id = id;
-            this.nameEn = nameEn;
-            this.nameTr = nameTr;
+            this.titleResource = titleResource;
             this.bgAsset = bgAsset;
             this.glassAsset = glassAsset;
             this.fgAsset = fgAsset;
@@ -106,32 +104,34 @@ public final class Scenes {
         }
 
         public String title(Context c) {
-            return I18n.s(c, nameEn, nameTr);
+            int slot = customSlotFromId(id);
+            return slot > 1 ? I18n.resourceString(c, titleResource, Integer.toString(slot))
+                    : I18n.resourceString(c, titleResource);
         }
     }
 
     public static final Spec[] ALL = {
-        new Spec("night", "Night", "Gece",
+        new Spec("night", R.string.scene_night,
                 "backgrounds/scene-night.jpg", "backgrounds/scene-night-glass.jpg", "backgrounds/scene-night-fg.webp",
                 false, false, false,
                 62f, 178f, 0f,
                 42f, 0f, false),
-        new Spec("golden", "Golden hour", "Altın saat",
+        new Spec("golden", R.string.scene_golden_hour,
                 "backgrounds/scene-golden.jpg", "backgrounds/scene-golden-glass.jpg", "backgrounds/scene-golden-fg.webp",
                 false, false, false,
                 76f, 195f, 0f,
                 53f, 0f, false),
-        new Spec("water", "Waterline", "Su çizgisi",
+        new Spec("water", R.string.scene_waterline,
                 "backgrounds/scene-water.jpg", "backgrounds/scene-water-glass.jpg", null,
                 true, false, false,
                 134f, 210f, 0f,
                 108f, 0f, false),
-        new Spec("fog", "Fog", "Sis",
+        new Spec("fog", R.string.scene_fog,
                 "backgrounds/scene-fog.jpg", "backgrounds/scene-fog-glass.jpg", "backgrounds/scene-fog-fg.webp",
                 false, true, true,
                 86f, 235f, 48f,
                 58f, 52f, true),
-        new Spec("dawn", "Rainforest dawn", "Yağmur ormanı şafağı",
+        new Spec("dawn", R.string.scene_rainforest_dawn,
                 "backgrounds/scene-dawn.jpg", "backgrounds/scene-dawn-glass.jpg", "backgrounds/scene-dawn-fg.webp",
                 false, false, false,
                 115f, 200f, 0f,
@@ -139,7 +139,7 @@ public final class Scenes {
     };
 
     public static final Spec CUSTOM_SPEC = new Spec(
-            CUSTOM_ID, "Custom", "Özel",
+            CUSTOM_ID, R.string.text_custom,
             null, null, null,
             false, false, false,
             68f, 190f, 48f,
@@ -147,46 +147,60 @@ public final class Scenes {
 
     public static final Spec[] CUSTOM_SPECS = {
         CUSTOM_SPEC,
-        new Spec("custom_2", "Custom 2", "Özel 2", null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false),
-        new Spec("custom_3", "Custom 3", "Özel 3", null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false),
-        new Spec("custom_4", "Custom 4", "Özel 4", null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false),
-        new Spec("custom_5", "Custom 5", "Özel 5", null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false)
+        new Spec("custom_2", R.string.scene_custom_number, null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false),
+        new Spec("custom_3", R.string.scene_custom_number, null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false),
+        new Spec("custom_4", R.string.scene_custom_number, null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false),
+        new Spec("custom_5", R.string.scene_custom_number, null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false)
     };
 
     public static final Spec FOLDER_SHUFFLE_SPEC = new Spec(
-            FOLDER_SHUFFLE_ID, "Folder Shuffle", "Klasör Karıştırma",
+            FOLDER_SHUFFLE_ID, R.string.scene_folder_shuffle,
             null, null, null,
             false, false, false,
             68f, 190f, 48f,
             45f, 52f, false);
 
     public static final Spec REDDIT_WALLPAPER_SPEC = new Spec(
-            REDDIT_WALLPAPER_ID, "Reddit Wallpapers", "Reddit Duvar Kağıtları",
+            REDDIT_WALLPAPER_ID, R.string.text_reddit_wallpapers,
             null, null, null,
             false, false, false,
             68f, 190f, 48f,
             45f, 52f, false);
 
     public static final Spec LOCK_CUSTOM_SPEC = new Spec(
-            LOCK_CUSTOM_ID, "Custom Lock Image", "Özel Kilit Görseli",
+            LOCK_CUSTOM_ID, R.string.scene_custom_lock_image,
             null, null, null,
             false, false, false,
             68f, 190f, 48f,
             45f, 52f, false);
 
     public static final Spec LOCK_FOLDER_SHUFFLE_SPEC = new Spec(
-            LOCK_FOLDER_SHUFFLE_ID, "Folder Shuffle", "Klasör Karıştırma",
+            LOCK_FOLDER_SHUFFLE_ID, R.string.scene_folder_shuffle,
             null, null, null,
             false, false, false,
             68f, 190f, 48f,
             45f, 52f, false);
 
-    public static final String[][] CLASSIC_GRADIENTS = {
-        {"grad:aurora", "Aurora", "Kuzey Işığı"},
-        {"grad:midnight", "Midnight", "Gece Yarısı"},
-        {"grad:ocean", "Ocean", "Okyanus"},
-        {"grad:sunset", "Sunset", "Gün Batımı"},
-        {"grad:graphite", "Graphite", "Grafit"}
+    public static final class ClassicWallpaper {
+        public final String id;
+        private final int titleResource;
+
+        ClassicWallpaper(String id, int titleResource) {
+            this.id = id;
+            this.titleResource = titleResource;
+        }
+
+        public String title(Context c) {
+            return I18n.resourceString(c, titleResource);
+        }
+    }
+
+    public static final ClassicWallpaper[] CLASSIC_GRADIENTS = {
+        new ClassicWallpaper("grad:aurora", R.string.scene_gradient_aurora),
+        new ClassicWallpaper("grad:midnight", R.string.wallpaper_midnight),
+        new ClassicWallpaper("grad:ocean", R.string.wallpaper_ocean),
+        new ClassicWallpaper("grad:sunset", R.string.wallpaper_sunset),
+        new ClassicWallpaper("grad:graphite", R.string.wallpaper_graphite)
     };
 
     public static String customId(int slot) {
@@ -268,12 +282,12 @@ public final class Scenes {
         return hash >= 0 ? id.substring(0, hash) : id;
     }
 
-    public static final String[][] CLASSIC_PHOTOS = {
-        {"tessellated-pavement.jpg", "Tessellated Pavement", "Mozaik Kıyı"},
-        {"grose-valley.jpg", "Grose Valley", "Grose Vadisi"},
-        {"albury-storm.jpg", "Albury Storm", "Albury Fırtınası"},
-        {"aresquiers-beach.jpg", "Aresquiers Beach", "Aresquiers Plajı"},
-        {"vang-vieng-sunset.jpg", "Vang Vieng Sunset", "Vang Vieng Gün Batımı"}
+    public static final ClassicWallpaper[] CLASSIC_PHOTOS = {
+        new ClassicWallpaper("tessellated-pavement.jpg", R.string.scene_photo_tessellated),
+        new ClassicWallpaper("grose-valley.jpg", R.string.wallpaper_grose_valley),
+        new ClassicWallpaper("albury-storm.jpg", R.string.wallpaper_albury_storm),
+        new ClassicWallpaper("aresquiers-beach.jpg", R.string.wallpaper_aresquiers_beach),
+        new ClassicWallpaper("vang-vieng-sunset.jpg", R.string.wallpaper_vang_vieng_sunset)
     };
 
     private Scenes() { }
@@ -283,7 +297,7 @@ public final class Scenes {
         int cSlot = customSlotFromId(id);
         if (cSlot > 0) {
             if (cSlot <= CUSTOM_SPECS.length) return CUSTOM_SPECS[cSlot - 1];
-            return new Spec(customId(cSlot), "Custom " + cSlot, "Özel " + cSlot,
+            return new Spec(customId(cSlot), R.string.scene_custom_number_fallback,
                     null, null, null, false, false, false, 68f, 190f, 48f, 45f, 52f, false);
         }
         if (FOLDER_SHUFFLE_ID.equals(id)) return FOLDER_SHUFFLE_SPEC;
@@ -292,17 +306,17 @@ public final class Scenes {
         if (LOCK_FOLDER_SHUFFLE_ID.equals(id)) return LOCK_FOLDER_SHUFFLE_SPEC;
         if (id.startsWith("photo:")) {
             String file = id.substring("photo:".length());
-            for (String[] row : CLASSIC_PHOTOS) {
-                if (row[0].equals(file)) {
-                    return new Spec(id, row[1], row[2], "backgrounds/" + file, null, null,
+            for (ClassicWallpaper row : CLASSIC_PHOTOS) {
+                if (row.id.equals(file)) {
+                    return new Spec(id, row.titleResource, "backgrounds/" + file, null, null,
                             false, false, false, 68f, 190f, 48f, 45f, 52f, false);
                 }
             }
         }
         if (id.startsWith("grad:")) {
-            for (String[] row : CLASSIC_GRADIENTS) {
-                if (row[0].equals(id)) {
-                    return new Spec(id, row[1], row[2], null, null, null,
+            for (ClassicWallpaper row : CLASSIC_GRADIENTS) {
+                if (row.id.equals(id)) {
+                    return new Spec(id, row.titleResource, null, null, null,
                             false, false, false, 68f, 190f, 48f, 45f, 52f, false);
                 }
             }
@@ -383,7 +397,7 @@ public final class Scenes {
 
     public static String dockRowsLabel(Context c) {
         int r = getDockRows(c);
-        return r + " " + I18n.s(c, r == 1 ? "row" : "rows", "satır");
+        return r + " " + I18n.resourceString(c, r == 1 ? R.string.unit_row_one : R.string.unit_row_other);
     }
 
     public static boolean isSmallClockEnabled(Context c) {
@@ -408,7 +422,7 @@ public final class Scenes {
         int pct = getDockScalePercent(c);
         int diff = pct - 100;
         if (diff == 0) {
-            return "100% (" + I18n.s(c, "Default", "Varsayılan") + ")";
+            return "100% (" + I18n.resourceString(c, R.string.text_default) + ")";
         } else if (diff > 0) {
             return pct + "% (+" + diff + "%)";
         } else {
@@ -614,10 +628,10 @@ public final class Scenes {
 
     public static String defaultClockPosLabel(Context c) {
         String pos = getDefaultClockPos(c);
-        if (CLOCK_POS_LEFT.equals(pos)) return I18n.t(c, "align_left");
-        if (CLOCK_POS_CENTER.equals(pos)) return I18n.t(c, "align_center");
-        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.t(c, "align_right");
-        return I18n.t(c, "align_dynamic");
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.resourceString(c, R.string.text_align_left);
+        if (CLOCK_POS_CENTER.equals(pos)) return I18n.resourceString(c, R.string.text_align_center);
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.resourceString(c, R.string.text_align_right);
+        return I18n.resourceString(c, R.string.text_align_dynamic);
     }
 
     // ─── Custom Night Scenes Clock Alignment (Left / Center / Right) ───
@@ -647,9 +661,9 @@ public final class Scenes {
 
     public static String customClockPosLabel(Context c) {
         String pos = getCustomClockPos(c);
-        if (CLOCK_POS_LEFT.equals(pos)) return I18n.t(c, "align_left");
-        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.t(c, "align_right");
-        return I18n.t(c, "align_center");
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.resourceString(c, R.string.text_align_left);
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.resourceString(c, R.string.text_align_right);
+        return I18n.resourceString(c, R.string.text_align_center);
     }
 
     // ─── Classic Appearance Big Clock & Clock Alignment ───
@@ -687,9 +701,9 @@ public final class Scenes {
 
     public static String classicClockPosLabel(Context c) {
         String pos = getClassicClockPos(c);
-        if (CLOCK_POS_LEFT.equals(pos)) return I18n.t(c, "align_left");
-        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.t(c, "align_right");
-        return I18n.t(c, "align_center");
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.resourceString(c, R.string.text_align_left);
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.resourceString(c, R.string.text_align_right);
+        return I18n.resourceString(c, R.string.text_align_center);
     }
 
     /** Returns false if trying to disable the last remaining active scene. */
@@ -715,8 +729,8 @@ public final class Scenes {
     public static List<String> getAllLockSceneCandidates() {
         List<String> all = new ArrayList<>();
         for (Spec s : ALL) all.add(s.id);
-        for (String[] row : CLASSIC_PHOTOS) all.add("photo:" + row[0]);
-        for (String[] row : CLASSIC_GRADIENTS) all.add(row[0]);
+        for (ClassicWallpaper row : CLASSIC_PHOTOS) all.add("photo:" + row.id);
+        for (ClassicWallpaper row : CLASSIC_GRADIENTS) all.add(row.id);
         for (String cid : CUSTOM_IDS) all.add(cid);
         all.add(LOCK_CUSTOM_ID);
         all.add(LOCK_FOLDER_SHUFFLE_ID);
@@ -810,9 +824,9 @@ public final class Scenes {
 
     public static String lockClockPosLabel(Context c) {
         String pos = getLockClockPos(c);
-        if (CLOCK_POS_LEFT.equals(pos)) return I18n.s(c, "Left", "Sol");
-        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.s(c, "Right", "Sağ");
-        return I18n.s(c, "Center", "Orta");
+        if (CLOCK_POS_LEFT.equals(pos)) return I18n.resourceString(c, R.string.text_left);
+        if (CLOCK_POS_RIGHT.equals(pos)) return I18n.resourceString(c, R.string.text_right);
+        return I18n.resourceString(c, R.string.text_center);
     }
 
     public static int getLockIdleMinutes(Context c) {
@@ -838,8 +852,8 @@ public final class Scenes {
 
     public static String lockIdleLabel(Context c) {
         int m = getLockIdleMinutes(c);
-        if (m <= 0) return I18n.s(c, "Off", "Kapalı");
-        return m + " " + I18n.s(c, "min", "dk");
+        if (m <= 0) return I18n.resourceString(c, R.string.status_off);
+        return m + " " + I18n.resourceString(c, R.string.text_min_938b57);
     }
 
     public static int getStaySeconds(Context c) {
@@ -872,9 +886,9 @@ public final class Scenes {
         int sec = getStaySeconds(c);
         if (sec >= 60 && sec % 60 == 0) {
             int mins = sec / 60;
-            return mins + " " + I18n.s(c, mins == 1 ? "minute" : "minutes", "dakika");
+            return mins + " " + I18n.resourceString(c, mins == 1 ? R.string.unit_minute_one : R.string.unit_minute_other);
         }
-        return sec + " " + I18n.s(c, "seconds", "saniye");
+        return sec + " " + I18n.resourceString(c, R.string.text_seconds_344f8a);
     }
 
     /** The small app-name bubble above the focused Night Scenes dock icon. On by default. */
@@ -917,9 +931,9 @@ public final class Scenes {
 
     public static String clockStyleLabel(Context c) {
         String st = getClockStyle(c);
-        if (CLOCK_STYLE_ROUNDED.equals(st)) return I18n.s(c, "iPhone Rounded", "iPhone Yuvarlak");
-        if (CLOCK_STYLE_TALL.equals(st)) return I18n.s(c, "Tall Glass", "Uzun Cam");
-        return I18n.s(c, "iPhone Duo", "iPhone Duo");
+        if (CLOCK_STYLE_ROUNDED.equals(st)) return I18n.resourceString(c, R.string.text_iphone_rounded);
+        if (CLOCK_STYLE_TALL.equals(st)) return I18n.resourceString(c, R.string.text_tall_glass);
+        return I18n.resourceString(c, R.string.text_iphone_duo);
     }
 
     private static InputStream openAssetStream(Context c, String assetPath) throws java.io.IOException {
@@ -2010,7 +2024,7 @@ public final class Scenes {
             String fullHeader = dateStr;
             if (weatherTemp != null && !weatherTemp.isEmpty()) {
                 String wxDesc = weatherDesc != null && !weatherDesc.isEmpty()
-                        ? " " + I18n.t(ctx, weatherDesc) : "";
+                        ? " " + weatherDesc : "";
                 fullHeader = dateStr + "   ·   " + weatherTemp + wxDesc;
             }
             datePaint.setTextSize(datePx);
@@ -2065,13 +2079,13 @@ public final class Scenes {
             int hr = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
             String greet;
             if (hr >= 5 && hr < 12) {
-                greet = I18n.s(c, "Good morning", "Günaydın");
+                greet = I18n.resourceString(c, R.string.text_good_morning);
             } else if (hr >= 12 && hr < 18) {
-                greet = I18n.s(c, "Good afternoon", "İyi günler");
+                greet = I18n.resourceString(c, R.string.text_good_afternoon);
             } else if (hr >= 18 && hr < 22) {
-                greet = I18n.s(c, "Good evening", "İyi akşamlar");
+                greet = I18n.resourceString(c, R.string.text_good_evening);
             } else {
-                greet = I18n.s(c, "Good night", "İyi geceler");
+                greet = I18n.resourceString(c, R.string.text_good_night);
             }
             try {
                 Profiles.Profile cur = Profiles.current(c);

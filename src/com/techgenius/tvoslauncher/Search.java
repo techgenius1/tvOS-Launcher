@@ -57,16 +57,18 @@ final class Search {
             }
         }
 
-        String label() {
+        String label(Context context) {
+            int resourceId;
             switch (monetization) {
-                case "FLATRATE": return "Subscription";
-                case "FREE": return "Free";
-                case "ADS": return "Free with ads";
-                case "RENT": return "Rent";
-                case "BUY": return "Buy";
-                case "STREMIO": return "Add-ons";
+                case "FLATRATE": resourceId = R.string.search_offer_subscription; break;
+                case "FREE": resourceId = R.string.search_offer_free; break;
+                case "ADS": resourceId = R.string.search_offer_free_with_ads; break;
+                case "RENT": resourceId = R.string.search_offer_rent; break;
+                case "BUY": resourceId = R.string.search_offer_buy; break;
+                case "STREMIO": resourceId = R.string.search_offer_addons; break;
                 default: return "";
             }
+            return I18n.resourceString(context, resourceId);
         }
     }
 

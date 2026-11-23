@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="presentation_web_keys" translatable="false">
+        <item>"Presentation · tvOS Launcher"</item>
+        <item>"Pair with your TV"</item>
+        <item>"Enter the 6-digit code shown on the TV."</item>
+        <item>"Pairing code"</item>
+        <item>"Digit 1"</item>
+        <item>"Digit 2"</item>
+        <item>"Digit 3"</item>
+        <item>"Digit 4"</item>
+        <item>"Digit 5"</item>
+        <item>"Digit 6"</item>
+        <item>"Pair"</item>
+        <item>"Can’t see the code? On the TV, open Presentation and press ▲ on the remote."</item>
+        <item>"Presentation"</item>
+        <item>"Sections"</item>
+        <item>"Library"</item>
+        <item>"Playlist"</item>
+        <item>"Forget this browser"</item>
+        <item>"Unpair"</item>
+        <item>"Now playing on TV"</item>
+        <item>"Connecting…"</item>
+        <item>"Previous slide"</item>
+        <item>"Next slide"</item>
+        <item>"Pause"</item>
+        <item>"Play"</item>
+        <item>"Start over"</item>
+        <item>"Show the address and code on the TV"</item>
+        <item>"Show code on TV"</item>
+        <item>"Drop images or videos here"</item>
+        <item>"or {link} · uploads go straight to the TV"</item>
+        <item>"choose files"</item>
+        <item>"Filter"</item>
+        <item>"All"</item>
+        <item>"Images"</item>
+        <item>"Videos"</item>
+        <item>"Add Slide"</item>
+        <item>"From Library…"</item>
+        <item>"Webpage…"</item>
+        <item>"Slides"</item>
+        <item>"Drag to reorder"</item>
+        <item>"Slide settings"</item>
+        <item>"No slides yet"</item>
+        <item>"Add images or videos from your Library, or a webpage. Slides play in order and loop."</item>
+        <item>"Add Webpage"</item>
+        <item>"Add from Library"</item>
+        <item>"Unsaved changes"</item>
+        <item>"Revert"</item>
+        <item>"Save to TV"</item>
+        <item>"Done"</item>
+        <item>"Cancel"</item>
+        <item>"Delete"</item>
+        <item>"Paired with the TV"</item>
+        <item>"Not on screen"</item>
+        <item>"Open Presentation on the TV, or turn on “Start on boot” in Settings."</item>
+        <item>"Nothing playing"</item>
+        <item>"Add slides in Playlist, then Save to TV."</item>
+        <item>"Playing"</item>
+        <item>"Paused"</item>
+        <item>"Skipping"</item>
+        <item>"Starting"</item>
+        <item>"{label} · Slide {n} of {count}"</item>
+        <item>"No files yet. Drop images or videos above."</item>
+        <item>"No images yet."</item>
+        <item>"No videos yet."</item>
+        <item>"Video"</item>
+        <item>"Image"</item>
+        <item>"File"</item>
+        <item>"Add to Playlist"</item>
+        <item>"Delete {name}"</item>
+        <item>"Delete “{name}”?"</item>
+        <item>"It will be removed from the TV, along with any slides that use it."</item>
+        <item>"Deleted"</item>
+        <item>"Only images and videos can be uploaded"</item>
+        <item>"Waiting…"</item>
+        <item>"{pct}% of {size}"</item>
+        <item>"Uploaded"</item>
+        <item>"Upload failed"</item>
+        <item>"{name} uploaded"</item>
+        <item>"{n} files uploaded"</item>
+        <item>"{ok} uploaded, {failed} failed"</item>
+        <item>"{n} uploads failed"</item>
+        <item>"Upload failed ({status})"</item>
+        <item>"Upload failed. Check the TV is on and on the same network."</item>
+        <item>"Webpage"</item>
+        <item>"Missing file"</item>
+        <item>"Slide {n}: {title}"</item>
+        <item>"On TV"</item>
+        <item>"Scroll"</item>
+        <item>"No address yet"</item>
+        <item>"Shown on the TV as a 1920-px-wide page"</item>
+        <item>"Shown on the TV as a 1920-px-wide page, scrolling down"</item>
+        <item>"Choose another file for this slide."</item>
+        <item>"{n} of {count}"</item>
+        <item>"On TV now"</item>
+        <item>"Hidden"</item>
+        <item>"Webpage address"</item>
+        <item>"Auto-scroll"</item>
+        <item>"Scroll speed"</item>
+        <item>"Pause on each screen"</item>
+        <item>"{n} px/s"</item>
+        <item>"{n} s"</item>
+        <item>"s"</item>
+        <item>"Time on screen"</item>
+        <item>"Plays to the end"</item>
+        <item>"Until it reaches the bottom"</item>
+        <item>"5 seconds less"</item>
+        <item>"5 seconds more"</item>
+        <item>"Seconds"</item>
+        <item>"Playback"</item>
+        <item>"Fit"</item>
+        <item>"Contain"</item>
+        <item>"Cover"</item>
+        <item>"Fill"</item>
+        <item>"Show all of it"</item>
+        <item>"Fill the screen, cropping edges"</item>
+        <item>"Stretch to the screen"</item>
+        <item>"Sound"</item>
+        <item>"Play sound"</item>
+        <item>"Show this slide"</item>
+        <item>"Earlier"</item>
+        <item>"Later"</item>
+        <item>"Remove Slide"</item>
+        <item>"Only images and videos can be slides"</item>
+        <item>"Slide added — Save to TV when ready"</item>
+        <item>"The page opens full screen on the TV and scrolls down slowly. You can change scrolling in the slide’s settings."</item>
+        <item>"Webpage address must start with http:// or https://"</item>
+        <item>"Your Library is empty. Upload images or videos first."</item>
+        <item>"Saving…"</item>
+        <item>"Saved — now playing on the TV"</item>
+        <item>"Showing the address and code on the TV"</item>
+        <item>"Slide {n}: time on screen must be at least 1 second."</item>
+        <item>"Slide {n}: webpage address must start with http:// or https://."</item>
+        <item>"Slide {n}: scroll speed must be between 5 and 1000."</item>
+        <item>"Slide {n}: pause must be between 0 and 300 seconds."</item>
+        <item>"Slide {n}: choose a file."</item>
+        <item>"Slide {n}: uses a deleted file."</item>
+        <item>"You have unsaved playlist changes. Leave anyway?"</item>
+        <item>"Video · plays to the end"</item>
+        <item>"Image · {d}"</item>
+        <item>"Webpage · auto-scroll"</item>
+        <item>"Webpage · {d}"</item>
+        <item>"Empty"</item>
+        <item>"Loop {d}"</item>
+        <item>"{base} + {n} video/scroll"</item>
+        <item>"Request failed ({status})"</item>
+        <item>"Pair this browser again with the code on the TV."</item>
+        <item>"Something went wrong"</item>
+        <item>"{s}s"</item>
+        <item>"{m}m"</item>
+        <item>"{m}m {s}s"</item>
+    </string-array>
+    <array name="presentation_web_values">
+        <item>@string/presentation_web_presentation_tvos_launcher_c959811f</item>
+        <item>@string/presentation_web_pair_with_your_tv_72e248d6</item>
+        <item>@string/presentation_web_enter_the_6_digit_code_shown_on_the_tv_5bdd16e7</item>
+        <item>@string/presentation_web_pairing_code_1c5ea2f7</item>
+        <item>@string/presentation_web_digit_1_ae93e575</item>
+        <item>@string/presentation_web_digit_2_beadac2c</item>
+        <item>@string/presentation_web_digit_3_f8b74e73</item>
+        <item>@string/presentation_web_digit_4_c36fd656</item>
+        <item>@string/presentation_web_digit_5_9d7fe2d6</item>
+        <item>@string/presentation_web_digit_6_a4865e85</item>
+        <item>@string/presentation_web_pair_989da04b</item>
+        <item>@string/presentation_web_can_t_see_the_code_on_the_tv_open_presentatio_8ebb1347</item>
+        <item>@string/text_presentation</item>
+        <item>@string/presentation_web_sections_9bae918a</item>
+        <item>@string/presentation_web_library_dc20b3d5</item>
+        <item>@string/presentation_web_playlist_7af36c50</item>
+        <item>@string/presentation_web_forget_this_browser_94e93346</item>
+        <item>@string/presentation_web_unpair_10be2fd8</item>
+        <item>@string/presentation_web_now_playing_on_tv_abe04c28</item>
+        <item>@string/presentation_web_connecting_72021eb7</item>
+        <item>@string/presentation_web_previous_slide_bfb54922</item>
+        <item>@string/presentation_web_next_slide_cdc93d1c</item>
+        <item>@string/text_pause</item>
+        <item>@string/text_play</item>
+        <item>@string/presentation_web_start_over_5eed7e9f</item>
+        <item>@string/presentation_web_show_the_address_and_code_on_the_tv_120c6380</item>
+        <item>@string/presentation_web_show_code_on_tv_4bb6f289</item>
+        <item>@string/presentation_web_drop_images_or_videos_here_02e76e67</item>
+        <item>@string/presentation_web_or_link_uploads_go_straight_to_the_tv_80b3ef38</item>
+        <item>@string/presentation_web_choose_files_70deb128</item>
+        <item>@string/text_filter_b3bfd1</item>
+        <item>@string/presentation_web_all_a52ace42</item>
+        <item>@string/presentation_web_images_be7e2f20</item>
+        <item>@string/presentation_web_videos_c9a96394</item>
+        <item>@string/presentation_web_add_slide_51dd24ab</item>
+        <item>@string/presentation_web_from_library_b5e37739</item>
+        <item>@string/presentation_web_webpage_b1c356d7</item>
+        <item>@string/presentation_web_slides_a0ffe381</item>
+        <item>@string/presentation_web_drag_to_reorder_ef86a0ed</item>
+        <item>@string/presentation_web_slide_settings_430bbbc9</item>
+        <item>@string/presentation_web_no_slides_yet_b0e09084</item>
+        <item>@string/presentation_web_add_images_or_videos_from_your_library_or_a_w_78c8f641</item>
+        <item>@string/presentation_web_add_webpage_fff7d0f1</item>
+        <item>@string/presentation_web_add_from_library_e9a0efb1</item>
+        <item>@string/presentation_web_unsaved_changes_a710c2b9</item>
+        <item>@string/presentation_web_revert_0026c505</item>
+        <item>@string/presentation_web_save_to_tv_46bc0108</item>
+        <item>@string/text_done</item>
+        <item>@string/text_cancel</item>
+        <item>@string/text_delete</item>
+        <item>@string/presentation_web_paired_with_the_tv_2a24e68a</item>
+        <item>@string/presentation_web_not_on_screen_797f0f00</item>
+        <item>@string/presentation_web_open_presentation_on_the_tv_or_turn_on_start_09099f48</item>
+        <item>@string/presentation_web_nothing_playing_05aed12e</item>
+        <item>@string/presentation_web_add_slides_in_playlist_then_save_to_tv_34d9de3a</item>
+        <item>@string/text_playing</item>
+        <item>@string/text_paused</item>
+        <item>@string/presentation_web_skipping_dc5420d3</item>
+        <item>@string/presentation_web_starting_aeed4d26</item>
+        <item>@string/presentation_web_label_slide_n_of_count_4197ebe9</item>
+        <item>@string/presentation_web_no_files_yet_drop_images_or_videos_above_3bfd937b</item>
+        <item>@string/presentation_web_no_images_yet_c397a5b4</item>
+        <item>@string/presentation_web_no_videos_yet_1151b358</item>
+        <item>@string/presentation_web_video_d534be82</item>
+        <item>@string/presentation_web_image_1aa4cb0b</item>
+        <item>@string/presentation_web_file_50009ce1</item>
+        <item>@string/presentation_web_add_to_playlist_f659f573</item>
+        <item>@string/presentation_web_delete_name_3cf8146e</item>
+        <item>@string/presentation_web_delete_name_8e13216a</item>
+        <item>@string/presentation_web_it_will_be_removed_from_the_tv_along_with_any_f1383104</item>
+        <item>@string/presentation_web_deleted_b48ff39c</item>
+        <item>@string/presentation_web_only_images_and_videos_can_be_uploaded_7cf8003d</item>
+        <item>@string/presentation_web_waiting_612ffc5c</item>
+        <item>@string/presentation_web_pct_of_size_7b41a303</item>
+        <item>@string/presentation_web_uploaded_3cc3767e</item>
+        <item>@string/presentation_web_upload_failed_6efc5d27</item>
+        <item>@string/presentation_web_name_uploaded_2ba2624a</item>
+        <item>@string/presentation_web_n_files_uploaded_862e4840</item>
+        <item>@string/presentation_web_ok_uploaded_failed_failed_f434f81f</item>
+        <item>@string/presentation_web_n_uploads_failed_54a17745</item>
+        <item>@string/presentation_web_upload_failed_status_08b501ad</item>
+        <item>@string/presentation_web_upload_failed_check_the_tv_is_on_and_on_the_s_5574c47b</item>
+        <item>@string/presentation_web_webpage_dccfc4ad</item>
+        <item>@string/presentation_web_missing_file_693f5909</item>
+        <item>@string/presentation_web_slide_n_title_beab46ed</item>
+        <item>@string/presentation_web_on_tv_7001d394</item>
+        <item>@string/presentation_web_scroll_291873e3</item>
+        <item>@string/presentation_web_no_address_yet_7a908fce</item>
+        <item>@string/presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_84248c8b</item>
+        <item>@string/presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_scroll_71ebcb30</item>
+        <item>@string/presentation_web_choose_another_file_for_this_slide_9084e548</item>
+        <item>@string/presentation_web_n_of_count_03e1f091</item>
+        <item>@string/presentation_web_on_tv_now_4b481d71</item>
+        <item>@string/presentation_web_hidden_7e6fefff</item>
+        <item>@string/presentation_web_webpage_address_c02cb87f</item>
+        <item>@string/presentation_web_auto_scroll_30fb5ec8</item>
+        <item>@string/presentation_web_scroll_speed_2632882d</item>
+        <item>@string/presentation_web_pause_on_each_screen_d6a984d0</item>
+        <item>@string/presentation_web_n_px_s_e1159729</item>
+        <item>@string/presentation_web_n_s_8e6df4a0</item>
+        <item>@string/presentation_web_s_043a7187</item>
+        <item>@string/presentation_web_time_on_screen_9fa05c65</item>
+        <item>@string/presentation_web_plays_to_the_end_194589fa</item>
+        <item>@string/presentation_web_until_it_reaches_the_bottom_f3c94373</item>
+        <item>@string/presentation_web_5_seconds_less_bccb7d2e</item>
+        <item>@string/presentation_web_5_seconds_more_0ff54420</item>
+        <item>@string/presentation_web_seconds_381a8e96</item>
+        <item>@string/presentation_web_playback_2db1db07</item>
+        <item>@string/presentation_web_fit_9f872ed4</item>
+        <item>@string/presentation_web_contain_e534a2c2</item>
+        <item>@string/presentation_web_cover_fa8d8456</item>
+        <item>@string/presentation_web_fill_033955d4</item>
+        <item>@string/presentation_web_show_all_of_it_8b61252d</item>
+        <item>@string/presentation_web_fill_the_screen_cropping_edges_3c4d2350</item>
+        <item>@string/presentation_web_stretch_to_the_screen_0e4fa364</item>
+        <item>@string/text_sound</item>
+        <item>@string/presentation_web_play_sound_017e4fd8</item>
+        <item>@string/presentation_web_show_this_slide_47e42125</item>
+        <item>@string/presentation_web_earlier_e10ae990</item>
+        <item>@string/presentation_web_later_73b6e48a</item>
+        <item>@string/presentation_web_remove_slide_913ae394</item>
+        <item>@string/presentation_web_only_images_and_videos_can_be_slides_11e3db96</item>
+        <item>@string/presentation_web_slide_added_save_to_tv_when_ready_ac4d8f72</item>
+        <item>@string/presentation_web_the_page_opens_full_screen_on_the_tv_and_scro_cd0e902c</item>
+        <item>@string/presentation_web_webpage_address_must_start_with_http_or_https_10e086d4</item>
+        <item>@string/presentation_web_your_library_is_empty_upload_images_or_videos_1b1e7e11</item>
+        <item>@string/presentation_web_saving_23e39291</item>
+        <item>@string/presentation_web_saved_now_playing_on_the_tv_53e2afb1</item>
+        <item>@string/presentation_web_showing_the_address_and_code_on_the_tv_7b38bbb2</item>
+        <item>@string/presentation_web_slide_n_time_on_screen_must_be_at_least_1_sec_33e688bf</item>
+        <item>@string/presentation_web_slide_n_webpage_address_must_start_with_http_c20d1c1c</item>
+        <item>@string/presentation_web_slide_n_scroll_speed_must_be_between_5_and_10_7bf1f5cf</item>
+        <item>@string/presentation_web_slide_n_pause_must_be_between_0_and_300_secon_ee5928bf</item>
+        <item>@string/presentation_web_slide_n_choose_a_file_ce3b2b2e</item>
+        <item>@string/presentation_web_slide_n_uses_a_deleted_file_59410ac6</item>
+        <item>@string/presentation_web_you_have_unsaved_playlist_changes_leave_anywa_794f9b62</item>
+        <item>@string/presentation_web_video_plays_to_the_end_d1317306</item>
+        <item>@string/presentation_web_image_d_a95fd646</item>
+        <item>@string/presentation_web_webpage_auto_scroll_7b4685ed</item>
+        <item>@string/presentation_web_webpage_d_5742e375</item>
+        <item>@string/presentation_web_empty_c6c094bc</item>
+        <item>@string/presentation_web_loop_d_af1a13c7</item>
+        <item>@string/presentation_web_base_n_video_scroll_109344e2</item>
+        <item>@string/presentation_web_request_failed_status_d5f9abf9</item>
+        <item>@string/presentation_web_pair_this_browser_again_with_the_code_on_the_36a7b9e9</item>
+        <item>@string/presentation_web_something_went_wrong_ab827e3f</item>
+        <item>@string/presentation_web_s_s_07f67a15</item>
+        <item>@string/presentation_web_m_m_79989309</item>
+        <item>@string/presentation_web_m_m_s_s_53e20375</item>
+    </array>
+</resources>

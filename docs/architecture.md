@@ -31,8 +31,8 @@ source (Nayuki, MIT) under `src/io/nayuki/qrcodegen`.
 | `AirPlayGuard.java` | Keeps the AirPlay receiver app visible: mDNS check, restart via its settings / start-up receivers |
 | `Glyphs.java` | Line glyphs drawn in code (Control Center, Presentation tile, inputs, refresh) |
 | `Ui.java` | Resolution-based sizing (960×540 design grid), fonts |
-| `I18n.java` | Languages: active language, dictionaries keyed by the English string, date formats, reading direction (`isRtl`, `wrap`, `applyDirection`) |
-| `I18nHe.java`, `I18nHeData.java` | Hebrew: patterns for strings built with values, and the generated dictionary |
+| `I18n.java` | Languages: active language, Android resource lookup, legacy error compatibility, date formats, reading direction (`isRtl`, `wrap`, `applyDirection`) |
+| `I18nHe.java` | Hebrew: compatibility patterns for strings built with values |
 | `present/Presenter.java` | Presentation entry point: settings, server lifecycle, player bridge, boot start |
 | `present/AdminServer.java` | HTTP server (port 8080), API, streaming multipart uploads |
 | `present/Repo.java`, `Model.java`, `Pairing.java` | SQLite storage, slide model & validation, pairing tokens |
@@ -40,6 +40,41 @@ source (Nayuki, MIT) under `src/io/nayuki/qrcodegen`.
 | `present/PresentIcon.java` | The Presentation tile icon (drawn in code; `assets/present/icon.svg` is the same design) |
 | `present/LegacyCss.java`, `Qr.java`, `Net.java` | `@layer` unwrapping for old WebViews, QR bitmaps, LAN URLs |
 | `assets/present/` | Browser admin app (`index.html`, `app.css`, `app.js`) |
+
+## Localization
+
+Migrated static UI text lives in `res/values/strings.xml` and the corresponding
+`res/values-*/strings.xml` translations. Android's Hebrew qualifier is `values-iw`, and Brazilian
+Portuguese uses `values-pt-rBR`. Missing translations normally fall back to the default English
+resources; `values-pt` also contains explicit English fallbacks to prevent Android from choosing a
+Brazilian Portuguese resource for Portugal. Language-picker labels are resolved in each option's
+own locale, regardless of the currently selected language. The setup welcome animation cycles
+through a fixed multilingual array rather than using the selected locale.
+
+Use `I18n.resourceString(context, R.string.name)` for migrated strings: it resolves resources using
+the language selected in the launcher, including when a screen is refreshed without recreating its
+activity. Use indexed format arguments such as `%1$s` for variable content and
+`I18n.resourceQuantityString` with Android plurals for quantities. The old `I18n.s` call sites
+have been migrated. `I18n.t` still translates arbitrary runtime errors: its non-Hebrew values
+live in the language resource files, with `res/values/legacy_error_index.xml` mapping old keys to
+resources. The Hebrew dictionary also lives in resources; `res/values/legacy_he_index.xml` maps
+old keys to those resources. Hebrew dynamic rules still translate errors and nested values in
+several migrated messages; their formatted text and plurals are Android resources as well.
+The error index reuses existing UI resources where compatible. The legacy Turkish dictionary
+translated only the keys in `legacy_error_turkish_keys`; all other indexed Turkish error lookups
+deliberately use the English resource value even if the corresponding UI string is translated.
+Hebrew lookups use their own index and, when needed, the English value of the error resource.
+Presentation validation uses Android resources for both localized web responses and English
+internal errors; the server retains legacy translation for other runtime exception messages.
+The Presentation web panel's Hebrew and Polish translations are Android strings as well: the server
+prepends their resource-backed dictionaries to `app.js`, including when the page initially uses the
+browser's language before receiving the TV language. The English web text remains the lookup key
+and fallback.
+Search action keywords are stored in the language resource files, but are combined across all
+supported languages so a search can still match keywords from a different UI language. Keep
+`search_keywords_*` values lowercase and separate the search terms with spaces.
+When a legacy Hebrew dynamic message contains a migrated key, `I18nHe` resolves that key from the
+same Android string resource rather than keeping another copy of its translation.
 
 ## Design decisions
 

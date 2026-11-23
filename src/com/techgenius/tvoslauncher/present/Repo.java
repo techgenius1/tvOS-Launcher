@@ -25,9 +25,11 @@ final class Repo {
 
     private final Db db;
     private final File mediaDir;
+    private final Context context;
 
     Repo(Context c) {
-        db = new Db(c.getApplicationContext());
+        context = c.getApplicationContext();
+        db = new Db(context);
         mediaDir = new File(c.getFilesDir(), "media");
         mediaDir.mkdirs();
         playlist();
@@ -147,7 +149,7 @@ final class Repo {
     synchronized Model.Playlist savePlaylist(List<Model.Slide> slides) {
         Model.Playlist p = playlist();
         List<Model.Slide> norm = Model.normalized(slides);
-        List<String> errors = Model.validate(null, PLAYLIST_NAME, norm);
+        List<String> errors = Model.validate(context, false, PLAYLIST_NAME, norm);
         if (!errors.isEmpty()) throw new IllegalArgumentException(android.text.TextUtils.join("; ", errors));
         p.name = PLAYLIST_NAME;
         p.slides = norm;

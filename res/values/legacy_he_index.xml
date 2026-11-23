@@ -1,0 +1,2461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="legacy_he_keys" translatable="false">
+        <item>""</item>
+        <item>" [Already disabled]"</item>
+        <item>" [Critical System Service — Protected]"</item>
+        <item>" [Disabled — Tap to Enable]"</item>
+        <item>" [Disabled]"</item>
+        <item>" [Enabled — Tap to Disable]"</item>
+        <item>" [Enabled]"</item>
+        <item>" [Optional]"</item>
+        <item>" and enter:"</item>
+        <item>" free"</item>
+        <item>" min"</item>
+        <item>" min left"</item>
+        <item>" minute"</item>
+        <item>" minutes"</item>
+        <item>" paired"</item>
+        <item>" seconds"</item>
+        <item>"% used  ·  Clean"</item>
+        <item>"% used · Recent Apps"</item>
+        <item>"+ Add New Button to Remap…"</item>
+        <item>"+ Add a person"</item>
+        <item>"+ Add new button to remap"</item>
+        <item>"1. Set tvOS Launcher as Default via Local ADB"</item>
+        <item>"12 hour"</item>
+        <item>"2. Disable System Launchers (Google TV / Android TV / OEM)"</item>
+        <item>"24 hour"</item>
+        <item>"3 days"</item>
+        <item>"3. Fix Home Button via Accessibility (Button Mapper)"</item>
+        <item>"4. Open Android System Home Settings"</item>
+        <item>"5-DAY FORECAST"</item>
+        <item>"A big glass clock, scenes taking turns"</item>
+        <item>"A small weather display on Home, with a 5-day forecast."</item>
+        <item>"ACCESSIBILITY SERVICE"</item>
+        <item>"ACTIONS"</item>
+        <item>"ACTIVITIES IN "</item>
+        <item>"ADB &amp; PERMISSIONS"</item>
+        <item>"ADB &amp; SECURITY MODE"</item>
+        <item>"ADB Connection Required"</item>
+        <item>"ADB Debugging Needed"</item>
+        <item>"ADB Enabled · Not Paired"</item>
+        <item>"ADB Mode Required"</item>
+        <item>"ADB Operating Mode"</item>
+        <item>"ADB connection status"</item>
+        <item>"ADB debugging enabled."</item>
+        <item>"ADB debugging is currently turned off. Persistent ADB Mode requires ADB to be enabled.\n\nWould you like to enable ADB and switch to Persistent ADB Mode?"</item>
+        <item>"ADB enabled and switched to Persistent ADB Mode."</item>
+        <item>"ADB install failed, opening package installer…"</item>
+        <item>"ADB is active — selecting Install will download and install the update automatically."</item>
+        <item>"ADB is turned off (Secure Mode) — selecting Install will download the update and open the system package installer."</item>
+        <item>"ADB operating mode"</item>
+        <item>"ADB paired and all permissions granted!"</item>
+        <item>"AMBIENT THEMES"</item>
+        <item>"APPLICATION"</item>
+        <item>"APPLICATIONS"</item>
+        <item>"About"</item>
+        <item>"Accessibility"</item>
+        <item>"Accessibility Service"</item>
+        <item>"Accessories"</item>
+        <item>"Account"</item>
+        <item>"Active"</item>
+        <item>"Active (works in all apps)"</item>
+        <item>"Active in Accessibility"</item>
+        <item>"Active — Set as default home launcher"</item>
+        <item>"Ad-blocking Private DNS (AdGuard)"</item>
+        <item>"Add"</item>
+        <item>"Add Favorite Football Team"</item>
+        <item>"Add Subreddit"</item>
+        <item>"Add User"</item>
+        <item>"Add a person"</item>
+        <item>"Add a person…"</item>
+        <item>"Add as many custom wallpapers as you want without any limit"</item>
+        <item>"Add custom subreddit…"</item>
+        <item>"Add favorite football team…"</item>
+        <item>"Add images, videos or webpages from a phone or computer on the same Wi-Fi."</item>
+        <item>"Add new button to remap"</item>
+        <item>"Add new wallpaper…"</item>
+        <item>"Adds a Presentation card to Home"</item>
+        <item>"Advanced"</item>
+        <item>"Advanced ›"</item>
+        <item>"All (341)"</item>
+        <item>"All 341 Models"</item>
+        <item>"All 341 TV Models"</item>
+        <item>"All button mappings cleared."</item>
+        <item>"All permissions granted automatically!"</item>
+        <item>"Allowed"</item>
+        <item>"Allow…"</item>
+        <item>"Amazon Fire OS Home button interceptor"</item>
+        <item>"Amazon OEM TV Home screen"</item>
+        <item>"Ambient Mode"</item>
+        <item>"Ambient Mode / StandBy"</item>
+        <item>"Ambient colour themes"</item>
+        <item>"Ambient colour themes…"</item>
+        <item>"Android Accessibility Suite / TalkBack (optional)"</item>
+        <item>"Android TV Remote Service (optional — keep if you use Google TV phone remote)"</item>
+        <item>"App Icon Editor"</item>
+        <item>"App Info"</item>
+        <item>"App Switch / Recents (187)"</item>
+        <item>"App icon reset to default"</item>
+        <item>"App icon updated"</item>
+        <item>"App info"</item>
+        <item>"App layout reset to default."</item>
+        <item>"App name or package name…"</item>
+        <item>"Appearance"</item>
+        <item>"Appearance and scenes"</item>
+        <item>"Applications"</item>
+        <item>"Apply"</item>
+        <item>"Apps"</item>
+        <item>"Apps &amp; Settings"</item>
+        <item>"Ask who is watching on wake"</item>
+        <item>"Asr"</item>
+        <item>"Assign Single Tap (1x), Double Tap (2x) &amp; Triple Tap (3x) actions"</item>
+        <item>"Assign Single Tap (1x), Double Tap (2x) and Triple Tap (3x) actions for each remote button — such as opening the Control Panel overlay, the Recent Apps Switcher overlay, or any installed app."</item>
+        <item>"Audio"</item>
+        <item>"Audio Track (222)"</item>
+        <item>"Auto"</item>
+        <item>"Auto-change interval"</item>
+        <item>"Auto-changing 1080p/4K wallpapers from your selected subreddits"</item>
+        <item>"Auto-launch Lock Screen when idle"</item>
+        <item>"Automatic"</item>
+        <item>"Automatic (Sync with UI language)"</item>
+        <item>"Automatic (from internet)"</item>
+        <item>"Automatic Setup"</item>
+        <item>"Automatic launch on boot disabled."</item>
+        <item>"Automatic updates"</item>
+        <item>"Automatic updates disabled."</item>
+        <item>"Automatic updates enabled."</item>
+        <item>"Avatar Color"</item>
+        <item>"Avatar color…"</item>
+        <item>"BACKGROUND MODE"</item>
+        <item>"BACKUP &amp; RESTORE"</item>
+        <item>"BUILT-IN ACTIONS"</item>
+        <item>"BUTTON REMAPPING"</item>
+        <item>"Back"</item>
+        <item>"Back (4)"</item>
+        <item>"Back to Apps"</item>
+        <item>"Back to Usage Mode Selection"</item>
+        <item>"Back to folders"</item>
+        <item>"Back to parent folder"</item>
+        <item>"Back to return   ·   Hold OK for options"</item>
+        <item>"Background color"</item>
+        <item>"Backup Failed"</item>
+        <item>"Backup settings to Download"</item>
+        <item>"Big Clock (Night Scene style)"</item>
+        <item>"Black"</item>
+        <item>"Bloatware / background service"</item>
+        <item>"Blue"</item>
+        <item>"Blue Button"</item>
+        <item>"Blurry (Current content blur)"</item>
+        <item>"Bookmark / Favorite"</item>
+        <item>"Button Mapper"</item>
+        <item>"Button Mapper &amp; Control Panel"</item>
+        <item>"Button Mapper &amp; Control Panel (Accessibility)"</item>
+        <item>"Button Mapper accessibility service"</item>
+        <item>"Button Mapper service"</item>
+        <item>"Button mapper"</item>
+        <item>"By default, Most Watched automatically syncs with your selected UI language. Selecting any country above switches to custom multi-country mode."</item>
+        <item>"CLASSIC BACKGROUND"</item>
+        <item>"CLASSIC CLOCK &amp; WEATHER"</item>
+        <item>"CLASSIC WALLPAPERS"</item>
+        <item>"CLEANYOURTV (BETA)"</item>
+        <item>"CONTROL PANEL ITEMS (SHOW / HIDE)"</item>
+        <item>"COUNTRIES (SELECT ONE OR MULTIPLE)"</item>
+        <item>"CUSTOM &amp; FOLDER SHUFFLE"</item>
+        <item>"CUSTOM WALLPAPER"</item>
+        <item>"CUSTOM WALLPAPER MODE"</item>
+        <item>"CUSTOM WALLPAPERS (UNLIMITED)"</item>
+        <item>"Caffeine (Prevent Sleep &amp; Ambient Mode)"</item>
+        <item>"Caffeine denies Android's idle mode and prevents Android TV's automatic Ambient Mode from turning on, keeping your TV awake and preventing it from going to sleep."</item>
+        <item>"Caffeine disabled."</item>
+        <item>"Caffeine enabled — TV will stay awake and block automatic Ambient / sleep mode."</item>
+        <item>"Calculation Method"</item>
+        <item>"Cancel"</item>
+        <item>"Can’t reach the internet"</item>
+        <item>"Center"</item>
+        <item>"Change Colour"</item>
+        <item>"Change Emoji"</item>
+        <item>"Change Model…"</item>
+        <item>"Change any of this later in Settings, from the gear in Control Center."</item>
+        <item>"Change app icon"</item>
+        <item>"Change name of input"</item>
+        <item>"Change what this button opens…"</item>
+        <item>"Changes the words on the home screen, date, weather and settings."</item>
+        <item>"Channel Down"</item>
+        <item>"Channel Up"</item>
+        <item>"Channels"</item>
+        <item>"Check Permissions"</item>
+        <item>"Check for updates"</item>
+        <item>"Check now ›"</item>
+        <item>"Check permissions"</item>
+        <item>"Checked items are currently DISABLED. Disabling the stock system launcher (e.g. Google TV Home / LauncherX + setupwraith, Android TV Home, or TCL/Philips OEM Home) forces Android to use tvOS Launcher when pressing the Home key."</item>
+        <item>"Checking GitHub releases for the latest version…"</item>
+        <item>"Checking for Updates"</item>
+        <item>"Checking…"</item>
+        <item>"Checks GitHub Releases (techgenius1/tvOS-Launcher) for the latest APK and installs updates directly on your TV."</item>
+        <item>"Choose Action"</item>
+        <item>"Choose Activity"</item>
+        <item>"Choose City"</item>
+        <item>"Choose Folder to Restore Settings"</item>
+        <item>"Choose Lock Screen folder to shuffle"</item>
+        <item>"Choose Lock Screen image"</item>
+        <item>"Choose TV Model…"</item>
+        <item>"Choose TV model"</item>
+        <item>"Choose TV model…"</item>
+        <item>"Choose Your Scenes"</item>
+        <item>"Choose a Background"</item>
+        <item>"Choose a City…"</item>
+        <item>"Choose a look"</item>
+        <item>"Choose a photo or ambient colour theme behind your apps."</item>
+        <item>"Choose background folder to shuffle"</item>
+        <item>"Choose custom background image"</item>
+        <item>"Choose custom scene image"</item>
+        <item>"Choose folder ›"</item>
+        <item>"Choose folder…"</item>
+        <item>"Choose how to grant permissions"</item>
+        <item>"Choose how you want your Home Screen to look."</item>
+        <item>"Choose icon for "</item>
+        <item>"Choose image ›"</item>
+        <item>"Choose image…"</item>
+        <item>"Choose new icon file…"</item>
+        <item>"Choose new image…"</item>
+        <item>"Choose tvOS Launcher when asked"</item>
+        <item>"Choose wallpaper folder to shuffle"</item>
+        <item>"Choose which scenes take turns behind the glass clock."</item>
+        <item>"Chromecast built-in / Google Cast receiver (optional — keep if you Cast from phone)"</item>
+        <item>"City name, e.g. Istanbul"</item>
+        <item>"Classic"</item>
+        <item>"Classic Custom Wallpaper"</item>
+        <item>"Classic Top Shelf"</item>
+        <item>"Classic Top Shelf content"</item>
+        <item>"Classic Top Shelf suggestions"</item>
+        <item>"Classic background"</item>
+        <item>"Classic look"</item>
+        <item>"Classic photo"</item>
+        <item>"Clean"</item>
+        <item>"CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), disable stock launchers or bloatware, and restore them anytime with one tap."</item>
+        <item>"CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), pick which bloatware and telemetry apps to disable, and restore them anytime with one tap."</item>
+        <item>"Cleaned · "</item>
+        <item>"Clear"</item>
+        <item>"Clear Continue Watching history"</item>
+        <item>"Clear all button mappings"</item>
+        <item>"Clear all remapped buttons"</item>
+        <item>"Clear filter"</item>
+        <item>"Clear filter (Show all)"</item>
+        <item>"Clock"</item>
+        <item>"Clock alignment"</item>
+        <item>"Clock font"</item>
+        <item>"Clock position"</item>
+        <item>"Clock style"</item>
+        <item>"Close"</item>
+        <item>"Close ADB (Disable Port 5555)"</item>
+        <item>"Close ADB Now"</item>
+        <item>"Close All"</item>
+        <item>"Closing ADB…"</item>
+        <item>"Cloudy"</item>
+        <item>"Colour"</item>
+        <item>"Connected"</item>
+        <item>"Connected &amp; Paired (Port 5555 Open)"</item>
+        <item>"Connecting to local ADB on port 5555 and granting permissions…\n\nIf an “Allow USB debugging?” prompt appears, check “Always allow” and press Allow."</item>
+        <item>"Continue"</item>
+        <item>"Continue Watching"</item>
+        <item>"Continue Watching &amp; DND (Notification Access)"</item>
+        <item>"Continue Watching &amp; DND permission"</item>
+        <item>"Continue Watching &amp; Do Not Disturb"</item>
+        <item>"Continue Watching cleared."</item>
+        <item>"Continue Watching isn't available on this TV (Android limits it on low-memory TVs)."</item>
+        <item>"Continue Watching on dock"</item>
+        <item>"Continue watching"</item>
+        <item>"Control Center"</item>
+        <item>"Control Panel"</item>
+        <item>"Control Panel (Overlay)"</item>
+        <item>"Control Panel actions and items reset to default."</item>
+        <item>"Control Panel background"</item>
+        <item>"Coocaa OEM TV Home screen"</item>
+        <item>"Could not check for updates."</item>
+        <item>"Could not connect to ADB — enable USB/Network Debugging or use Step 3 / Step 4."</item>
+        <item>"Could not connect to local ADB on port 5555."</item>
+        <item>"Could not connect to local ADB on port 5555.\n\n1. Open Settings → System → About and click Build 7 times.\n2. Open Developer Options and turn on USB Debugging / Network Debugging.\n3. Return here and tap Pair / Repair again."</item>
+        <item>"Could not connect to local ADB on port 5555.\n\nPlease make sure USB Debugging / Network Debugging is turned ON in Developer Options, then try again — or choose Manual Setup."</item>
+        <item>"Could not connect to local ADB on port 5555.\nPlease enable USB / Network Debugging in Developer Options and tap Pair / Repair ADB first."</item>
+        <item>"Could not connect to local ADB on port 5555.\nPlease make sure USB / Network Debugging is enabled in Developer Options and tap Pair / Repair ADB first."</item>
+        <item>"Could not decode image file"</item>
+        <item>"Could not decode image file."</item>
+        <item>"Could not load selected image."</item>
+        <item>"Could not reach GitHub Releases. Please check your internet connection."</item>
+        <item>"Could not start installer."</item>
+        <item>"Couldn't search. Check the internet connection."</item>
+        <item>"Create Your Profile"</item>
+        <item>"Current place"</item>
+        <item>"Current version"</item>
+        <item>"Current version: v"</item>
+        <item>"Currently synced to: "</item>
+        <item>"Custom"</item>
+        <item>"Custom 2"</item>
+        <item>"Custom 3"</item>
+        <item>"Custom 4"</item>
+        <item>"Custom 5"</item>
+        <item>"Custom Key Code (Enter Number…)"</item>
+        <item>"Custom Lock Image"</item>
+        <item>"Custom Lock Screen image updated."</item>
+        <item>"Custom Wallpaper #"</item>
+        <item>"Custom background updated."</item>
+        <item>"Custom image"</item>
+        <item>"Custom label"</item>
+        <item>"Custom scene wallpaper updated."</item>
+        <item>"Custom wallpaper clock alignment"</item>
+        <item>"Custom wallpaper mode"</item>
+        <item>"Custom wallpaper settings…"</item>
+        <item>"DASHBOARD WIDGETS (4 HORIZONTAL TILES)"</item>
+        <item>"DEFAULT LAUNCHER SETUP (TCL / PHILIPS / GOOGLE TV)"</item>
+        <item>"DOCK"</item>
+        <item>"DOCK SCALE (-50% TO +50%)"</item>
+        <item>"Dark"</item>
+        <item>"Date &amp; Time"</item>
+        <item>"Debloat Complete"</item>
+        <item>"Debloat TV — "</item>
+        <item>"Debloat TV…"</item>
+        <item>"Debloat status"</item>
+        <item>"Debloating TV…"</item>
+        <item>"Default"</item>
+        <item>"Default (Ambient Mode)"</item>
+        <item>"Default (Automatic)"</item>
+        <item>"Default App Launch (Main Activity)"</item>
+        <item>"Default Home Screen"</item>
+        <item>"Default home launcher set via ADB!"</item>
+        <item>"Default home screen"</item>
+        <item>"Default icon restored"</item>
+        <item>"Default playlist cannot be deleted"</item>
+        <item>"Default wallpaper clock alignment"</item>
+        <item>"Delete"</item>
+        <item>"Delete profile"</item>
+        <item>"Detected automatically"</item>
+        <item>"Developer"</item>
+        <item>"Developer Options…"</item>
+        <item>"Dhuhr"</item>
+        <item>"Didn’t catch that — press the mic to try again"</item>
+        <item>"Disable"</item>
+        <item>"Disable All Stock Launchers"</item>
+        <item>"Disable All Stock Launchers &amp; Set tvOS Launcher as Home"</item>
+        <item>"Disable Anyway"</item>
+        <item>"Disable Selected"</item>
+        <item>"Disable Stock TV Launchers (TCL / Philips / Google TV)"</item>
+        <item>"Disable System Launchers"</item>
+        <item>"Disable all ›"</item>
+        <item>"Disable system launchers"</item>
+        <item>"Disable system launchers…"</item>
+        <item>"Disabled"</item>
+        <item>"Disabled Apps Record"</item>
+        <item>"Disabled apps backup"</item>
+        <item>"Disabling Package…"</item>
+        <item>"Disconnected (ADB Off)"</item>
+        <item>"Display"</item>
+        <item>"Displayed when no app is focused, when focus is on Settings / non-app elements, or when the focused app has no Continue Watching items."</item>
+        <item>"Dock rows"</item>
+        <item>"Dock size"</item>
+        <item>"Don't Show Weather"</item>
+        <item>"Done"</item>
+        <item>"Double Tap (2x)"</item>
+        <item>"Down"</item>
+        <item>"Download"</item>
+        <item>"Download &amp; Install"</item>
+        <item>"Download CleanYourTV"</item>
+        <item>"Downloading latest APK from GitHub…"</item>
+        <item>"Drizzle"</item>
+        <item>"Dynamic"</item>
+        <item>"Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, Inputs, and Ambient Mode. You can also choose Lock Screen for Ambient Mode (for TVs without built-in Ambient Mode) and toggle individual Control Panel items on or off."</item>
+        <item>"Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, and Inputs. Choose an app and then pick the exact activity to launch from the Control Panel (and from the Inputs app on the dock)."</item>
+        <item>"Each person gets their own pinned apps and Continue Watching list."</item>
+        <item>"Each person keeps their own Keep Watching row and app order."</item>
+        <item>"Each scene stays"</item>
+        <item>"Each wallpaper stays"</item>
+        <item>"Easy Setup (Automatic via ADB)"</item>
+        <item>"Emoji"</item>
+        <item>"Enable ADB &amp; Switch"</item>
+        <item>"Enable ADB Debugging"</item>
+        <item>"Enable ADB Now"</item>
+        <item>"Enable ADB for Persistent Mode?"</item>
+        <item>"Enable Button Mapper in Accessibility…"</item>
+        <item>"Enable Home Button Fix (Accessibility Remap)"</item>
+        <item>"Enable Home Dashboard"</item>
+        <item>"Enable Keep Alive"</item>
+        <item>"Enable Keep Alive?"</item>
+        <item>"Enable USB / Network Debugging in Developer Options"</item>
+        <item>"Enable all ›"</item>
+        <item>"Enable in Accessibility so remapped buttons work in all apps"</item>
+        <item>"Enable in Accessibility…"</item>
+        <item>"Enable tvOS Launcher in Android TV Accessibility Settings so remapped remote buttons and the Control Panel overlay work over any app."</item>
+        <item>"Enable via ADB"</item>
+        <item>"Enabled in shuffle"</item>
+        <item>"Enabling ADB debugging and switching to Persistent ADB Mode…"</item>
+        <item>"Enabling ADB debugging…"</item>
+        <item>"Enabling ADB…"</item>
+        <item>"Enabling Package…"</item>
+        <item>"Endpoint not found"</item>
+        <item>"Enter Android Key Code"</item>
+        <item>"Exact model code match"</item>
+        <item>"Exact model match"</item>
+        <item>"FFALCON OEM Home launcher"</item>
+        <item>"FORECAST PROVIDER"</item>
+        <item>"Fajr"</item>
+        <item>"Fast Forward"</item>
+        <item>"Favorite Teams"</item>
+        <item>"Fetching next Reddit wallpaper…"</item>
+        <item>"Fewer apps"</item>
+        <item>"Filter"</item>
+        <item>"Filter System Apps"</item>
+        <item>"Filter TV Models"</item>
+        <item>"Filter ›"</item>
+        <item>"Finish Setting Up"</item>
+        <item>"Fix Home button (Launch tvOS Launcher)"</item>
+        <item>"Fog"</item>
+        <item>"Foggy"</item>
+        <item>"Folder Shuffle"</item>
+        <item>"Folder shuffle"</item>
+        <item>"Football Matches"</item>
+        <item>"Found from your internet connection"</item>
+        <item>"Free forecast service, no account needed"</item>
+        <item>"GOOGLE TV WI-FI NOTICE"</item>
+        <item>"Generic Android TV / Google TV profile"</item>
+        <item>"Get"</item>
+        <item>"Get Started"</item>
+        <item>"Getting the weather…"</item>
+        <item>"GitHub release latest version"</item>
+        <item>"Glass"</item>
+        <item>"Go to Home Screen"</item>
+        <item>"Golden hour"</item>
+        <item>"Good afternoon"</item>
+        <item>"Good evening"</item>
+        <item>"Good morning"</item>
+        <item>"Good night"</item>
+        <item>"Google Assistant / Voice Search (optional)"</item>
+        <item>"Google Play Games (optional)"</item>
+        <item>"Google TV Wi-Fi Warning"</item>
+        <item>"Google TV launcher watchdog (disable together with LauncherX)"</item>
+        <item>"Google TV setup wizard &amp; launcher watchdog"</item>
+        <item>"Google TV store / Movies &amp; TV"</item>
+        <item>"Google telemetry &amp; diagnostics"</item>
+        <item>"Grant All Files Access…"</item>
+        <item>"Grant All Permissions via Local ADB"</item>
+        <item>"Grant All via ADB"</item>
+        <item>"Grant All ›"</item>
+        <item>"Grant Permissions &amp; Close ADB Now"</item>
+        <item>"Grant Permissions Now"</item>
+        <item>"Grant Permissions Now (Keep ADB Open)"</item>
+        <item>"Grant Storage Access…"</item>
+        <item>"Grant permissions one by one manually"</item>
+        <item>"Grant permissions one by one manually through Android TV Settings"</item>
+        <item>"Grant storage permission"</item>
+        <item>"Grant ›"</item>
+        <item>"Granting permissions via local ADB…\n\nIf an “Allow USB debugging?” prompt appears on screen, check “Always allow” and press Allow."</item>
+        <item>"Grants WRITE_SECURE_SETTINGS &amp; closes port 5555 when done"</item>
+        <item>"Grants WRITE_SECURE_SETTINGS once to self-repair Accessibility, then closes port 5555"</item>
+        <item>"Grants all required permissions automatically at once"</item>
+        <item>"Gray"</item>
+        <item>"Green"</item>
+        <item>"Green Button"</item>
+        <item>"Guide Button"</item>
+        <item>"H:"</item>
+        <item>"HOME &amp; PERMISSIONS"</item>
+        <item>"HOME DASHBOARD"</item>
+        <item>"HOME SCREEN WIDGETS"</item>
+        <item>"HOURLY FORECAST"</item>
+        <item>"HOW TO WATCH"</item>
+        <item>"Haier OEM TV Home screen"</item>
+        <item>"Headlines from your city and the world"</item>
+        <item>"Heavy Rain"</item>
+        <item>"Heavy Snow"</item>
+        <item>"Hidden apps"</item>
+        <item>"Hidden from dock · press OK to show"</item>
+        <item>"Hide"</item>
+        <item>"Hide from All Apps"</item>
+        <item>"Hide input"</item>
+        <item>"Hisense OEM TV Home screen"</item>
+        <item>"Home &amp; System"</item>
+        <item>"Home (3)"</item>
+        <item>"Home Button Fix &amp; Accessibility enabled!"</item>
+        <item>"Home Button Fix enabled!"</item>
+        <item>"Home Dashboard"</item>
+        <item>"Home Dashboard widgets…"</item>
+        <item>"Home Settings"</item>
+        <item>"Home button fix disabled."</item>
+        <item>"Home button fix enabled — please also enable Accessibility service above so Home key can be intercepted."</item>
+        <item>"Home button fix enabled — pressing Home will launch tvOS Launcher."</item>
+        <item>"Home button fix enabled."</item>
+        <item>"Home screen"</item>
+        <item>"Home screen weather shortcut"</item>
+        <item>"Home screen widget settings"</item>
+        <item>"Home settings"</item>
+        <item>"Humidity "</item>
+        <item>"I Understand — Open Manual Debloat"</item>
+        <item>"INPUTS APP ON DOCK"</item>
+        <item>"INSTALLED APPS"</item>
+        <item>"Images, videos and webpages sent from any phone or computer on the same Wi-Fi. For everyone on this TV."</item>
+        <item>"In Control Center (needs location access)"</item>
+        <item>"Included in rotation"</item>
+        <item>"Indigo"</item>
+        <item>"Info Button"</item>
+        <item>"Input"</item>
+        <item>"Inputs"</item>
+        <item>"Inputs (Control Panel &amp; Dock)"</item>
+        <item>"Install"</item>
+        <item>"Installing update…"</item>
+        <item>"Internal Storage"</item>
+        <item>"Isha"</item>
+        <item>"Its layout and Continue Watching list will be removed."</item>
+        <item>"Just now"</item>
+        <item>"Just your background for now"</item>
+        <item>"KEEP ALIVE"</item>
+        <item>"Keep Alive (Auto-repair Accessibility)"</item>
+        <item>"Keep Alive (Auto-repair permissions)"</item>
+        <item>"Keep Alive disabled."</item>
+        <item>"Keep Alive enabled."</item>
+        <item>"Keep Alive monitors the Accessibility Service and automatically restores it if your TV turns it off.\n\n✓ Because WRITE_SECURE_SETTINGS is granted on this TV, Keep Alive repairs Accessibility directly in-process without needing Network ADB (port 5555) to stay open."</item>
+        <item>"Keep Screen Awake"</item>
+        <item>"Keep typing to search movies and shows"</item>
+        <item>"Keep watching"</item>
+        <item>"Keeps network ADB enabled for CleanYourTV debloating (Note: leaves port 5555 open on LAN)"</item>
+        <item>"Key: "</item>
+        <item>"L:"</item>
+        <item>"LOCATION"</item>
+        <item>"LOCK SCREEN OPTIONS"</item>
+        <item>"LOOK"</item>
+        <item>"Language"</item>
+        <item>"Language, weather, scenes, apps and people"</item>
+        <item>"Larger dock — extra apps automatically move to Other apps if needed"</item>
+        <item>"Last Channel"</item>
+        <item>"Latest GitHub version: v"</item>
+        <item>"Launch automatically on system boot"</item>
+        <item>"Left"</item>
+        <item>"Let’s set up tvOS Launcher."</item>
+        <item>"Listen for a remote key press"</item>
+        <item>"Listening…"</item>
+        <item>"Live Cricket Scores"</item>
+        <item>"Live News"</item>
+        <item>"Live News country"</item>
+        <item>"Loading matches…"</item>
+        <item>"Loading next Reddit wallpaper…"</item>
+        <item>"Loading titles…"</item>
+        <item>"Location"</item>
+        <item>"Lock Now"</item>
+        <item>"Lock Screen"</item>
+        <item>"Lock screen settings"</item>
+        <item>"Lock screen settings…"</item>
+        <item>"Long-press volume button fix"</item>
+        <item>"Long-press volume fix disabled (using native TV volume)."</item>
+        <item>"Long-press volume fix enabled (for TVs where holding volume stops repeating)."</item>
+        <item>"Look and scenes"</item>
+        <item>"Looks like "</item>
+        <item>"MATCHING MODELS FOR "</item>
+        <item>"Maghrib"</item>
+        <item>"Make Home Screen"</item>
+        <item>"Make tvOS Launcher Default Home"</item>
+        <item>"Make tvOS Launcher the Home Screen"</item>
+        <item>"Make tvOS Launcher your home screen?"</item>
+        <item>"Manage system apps in TV settings…"</item>
+        <item>"Manual Permissions"</item>
+        <item>"Manual Setup"</item>
+        <item>"Manual debloat (All system apps)"</item>
+        <item>"Manual debloat (All system apps)…"</item>
+        <item>"Map any button on your remote with Single Tap (1x), Double Tap (2x) and Triple Tap (3x) actions — open the Control Panel, Recent Apps Switcher, or any app."</item>
+        <item>"Matching places"</item>
+        <item>"Media file is missing for slide"</item>
+        <item>"Media item not found"</item>
+        <item>"Memory"</item>
+        <item>"Menu Button"</item>
+        <item>"Mode 1 (Standard · Default)"</item>
+        <item>"Mode 1 — Standard (Default, for most Android TVs &amp; IR remotes)"</item>
+        <item>"Mode 2 (HY320 / Projector)"</item>
+        <item>"Mode 2 — HY320 / Projector (AudioService &amp; IR pulse-burst mode)"</item>
+        <item>"Mode 3 — Onn TV Box (Fast release stop, 0 extra steps on release, ADB &amp; Secure mode)"</item>
+        <item>"Mode: Manual Setup (Without ADB)"</item>
+        <item>"Mode: Persistent ADB Setup (Keep ADB Open)"</item>
+        <item>"Mode: Secure Auto Setup &amp; Close ADB (Recommended)"</item>
+        <item>"Models by System App Similarity"</item>
+        <item>"Modern"</item>
+        <item>"More Apps"</item>
+        <item>"More apps"</item>
+        <item>"Most Watched"</item>
+        <item>"Most Watched countries"</item>
+        <item>"Mostly Clear"</item>
+        <item>"Mostly Sunny"</item>
+        <item>"Move"</item>
+        <item>"Move icon"</item>
+        <item>"Move left in dock"</item>
+        <item>"Move right in dock"</item>
+        <item>"Move to Other Apps"</item>
+        <item>"Movie"</item>
+        <item>"Movies &amp; TV"</item>
+        <item>"Mute / Unmute (164)"</item>
+        <item>"My Location"</item>
+        <item>"NIGHT SCENES"</item>
+        <item>"NIGHT SCENES CLOCK"</item>
+        <item>"Name"</item>
+        <item>"Navigation click sounds"</item>
+        <item>"New Profile"</item>
+        <item>"News"</item>
+        <item>"Next"</item>
+        <item>"Next Page"</item>
+        <item>"Next Track"</item>
+        <item>"Next Wallpaper"</item>
+        <item>"Next wallpaper"</item>
+        <item>"Night"</item>
+        <item>"Night Scenes Custom Wallpaper"</item>
+        <item>"Night scenes"</item>
+        <item>"No Matching Apps Found"</item>
+        <item>"No apps to close"</item>
+        <item>"No changelog text provided for this release."</item>
+        <item>"No disabled app list has been saved by CleanYourTV yet.\n\nWhen you run Start Debloat, every disabled package is recorded here so you can inspect or re-enable individual apps or restore all of them."</item>
+        <item>"No disabled packages have been recorded by CleanYourTV yet."</item>
+        <item>"No enabled slides in the active playlist"</item>
+        <item>"No hidden apps. Hold OK on any app on the home screen dock and choose Hide."</item>
+        <item>"No images in this folder (open a subfolder below)"</item>
+        <item>"No matches scheduled right now"</item>
+        <item>"No movies or shows found"</item>
+        <item>"No recent apps"</item>
+        <item>"No recent apps yet"</item>
+        <item>"No results"</item>
+        <item>"No saved disabled-app backup was found, and no TV model is selected yet. Choose a TV model first if you want to restore by model profile."</item>
+        <item>"No saved disabled-app backup was found, and no TV model is selected.\n\nPlease select your TV model first so Restore knows which packages to re-enable."</item>
+        <item>"No screensaver or sleep while presenting"</item>
+        <item>"No settings backup (.json) found in this folder"</item>
+        <item>"No stock Android TV / Google TV / OEM launcher packages were detected on this TV."</item>
+        <item>"No stock Android TV / Google TV launcher packages were detected on this TV."</item>
+        <item>"No system file picker available on this TV."</item>
+        <item>"None"</item>
+        <item>"None (Clear action)"</item>
+        <item>"None (No action)"</item>
+        <item>"None found"</item>
+        <item>"None saved"</item>
+        <item>"Not Connected"</item>
+        <item>"Not Now"</item>
+        <item>"Not allowed"</item>
+        <item>"Not available on this TV"</item>
+        <item>"Not connected"</item>
+        <item>"Not done"</item>
+        <item>"Not done (Select TV model first)"</item>
+        <item>"Not installed"</item>
+        <item>"Not on this TV"</item>
+        <item>"Not paired (ADB off)"</item>
+        <item>"Not selected"</item>
+        <item>"Not set"</item>
+        <item>"Not signed in"</item>
+        <item>"Not streaming right now."</item>
+        <item>"Nothing to continue yet"</item>
+        <item>"Nothing to present yet"</item>
+        <item>"Notifications (83)"</item>
+        <item>"Now"</item>
+        <item>"OK"</item>
+        <item>"OK to change, Back to go back"</item>
+        <item>"OK to change, hold OK to move, Back to go back"</item>
+        <item>"OK to open  ·  Hold OK to restore"</item>
+        <item>"OK to open  ·  Hold OK to restore  ·  Back to go back"</item>
+        <item>"OK to switch or edit"</item>
+        <item>"ONE-TAP ACTIONS"</item>
+        <item>"OPTIONS"</item>
+        <item>"Off"</item>
+        <item>"Off — Tap to enable Home button remap"</item>
+        <item>"On"</item>
+        <item>"On "</item>
+        <item>"On (Default)"</item>
+        <item>"On Google TV sets, Wi-Fi networks saved during initial setup belong to com.google.android.tungsten.setupwraith. Disabling setupwraith so the stock Google TV launcher stays dead will delete a Wi-Fi network owned by setupwraith.\n\nBefore disabling setupwraith:\n1. Open Wi-Fi Settings → select your Wi-Fi network → Forget network.\n2. Re-connect to your Wi-Fi network (it will now belong to com.android.tv.settings).\n3. Return here and tap \"I Forgot &amp; Re-added Wi-Fi — Continue\"."</item>
+        <item>"On Google TV, if you disable setupwraith, make sure your Wi-Fi network was re-added in Wi-Fi Settings."</item>
+        <item>"On TCL and Philips Android 11/12 TVs, the OEM firmware often hides the Android Default Home UI and forces the stock launcher when pressing Home. Disabling the stock launcher (Option 2) or enabling the Home Button Fix (Option 3) guarantees pressing Home always opens tvOS Launcher."</item>
+        <item>"On TCL, Philips, and Google TVs, OEM firmware often forces the stock launcher when pressing Home. Follow the steps below so pressing Home always opens tvOS Launcher, then click Continue."</item>
+        <item>"On the Lock Screen, only Clock, Date, and Greeting are shown above your selected backgrounds. Pressing any remote button returns to where you were before."</item>
+        <item>"On this TV"</item>
+        <item>"On — Pressing Home launches tvOS Launcher"</item>
+        <item>"One photo and a grid of app banners"</item>
+        <item>"One scene has to stay on."</item>
+        <item>"One wallpaper has to stay on."</item>
+        <item>"Open"</item>
+        <item>"Open Android Default Home Settings"</item>
+        <item>"Open Android TV Settings…"</item>
+        <item>"Open Developer Options / TV Settings…"</item>
+        <item>"Open Developer Options and turn on USB Debugging / Network Debugging to complete switching to Persistent ADB Mode."</item>
+        <item>"Open Developer Options and turn on USB Debugging / Network Debugging."</item>
+        <item>"Open Developer Options…"</item>
+        <item>"Open System File Picker…"</item>
+        <item>"Open TV Ambient Mode / Screensaver (or built-in fallback)"</item>
+        <item>"Open on a phone or computer on the same Wi-Fi:\n\n"</item>
+        <item>"Open system selector (if supported by TV) ›"</item>
+        <item>"Or open "</item>
+        <item>"Orange"</item>
+        <item>"Other Apps"</item>
+        <item>"Other apps"</item>
+        <item>"Output"</item>
+        <item>"PAGE NAVIGATION"</item>
+        <item>"PAIRING CODE"</item>
+        <item>"PEOPLE"</item>
+        <item>"PERMISSION STATUS"</item>
+        <item>"PRESENTATION &amp; SYSTEM"</item>
+        <item>"PRESENTATION &amp;CLASSIC SHELF"</item>
+        <item>"PROFILES"</item>
+        <item>"Pair / Repair ADB"</item>
+        <item>"Pair / Repair ADB connection"</item>
+        <item>"Pair now"</item>
+        <item>"Pair with the TV PIN first"</item>
+        <item>"Paired &amp; Ready"</item>
+        <item>"Paired · ADB Enabled"</item>
+        <item>"Pairing code\n"</item>
+        <item>"Partly Cloudy"</item>
+        <item>"Pause"</item>
+        <item>"Paused"</item>
+        <item>"People"</item>
+        <item>"Permissions Granted &amp; ADB Closed"</item>
+        <item>"Persistent ADB Mode (Keep port 5555 open)"</item>
+        <item>"Persistent ADB Mode selected — Port 5555 stays open for CleanYourTV &amp; ADB tools."</item>
+        <item>"Persistent ADB Mode — Keep Network ADB Open (Optional)"</item>
+        <item>"Persistent ADB Setup"</item>
+        <item>"Philips OEM Home launcher"</item>
+        <item>"Philips OEM Home screen"</item>
+        <item>"Pictures"</item>
+        <item>"Pin to Home"</item>
+        <item>"Play"</item>
+        <item>"Play / Pause"</item>
+        <item>"Play as soon as the TV turns on (signage)"</item>
+        <item>"Playing"</item>
+        <item>"Playlist name is required"</item>
+        <item>"Playlist name must be 80 characters or less"</item>
+        <item>"Please allow 'Install unknown apps' for tvOS Launcher."</item>
+        <item>"Please enable USB Debugging / Network Debugging in Developer Options, then return here to run this step."</item>
+        <item>"Popular movies and series on your streaming services"</item>
+        <item>"Port 5555 Open · Ready to Pair"</item>
+        <item>"Port 5555 open (Tap to pair)"</item>
+        <item>"Power Off"</item>
+        <item>"Power Off &amp; Sleep Timer permission"</item>
+        <item>"Power Off (Screen Off)"</item>
+        <item>"Prayer Calculation Method"</item>
+        <item>"Prayer Times"</item>
+        <item>"Prayer calculation method"</item>
+        <item>"Preparing CleanYourTV…"</item>
+        <item>"Preparing QR code…"</item>
+        <item>"Presentation"</item>
+        <item>"Presentation address &amp; QR code"</item>
+        <item>"Presentation isn’t on screen"</item>
+        <item>"Presentation isn’t on screen. Start it from the TV or turn on “Start on boot”."</item>
+        <item>"Presentation mode"</item>
+        <item>"Press Back again to exit"</item>
+        <item>"Press OK on an app to show or hide it from the home screen dock."</item>
+        <item>"Press OK to include releases from this country"</item>
+        <item>"Press the button on your remote that you want to remap…\n\n(D-pad navigation, OK and Back are kept for normal navigation.)"</item>
+        <item>"Press ▲ on an app to close it"</item>
+        <item>"Preview"</item>
+        <item>"Preview Lock Screen now"</item>
+        <item>"Previous Page"</item>
+        <item>"Previous Track"</item>
+        <item>"Proceed to the next setup step when you are done here"</item>
+        <item>"Profile "</item>
+        <item>"Profiles"</item>
+        <item>"Protected Core Package"</item>
+        <item>"Pull full app list from ADB and match models by OEM/system packages"</item>
+        <item>"Pull full app list from ADB and match models by system/OEM package names"</item>
+        <item>"Pulling full package list from ADB and comparing system/OEM package names across 341 TV models…"</item>
+        <item>"Purple"</item>
+        <item>"QUICK BRAND FILTERS"</item>
+        <item>"Quick buttons"</item>
+        <item>"Quick settings"</item>
+        <item>"REDDIT WALLPAPER OPTIONS"</item>
+        <item>"REGION MODE"</item>
+        <item>"REMAPPED BUTTONS"</item>
+        <item>"REMAPPED BUTTONS (1X / 2X / 3X TAP)"</item>
+        <item>"REMOTE FIXES"</item>
+        <item>"REMOVE"</item>
+        <item>"RESET"</item>
+        <item>"RESTORE OPTIONS"</item>
+        <item>"Rain"</item>
+        <item>"Rainforest dawn"</item>
+        <item>"Re-download CleanYourTV"</item>
+        <item>"Re-enable All Stock Launchers"</item>
+        <item>"Re-enable all packages disabled by CleanYourTV over ADB"</item>
+        <item>"Recent Apps"</item>
+        <item>"Recent Apps Switcher"</item>
+        <item>"Recent Apps Switcher (Overlay)"</item>
+        <item>"Recent Searches"</item>
+        <item>"Recommendations"</item>
+        <item>"Recommendations &amp; News"</item>
+        <item>"Record Button"</item>
+        <item>"Red"</item>
+        <item>"Red Button"</item>
+        <item>"Reddit Wallpapers"</item>
+        <item>"Reddit wallpaper updated."</item>
+        <item>"Refresh"</item>
+        <item>"Refresh Carousel"</item>
+        <item>"Refresh weather now"</item>
+        <item>"Refreshing"</item>
+        <item>"Remember what you play in each app"</item>
+        <item>"Remove"</item>
+        <item>"Remove / Revoke All Permissions"</item>
+        <item>"Remove / revoke all permissions"</item>
+        <item>"Remove Wallpaper #"</item>
+        <item>"Remove button remap"</item>
+        <item>"Remove from Continue Watching"</item>
+        <item>"Remove from Keep Watching"</item>
+        <item>"Remove from dock"</item>
+        <item>"Remove person"</item>
+        <item>"Remove this wallpaper"</item>
+        <item>"Rename"</item>
+        <item>"Rename App"</item>
+        <item>"Rename Profile"</item>
+        <item>"Rename person"</item>
+        <item>"Rename…"</item>
+        <item>"Repair"</item>
+        <item>"Replace Wallpaper #"</item>
+        <item>"Required so mapped buttons work over every app"</item>
+        <item>"Reset"</item>
+        <item>"Reset Control Panel actions to default"</item>
+        <item>"Reset Layout"</item>
+        <item>"Reset app order &amp; unhide all"</item>
+        <item>"Reset settings to defaults"</item>
+        <item>"Reset settings?"</item>
+        <item>"Reset to default"</item>
+        <item>"Reset to default icon"</item>
+        <item>"Restore All"</item>
+        <item>"Restore Complete"</item>
+        <item>"Restore Debloated Apps"</item>
+        <item>"Restore Failed"</item>
+        <item>"Restore all ›"</item>
+        <item>"Restore by Selected TV Model"</item>
+        <item>"Restore debloated apps"</item>
+        <item>"Restore debloated apps…"</item>
+        <item>"Restore settings from folder…"</item>
+        <item>"Restore ›"</item>
+        <item>"Restoring Apps…"</item>
+        <item>"Resume"</item>
+        <item>"Resume playback"</item>
+        <item>"Revoke All Permissions"</item>
+        <item>"Revoke ›"</item>
+        <item>"Revoking Permissions…"</item>
+        <item>"Revoking all permissions…"</item>
+        <item>"Rewind"</item>
+        <item>"Right"</item>
+        <item>"Rotating nature scenes with a glass clock and bottom dock"</item>
+        <item>"Rounded"</item>
+        <item>"Run ROLE_HOME &amp; set-home-activity over Local ADB ›"</item>
+        <item>"Run ROLE_HOME &amp; set-home-activity ›"</item>
+        <item>"Run first-time setup again…"</item>
+        <item>"Run via ADB ›"</item>
+        <item>"Running settings put global adb_enabled 0 and verifying port 5555…"</item>
+        <item>"SAVED DISABLED PACKAGES (TAP TO RE-ENABLE)"</item>
+        <item>"SCENES"</item>
+        <item>"SDMC OEM TV Home screen"</item>
+        <item>"SHUFFLE FOLDER"</item>
+        <item>"STARTUP &amp; KEEP ALIVE"</item>
+        <item>"SUBREDDITS (SELECT SINGLE OR MULTIPLE)"</item>
+        <item>"Save"</item>
+        <item>"Say a movie, show or app"</item>
+        <item>"Scan Apps (ADB)"</item>
+        <item>"Scan Installed Apps"</item>
+        <item>"Scan the code or open this address on a phone or computer on the same Wi-Fi."</item>
+        <item>"Scan with your phone and approve."</item>
+        <item>"Scanning TV System Apps…"</item>
+        <item>"Scanning installed system packages over ADB and comparing across 341 TV models…"</item>
+        <item>"Screen Off"</item>
+        <item>"Screen Saver"</item>
+        <item>"Screensaver"</item>
+        <item>"Search"</item>
+        <item>"Search Button"</item>
+        <item>"Search TV Model or Brand"</item>
+        <item>"Search apps, movies and shows"</item>
+        <item>"Search by name"</item>
+        <item>"Search for a city or town…"</item>
+        <item>"Searching…"</item>
+        <item>"Secure Mode (Needs One-Time Pair to Grant Permissions)"</item>
+        <item>"Secure Mode Active (ADB Not Used · Self-Repair Ready)"</item>
+        <item>"Secure Mode selected — ADB will grant WRITE_SECURE_SETTINGS and close port 5555 when paired."</item>
+        <item>"Secure Mode — Grant WRITE_SECURE_SETTINGS &amp; Close ADB (Recommended)"</item>
+        <item>"Secure Mode — WRITE_SECURE_SETTINGS &amp; Close ADB (Recommended)"</item>
+        <item>"Secure Setup (ADB)"</item>
+        <item>"Security Note: Keep Alive is enabled by default. In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly in-process without touching ADB (even if ADB is enabled on the TV). In Persistent ADB Mode, Keep Alive can also use Local ADB on port 5555."</item>
+        <item>"Select All / None"</item>
+        <item>"Select All / Select None"</item>
+        <item>"Select Home App"</item>
+        <item>"Select TV Model First"</item>
+        <item>"Select Wallpaper Folder"</item>
+        <item>"Select Wallpaper Image"</item>
+        <item>"Select a folder and enable or disable individual wallpapers inside it"</item>
+        <item>"Select a usage mode for permissions (Button Mapper Accessibility, Continue Watching, and Wi-Fi). Pick ONE usage mode below:"</item>
+        <item>"Select at least one package first."</item>
+        <item>"Select wallpaper folder…"</item>
+        <item>"Select your language to begin"</item>
+        <item>"Selected"</item>
+        <item>"Selected — press OK to toggle"</item>
+        <item>"Send Key Code"</item>
+        <item>"Send Key Code (Remote / Media / System)…"</item>
+        <item>"Send Key Code…"</item>
+        <item>"Send any Android KeyEvent keycode without 3rd-party apps"</item>
+        <item>"Send to this TV"</item>
+        <item>"Series"</item>
+        <item>"Serif"</item>
+        <item>"Set Default Home Launcher"</item>
+        <item>"Set Default via Local ADB (Recommended)"</item>
+        <item>"Set as default…"</item>
+        <item>"Set manually"</item>
+        <item>"Setting Default Launcher…"</item>
+        <item>"Setting ROLE_HOME and default home activity over Local ADB…"</item>
+        <item>"Settings"</item>
+        <item>"Settings Backed Up"</item>
+        <item>"Settings Button"</item>
+        <item>"Settings Restored"</item>
+        <item>"Settings kept"</item>
+        <item>"Settings reset to defaults."</item>
+        <item>"Settings ›"</item>
+        <item>"Setup Complete"</item>
+        <item>"Show Changelog"</item>
+        <item>"Show Clock, Date &amp; Greeting over your chosen wallpaper (press any key to return)"</item>
+        <item>"Show Continue Watching on Home"</item>
+        <item>"Show Inputs app on Dock"</item>
+        <item>"Show app names"</item>
+        <item>"Show in dock · press OK to hide"</item>
+        <item>"Show on Home Screen"</item>
+        <item>"Show the Wi-Fi Name"</item>
+        <item>"Show widgets when selected app has no Continue Watching"</item>
+        <item>"Showers"</item>
+        <item>"Shows and movies you play will appear here."</item>
+        <item>"Shuffle Folder"</item>
+        <item>"Sign out"</item>
+        <item>"Signed in · Sign out"</item>
+        <item>"Similar model name"</item>
+        <item>"Single / Multi Wallpapers"</item>
+        <item>"Single Tap (1x)"</item>
+        <item>"Skip Setup"</item>
+        <item>"Skip This Step"</item>
+        <item>"Skip now ›"</item>
+        <item>"Skip to the next Reddit wallpaper"</item>
+        <item>"Skipping this slide"</item>
+        <item>"Skyworth OEM TV Home screen"</item>
+        <item>"Sleep"</item>
+        <item>"Sleep / Standby (223)"</item>
+        <item>"Sleep timer"</item>
+        <item>"Sleet"</item>
+        <item>"Slide %1$d duration must be between 1 second and 24 hours"</item>
+        <item>"Slide %1$d has a duplicate id"</item>
+        <item>"Slide %1$d order must not be negative"</item>
+        <item>"Slide %1$d requires a media item"</item>
+        <item>"Slide %1$d webpage URL must start with http:// or https://"</item>
+        <item>"Slide %1$d webpage scroll speed must be between 5 and 1000 pixels per second"</item>
+        <item>"Slide %1$d webpage wait time must be between 0 and 300 seconds"</item>
+        <item>"Slide type is required"</item>
+        <item>"Small clock"</item>
+        <item>"Smaller, more compact dock"</item>
+        <item>"Snow"</item>
+        <item>"Some TVs disable Accessibility or other permissions automatically in the background. When Keep Alive is on, tvOS Launcher lightly checks permission status in the background without extra RAM or CPU load and automatically restores any disabled permissions via ADB."</item>
+        <item>"Sony OEM TV Home menu"</item>
+        <item>"Sound"</item>
+        <item>"Standard Apple tvOS dock size"</item>
+        <item>"Start with the TV"</item>
+        <item>"Start ›"</item>
+        <item>"Stencil"</item>
+        <item>"Step 1 complete: Default home launcher set via ADB!"</item>
+        <item>"Step 1: Set tvOS Launcher as Default via Local ADB"</item>
+        <item>"Step 2: Disable System Launchers (Google TV / Android TV / OEM)"</item>
+        <item>"Step 3: Fix Home Button via Accessibility (Button Mapper)"</item>
+        <item>"Step 4: Open Android System Home Settings"</item>
+        <item>"Stock Android TV Home &amp; sponsored rows"</item>
+        <item>"Stock Android TV Home screen"</item>
+        <item>"Stock Android TV Leanback launcher"</item>
+        <item>"Stock Google TV Home &amp; banner ads"</item>
+        <item>"Stock Google TV Home screen &amp; banner ads"</item>
+        <item>"Stop"</item>
+        <item>"Storage"</item>
+        <item>"Storage folders"</item>
+        <item>"Subtitles / CC"</item>
+        <item>"Suggestions"</item>
+        <item>"Sunny"</item>
+        <item>"Sunrise"</item>
+        <item>"Switch"</item>
+        <item>"Switch Profile"</item>
+        <item>"Switch TV / HDMI inputs on screen even if Google TV Launcher is disabled"</item>
+        <item>"Switch between Secure Auto Setup, Persistent ADB, or Manual Setup"</item>
+        <item>"Switch to Manual Setup"</item>
+        <item>"System Launchers"</item>
+        <item>"System file picker…"</item>
+        <item>"System home launcher detected on this TV"</item>
+        <item>"TAP ACTIONS"</item>
+        <item>"TARGET ACTION / APPLICATION"</item>
+        <item>"TCL / iFFALCON OEM Home launcher"</item>
+        <item>"TCL OEM Home launcher"</item>
+        <item>"TCL OEM Home screen"</item>
+        <item>"TCL OEM TV Home launcher"</item>
+        <item>"TMDB connected"</item>
+        <item>"TOP SHELF CONTENT"</item>
+        <item>"TV Input / Source"</item>
+        <item>"TV Inputs Panel (Overlay)"</item>
+        <item>"TV Model Matched"</item>
+        <item>"TV Settings"</item>
+        <item>"TV Speakers"</item>
+        <item>"TV settings"</item>
+        <item>"Tall Glass"</item>
+        <item>"Tap Check for updates"</item>
+        <item>"Tap to detect / select…"</item>
+        <item>"Tap to include"</item>
+        <item>"Tap to set as active wallpaper"</item>
+        <item>"Tap to toggle in scene rotation · Long-press or use actions below"</item>
+        <item>"Teal"</item>
+        <item>"Temperature"</item>
+        <item>"That PIN doesn’t match the one on the TV."</item>
+        <item>"The Home button on the remote will open tvOS Launcher."</item>
+        <item>"The Home button opens tvOS Launcher"</item>
+        <item>"This TV does not have a built-in Accessibility Settings screen. You can enable the Button Mapper &amp; Control Panel service automatically via Local ADB."</item>
+        <item>"This TV has no inputs"</item>
+        <item>"This TV's settings have no switch for this permission. Whoever set up the TV can turn it on once from a computer on the same network:\n\n"</item>
+        <item>"This resets look, scenes, clock and language settings back to defaults."</item>
+        <item>"This runs 'settings put global adb_enabled 0' over Local ADB and verifies that port 5555 is closed on your home network.\n\nIf WRITE_SECURE_SETTINGS is already granted, tvOS Launcher will continue repairing Accessibility in-process without needing ADB!\n\nTip: For maximum security, you can also open Developer Options and click 'Revoke USB debugging authorizations'."</item>
+        <item>"This will disable Keep Alive and remove Accessibility Service, Notification Access, Default Home Role, and launcher permissions (both locally and via ADB)."</item>
+        <item>"Thunderstorms"</item>
+        <item>"Tip: Blur can't be shown while a video is playing. Android can't blur live video (and DRM video can't be captured), so the video keeps playing behind the panel with a soft shade instead."</item>
+        <item>"Tip: Hold OK on any app on the home screen dock to move or hide it."</item>
+        <item>"To see what you watch here, allow it in Settings → Permissions."</item>
+        <item>"Today"</item>
+        <item>"Tomorrow"</item>
+        <item>"Top Movies &amp; Series"</item>
+        <item>"Top shelf, 6-column app grid and custom wallpapers"</item>
+        <item>"Top-right weather shortcut"</item>
+        <item>"Transparent"</item>
+        <item>"Trending"</item>
+        <item>"Triple Tap (3x)"</item>
+        <item>"Turn On / Off ADB"</item>
+        <item>"Turn On ADB Debugging"</item>
+        <item>"Turn off Custom image"</item>
+        <item>"Turn off Custom scene"</item>
+        <item>"Turn off Folder shuffle"</item>
+        <item>"Turn on Custom image"</item>
+        <item>"Turn on Custom scene"</item>
+        <item>"Turn on Folder shuffle"</item>
+        <item>"Turn on Presentation mode first"</item>
+        <item>"Turn on first"</item>
+        <item>"Turn the TV off after"</item>
+        <item>"Turning On ADB…"</item>
+        <item>"Turning on ADB debugging for this troubleshooting step…"</item>
+        <item>"Type to search your apps, settings, movies and shows"</item>
+        <item>"UNINSTALL"</item>
+        <item>"UNIVERSAL SHORTCUT ACTIONS"</item>
+        <item>"UPDATES"</item>
+        <item>"USB / Storage"</item>
+        <item>"Unexpected server error"</item>
+        <item>"Uninstall"</item>
+        <item>"Uninstall tvOS Launcher"</item>
+        <item>"Unpin from Home"</item>
+        <item>"Unsupported playback command"</item>
+        <item>"Up"</item>
+        <item>"Up and down to browse, OK to change, Back to close"</item>
+        <item>"Up and down to move, OK when done"</item>
+        <item>"Up next"</item>
+        <item>"Up to Date"</item>
+        <item>"Update Available"</item>
+        <item>"Update Check Failed"</item>
+        <item>"Update Failed"</item>
+        <item>"Update download failed."</item>
+        <item>"Update every"</item>
+        <item>"Update installed!"</item>
+        <item>"Updated"</item>
+        <item>"Updated "</item>
+        <item>"Updates"</item>
+        <item>"Updating tvOS Launcher"</item>
+        <item>"Updating…"</item>
+        <item>"Upload form field named file is required"</item>
+        <item>"Use My Location"</item>
+        <item>"Use Presentation"</item>
+        <item>"Use arrows to move · OK when done"</item>
+        <item>"Use automatic location"</item>
+        <item>"Use built-in Android TV shortcut"</item>
+        <item>"Use custom background"</item>
+        <item>"Use folder shuffle background"</item>
+        <item>"Used for the weather on the home screen and local headlines."</item>
+        <item>"Uses local ADB to grant permissions and keeps ADB open"</item>
+        <item>"VERSION INFO"</item>
+        <item>"Version"</item>
+        <item>"Video failed: %1$s\n%2$s"</item>
+        <item>"Video failed: %1$s\nMedia error %2$d (%3$d)"</item>
+        <item>"View or filter the complete list of supported TV models"</item>
+        <item>"Voice input isn't available on this TV"</item>
+        <item>"Voice needs the internet"</item>
+        <item>"Volume Button Fix Mode"</item>
+        <item>"Volume Down (25)"</item>
+        <item>"Volume Fix Mode 1 (Standard) selected."</item>
+        <item>"Volume Fix Mode 2 (HY320 / Projector) selected."</item>
+        <item>"Volume Fix Mode 3 (Onn TV Box) selected."</item>
+        <item>"Volume Up (24)"</item>
+        <item>"Volume button fix mode"</item>
+        <item>"WALLPAPER"</item>
+        <item>"WALLPAPERS IN FOLDER (TAP TO ENABLE / DISABLE)"</item>
+        <item>"WARNING: Manual Debloat lists ALL system apps installed on your TV.\n\n• Only disable packages if you know exactly what you are doing.\n• Disabling core Android system services, TV input/tuner services, or Settings packages can break HDMI inputs, Wi-Fi, remote control, or cause a bootloop.\n\nProceed at your own risk?"</item>
+        <item>"WEATHER"</item>
+        <item>"WIDGET SETTINGS"</item>
+        <item>"WRITE_SECURE_SETTINGS and all launcher permissions are now active, and ADB (port 5555) has been closed for your security.\n\nTip: For maximum security, you can also select “Revoke USB debugging authorizations” in Developer Options."</item>
+        <item>"Waiting for approval…"</item>
+        <item>"Watching now · OK to switch or rename"</item>
+        <item>"Waterline"</item>
+        <item>"Weather"</item>
+        <item>"Weather Forecast"</item>
+        <item>"Weather and location"</item>
+        <item>"Weather from"</item>
+        <item>"Weather on the home screen"</item>
+        <item>"Weather source"</item>
+        <item>"Webpage failed to load: %1$s"</item>
+        <item>"Webpage slide is missing a URL"</item>
+        <item>"Welcome"</item>
+        <item>"What appears at the top of Home, behind your apps. Choose any, all or none."</item>
+        <item>"What you were watching, mixed into the carousel"</item>
+        <item>"White"</item>
+        <item>"Who’s Watching?"</item>
+        <item>"Wi-Fi Name (Location)"</item>
+        <item>"Wi-Fi, picture, sound and the rest of the TV"</item>
+        <item>"Wind "</item>
+        <item>"Xiaomi OEM TV Home screen"</item>
+        <item>"Yellow"</item>
+        <item>"Yellow Button"</item>
+        <item>"Yesterday"</item>
+        <item>"You are running the latest version."</item>
+        <item>"You can also configure buttons later in Settings"</item>
+        <item>"You need the ADB mode enabled for this troubleshooting step. You can always change the ADB mode from Settings later.\n\nWould you like to enable ADB now or skip this step?"</item>
+        <item>"You're All Set"</item>
+        <item>"YouTube Music (optional)"</item>
+        <item>"Your Home Screen"</item>
+        <item>"Your name"</item>
+        <item>"Your name and an avatar. Each profile keeps its own apps, background and Home Screen. Up to three people can have one."</item>
+        <item>"Zeasn OEM TV Home screen"</item>
+        <item>"Zoom"</item>
+        <item>"Zoom in"</item>
+        <item>"Zoom out"</item>
+        <item>"active"</item>
+        <item>"apps"</item>
+        <item>"clear"</item>
+        <item>"dash_cricket"</item>
+        <item>"dash_news"</item>
+        <item>"dash_top_media"</item>
+        <item>"e.g. 85 (Play/Pause), 164 (Mute), 178 (TV Input)"</item>
+        <item>"e.g. tcl, philips, sony, hisense, xiaomi…"</item>
+        <item>"e.g. tcl, sony, hisense, xiaomi, philips, skyworth…"</item>
+        <item>"hour"</item>
+        <item>"hours"</item>
+        <item>"iPhone Duo"</item>
+        <item>"iPhone Rounded"</item>
+        <item>"images"</item>
+        <item>"m"</item>
+        <item>"min"</item>
+        <item>"minute"</item>
+        <item>"minutes"</item>
+        <item>"news_country_auto"</item>
+        <item>"news_country_setting"</item>
+        <item>"packages"</item>
+        <item>"remaining"</item>
+        <item>"space"</item>
+        <item>"tvOS Launcher will launch immediately on system boot."</item>
+        <item>"tvOS Launcher works best as the home screen. Allow these once; anything this TV doesn't support is skipped."</item>
+        <item>"ℹ️ Google TV Notice (setupwraith Wi-Fi check):\n\n"</item>
+        <item>"↻ Refresh system app list"</item>
+        <item>"⚠️ Core System Package"</item>
+        <item>"⚠️ Core system package — disabling may affect system stability"</item>
+        <item>"⚠️ Detected: Your current Wi-Fi network IS owned by setupwraith (cname=com.google.android.tungsten.setupwraith).\n\n"</item>
+        <item>"⚠️ Manual Debloat Warning"</item>
+        <item>"⚠️ Security Warning:\n\nKeep Alive monitors and restores permissions if your TV turns them off in the background.\n\nWithout WRITE_SECURE_SETTINGS, Keep Alive requires Network Debugging (ADB on port 5555) to stay enabled on your home network. For better security, run Pair / Repair ADB in Secure Mode first so WRITE_SECURE_SETTINGS is granted and port 5555 can be closed.\n\nEnable Keep Alive anyway?"</item>
+        <item>"⚠️ Your Wi-Fi network is currently owned by setupwraith. Before disabling setupwraith, open Wi-Fi Settings, Forget your Wi-Fi network, and re-connect so Wi-Fi stays saved."</item>
+        <item>"✅ Re-added Wi-Fi (Continue)"</item>
+        <item>"⬅  .. (Parent folder)"</item>
+        <item>"⬅  Back to storage folders"</item>
+        <item>"📋 Browse / Search All 341 TV Models"</item>
+        <item>"📋 Browse All 341 TV Models"</item>
+        <item>"📶 Open Wi-Fi Settings…"</item>
+        <item>"📶 Wi-Fi Settings…"</item>
+        <item>"🔍 Filter system apps…"</item>
+        <item>"🔍 Scan Installed System Apps to Find Matching Model"</item>
+        <item>"🔍 Scan Installed System Apps via ADB"</item>
+        <item>"🔍 Search / Filter by brand or model…"</item>
+        <item>"🔍 Search…"</item>
+        <item>"🛑 Critical System Service"</item>
+        <item>"🛑 Critical system service — protected (cannot be disabled)"</item>
+        <item>"🛡️ Skip setupwraith"</item>
+        <item>"Subscription"</item>
+        <item>"Free"</item>
+        <item>"Free with ads"</item>
+        <item>"Rent"</item>
+        <item>"Buy"</item>
+        <item>"Add-ons"</item>
+        <item>"Online"</item>
+        <item>"No internet"</item>
+        <item>"Offline"</item>
+        <item>"Video slide is missing media"</item>
+        <item>"Image slide is missing media"</item>
+        <item>"Wi-Fi"</item>
+        <item>"Bluetooth"</item>
+        <item>"Memory / Recent Apps"</item>
+        <item>"Do Not Disturb"</item>
+        <item>"Audio Output"</item>
+        <item>"Sleep Timer"</item>
+        <item>"Ambient Mode / Lock Screen"</item>
+        <item>"Power Off / Screen Off"</item>
+        <item>"TV Inputs Shortcut"</item>
+        <item>"Button Mapper Shortcut"</item>
+        <item>"Settings Shortcut"</item>
+        <item>"Search / Assistant Shortcut"</item>
+        <item>"Weather Panel (Current &amp; Tomorrow)"</item>
+        <item>"Tessellated Pavement"</item>
+        <item>"Grose Valley"</item>
+        <item>"Albury Storm"</item>
+        <item>"Aresquiers Beach"</item>
+        <item>"Vang Vieng Sunset"</item>
+        <item>"Aurora"</item>
+        <item>"Midnight"</item>
+        <item>"Sunset"</item>
+        <item>"Ocean"</item>
+        <item>"Graphite"</item>
+        <item>"Grin"</item>
+        <item>"Cool"</item>
+        <item>"Cowboy"</item>
+        <item>"Party"</item>
+        <item>"Fox"</item>
+        <item>"Panda"</item>
+        <item>"Tiger"</item>
+        <item>"Lion"</item>
+        <item>"Frog"</item>
+        <item>"Monkey"</item>
+        <item>"Koala"</item>
+        <item>"Unicorn"</item>
+        <item>"Dog"</item>
+        <item>"Cat"</item>
+        <item>"Bear"</item>
+        <item>"Bunny"</item>
+        <item>"Ghost"</item>
+        <item>"Robot"</item>
+        <item>"Alien"</item>
+        <item>"Pumpkin"</item>
+        <item>"Sky"</item>
+        <item>"Pink"</item>
+        <item>"Mint"</item>
+        <item>"Lemon"</item>
+        <item>"Lavender"</item>
+        <item>"Peach"</item>
+        <item>"Silver"</item>
+    </string-array>
+    <array name="legacy_he_values">
+        <item>@string/legacy_he_text_e3b0c44298</item>
+        <item>@string/text_already_disabled</item>
+        <item>@string/text_critical_system_service_protected</item>
+        <item>@string/text_disabled_tap_to_enable_85233e</item>
+        <item>@string/text_disabled_31f3e7</item>
+        <item>@string/text_enabled_tap_to_disable_046b6f</item>
+        <item>@string/text_enabled</item>
+        <item>@string/text_optional</item>
+        <item>@string/text_and_enter</item>
+        <item>@string/legacy_error_free_ccebf23d24</item>
+        <item>@string/text_min_0240eb</item>
+        <item>@string/text_min_left</item>
+        <item>@string/legacy_error_minute_e00000d893</item>
+        <item>@string/text_minutes</item>
+        <item>@string/text_paired</item>
+        <item>@string/text_seconds_ee379b</item>
+        <item>@string/text_used_clean</item>
+        <item>@string/text_used_recent_apps</item>
+        <item>@string/text_add_new_button_to_remap_7d8e68</item>
+        <item>@string/legacy_error_add_a_person_309e22dac5</item>
+        <item>@string/legacy_error_add_new_button_to_remap_bbc1125205</item>
+        <item>@string/text_1_set_tvos_launcher_as_default_via_local</item>
+        <item>@string/text_12_hour</item>
+        <item>@string/text_2_disable_system_launchers_google_tv_and</item>
+        <item>@string/text_24_hour</item>
+        <item>@string/text_3_days</item>
+        <item>@string/text_3_fix_home_button_via_accessibility_butt</item>
+        <item>@string/text_4_open_android_system_home_settings</item>
+        <item>@string/text_5_day_forecast</item>
+        <item>@string/text_a_big_glass_clock_scenes_taking_turns</item>
+        <item>@string/legacy_error_a_small_weather_display_on_home_wit_19aaf9e964</item>
+        <item>@string/text_accessibility_service_a268b7</item>
+        <item>@string/text_actions</item>
+        <item>@string/text_activities_in</item>
+        <item>@string/legacy_error_adb_permissions_451adb98f2</item>
+        <item>@string/text_adb_security_mode</item>
+        <item>@string/text_adb_connection_required</item>
+        <item>@string/text_adb_debugging_needed</item>
+        <item>@string/text_adb_enabled_not_paired</item>
+        <item>@string/text_adb_mode_required</item>
+        <item>@string/text_adb_operating_mode_1c02d4</item>
+        <item>@string/text_adb_connection_status</item>
+        <item>@string/text_adb_debugging_enabled</item>
+        <item>@string/text_adb_debugging_is_currently_turned_off_pe</item>
+        <item>@string/text_adb_enabled_and_switched_to_persistent_a</item>
+        <item>@string/text_adb_install_failed_opening_package_insta</item>
+        <item>@string/text_adb_is_active_selecting_install_will_dow</item>
+        <item>@string/text_adb_is_turned_off_secure_mode_selecting</item>
+        <item>@string/text_adb_operating_mode_01f44c</item>
+        <item>@string/text_adb_paired_and_all_permissions_granted</item>
+        <item>@string/text_ambient_themes</item>
+        <item>@string/text_application</item>
+        <item>@string/legacy_error_applications_fa3dec2685</item>
+        <item>@string/text_about</item>
+        <item>@string/text_accessibility</item>
+        <item>@string/text_accessibility_service_bb9182</item>
+        <item>@string/legacy_error_accessories_b08648dbd6</item>
+        <item>@string/text_account</item>
+        <item>@string/text_active_60b543</item>
+        <item>@string/text_active_works_in_all_apps</item>
+        <item>@string/text_active_in_accessibility</item>
+        <item>@string/text_active_set_as_default_home_launcher</item>
+        <item>@string/text_ad_blocking_private_dns_adguard</item>
+        <item>@string/text_add</item>
+        <item>@string/text_add_favorite_football_team_56b172</item>
+        <item>@string/text_add_subreddit</item>
+        <item>@string/text_add_user</item>
+        <item>@string/text_add_a_person_f14c89</item>
+        <item>@string/text_add_a_person_ef7edb</item>
+        <item>@string/text_add_as_many_custom_wallpapers_as_you_wan</item>
+        <item>@string/text_add_custom_subreddit</item>
+        <item>@string/text_add_favorite_football_team_0ba5b6</item>
+        <item>@string/text_add_images_videos_or_webpages_from_a_pho</item>
+        <item>@string/text_add_new_button_to_remap_e322f7</item>
+        <item>@string/text_add_new_wallpaper</item>
+        <item>@string/text_adds_a_presentation_card_to_home</item>
+        <item>@string/text_advanced_e7d42a</item>
+        <item>@string/text_advanced_981d59</item>
+        <item>@string/legacy_he_all_341_c5540847a4</item>
+        <item>@string/text_all_341_models</item>
+        <item>@string/legacy_he_all_341_tv_models_ccd1e9f493</item>
+        <item>@string/text_all_button_mappings_cleared</item>
+        <item>@string/text_all_permissions_granted_automatically</item>
+        <item>@string/text_allowed</item>
+        <item>@string/text_allow</item>
+        <item>@string/launcher_desc_amazon_fire_os_home_button_interceptor</item>
+        <item>@string/launcher_desc_amazon_oem_tv_home_screen</item>
+        <item>@string/text_ambient_mode</item>
+        <item>@string/text_ambient_mode_standby</item>
+        <item>@string/text_ambient_colour_themes_930057</item>
+        <item>@string/text_ambient_colour_themes_028289</item>
+        <item>@string/text_android_accessibility_suite_talkback_opt</item>
+        <item>@string/text_android_tv_remote_service_optional_keep</item>
+        <item>@string/text_app_icon_editor</item>
+        <item>@string/text_app_info_c575c9</item>
+        <item>@string/text_app_switch_recents_187</item>
+        <item>@string/text_app_icon_reset_to_default</item>
+        <item>@string/text_app_icon_updated</item>
+        <item>@string/text_app_info_3cd62b</item>
+        <item>@string/text_app_layout_reset_to_default</item>
+        <item>@string/text_app_name_or_package_name</item>
+        <item>@string/text_appearance</item>
+        <item>@string/text_appearance_and_scenes</item>
+        <item>@string/text_applications</item>
+        <item>@string/text_apply</item>
+        <item>@string/text_apps_825c0a</item>
+        <item>@string/text_apps_settings</item>
+        <item>@string/text_ask_who_is_watching_on_wake</item>
+        <item>@string/text_prayer_asr</item>
+        <item>@string/text_assign_single_tap_1x_double_tap_2x_tripl</item>
+        <item>@string/text_assign_single_tap_1x_double_tap_2x_and_t</item>
+        <item>@string/text_audio</item>
+        <item>@string/text_audio_track_222</item>
+        <item>@string/text_auto</item>
+        <item>@string/text_auto_change_interval</item>
+        <item>@string/text_auto_changing_1080p_4k_wallpapers_from_y</item>
+        <item>@string/text_auto_launch_lock_screen_when_idle</item>
+        <item>@string/legacy_error_automatic_d461a493a3</item>
+        <item>@string/text_releases_country_auto</item>
+        <item>@string/text_automatic_from_internet</item>
+        <item>@string/legacy_error_automatic_setup_d8ce96413f</item>
+        <item>@string/text_automatic_launch_on_boot_disabled</item>
+        <item>@string/text_automatic_updates</item>
+        <item>@string/text_automatic_updates_disabled</item>
+        <item>@string/text_automatic_updates_enabled</item>
+        <item>@string/legacy_error_avatar_color_7c73323031</item>
+        <item>@string/legacy_error_avatar_color_87f835ea14</item>
+        <item>@string/text_background_mode</item>
+        <item>@string/text_backup_restore</item>
+        <item>@string/text_built_in_actions</item>
+        <item>@string/text_button_remapping</item>
+        <item>@string/text_back</item>
+        <item>@string/text_back_4</item>
+        <item>@string/text_back_to_apps</item>
+        <item>@string/text_back_to_usage_mode_selection</item>
+        <item>@string/text_back_to_folders</item>
+        <item>@string/text_back_to_parent_folder</item>
+        <item>@string/text_back_to_return_hold_ok_for_options</item>
+        <item>@string/text_background_color</item>
+        <item>@string/text_backup_failed</item>
+        <item>@string/text_backup_settings_to_download</item>
+        <item>@string/text_big_clock_night_scene_style</item>
+        <item>@string/text_black</item>
+        <item>@string/text_bloatware_background_service</item>
+        <item>@string/text_blue</item>
+        <item>@string/text_blue_button</item>
+        <item>@string/text_cp_bg_blurry</item>
+        <item>@string/text_bookmark_favorite</item>
+        <item>@string/text_button_mapper_7fa6e3</item>
+        <item>@string/text_button_mapper_control_panel</item>
+        <item>@string/text_button_mapper_control_panel_accessibilit</item>
+        <item>@string/text_button_mapper_accessibility_service</item>
+        <item>@string/legacy_error_button_mapper_service_516a7641b3</item>
+        <item>@string/text_button_mapper_bed8af</item>
+        <item>@string/text_by_default_most_watched_automatically_sy</item>
+        <item>@string/text_classic_background</item>
+        <item>@string/text_classic_clock_weather</item>
+        <item>@string/text_classic_wallpapers</item>
+        <item>@string/text_cleanyourtv_beta</item>
+        <item>@string/text_control_panel_items_show_hide</item>
+        <item>@string/text_countries_select_one_or_multiple</item>
+        <item>@string/text_custom_folder_shuffle</item>
+        <item>@string/text_custom_wallpaper_208136</item>
+        <item>@string/text_custom_wallpaper_mode_9acb13</item>
+        <item>@string/text_custom_wallpapers_unlimited</item>
+        <item>@string/text_caffeine_title</item>
+        <item>@string/text_caffeine_desc</item>
+        <item>@string/text_caffeine_disabled</item>
+        <item>@string/text_caffeine_enabled_tv_will_stay_awake_and</item>
+        <item>@string/text_prayer_method_label</item>
+        <item>@string/text_cancel</item>
+        <item>@string/text_can_t_reach_the_internet</item>
+        <item>@string/text_align_center</item>
+        <item>@string/text_change_colour</item>
+        <item>@string/text_change_emoji</item>
+        <item>@string/text_change_model</item>
+        <item>@string/text_change_any_of_this_later_in_settings_fro</item>
+        <item>@string/text_change_app_icon</item>
+        <item>@string/text_change_name_of_input</item>
+        <item>@string/legacy_error_change_what_this_button_opens_0c7956f2f7</item>
+        <item>@string/text_changes_the_words_on_the_home_screen_dat</item>
+        <item>@string/text_channel_down</item>
+        <item>@string/text_channel_up</item>
+        <item>@string/text_channels</item>
+        <item>@string/legacy_error_check_permissions_4f4ffcde63</item>
+        <item>@string/text_check_for_updates</item>
+        <item>@string/text_check_now</item>
+        <item>@string/text_check_permissions</item>
+        <item>@string/text_checked_items_are_currently_disabled_dis</item>
+        <item>@string/legacy_error_checking_github_releases_for_the_la_70ea1523c9</item>
+        <item>@string/legacy_error_checking_for_updates_3bbfc1bb9d</item>
+        <item>@string/text_checking</item>
+        <item>@string/text_checks_github_releases_techgenius1_tvos</item>
+        <item>@string/text_choose_action</item>
+        <item>@string/text_choose_activity</item>
+        <item>@string/text_choose_city</item>
+        <item>@string/text_choose_folder_to_restore_settings</item>
+        <item>@string/text_choose_lock_screen_folder_to_shuffle</item>
+        <item>@string/text_choose_lock_screen_image</item>
+        <item>@string/text_choose_tv_model_fcb2e7</item>
+        <item>@string/text_choose_tv_model_eb4b40</item>
+        <item>@string/text_choose_tv_model_6fead7</item>
+        <item>@string/text_choose_your_scenes</item>
+        <item>@string/text_choose_a_background</item>
+        <item>@string/text_choose_a_city</item>
+        <item>@string/legacy_error_choose_a_look_b0197fc035</item>
+        <item>@string/text_choose_a_photo_or_ambient_colour_theme_b</item>
+        <item>@string/text_choose_background_folder_to_shuffle</item>
+        <item>@string/text_choose_custom_background_image</item>
+        <item>@string/text_choose_custom_scene_image</item>
+        <item>@string/text_choose_folder_840d4f</item>
+        <item>@string/text_choose_folder_768e16</item>
+        <item>@string/legacy_error_choose_how_to_grant_permissions_bce1ef190d</item>
+        <item>@string/text_choose_how_you_want_your_home_screen_to</item>
+        <item>@string/legacy_error_choose_icon_for_8ffffe2f45</item>
+        <item>@string/text_choose_image_d3f17f</item>
+        <item>@string/text_choose_image_44c803</item>
+        <item>@string/legacy_error_choose_new_icon_file_51b8d338e7</item>
+        <item>@string/legacy_error_choose_new_image_4e083a8186</item>
+        <item>@string/text_choose_tvos_launcher_when_asked</item>
+        <item>@string/text_choose_wallpaper_folder_to_shuffle</item>
+        <item>@string/text_choose_which_scenes_take_turns_behind_th</item>
+        <item>@string/text_chromecast_built_in_google_cast_receiver</item>
+        <item>@string/text_city_name_e_g_istanbul</item>
+        <item>@string/text_classic</item>
+        <item>@string/text_classic_custom_wallpaper</item>
+        <item>@string/text_classic_top_shelf</item>
+        <item>@string/legacy_error_classic_top_shelf_content_d32fd61430</item>
+        <item>@string/legacy_he_classic_top_shelf_suggestions_e94f17dee4</item>
+        <item>@string/legacy_error_classic_background_e6c62ea46d</item>
+        <item>@string/text_classic_look</item>
+        <item>@string/text_classic_photo</item>
+        <item>@string/legacy_error_clean_5137c8760c</item>
+        <item>@string/text_cleanyourtv_beta_runs_the_cleanyourtv_de</item>
+        <item>@string/legacy_error_cleanyourtv_beta_runs_the_cleanyour_36754ded33</item>
+        <item>@string/legacy_error_cleaned_b8fa1c69b2</item>
+        <item>@string/text_clear_aeec76</item>
+        <item>@string/text_clear_continue_watching_history</item>
+        <item>@string/legacy_error_clear_all_button_mappings_05b5f94a5b</item>
+        <item>@string/text_clear_all_remapped_buttons</item>
+        <item>@string/text_clear_filter</item>
+        <item>@string/text_clear_filter_show_all</item>
+        <item>@string/text_clock</item>
+        <item>@string/text_clock_alignment</item>
+        <item>@string/text_clock_font</item>
+        <item>@string/text_clock_position</item>
+        <item>@string/legacy_error_clock_style_2020700db5</item>
+        <item>@string/text_close</item>
+        <item>@string/text_close_adb_disable_port_5555</item>
+        <item>@string/text_close_adb_now</item>
+        <item>@string/text_close_all</item>
+        <item>@string/text_closing_adb</item>
+        <item>@string/weather_condition_cloudy</item>
+        <item>@string/text_colour</item>
+        <item>@string/text_connected</item>
+        <item>@string/legacy_error_connected_paired_port_5555_open_96f4110956</item>
+        <item>@string/text_connecting_to_local_adb_on_port_5555_and</item>
+        <item>@string/text_continue</item>
+        <item>@string/text_continue_watching</item>
+        <item>@string/text_continue_watching_dnd_notification_acces</item>
+        <item>@string/text_continue_watching_dnd_permission</item>
+        <item>@string/text_continue_watching_do_not_disturb</item>
+        <item>@string/text_continue_watching_cleared</item>
+        <item>@string/text_continue_watching_isn_t_available_on_thi</item>
+        <item>@string/text_continue_watching_on_dock</item>
+        <item>@string/text_continue_watching_5df929</item>
+        <item>@string/text_control_center</item>
+        <item>@string/text_control_panel</item>
+        <item>@string/text_control_panel_overlay</item>
+        <item>@string/text_control_panel_actions_and_items_reset_to</item>
+        <item>@string/text_cp_bg_mode</item>
+        <item>@string/launcher_desc_coocaa_oem_tv_home_screen</item>
+        <item>@string/text_could_not_check_for_updates</item>
+        <item>@string/text_could_not_connect_to_adb_enable_usb_netw</item>
+        <item>@string/text_could_not_connect_to_local_adb_on_port_5_ac5816</item>
+        <item>@string/text_could_not_connect_to_local_adb_on_port_5_2d1be7</item>
+        <item>@string/text_could_not_connect_to_local_adb_on_port_5_1f7e75</item>
+        <item>@string/text_could_not_connect_to_local_adb_on_port_5_4d4bb1</item>
+        <item>@string/text_could_not_connect_to_local_adb_on_port_5_58099e</item>
+        <item>@string/legacy_error_could_not_decode_image_file_9aeb05d774</item>
+        <item>@string/text_could_not_decode_image_file</item>
+        <item>@string/text_could_not_load_selected_image</item>
+        <item>@string/legacy_error_could_not_reach_github_releases_ple_f56e67ee43</item>
+        <item>@string/text_could_not_start_installer</item>
+        <item>@string/text_couldn_t_search_check_the_internet_conne</item>
+        <item>@string/text_create_your_profile</item>
+        <item>@string/text_current_place</item>
+        <item>@string/text_current_version</item>
+        <item>@string/legacy_error_current_version_v_b7f8adcdff</item>
+        <item>@string/text_currently_synced_to_d6cd7b</item>
+        <item>@string/text_custom</item>
+        <item>@string/legacy_error_custom_2_6270e7f85a</item>
+        <item>@string/legacy_error_custom_3_e4222ac6d8</item>
+        <item>@string/legacy_error_custom_4_b20dec98ad</item>
+        <item>@string/legacy_error_custom_5_6db5ba8e39</item>
+        <item>@string/text_custom_key_code_enter_number</item>
+        <item>@string/scene_custom_lock_image</item>
+        <item>@string/text_custom_lock_screen_image_updated</item>
+        <item>@string/text_custom_wallpaper_1e4315</item>
+        <item>@string/text_custom_background_updated</item>
+        <item>@string/text_custom_image</item>
+        <item>@string/text_custom_label</item>
+        <item>@string/text_custom_scene_wallpaper_updated</item>
+        <item>@string/text_custom_wallpaper_clock_alignment</item>
+        <item>@string/text_custom_wallpaper_mode_f2890b</item>
+        <item>@string/text_custom_wallpaper_settings</item>
+        <item>@string/legacy_he_dashboard_widgets_4_horizontal_tile_3979f14004</item>
+        <item>@string/text_default_launcher_setup_tcl_philips_googl</item>
+        <item>@string/text_dock</item>
+        <item>@string/text_dock_scale_50_to_50</item>
+        <item>@string/text_dark</item>
+        <item>@string/text_date_time</item>
+        <item>@string/text_debloat_complete</item>
+        <item>@string/text_debloat_tv_af7d50</item>
+        <item>@string/text_debloat_tv_3ec289</item>
+        <item>@string/text_debloat_status</item>
+        <item>@string/text_debloating_tv</item>
+        <item>@string/text_default</item>
+        <item>@string/text_default_ambient_mode</item>
+        <item>@string/text_default_automatic</item>
+        <item>@string/text_default_app_launch_main_activity</item>
+        <item>@string/text_default_home_screen_3e8523</item>
+        <item>@string/text_default_home_launcher_set_via_adb</item>
+        <item>@string/text_default_home_screen_57e442</item>
+        <item>@string/legacy_error_default_icon_restored_4651574a02</item>
+        <item>@string/text_default_playlist_cannot_be_deleted</item>
+        <item>@string/text_default_wallpaper_clock_alignment</item>
+        <item>@string/text_delete</item>
+        <item>@string/legacy_error_delete_profile_47311af432</item>
+        <item>@string/text_detected_automatically</item>
+        <item>@string/text_developer</item>
+        <item>@string/text_developer_options</item>
+        <item>@string/text_prayer_dhuhr</item>
+        <item>@string/text_didn_t_catch_that_press_the_mic_to_try_a</item>
+        <item>@string/text_disable</item>
+        <item>@string/text_disable_all_stock_launchers</item>
+        <item>@string/text_disable_all_stock_launchers_set_tvos_lau</item>
+        <item>@string/text_disable_anyway</item>
+        <item>@string/text_disable_selected</item>
+        <item>@string/text_disable_stock_tv_launchers_tcl_philips_g</item>
+        <item>@string/text_disable_system_launchers_072c87</item>
+        <item>@string/text_disable_all</item>
+        <item>@string/text_disable_system_launchers_13dcb9</item>
+        <item>@string/text_disable_system_launchers_e1810e</item>
+        <item>@string/text_disabled_62ff42</item>
+        <item>@string/text_disabled_apps_record</item>
+        <item>@string/text_disabled_apps_backup</item>
+        <item>@string/text_disabling_package</item>
+        <item>@string/text_disconnected_adb_off</item>
+        <item>@string/text_display</item>
+        <item>@string/text_displayed_when_no_app_is_focused_when_fo</item>
+        <item>@string/text_dock_rows</item>
+        <item>@string/text_dock_size</item>
+        <item>@string/text_don_t_show_weather</item>
+        <item>@string/text_done</item>
+        <item>@string/text_double_tap_2x</item>
+        <item>@string/text_down</item>
+        <item>@string/text_download</item>
+        <item>@string/legacy_error_download_install_680ffe96e7</item>
+        <item>@string/text_download_cleanyourtv</item>
+        <item>@string/legacy_error_downloading_latest_apk_from_github_9a141b483e</item>
+        <item>@string/weather_condition_drizzle</item>
+        <item>@string/text_align_dynamic</item>
+        <item>@string/text_each_tv_brand_uses_different_package_and</item>
+        <item>@string/legacy_error_each_tv_brand_uses_different_packag_ec560b3b62</item>
+        <item>@string/legacy_error_each_person_gets_their_own_pinned_a_350015e5c6</item>
+        <item>@string/text_each_person_keeps_their_own_keep_watchin</item>
+        <item>@string/text_each_scene_stays</item>
+        <item>@string/text_each_wallpaper_stays</item>
+        <item>@string/legacy_error_easy_setup_automatic_via_adb_3f7a6b2155</item>
+        <item>@string/text_emoji</item>
+        <item>@string/text_enable_adb_switch</item>
+        <item>@string/text_enable_adb_debugging</item>
+        <item>@string/text_enable_adb_now</item>
+        <item>@string/text_enable_adb_for_persistent_mode</item>
+        <item>@string/text_enable_button_mapper_in_accessibility</item>
+        <item>@string/text_enable_home_button_fix_accessibility_rem</item>
+        <item>@string/text_enable_home_dashboard</item>
+        <item>@string/text_enable_keep_alive_348093</item>
+        <item>@string/text_enable_keep_alive_5ae818</item>
+        <item>@string/text_enable_usb_network_debugging_in_develope</item>
+        <item>@string/text_enable_all</item>
+        <item>@string/text_enable_in_accessibility_so_remapped_butt</item>
+        <item>@string/text_enable_in_accessibility</item>
+        <item>@string/legacy_error_enable_tvos_launcher_in_android_tv__63d54093cc</item>
+        <item>@string/text_enable_via_adb</item>
+        <item>@string/text_enabled_in_shuffle</item>
+        <item>@string/text_enabling_adb_debugging_and_switching_to</item>
+        <item>@string/text_enabling_adb_debugging</item>
+        <item>@string/text_enabling_adb</item>
+        <item>@string/text_enabling_package</item>
+        <item>@string/text_endpoint_not_found</item>
+        <item>@string/text_enter_android_key_code</item>
+        <item>@string/text_exact_model_code_match</item>
+        <item>@string/text_exact_model_match</item>
+        <item>@string/launcher_desc_ffalcon_oem_home_launcher</item>
+        <item>@string/text_forecast_provider</item>
+        <item>@string/text_prayer_fajr</item>
+        <item>@string/text_fast_forward</item>
+        <item>@string/text_football_fav_teams</item>
+        <item>@string/text_fetching_next_reddit_wallpaper</item>
+        <item>@string/legacy_error_fewer_apps_cfd46af9c4</item>
+        <item>@string/text_filter_b3bfd1</item>
+        <item>@string/text_filter_system_apps_f2c530</item>
+        <item>@string/text_filter_tv_models</item>
+        <item>@string/text_filter_bf262c</item>
+        <item>@string/text_finish_setting_up</item>
+        <item>@string/text_fix_home_button_launch_tvos_launcher</item>
+        <item>@string/scene_fog</item>
+        <item>@string/weather_condition_foggy</item>
+        <item>@string/scene_folder_shuffle</item>
+        <item>@string/text_folder_shuffle</item>
+        <item>@string/text_dash_football</item>
+        <item>@string/text_found_from_your_internet_connection</item>
+        <item>@string/text_free_forecast_service_no_account_needed</item>
+        <item>@string/text_google_tv_wi_fi_notice</item>
+        <item>@string/text_generic_android_tv_google_tv_profile</item>
+        <item>@string/text_get</item>
+        <item>@string/text_get_started</item>
+        <item>@string/text_getting_the_weather</item>
+        <item>@string/text_github_release_latest_version</item>
+        <item>@string/legacy_error_glass_82c268188c</item>
+        <item>@string/text_go_to_home_screen</item>
+        <item>@string/scene_golden_hour</item>
+        <item>@string/text_good_afternoon</item>
+        <item>@string/text_good_evening</item>
+        <item>@string/text_good_morning</item>
+        <item>@string/text_good_night</item>
+        <item>@string/text_google_assistant_voice_search_optional</item>
+        <item>@string/text_google_play_games_optional</item>
+        <item>@string/text_google_tv_wi_fi_warning</item>
+        <item>@string/launcher_desc_google_tv_launcher_watchdog_disable_together_with_launcherx</item>
+        <item>@string/text_google_tv_setup_wizard_launcher_watchdog</item>
+        <item>@string/text_google_tv_store_movies_tv</item>
+        <item>@string/text_google_telemetry_diagnostics</item>
+        <item>@string/text_grant_all_files_access</item>
+        <item>@string/text_grant_all_permissions_via_local_adb</item>
+        <item>@string/legacy_error_grant_all_via_adb_320e08a9da</item>
+        <item>@string/text_grant_all</item>
+        <item>@string/text_grant_permissions_close_adb_now</item>
+        <item>@string/legacy_error_grant_permissions_now_859526e49d</item>
+        <item>@string/text_grant_permissions_now_keep_adb_open</item>
+        <item>@string/text_grant_storage_access</item>
+        <item>@string/legacy_error_grant_permissions_one_by_one_manual_b5cbe865ab</item>
+        <item>@string/text_grant_permissions_one_by_one_manually_th</item>
+        <item>@string/legacy_error_grant_storage_permission_76e254101d</item>
+        <item>@string/legacy_error_grant_19c1380d8a</item>
+        <item>@string/text_granting_permissions_via_local_adb_if_an</item>
+        <item>@string/text_grants_write_secure_settings_closes_port</item>
+        <item>@string/text_grants_write_secure_settings_once_to_sel</item>
+        <item>@string/legacy_error_grants_all_required_permissions_aut_811773c2f1</item>
+        <item>@string/text_gray</item>
+        <item>@string/text_green</item>
+        <item>@string/text_green_button</item>
+        <item>@string/text_guide_button</item>
+        <item>@string/text_h</item>
+        <item>@string/text_home_permissions</item>
+        <item>@string/legacy_error_home_dashboard_5531ff6113</item>
+        <item>@string/text_home_screen_widgets</item>
+        <item>@string/text_hourly_forecast</item>
+        <item>@string/text_how_to_watch</item>
+        <item>@string/launcher_desc_haier_oem_tv_home_screen</item>
+        <item>@string/text_headlines_from_your_city_and_the_world</item>
+        <item>@string/weather_condition_heavy_rain</item>
+        <item>@string/legacy_error_heavy_snow_0e40289d61</item>
+        <item>@string/text_hidden_apps</item>
+        <item>@string/legacy_error_hidden_from_dock_press_ok_to_show_1290340827</item>
+        <item>@string/text_hide</item>
+        <item>@string/legacy_error_hide_from_all_apps_f82d9040ea</item>
+        <item>@string/text_hide_input</item>
+        <item>@string/launcher_desc_hisense_oem_tv_home_screen</item>
+        <item>@string/legacy_error_home_system_7ed5ca2145</item>
+        <item>@string/text_home_3</item>
+        <item>@string/text_home_button_fix_accessibility_enabled</item>
+        <item>@string/text_home_button_fix_enabled_d7a9be</item>
+        <item>@string/legacy_error_home_dashboard_d1e758408c</item>
+        <item>@string/legacy_error_home_dashboard_widgets_1149c5b41e</item>
+        <item>@string/text_home_settings_c5e57e</item>
+        <item>@string/text_home_button_fix_disabled</item>
+        <item>@string/text_home_button_fix_enabled_please_also_enab</item>
+        <item>@string/text_home_button_fix_enabled_pressing_home_wi</item>
+        <item>@string/text_home_button_fix_enabled_5232e5</item>
+        <item>@string/text_home_screen</item>
+        <item>@string/text_home_screen_weather_shortcut</item>
+        <item>@string/text_home_screen_widget_settings</item>
+        <item>@string/text_home_settings_2f49b8</item>
+        <item>@string/text_humidity</item>
+        <item>@string/text_i_understand_open_manual_debloat</item>
+        <item>@string/text_inputs_app_on_dock</item>
+        <item>@string/text_installed_apps</item>
+        <item>@string/text_images_videos_and_webpages_sent_from_any</item>
+        <item>@string/text_in_control_center_needs_location_access</item>
+        <item>@string/text_included_in_rotation</item>
+        <item>@string/text_indigo</item>
+        <item>@string/text_info_button</item>
+        <item>@string/text_input</item>
+        <item>@string/text_inputs</item>
+        <item>@string/text_inputs_control_panel_dock</item>
+        <item>@string/text_install</item>
+        <item>@string/legacy_error_installing_update_29e74e90ba</item>
+        <item>@string/text_internal_storage</item>
+        <item>@string/text_prayer_isha</item>
+        <item>@string/text_its_layout_and_continue_watching_list_wi</item>
+        <item>@string/news_age_now</item>
+        <item>@string/text_just_your_background_for_now</item>
+        <item>@string/legacy_error_keep_alive_194eed9348</item>
+        <item>@string/text_keep_alive_auto_repair_accessibility</item>
+        <item>@string/legacy_error_keep_alive_auto_repair_permissions_64dec5b4f2</item>
+        <item>@string/text_keep_alive_disabled</item>
+        <item>@string/text_keep_alive_enabled</item>
+        <item>@string/message_keep_alive_monitors_the_accessibility_service_an</item>
+        <item>@string/text_keep_screen_awake</item>
+        <item>@string/text_keep_typing_to_search_movies_and_shows</item>
+        <item>@string/legacy_error_keep_watching_fea850b766</item>
+        <item>@string/text_keeps_network_adb_enabled_for_cleanyourt</item>
+        <item>@string/text_key</item>
+        <item>@string/text_l</item>
+        <item>@string/text_location_873ca7</item>
+        <item>@string/text_lock_screen_options</item>
+        <item>@string/text_look</item>
+        <item>@string/text_language</item>
+        <item>@string/text_language_weather_scenes_apps_and_people</item>
+        <item>@string/text_larger_dock_extra_apps_automatically_mov</item>
+        <item>@string/text_last_channel</item>
+        <item>@string/legacy_error_latest_github_version_v_81c9e53520</item>
+        <item>@string/text_launch_automatically_on_system_boot</item>
+        <item>@string/text_align_left</item>
+        <item>@string/text_let_s_set_up_tvos_launcher</item>
+        <item>@string/legacy_error_listen_for_a_remote_key_press_b07b1c60a5</item>
+        <item>@string/text_listening</item>
+        <item>@string/text_live_cricket_scores</item>
+        <item>@string/text_dash_news</item>
+        <item>@string/text_news_country_setting</item>
+        <item>@string/text_football_loading</item>
+        <item>@string/text_loading_next_reddit_wallpaper</item>
+        <item>@string/text_releases_loading</item>
+        <item>@string/text_location_eeea97</item>
+        <item>@string/text_lock_now</item>
+        <item>@string/text_lock_screen</item>
+        <item>@string/text_lock_screen_settings_d4db1f</item>
+        <item>@string/text_lock_screen_settings_8b5317</item>
+        <item>@string/text_long_press_volume_button_fix</item>
+        <item>@string/text_long_press_volume_fix_disabled_using_nat</item>
+        <item>@string/text_long_press_volume_fix_enabled_for_tvs_wh</item>
+        <item>@string/legacy_error_look_and_scenes_d899765a88</item>
+        <item>@string/text_looks_like</item>
+        <item>@string/text_matching_models_for</item>
+        <item>@string/text_prayer_maghrib</item>
+        <item>@string/text_make_home_screen</item>
+        <item>@string/text_make_tvos_launcher_default_home</item>
+        <item>@string/text_make_tvos_launcher_the_home_screen</item>
+        <item>@string/text_make_tvos_launcher_your_home_screen</item>
+        <item>@string/text_manage_system_apps_in_tv_settings</item>
+        <item>@string/legacy_error_manual_permissions_bbed716e43</item>
+        <item>@string/text_manual_setup</item>
+        <item>@string/text_manual_debloat_all_system_apps_22aced</item>
+        <item>@string/text_manual_debloat_all_system_apps_99b35c</item>
+        <item>@string/text_map_any_button_on_your_remote_with_singl</item>
+        <item>@string/text_matching_places</item>
+        <item>@string/text_media_file_is_missing_for_slide</item>
+        <item>@string/text_media_item_not_found</item>
+        <item>@string/text_memory</item>
+        <item>@string/text_menu_button</item>
+        <item>@string/text_mode_1_standard_default</item>
+        <item>@string/text_mode_1_standard_default_for_most_android</item>
+        <item>@string/text_mode_2_hy320_projector</item>
+        <item>@string/text_mode_2_hy320_projector_audioservice_ir_p</item>
+        <item>@string/text_mode_3_onn_tv_box_fast_release_stop_0_ex</item>
+        <item>@string/text_mode_manual_setup_without_adb</item>
+        <item>@string/text_mode_persistent_adb_setup_keep_adb_open</item>
+        <item>@string/text_mode_secure_auto_setup_close_adb_recomme</item>
+        <item>@string/text_models_by_system_app_similarity</item>
+        <item>@string/legacy_error_modern_eef6c7f6dd</item>
+        <item>@string/legacy_error_more_apps_2216905b85</item>
+        <item>@string/legacy_error_more_apps_ea224e3aeb</item>
+        <item>@string/text_dash_latest_releases</item>
+        <item>@string/text_releases_country_setting</item>
+        <item>@string/weather_condition_mostly_clear</item>
+        <item>@string/weather_condition_mostly_sunny</item>
+        <item>@string/text_move</item>
+        <item>@string/text_move_icon</item>
+        <item>@string/legacy_error_move_left_in_dock_d545778104</item>
+        <item>@string/legacy_error_move_right_in_dock_b44019a1fc</item>
+        <item>@string/text_move_to_other_apps</item>
+        <item>@string/text_movie</item>
+        <item>@string/text_movies_tv</item>
+        <item>@string/text_mute_unmute_164</item>
+        <item>@string/text_my_location</item>
+        <item>@string/text_night_scenes_b6104d</item>
+        <item>@string/text_night_scenes_clock</item>
+        <item>@string/text_name</item>
+        <item>@string/text_navigation_click_sounds</item>
+        <item>@string/text_new_profile</item>
+        <item>@string/text_news</item>
+        <item>@string/text_next_9f81b4</item>
+        <item>@string/text_next_page</item>
+        <item>@string/text_next_track</item>
+        <item>@string/text_next_wallpaper_f38b4f</item>
+        <item>@string/text_next_wallpaper_b7a1c2</item>
+        <item>@string/scene_night</item>
+        <item>@string/text_night_scenes_custom_wallpaper</item>
+        <item>@string/text_night_scenes_6b95bc</item>
+        <item>@string/text_no_matching_apps_found</item>
+        <item>@string/text_no_apps_to_close</item>
+        <item>@string/text_no_changelog_text_provided_for_this_rele</item>
+        <item>@string/message_no_disabled_app_list_has_been_saved_by_cleanyour</item>
+        <item>@string/text_no_disabled_packages_have_been_recorded</item>
+        <item>@string/text_no_enabled_slides_in_the_active_playlist</item>
+        <item>@string/text_no_hidden_apps_hold_ok_on_any_app_on_the</item>
+        <item>@string/text_no_images_in_this_folder_open_a_subfolde</item>
+        <item>@string/text_football_no_matches</item>
+        <item>@string/text_no_movies_or_shows_found</item>
+        <item>@string/legacy_error_no_recent_apps_6337834ebc</item>
+        <item>@string/text_no_recent_apps_yet</item>
+        <item>@string/text_no_results</item>
+        <item>@string/text_no_saved_disabled_app_backup_was_found_a</item>
+        <item>@string/message_no_saved_disabled_app_backup_was_found_and_no_tv</item>
+        <item>@string/text_no_screensaver_or_sleep_while_presenting</item>
+        <item>@string/text_no_settings_backup_json_found_in_this_fo</item>
+        <item>@string/text_no_stock_android_tv_google_tv_oem_launch</item>
+        <item>@string/text_no_stock_android_tv_google_tv_launcher_p</item>
+        <item>@string/text_no_system_file_picker_available_on_this</item>
+        <item>@string/text_none</item>
+        <item>@string/text_none_clear_action</item>
+        <item>@string/text_none_no_action</item>
+        <item>@string/text_none_found</item>
+        <item>@string/text_none_saved</item>
+        <item>@string/text_not_connected_85d0dd</item>
+        <item>@string/text_not_now</item>
+        <item>@string/text_not_allowed</item>
+        <item>@string/message_not_available_on_tv</item>
+        <item>@string/text_not_connected_ebd8d2</item>
+        <item>@string/text_not_done</item>
+        <item>@string/text_not_done_select_tv_model_first</item>
+        <item>@string/text_not_installed</item>
+        <item>@string/text_not_on_this_tv</item>
+        <item>@string/legacy_error_not_paired_adb_off_0b378808e9</item>
+        <item>@string/text_not_selected</item>
+        <item>@string/text_not_set</item>
+        <item>@string/text_not_signed_in</item>
+        <item>@string/text_not_streaming_right_now</item>
+        <item>@string/text_nothing_to_continue_yet</item>
+        <item>@string/text_nothing_to_present_yet</item>
+        <item>@string/text_notifications_83</item>
+        <item>@string/text_now</item>
+        <item>@string/text_ok</item>
+        <item>@string/text_ok_to_change_back_to_go_back</item>
+        <item>@string/text_ok_to_change_hold_ok_to_move_back_to_go</item>
+        <item>@string/text_ok_to_open_hold_ok_to_restore</item>
+        <item>@string/text_ok_to_open_hold_ok_to_restore_back_to_go</item>
+        <item>@string/text_ok_to_switch_or_edit</item>
+        <item>@string/text_one_tap_actions</item>
+        <item>@string/text_options</item>
+        <item>@string/status_off</item>
+        <item>@string/text_off_tap_to_enable_home_button_remap</item>
+        <item>@string/status_on</item>
+        <item>@string/legacy_he_on_prefix</item>
+        <item>@string/text_on_default</item>
+        <item>@string/message_on_google_tv_sets_wi_fi_networks_saved_during_in</item>
+        <item>@string/text_on_google_tv_if_you_disable_setupwraith</item>
+        <item>@string/text_on_tcl_and_philips_android_11_12_tvs_the</item>
+        <item>@string/text_on_tcl_philips_and_google_tvs_oem_firmwa</item>
+        <item>@string/text_on_the_lock_screen_only_clock_date_and_g</item>
+        <item>@string/text_on_this_tv</item>
+        <item>@string/text_on_pressing_home_launches_tvos_launcher</item>
+        <item>@string/text_one_photo_and_a_grid_of_app_banners</item>
+        <item>@string/text_one_scene_has_to_stay_on</item>
+        <item>@string/text_one_wallpaper_has_to_stay_on</item>
+        <item>@string/text_open_4f0000</item>
+        <item>@string/text_open_android_default_home_settings</item>
+        <item>@string/text_open_android_tv_settings</item>
+        <item>@string/text_open_developer_options_tv_settings</item>
+        <item>@string/text_open_developer_options_and_turn_on_usb_d_c22f55</item>
+        <item>@string/text_open_developer_options_and_turn_on_usb_d_9d4f5e</item>
+        <item>@string/text_open_developer_options</item>
+        <item>@string/text_open_system_file_picker</item>
+        <item>@string/text_open_tv_ambient_mode_screensaver_or_buil</item>
+        <item>@string/text_open_on_a_phone_or_computer_on_the_same</item>
+        <item>@string/text_open_system_selector_if_supported_by_tv</item>
+        <item>@string/text_or_open</item>
+        <item>@string/text_orange</item>
+        <item>@string/text_other_apps_bdcc9c</item>
+        <item>@string/text_other_apps_5ccac2</item>
+        <item>@string/legacy_error_output_b2439bcb8d</item>
+        <item>@string/text_page_navigation</item>
+        <item>@string/text_pairing_code_216a41</item>
+        <item>@string/text_people_c31d4d</item>
+        <item>@string/text_permission_status</item>
+        <item>@string/text_presentation_system</item>
+        <item>@string/legacy_error_presentation_classic_shelf_9e32077c30</item>
+        <item>@string/legacy_error_profiles_3e77bfe515</item>
+        <item>@string/text_pair_repair_adb</item>
+        <item>@string/text_pair_repair_adb_connection</item>
+        <item>@string/text_pair_now</item>
+        <item>@string/text_pair_with_the_tv_pin_first</item>
+        <item>@string/legacy_error_paired_ready_2379bb9b76</item>
+        <item>@string/text_paired_adb_enabled</item>
+        <item>@string/text_pairing_code_146fc7</item>
+        <item>@string/weather_condition_partly_cloudy</item>
+        <item>@string/text_pause</item>
+        <item>@string/text_paused</item>
+        <item>@string/text_people_3a2eb8</item>
+        <item>@string/text_permissions_granted_adb_closed</item>
+        <item>@string/legacy_he_persistent_adb_mode_keep_port_5555__6898113324</item>
+        <item>@string/text_persistent_adb_mode_selected_port_5555_s</item>
+        <item>@string/text_persistent_adb_mode_keep_network_adb_ope</item>
+        <item>@string/text_persistent_adb_setup</item>
+        <item>@string/launcher_desc_philips_oem_home_launcher</item>
+        <item>@string/launcher_desc_philips_oem_home_screen</item>
+        <item>@string/text_pictures</item>
+        <item>@string/legacy_error_pin_to_home_db029e6fe7</item>
+        <item>@string/text_play</item>
+        <item>@string/text_play_pause</item>
+        <item>@string/text_play_as_soon_as_the_tv_turns_on_signage</item>
+        <item>@string/text_playing</item>
+        <item>@string/presentation_name_required</item>
+        <item>@string/presentation_name_too_long</item>
+        <item>@string/text_please_allow_install_unknown_apps_for_tv</item>
+        <item>@string/text_please_enable_usb_debugging_network_debu</item>
+        <item>@string/text_popular_movies_and_series_on_your_stream</item>
+        <item>@string/legacy_error_port_5555_open_ready_to_pair_59e62f7f6c</item>
+        <item>@string/legacy_error_port_5555_open_tap_to_pair_3b338792bb</item>
+        <item>@string/text_power_off</item>
+        <item>@string/legacy_error_power_off_sleep_timer_permission_ddd313295f</item>
+        <item>@string/text_power_off_screen_off</item>
+        <item>@string/text_prayer_calculation_method_f4f921</item>
+        <item>@string/text_dash_prayer_times</item>
+        <item>@string/text_prayer_calculation_method_92d541</item>
+        <item>@string/text_preparing_cleanyourtv</item>
+        <item>@string/text_preparing_qr_code</item>
+        <item>@string/text_presentation</item>
+        <item>@string/text_presentation_address_qr_code</item>
+        <item>@string/text_presentation_isn_t_on_screen</item>
+        <item>@string/text_presentation_isn_t_on_screen_start_it_fr</item>
+        <item>@string/text_presentation_mode</item>
+        <item>@string/text_press_back_again_to_exit</item>
+        <item>@string/legacy_error_press_ok_on_an_app_to_show_or_hide__924fe7b892</item>
+        <item>@string/text_press_ok_to_include_releases_from_this_c</item>
+        <item>@string/text_press_the_button_on_your_remote_that_you</item>
+        <item>@string/text_press_on_an_app_to_close_it</item>
+        <item>@string/text_preview</item>
+        <item>@string/text_preview_lock_screen_now</item>
+        <item>@string/text_previous_page</item>
+        <item>@string/text_previous_track</item>
+        <item>@string/text_proceed_to_the_next_setup_step_when_you</item>
+        <item>@string/text_profile</item>
+        <item>@string/legacy_error_profiles_535e52e4a2</item>
+        <item>@string/text_protected_core_package</item>
+        <item>@string/text_pull_full_app_list_from_adb_and_match_mo_795599</item>
+        <item>@string/text_pull_full_app_list_from_adb_and_match_mo_17de20</item>
+        <item>@string/text_pulling_full_package_list_from_adb_and_c</item>
+        <item>@string/text_purple</item>
+        <item>@string/text_quick_brand_filters</item>
+        <item>@string/legacy_error_quick_buttons_c1ecfd327d</item>
+        <item>@string/text_quick_settings</item>
+        <item>@string/text_reddit_wallpaper_options</item>
+        <item>@string/text_region_mode</item>
+        <item>@string/legacy_error_remapped_buttons_c7ad2f6241</item>
+        <item>@string/text_remapped_buttons_1x_2x_3x_tap</item>
+        <item>@string/legacy_error_remote_fixes_dbaca856c6</item>
+        <item>@string/text_remove_7e2800</item>
+        <item>@string/text_reset_043c3c</item>
+        <item>@string/text_restore_options</item>
+        <item>@string/weather_condition_rain</item>
+        <item>@string/scene_rainforest_dawn</item>
+        <item>@string/legacy_error_re_download_cleanyourtv_512abbde4f</item>
+        <item>@string/text_re_enable_all_stock_launchers</item>
+        <item>@string/text_re_enable_all_packages_disabled_by_clean</item>
+        <item>@string/text_recent_apps</item>
+        <item>@string/text_recent_apps_switcher</item>
+        <item>@string/text_recent_apps_switcher_overlay</item>
+        <item>@string/text_recent_searches</item>
+        <item>@string/text_recommendations</item>
+        <item>@string/text_recommendations_news</item>
+        <item>@string/text_record_button</item>
+        <item>@string/text_red</item>
+        <item>@string/text_red_button</item>
+        <item>@string/text_reddit_wallpapers</item>
+        <item>@string/text_reddit_wallpaper_updated</item>
+        <item>@string/text_refresh</item>
+        <item>@string/text_refresh_carousel</item>
+        <item>@string/legacy_error_refresh_weather_now_995b85be8d</item>
+        <item>@string/message_refreshing</item>
+        <item>@string/text_remember_what_you_play_in_each_app</item>
+        <item>@string/text_remove_8d75c6</item>
+        <item>@string/text_remove_revoke_all_permissions_0a9dac</item>
+        <item>@string/text_remove_revoke_all_permissions_c108cc</item>
+        <item>@string/text_remove_wallpaper</item>
+        <item>@string/text_remove_button_remap</item>
+        <item>@string/text_remove_from_continue_watching</item>
+        <item>@string/text_remove_from_keep_watching</item>
+        <item>@string/legacy_error_remove_from_dock_b27d77465c</item>
+        <item>@string/text_remove_person</item>
+        <item>@string/text_remove_this_wallpaper</item>
+        <item>@string/text_rename_f9a6a6</item>
+        <item>@string/text_rename_app</item>
+        <item>@string/text_rename_profile</item>
+        <item>@string/text_rename_person</item>
+        <item>@string/text_rename_e8372b</item>
+        <item>@string/text_repair</item>
+        <item>@string/text_replace_wallpaper</item>
+        <item>@string/text_required_so_mapped_buttons_work_over_eve</item>
+        <item>@string/text_reset_a1f27d</item>
+        <item>@string/text_reset_control_panel_actions_to_default</item>
+        <item>@string/text_reset_layout</item>
+        <item>@string/text_reset_app_order_unhide_all</item>
+        <item>@string/text_reset_settings_to_defaults</item>
+        <item>@string/text_reset_settings</item>
+        <item>@string/text_reset_to_default</item>
+        <item>@string/text_reset_to_default_icon</item>
+        <item>@string/text_restore_all_9e718c</item>
+        <item>@string/text_restore_complete</item>
+        <item>@string/text_restore_debloated_apps_43153c</item>
+        <item>@string/text_restore_failed</item>
+        <item>@string/text_restore_all_0aeae4</item>
+        <item>@string/text_restore_by_selected_tv_model</item>
+        <item>@string/text_restore_debloated_apps_2f2301</item>
+        <item>@string/text_restore_debloated_apps_3d05c1</item>
+        <item>@string/text_restore_settings_from_folder</item>
+        <item>@string/text_restore</item>
+        <item>@string/text_restoring_apps</item>
+        <item>@string/text_resume_06852b</item>
+        <item>@string/text_resume_playback</item>
+        <item>@string/text_revoke_all_permissions</item>
+        <item>@string/text_revoke</item>
+        <item>@string/text_revoking_permissions</item>
+        <item>@string/text_revoking_all_permissions</item>
+        <item>@string/text_rewind</item>
+        <item>@string/text_align_right</item>
+        <item>@string/text_rotating_nature_scenes_with_a_glass_cloc</item>
+        <item>@string/legacy_error_rounded_0a62cd800f</item>
+        <item>@string/text_run_role_home_set_home_activity_over_loc</item>
+        <item>@string/text_run_role_home_set_home_activity</item>
+        <item>@string/text_run_first_time_setup_again</item>
+        <item>@string/text_run_via_adb</item>
+        <item>@string/text_running_settings_put_global_adb_enabled</item>
+        <item>@string/text_saved_disabled_packages_tap_to_re_enable</item>
+        <item>@string/text_scenes</item>
+        <item>@string/launcher_desc_sdmc_oem_tv_home_screen</item>
+        <item>@string/text_shuffle_folder_86fcb0</item>
+        <item>@string/text_startup_keep_alive</item>
+        <item>@string/text_subreddits_select_single_or_multiple</item>
+        <item>@string/text_save</item>
+        <item>@string/text_say_a_movie_show_or_app</item>
+        <item>@string/text_scan_apps_adb</item>
+        <item>@string/text_scan_installed_apps</item>
+        <item>@string/text_scan_the_code_or_open_this_address_on_a</item>
+        <item>@string/text_scan_with_your_phone_and_approve</item>
+        <item>@string/text_scanning_tv_system_apps</item>
+        <item>@string/legacy_he_scanning_installed_system_packages__c89e27386e</item>
+        <item>@string/text_screen_off</item>
+        <item>@string/text_screen_saver</item>
+        <item>@string/text_screensaver</item>
+        <item>@string/text_search_946f53</item>
+        <item>@string/text_search_button</item>
+        <item>@string/text_search_tv_model_or_brand</item>
+        <item>@string/text_search_apps_movies_and_shows</item>
+        <item>@string/text_search_by_name</item>
+        <item>@string/text_search_for_a_city_or_town</item>
+        <item>@string/text_searching</item>
+        <item>@string/text_secure_mode_needs_one_time_pair_to_grant</item>
+        <item>@string/text_secure_mode_active_adb_not_used_self_rep</item>
+        <item>@string/text_secure_mode_selected_adb_will_grant_writ</item>
+        <item>@string/text_secure_mode_grant_write_secure_settings</item>
+        <item>@string/text_secure_mode_write_secure_settings_close</item>
+        <item>@string/text_secure_setup_adb</item>
+        <item>@string/text_security_note_keep_alive_is_enabled_by_d</item>
+        <item>@string/text_select_all_none</item>
+        <item>@string/text_select_all_select_none</item>
+        <item>@string/text_select_home_app</item>
+        <item>@string/text_select_tv_model_first</item>
+        <item>@string/text_select_wallpaper_folder_0c14ac</item>
+        <item>@string/text_select_wallpaper_image</item>
+        <item>@string/text_select_a_folder_and_enable_or_disable_in</item>
+        <item>@string/text_select_a_usage_mode_for_permissions_butt</item>
+        <item>@string/text_select_at_least_one_package_first</item>
+        <item>@string/text_select_wallpaper_folder_9bea6b</item>
+        <item>@string/legacy_error_select_your_language_to_begin_2878d6f6a0</item>
+        <item>@string/text_selected</item>
+        <item>@string/text_selected_press_ok_to_toggle</item>
+        <item>@string/text_send_key_code_fb16e1</item>
+        <item>@string/text_send_key_code_remote_media_system</item>
+        <item>@string/text_send_key_code_566257</item>
+        <item>@string/text_send_any_android_keyevent_keycode_withou</item>
+        <item>@string/text_send_to_this_tv_535246</item>
+        <item>@string/text_series</item>
+        <item>@string/legacy_error_serif_1b5e747e50</item>
+        <item>@string/text_set_default_home_launcher</item>
+        <item>@string/text_set_default_via_local_adb_recommended</item>
+        <item>@string/text_set_as_default</item>
+        <item>@string/text_set_manually</item>
+        <item>@string/text_setting_default_launcher</item>
+        <item>@string/text_setting_role_home_and_default_home_activ</item>
+        <item>@string/text_settings</item>
+        <item>@string/text_settings_backed_up</item>
+        <item>@string/text_settings_button</item>
+        <item>@string/text_settings_restored</item>
+        <item>@string/text_settings_kept</item>
+        <item>@string/legacy_error_settings_reset_to_defaults_f10770eb1d</item>
+        <item>@string/legacy_error_settings_c239b59a77</item>
+        <item>@string/legacy_error_setup_complete_5983596601</item>
+        <item>@string/text_show_changelog</item>
+        <item>@string/text_show_clock_date_greeting_over_your_chose</item>
+        <item>@string/text_show_continue_watching_on_home</item>
+        <item>@string/text_show_inputs_app_on_dock</item>
+        <item>@string/text_show_app_names</item>
+        <item>@string/legacy_error_show_in_dock_press_ok_to_hide_c6db8a2352</item>
+        <item>@string/text_show_on_home_screen</item>
+        <item>@string/text_show_the_wi_fi_name</item>
+        <item>@string/text_show_widgets_when_selected_app_has_no_co</item>
+        <item>@string/legacy_error_showers_b77eaa0a3f</item>
+        <item>@string/text_shows_and_movies_you_play_will_appear_he</item>
+        <item>@string/text_shuffle_folder_dc8ec3</item>
+        <item>@string/text_sign_out</item>
+        <item>@string/text_signed_in_sign_out</item>
+        <item>@string/text_similar_model_name</item>
+        <item>@string/text_single_multi_wallpapers</item>
+        <item>@string/text_single_tap_1x</item>
+        <item>@string/text_skip_setup</item>
+        <item>@string/text_skip_this_step</item>
+        <item>@string/text_skip_now</item>
+        <item>@string/text_skip_to_the_next_reddit_wallpaper</item>
+        <item>@string/text_skipping_this_slide</item>
+        <item>@string/launcher_desc_skyworth_oem_tv_home_screen</item>
+        <item>@string/legacy_error_sleep_d466bcf52e</item>
+        <item>@string/text_sleep_standby_223</item>
+        <item>@string/text_sleep_timer_e034d8</item>
+        <item>@string/weather_condition_sleet</item>
+        <item>@string/presentation_invalid_duration</item>
+        <item>@string/presentation_duplicate_id</item>
+        <item>@string/presentation_negative_order</item>
+        <item>@string/presentation_media_required</item>
+        <item>@string/presentation_invalid_url</item>
+        <item>@string/presentation_invalid_scroll_speed</item>
+        <item>@string/presentation_invalid_wait</item>
+        <item>@string/presentation_type_required</item>
+        <item>@string/text_small_clock</item>
+        <item>@string/text_smaller_more_compact_dock</item>
+        <item>@string/weather_condition_snow</item>
+        <item>@string/legacy_error_some_tvs_disable_accessibility_or_o_6fb4d5d368</item>
+        <item>@string/launcher_desc_sony_oem_tv_home_menu</item>
+        <item>@string/text_sound</item>
+        <item>@string/text_standard_apple_tvos_dock_size</item>
+        <item>@string/text_start_with_the_tv</item>
+        <item>@string/text_start</item>
+        <item>@string/legacy_error_stencil_0d2302c761</item>
+        <item>@string/text_step_1_complete_default_home_launcher_se</item>
+        <item>@string/text_step_1_set_tvos_launcher_as_default_via</item>
+        <item>@string/text_step_2_disable_system_launchers_google_t</item>
+        <item>@string/text_step_3_fix_home_button_via_accessibility</item>
+        <item>@string/text_step_4_open_android_system_home_settings</item>
+        <item>@string/text_stock_android_tv_home_sponsored_rows</item>
+        <item>@string/launcher_desc_stock_android_tv_home_screen</item>
+        <item>@string/launcher_desc_stock_android_tv_leanback_launcher</item>
+        <item>@string/text_stock_google_tv_home_banner_ads</item>
+        <item>@string/launcher_desc_stock_google_tv_home_screen_banner_ads</item>
+        <item>@string/text_stop</item>
+        <item>@string/text_storage</item>
+        <item>@string/legacy_error_storage_folders_65d3d1d26d</item>
+        <item>@string/text_subtitles_cc</item>
+        <item>@string/text_suggestions</item>
+        <item>@string/weather_condition_sunny</item>
+        <item>@string/text_prayer_sunrise</item>
+        <item>@string/legacy_error_switch_39921a740b</item>
+        <item>@string/text_switch_profile</item>
+        <item>@string/text_switch_tv_hdmi_inputs_on_screen_even_if</item>
+        <item>@string/text_switch_between_secure_auto_setup_persist</item>
+        <item>@string/profile_switch_to_manual_setup</item>
+        <item>@string/text_system_launchers_83a49b</item>
+        <item>@string/legacy_error_system_file_picker_c706f36550</item>
+        <item>@string/text_system_home_launcher_detected_on_this_tv</item>
+        <item>@string/text_tap_actions</item>
+        <item>@string/text_target_action_application</item>
+        <item>@string/launcher_desc_tcl_iffalcon_oem_home_launcher</item>
+        <item>@string/launcher_desc_tcl_oem_home_launcher</item>
+        <item>@string/launcher_desc_tcl_oem_home_screen</item>
+        <item>@string/launcher_desc_tcl_oem_tv_home_launcher</item>
+        <item>@string/text_tmdb_connected</item>
+        <item>@string/text_top_shelf_content</item>
+        <item>@string/text_tv_input_source</item>
+        <item>@string/text_bm_inputs_overlay</item>
+        <item>@string/text_tv_model_matched</item>
+        <item>@string/text_tv_settings_32ce87</item>
+        <item>@string/text_tv_speakers</item>
+        <item>@string/text_tv_settings_95b137</item>
+        <item>@string/text_tall_glass</item>
+        <item>@string/text_tap_check_for_updates</item>
+        <item>@string/text_tap_to_detect_select</item>
+        <item>@string/text_tap_to_include</item>
+        <item>@string/text_tap_to_set_as_active_wallpaper</item>
+        <item>@string/text_tap_to_toggle_in_scene_rotation_long_pre</item>
+        <item>@string/text_teal</item>
+        <item>@string/text_temperature</item>
+        <item>@string/text_that_pin_doesn_t_match_the_one_on_the_tv</item>
+        <item>@string/text_the_home_button_on_the_remote_will_open</item>
+        <item>@string/text_the_home_button_opens_tvos_launcher</item>
+        <item>@string/text_this_tv_does_not_have_a_built_in_accessi</item>
+        <item>@string/legacy_he_this_tv_has_no_inputs_062f3f25f4</item>
+        <item>@string/text_this_tv_s_settings_have_no_switch_for_th</item>
+        <item>@string/text_this_resets_look_scenes_clock_and_langua</item>
+        <item>@string/message_this_runs_settings_put_global_adb_enabled_0_over</item>
+        <item>@string/text_this_will_disable_keep_alive_and_remove</item>
+        <item>@string/weather_condition_thunderstorms</item>
+        <item>@string/text_tip_blur_can_t_be_shown_while_a_video_is</item>
+        <item>@string/text_tip_hold_ok_on_any_app_on_the_home_scree</item>
+        <item>@string/text_to_see_what_you_watch_here_allow_it_in_s</item>
+        <item>@string/text_today</item>
+        <item>@string/text_tomorrow_short</item>
+        <item>@string/text_dash_top_media</item>
+        <item>@string/text_top_shelf_6_column_app_grid_and_custom_w</item>
+        <item>@string/text_top_right_weather_shortcut</item>
+        <item>@string/text_cp_bg_transparent</item>
+        <item>@string/text_trending</item>
+        <item>@string/text_triple_tap_3x</item>
+        <item>@string/text_turn_on_off_adb</item>
+        <item>@string/text_turn_on_adb_debugging</item>
+        <item>@string/text_turn_off_custom_image</item>
+        <item>@string/text_turn_off_custom_scene</item>
+        <item>@string/text_turn_off_folder_shuffle</item>
+        <item>@string/text_turn_on_custom_image</item>
+        <item>@string/text_turn_on_custom_scene</item>
+        <item>@string/text_turn_on_folder_shuffle</item>
+        <item>@string/text_turn_on_presentation_mode_first</item>
+        <item>@string/text_turn_on_first</item>
+        <item>@string/text_turn_the_tv_off_after</item>
+        <item>@string/text_turning_on_adb</item>
+        <item>@string/text_turning_on_adb_debugging_for_this_troubl</item>
+        <item>@string/text_type_to_search_your_apps_settings_movies</item>
+        <item>@string/text_uninstall_f2f89e</item>
+        <item>@string/text_universal_shortcut_actions</item>
+        <item>@string/text_updates_22906d</item>
+        <item>@string/text_usb_storage</item>
+        <item>@string/text_unexpected_server_error</item>
+        <item>@string/text_uninstall_3fd78c</item>
+        <item>@string/text_uninstall_tvos_launcher</item>
+        <item>@string/legacy_error_unpin_from_home_df00f5de07</item>
+        <item>@string/text_unsupported_playback_command</item>
+        <item>@string/text_up</item>
+        <item>@string/text_up_and_down_to_browse_ok_to_change_back</item>
+        <item>@string/text_up_and_down_to_move_ok_when_done</item>
+        <item>@string/text_up_next</item>
+        <item>@string/legacy_error_up_to_date_105c24d6fc</item>
+        <item>@string/text_update_available</item>
+        <item>@string/legacy_error_update_check_failed_2983d175b8</item>
+        <item>@string/legacy_error_update_failed_5da8e751a4</item>
+        <item>@string/text_update_download_failed</item>
+        <item>@string/text_update_every</item>
+        <item>@string/text_update_installed</item>
+        <item>@string/legacy_error_updated_3a5ecca188</item>
+        <item>@string/text_updated</item>
+        <item>@string/text_updates_3c957c</item>
+        <item>@string/legacy_error_updating_tvos_launcher_56b2074873</item>
+        <item>@string/text_weather_updating</item>
+        <item>@string/text_upload_form_field_named_file_is_required</item>
+        <item>@string/text_use_my_location</item>
+        <item>@string/text_use_presentation</item>
+        <item>@string/message_use_arrows_to_move</item>
+        <item>@string/text_use_automatic_location</item>
+        <item>@string/text_use_built_in_android_tv_shortcut</item>
+        <item>@string/text_use_custom_background</item>
+        <item>@string/text_use_folder_shuffle_background</item>
+        <item>@string/text_used_for_the_weather_on_the_home_screen</item>
+        <item>@string/text_uses_local_adb_to_grant_permissions_and</item>
+        <item>@string/text_version_info</item>
+        <item>@string/text_version</item>
+        <item>@string/text_video_failed_1_s_2_s</item>
+        <item>@string/text_video_failed_1_s_media_error_2_d_3_d</item>
+        <item>@string/text_view_or_filter_the_complete_list_of_supp</item>
+        <item>@string/text_voice_input_isn_t_available_on_this_tv</item>
+        <item>@string/text_voice_needs_the_internet</item>
+        <item>@string/text_volume_button_fix_mode_87cb31</item>
+        <item>@string/text_volume_down_25</item>
+        <item>@string/text_volume_fix_mode_1_standard_selected</item>
+        <item>@string/text_volume_fix_mode_2_hy320_projector_select</item>
+        <item>@string/text_volume_fix_mode_3_onn_tv_box_selected</item>
+        <item>@string/text_volume_up_24</item>
+        <item>@string/text_volume_button_fix_mode_28c643</item>
+        <item>@string/legacy_error_wallpaper_f7d9acadfd</item>
+        <item>@string/text_wallpapers_in_folder_tap_to_enable_disab</item>
+        <item>@string/message_warning_manual_debloat_lists_all_system_apps_ins</item>
+        <item>@string/text_weather_a5c8c4</item>
+        <item>@string/text_widget_settings</item>
+        <item>@string/message_write_secure_settings_and_all_launcher_permissio</item>
+        <item>@string/text_waiting_for_approval</item>
+        <item>@string/text_watching_now_ok_to_switch_or_rename</item>
+        <item>@string/scene_waterline</item>
+        <item>@string/text_weather</item>
+        <item>@string/text_weather_forecast_0d1601</item>
+        <item>@string/text_weather_and_location</item>
+        <item>@string/text_weather_from</item>
+        <item>@string/text_weather_on_the_home_screen</item>
+        <item>@string/text_weather_source</item>
+        <item>@string/text_webpage_failed_to_load_1_s</item>
+        <item>@string/text_webpage_slide_is_missing_a_url</item>
+        <item>@string/text_welcome</item>
+        <item>@string/text_what_appears_at_the_top_of_home_behind_y</item>
+        <item>@string/text_what_you_were_watching_mixed_into_the_ca</item>
+        <item>@string/text_white</item>
+        <item>@string/text_who_s_watching</item>
+        <item>@string/text_wi_fi_name_location</item>
+        <item>@string/text_wi_fi_picture_sound_and_the_rest_of_the</item>
+        <item>@string/text_wind</item>
+        <item>@string/launcher_desc_xiaomi_oem_tv_home_screen</item>
+        <item>@string/text_yellow</item>
+        <item>@string/text_yellow_button</item>
+        <item>@string/news_age_yesterday</item>
+        <item>@string/legacy_error_you_are_running_the_latest_version_e9af7e897b</item>
+        <item>@string/text_you_can_also_configure_buttons_later_in</item>
+        <item>@string/text_you_need_the_adb_mode_enabled_for_this_t</item>
+        <item>@string/text_you_re_all_set</item>
+        <item>@string/text_youtube_music_optional</item>
+        <item>@string/text_your_home_screen</item>
+        <item>@string/text_your_name</item>
+        <item>@string/text_your_name_and_an_avatar_each_profile_kee</item>
+        <item>@string/launcher_desc_zeasn_oem_tv_home_screen</item>
+        <item>@string/text_zoom</item>
+        <item>@string/text_zoom_in</item>
+        <item>@string/text_zoom_out</item>
+        <item>@string/text_active_42209d</item>
+        <item>@string/text_apps_ebb18e</item>
+        <item>@string/text_clear_d47414</item>
+        <item>@string/text_live_cricket_scores</item>
+        <item>@string/text_dash_news</item>
+        <item>@string/text_dash_top_media</item>
+        <item>@string/text_e_g_85_play_pause_164_mute_178_tv_input</item>
+        <item>@string/text_e_g_tcl_philips_sony_hisense_xiaomi</item>
+        <item>@string/text_e_g_tcl_sony_hisense_xiaomi_philips_skyw</item>
+        <item>@string/unit_hour_one</item>
+        <item>@string/unit_hour_other</item>
+        <item>@string/text_iphone_duo</item>
+        <item>@string/text_iphone_rounded</item>
+        <item>@string/text_images</item>
+        <item>@string/text_m</item>
+        <item>@string/text_min_938b57</item>
+        <item>@string/unit_minute_one</item>
+        <item>@string/unit_minute_other</item>
+        <item>@string/text_news_country_auto</item>
+        <item>@string/text_news_country_setting</item>
+        <item>@string/text_packages</item>
+        <item>@string/text_prayer_remaining</item>
+        <item>@string/text_space</item>
+        <item>@string/text_tvos_launcher_will_launch_immediately_on</item>
+        <item>@string/text_tvos_launcher_works_best_as_the_home_scr</item>
+        <item>@string/text_google_tv_notice_setupwraith_wi_fi_check</item>
+        <item>@string/text_refresh_system_app_list</item>
+        <item>@string/text_core_system_package</item>
+        <item>@string/text_core_system_package_disabling_may_affect</item>
+        <item>@string/text_detected_your_current_wi_fi_network_is_o</item>
+        <item>@string/text_manual_debloat_warning</item>
+        <item>@string/message_security_warning_keep_alive_monitors_and_restore</item>
+        <item>@string/text_your_wi_fi_network_is_currently_owned_by</item>
+        <item>@string/text_re_added_wi_fi_continue</item>
+        <item>@string/legacy_error_parent_folder_27421160e5</item>
+        <item>@string/legacy_error_back_to_storage_folders_a393f054ee</item>
+        <item>@string/legacy_he_browse_search_all_341_tv_models_638ce40f94</item>
+        <item>@string/text_browse_all_341_tv_models</item>
+        <item>@string/text_open_wi_fi_settings</item>
+        <item>@string/text_wi_fi_settings</item>
+        <item>@string/text_filter_system_apps_b26cf2</item>
+        <item>@string/text_scan_installed_system_apps_to_find_match</item>
+        <item>@string/text_scan_installed_system_apps_via_adb</item>
+        <item>@string/text_search_filter_by_brand_or_model</item>
+        <item>@string/text_search_def46e</item>
+        <item>@string/text_critical_system_service</item>
+        <item>@string/text_critical_system_service_protected_cannot</item>
+        <item>@string/text_skip_setupwraith</item>
+        <item>@string/search_offer_subscription</item>
+        <item>@string/search_offer_free</item>
+        <item>@string/search_offer_free_with_ads</item>
+        <item>@string/search_offer_rent</item>
+        <item>@string/search_offer_buy</item>
+        <item>@string/search_offer_addons</item>
+        <item>@string/network_online</item>
+        <item>@string/network_no_internet</item>
+        <item>@string/network_offline</item>
+        <item>@string/presentation_video_missing_media</item>
+        <item>@string/presentation_image_missing_media</item>
+        <item>@string/text_wi_fi</item>
+        <item>@string/text_bluetooth</item>
+        <item>@string/control_item_memory</item>
+        <item>@string/text_do_not_disturb</item>
+        <item>@string/control_item_audio</item>
+        <item>@string/text_sleep_timer_3ba051</item>
+        <item>@string/control_item_ambient</item>
+        <item>@string/control_item_power</item>
+        <item>@string/control_item_inputs</item>
+        <item>@string/control_item_mapper</item>
+        <item>@string/control_item_settings</item>
+        <item>@string/control_item_search</item>
+        <item>@string/control_item_weather_panel</item>
+        <item>@string/wallpaper_tessellated_pavement</item>
+        <item>@string/wallpaper_grose_valley</item>
+        <item>@string/wallpaper_albury_storm</item>
+        <item>@string/wallpaper_aresquiers_beach</item>
+        <item>@string/wallpaper_vang_vieng_sunset</item>
+        <item>@string/wallpaper_aurora</item>
+        <item>@string/wallpaper_midnight</item>
+        <item>@string/wallpaper_sunset</item>
+        <item>@string/wallpaper_ocean</item>
+        <item>@string/wallpaper_graphite</item>
+        <item>@string/profile_emoji_grin</item>
+        <item>@string/profile_emoji_cool</item>
+        <item>@string/profile_emoji_cowboy</item>
+        <item>@string/profile_emoji_party</item>
+        <item>@string/profile_emoji_fox</item>
+        <item>@string/profile_emoji_panda</item>
+        <item>@string/profile_emoji_tiger</item>
+        <item>@string/profile_emoji_lion</item>
+        <item>@string/profile_emoji_frog</item>
+        <item>@string/profile_emoji_monkey</item>
+        <item>@string/profile_emoji_koala</item>
+        <item>@string/profile_emoji_unicorn</item>
+        <item>@string/profile_emoji_dog</item>
+        <item>@string/profile_emoji_cat</item>
+        <item>@string/profile_emoji_bear</item>
+        <item>@string/profile_emoji_bunny</item>
+        <item>@string/profile_emoji_ghost</item>
+        <item>@string/profile_emoji_robot</item>
+        <item>@string/profile_emoji_alien</item>
+        <item>@string/profile_emoji_pumpkin</item>
+        <item>@string/profile_color_sky</item>
+        <item>@string/profile_color_pink</item>
+        <item>@string/profile_color_mint</item>
+        <item>@string/profile_color_lemon</item>
+        <item>@string/profile_color_lavender</item>
+        <item>@string/profile_color_peach</item>
+        <item>@string/profile_color_silver</item>
+    </array>
+</resources>

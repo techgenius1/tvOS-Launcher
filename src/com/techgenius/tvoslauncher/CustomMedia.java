@@ -256,20 +256,20 @@ public final class CustomMedia {
             0xFFFF2D55  // Pink
         };
         final String[] bgNames = {
-            I18n.s(activity, "Auto", "Otomatik"),
-            I18n.s(activity, "Dark", "Koyu"),
-            I18n.s(activity, "Black", "Siyah"),
-            I18n.s(activity, "White", "Beyaz"),
-            I18n.s(activity, "Gray", "Gri"),
-            I18n.s(activity, "Red", "Kırmızı"),
-            I18n.s(activity, "Orange", "Turuncu"),
-            I18n.s(activity, "Yellow", "Sarı"),
-            I18n.s(activity, "Green", "Yeşil"),
-            I18n.s(activity, "Teal", "Turkuaz"),
-            I18n.s(activity, "Blue", "Mavi"),
-            I18n.s(activity, "Indigo", "Çivit"),
-            I18n.s(activity, "Purple", "Mor"),
-            I18n.s(activity, "Pink", "Pembe")
+            I18n.resourceString(activity, R.string.text_auto),
+            I18n.resourceString(activity, R.string.text_dark),
+            I18n.resourceString(activity, R.string.text_black),
+            I18n.resourceString(activity, R.string.text_white),
+            I18n.resourceString(activity, R.string.text_gray),
+            I18n.resourceString(activity, R.string.text_red),
+            I18n.resourceString(activity, R.string.text_orange),
+            I18n.resourceString(activity, R.string.text_yellow),
+            I18n.resourceString(activity, R.string.text_green),
+            I18n.resourceString(activity, R.string.text_teal),
+            I18n.resourceString(activity, R.string.text_blue),
+            I18n.resourceString(activity, R.string.text_indigo),
+            I18n.resourceString(activity, R.string.text_purple),
+            I18n.resourceString(activity, R.string.text_pink)
         };
 
         final float bleedBoost = (cornerAlpha < 180 && midEdgeAlpha >= 200) ? 1.06f : 1.0f;
@@ -295,7 +295,7 @@ public final class CustomMedia {
 
         // Title
         TextView titleView = new TextView(activity);
-        titleView.setText(I18n.s(activity, "App Icon Editor", "Uygulama Simgesi Düzenleyici")
+        titleView.setText(I18n.resourceString(activity, R.string.text_app_icon_editor)
                 + (appLabel != null && !appLabel.isEmpty() ? " — " + appLabel : ""));
         titleView.setTextColor(Color.WHITE);
         titleView.setTypeface(Ui.font(activity, "semibold"));
@@ -343,7 +343,7 @@ public final class CustomMedia {
                 prevSize + framePad * 2, prevSize + framePad * 2));
 
         TextView previewCap = new TextView(activity);
-        previewCap.setText(I18n.s(activity, "Preview", "Önizleme"));
+        previewCap.setText(I18n.resourceString(activity, R.string.text_preview));
         previewCap.setTextColor(0xCCFFFFFF);
         previewCap.setTypeface(Ui.font(activity, "medium"));
         Ui.textSize(previewCap, 11.5f);
@@ -400,7 +400,7 @@ public final class CustomMedia {
 
         // 1. Background Color Row
         LinearLayout bgRow = createEditorControlRow(activity, rightCol, u,
-                I18n.s(activity, "Background color", "Arka plan rengi"));
+                I18n.resourceString(activity, R.string.text_background_color));
         TextView prevColorBtn = createEditorButton(activity, u, "◀", () -> {
             bgIdx[0] = (bgIdx[0] - 1 + bgColors.length) % bgColors.length;
             updatePreview.run();
@@ -424,19 +424,19 @@ public final class CustomMedia {
 
         // 2. Zoom Row
         LinearLayout zoomRow = createEditorControlRow(activity, rightCol, u,
-                I18n.s(activity, "Zoom", "Yakınlaştırma"));
+                I18n.resourceString(activity, R.string.text_zoom));
         TextView zoomOutBtn = createEditorButton(activity, u,
-                "－ " + I18n.s(activity, "Zoom out", "Uzaklaştır"), () -> {
+                "－ " + I18n.resourceString(activity, R.string.text_zoom_out), () -> {
                     zoom[0] = Math.max(0.25f, Math.round((zoom[0] - 0.08f) * 100f) / 100f);
                     updatePreview.run();
                 });
         TextView zoomInBtn = createEditorButton(activity, u,
-                "＋ " + I18n.s(activity, "Zoom in", "Yakınlaştır"), () -> {
+                "＋ " + I18n.resourceString(activity, R.string.text_zoom_in), () -> {
                     zoom[0] = Math.min(3.00f, Math.round((zoom[0] + 0.08f) * 100f) / 100f);
                     updatePreview.run();
                 });
         TextView resetBtn = createEditorButton(activity, u,
-                "↺ " + I18n.s(activity, "Reset", "Sıfırla"), () -> {
+                "↺ " + I18n.resourceString(activity, R.string.text_reset_a1f27d), () -> {
                     zoom[0] = 1.0f;
                     offX[0] = 0.0f;
                     offY[0] = 0.0f;
@@ -449,24 +449,24 @@ public final class CustomMedia {
 
         // 3. Move (Left / Right / Up / Down) Row
         LinearLayout moveRow = createEditorControlRow(activity, rightCol, u,
-                I18n.s(activity, "Move icon", "Simgeyi taşı"));
+                I18n.resourceString(activity, R.string.text_move_icon));
         TextView moveLeftBtn = createEditorButton(activity, u,
-                "← " + I18n.s(activity, "Left", "Sol"), () -> {
+                "← " + I18n.resourceString(activity, R.string.text_left), () -> {
                     offX[0] = Math.max(-0.80f, Math.round((offX[0] - 0.04f) * 100f) / 100f);
                     updatePreview.run();
                 });
         TextView moveRightBtn = createEditorButton(activity, u,
-                "→ " + I18n.s(activity, "Right", "Sağ"), () -> {
+                "→ " + I18n.resourceString(activity, R.string.text_right), () -> {
                     offX[0] = Math.min(0.80f, Math.round((offX[0] + 0.04f) * 100f) / 100f);
                     updatePreview.run();
                 });
         TextView moveUpBtn = createEditorButton(activity, u,
-                "↑ " + I18n.s(activity, "Up", "Yukarı"), () -> {
+                "↑ " + I18n.resourceString(activity, R.string.text_up), () -> {
                     offY[0] = Math.max(-0.80f, Math.round((offY[0] - 0.04f) * 100f) / 100f);
                     updatePreview.run();
                 });
         TextView moveDownBtn = createEditorButton(activity, u,
-                "↓ " + I18n.s(activity, "Down", "Aşağı"), () -> {
+                "↓ " + I18n.resourceString(activity, R.string.text_down), () -> {
                     offY[0] = Math.min(0.80f, Math.round((offY[0] + 0.04f) * 100f) / 100f);
                     updatePreview.run();
                 });
@@ -492,9 +492,9 @@ public final class CustomMedia {
                 .create();
 
         TextView cancelBtn = createEditorButton(activity, u,
-                I18n.s(activity, "Cancel", "İptal"), dlg::dismiss);
+                I18n.resourceString(activity, R.string.text_cancel), dlg::dismiss);
         TextView applyBtn = createEditorButton(activity, u,
-                "✓  " + I18n.s(activity, "Apply", "Uygula"), () -> {
+                "✓  " + I18n.resourceString(activity, R.string.text_apply), () -> {
                     int outPx = 512;
                     float baseScale512 = Math.max(outPx / (float) sw, outPx / (float) sh) * bleedBoost;
                     Bitmap finalBmp = renderEditedAppIcon(
@@ -829,11 +829,11 @@ public final class CustomMedia {
     public static String getCustomWallpaperModeLabel(Context c, String scope) {
         int m = getCustomWallpaperSubMode(c, scope);
         if (m == CUSTOM_MODE_FOLDER_SHUFFLE) {
-            return I18n.s(c, "Shuffle Folder", "Klasörü Karıştır");
+            return I18n.resourceString(c, R.string.text_shuffle_folder_dc8ec3);
         } else if (m == CUSTOM_MODE_REDDIT) {
-            return I18n.s(c, "Reddit Wallpapers", "Reddit Duvar Kağıtları");
+            return I18n.resourceString(c, R.string.text_reddit_wallpapers);
         }
-        return I18n.s(c, "Single / Multi Wallpapers", "Tekli / Çoklu Duvar Kağıdı");
+        return I18n.resourceString(c, R.string.text_single_multi_wallpapers);
     }
 
     public static int getActiveCustomSlot(Context c, String scope) {
@@ -1351,7 +1351,7 @@ public final class CustomMedia {
     public static String getWallpaperShuffleFolderSummary(Context c, String scope) {
         String path = getWallpaperShuffleFolder(c, scope);
         if (path.isEmpty()) {
-            return I18n.s(c, "Not selected", "Seçilmedi");
+            return I18n.resourceString(c, R.string.text_not_selected);
         }
         File dir = new File(path);
         List<File> all = listFolderImages(dir);
@@ -1361,9 +1361,9 @@ public final class CustomMedia {
         }
         List<File> enabled = listEnabledFolderImages(c, scope, dir);
         if (enabled.size() < count) {
-            return dir.getName() + " (" + enabled.size() + "/" + count + " " + I18n.s(c, "images", "görsel") + ")";
+            return dir.getName() + " (" + enabled.size() + "/" + count + " " + I18n.resourceString(c, R.string.text_images) + ")";
         }
-        return dir.getName() + " (" + count + " " + I18n.s(c, "images", "görsel") + ")";
+        return dir.getName() + " (" + count + " " + I18n.resourceString(c, R.string.text_images) + ")";
     }
 
     public static Bitmap getNextShuffledFolderBitmap(Context c, String scope, int reqW, int reqH, boolean advance) {
@@ -1520,9 +1520,9 @@ public final class CustomMedia {
         int mins = getRedditIntervalMinutes(c, scope);
         if (mins >= 60 && mins % 60 == 0) {
             int hrs = mins / 60;
-            return hrs + " " + I18n.s(c, hrs == 1 ? "hour" : "hours", "saat");
+            return hrs + " " + I18n.resourceString(c, hrs == 1 ? R.string.unit_hour_one : R.string.unit_hour_other);
         }
-        return mins + " " + I18n.s(c, mins == 1 ? "minute" : "minutes", "dakika");
+        return mins + " " + I18n.resourceString(c, mins == 1 ? R.string.unit_minute_one : R.string.unit_minute_other);
     }
 
     public static boolean isRedditChangeDue(Context c, String scope) {
@@ -2118,7 +2118,7 @@ public final class CustomMedia {
                     pick.callback.onImagePicked(b);
                 } else {
                     android.widget.Toast.makeText(pick.activity,
-                            I18n.s(pick.activity, "Could not load selected image.", "Seçilen görsel yüklenemedi."),
+                            I18n.resourceString(pick.activity, R.string.text_could_not_load_selected_image),
                             android.widget.Toast.LENGTH_SHORT).show();
                 }
             });
@@ -2151,12 +2151,12 @@ public final class CustomMedia {
         }
         if (ext.exists()) {
             File dl = new File(ext, "Download");
-            if (dl.exists() && dl.isDirectory()) roots.put("\ud83d\udce5  " + I18n.t(c, "Download") + " (" + dl.getAbsolutePath() + ")", dl);
+            if (dl.exists() && dl.isDirectory()) roots.put("\ud83d\udce5  " + I18n.resourceString(c, R.string.text_download) + " (" + dl.getAbsolutePath() + ")", dl);
             File pics = new File(ext, "Pictures");
-            if (pics.exists() && pics.isDirectory()) roots.put("\ud83d\uddbc\ufe0f  " + I18n.t(c, "Pictures") + " (" + pics.getAbsolutePath() + ")", pics);
+            if (pics.exists() && pics.isDirectory()) roots.put("\ud83d\uddbc\ufe0f  " + I18n.resourceString(c, R.string.text_pictures) + " (" + pics.getAbsolutePath() + ")", pics);
             File dcim = new File(ext, "DCIM");
             if (dcim.exists() && dcim.isDirectory()) roots.put("📷  DCIM (" + dcim.getAbsolutePath() + ")", dcim);
-            roots.put("\ud83d\udcbe  " + I18n.t(c, "Internal Storage") + " (" + ext.getAbsolutePath() + ")", ext);
+            roots.put("\ud83d\udcbe  " + I18n.resourceString(c, R.string.text_internal_storage) + " (" + ext.getAbsolutePath() + ")", ext);
         }
         // Check USB drives in /storage and /mnt/media_rw
         String[] mountParents = {"/storage", "/mnt/media_rw", "/mnt/usb", "/mnt/usb_storage"};
@@ -2168,7 +2168,7 @@ public final class CustomMedia {
                 String n = ch.getName();
                 if ("emulated".equals(n) || "self".equals(n) || "enc_emulated".equals(n)) continue;
                 if (ch.isDirectory() && ch.canRead()) {
-                    roots.put("\ud83d\udd0c  " + I18n.t(c, "USB / Storage") + " (" + ch.getAbsolutePath() + ")", ch);
+                    roots.put("\ud83d\udd0c  " + I18n.resourceString(c, R.string.text_usb_storage) + " (" + ch.getAbsolutePath() + ")", ch);
                 }
             }
         }
@@ -2207,7 +2207,7 @@ public final class CustomMedia {
                 labels.add(entry.getKey());
                 actions.add(() -> showDirectoryBrowser(activity, title, dir, allowIco, maxW, maxH, resetLabel, onReset, callback));
             }
-            labels.add("📂  " + I18n.s(activity, "Open System File Picker…", "Sistem Dosya Seçicisini Aç…"));
+            labels.add("📂  " + I18n.resourceString(activity, R.string.text_open_system_file_picker));
             actions.add(() -> {
                 try {
                     pendingSystemPick = new PendingSystemPick(activity, allowIco, maxW, maxH, callback);
@@ -2220,12 +2220,12 @@ public final class CustomMedia {
                 } catch (Throwable t) {
                     pendingSystemPick = null;
                     android.widget.Toast.makeText(activity,
-                            I18n.s(activity, "No system file picker available on this TV.", "Bu TV'de sistem dosya seçicisi bulunmuyor."),
+                            I18n.resourceString(activity, R.string.text_no_system_file_picker_available_on_this),
                             android.widget.Toast.LENGTH_SHORT).show();
                 }
             });
             if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-                labels.add("🔓  " + I18n.s(activity, "Grant All Files Access…", "Tüm Dosyalara Erişim İzni Ver…"));
+                labels.add("🔓  " + I18n.resourceString(activity, R.string.text_grant_all_files_access));
                 actions.add(() -> {
                     try {
                         Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
@@ -2240,7 +2240,7 @@ public final class CustomMedia {
                 });
             }
         } else {
-            labels.add("⬆️  .. (" + I18n.s(activity, "Back to folders", "Klasörlere dön") + ")");
+            labels.add("⬆️  .. (" + I18n.resourceString(activity, R.string.text_back_to_folders) + ")");
             actions.add(() -> {
                 File parent = currentDir.getParentFile();
                 if (parent != null && parent.canRead() && !currentDir.getAbsolutePath().equals("/storage/emulated/0")
@@ -2281,7 +2281,7 @@ public final class CustomMedia {
                                     callback.onImagePicked(decoded);
                                 } else {
                                     android.widget.Toast.makeText(activity,
-                                            I18n.s(activity, "Could not decode image file.", "Görsel dosyası okunamadı."),
+                                            I18n.resourceString(activity, R.string.text_could_not_decode_image_file),
                                             android.widget.Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -2291,8 +2291,7 @@ public final class CustomMedia {
             }
             if (labels.size() == 1) {
                 String exts = allowIco ? ".jpg, .jpeg, .png, .ico" : ".jpg, .jpeg, .png";
-                labels.add("ℹ️  " + I18n.s(activity, "No image files (" + exts + ") in this folder",
-                        "Bu klasörde görsel dosyası (" + exts + ") bulunamadı"));
+                labels.add("ℹ️  " + I18n.resourceString(activity, R.string.folder_no_image_files, exts));
                 actions.add(() -> showDirectoryBrowser(activity, title, currentDir, allowIco, maxW, maxH, resetLabel, onReset, callback));
             }
         }
@@ -2308,7 +2307,7 @@ public final class CustomMedia {
                         actions.get(which).run();
                     }
                 })
-                .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(activity, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2356,7 +2355,7 @@ public final class CustomMedia {
                 actions.add(() -> showFolderBrowser(activity, title, dir, callback));
             }
             if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-                labels.add("🔓  " + I18n.s(activity, "Grant All Files Access…", "Tüm Dosyalara Erişim İzni Ver…"));
+                labels.add("🔓  " + I18n.resourceString(activity, R.string.text_grant_all_files_access));
                 actions.add(() -> {
                     try {
                         Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
@@ -2373,20 +2372,16 @@ public final class CustomMedia {
         } else {
             int imgCount = countImagesInFolder(currentDir);
             if (imgCount > 0) {
-                labels.add("✓  " + I18n.s(activity,
-                        "Select this folder & shuffle (" + imgCount + " images)",
-                        "Bu klasörü seç ve karıştır (" + imgCount + " görsel)"));
+                labels.add("✓  " + I18n.resourceString(activity, R.string.folder_select_shuffle_count, imgCount));
                 actions.add(() -> {
                     if (callback != null) callback.onFolderPicked(currentDir, imgCount);
                 });
             } else {
-                labels.add("ℹ️  " + I18n.s(activity,
-                        "No images in this folder (open a subfolder below)",
-                        "Bu klasörde görsel yok (aşağıdan bir alt klasör açın)"));
+                labels.add("ℹ️  " + I18n.resourceString(activity, R.string.text_no_images_in_this_folder_open_a_subfolde));
                 actions.add(() -> showFolderBrowser(activity, title, currentDir, callback));
             }
 
-            labels.add("⬆️  .. (" + I18n.s(activity, "Back to parent folder", "Üst klasöre dön") + ")");
+            labels.add("⬆️  .. (" + I18n.resourceString(activity, R.string.text_back_to_parent_folder) + ")");
             actions.add(() -> {
                 File parent = currentDir.getParentFile();
                 if (parent != null && parent.canRead() && !currentDir.getAbsolutePath().equals("/storage/emulated/0")
@@ -2409,7 +2404,7 @@ public final class CustomMedia {
                 for (File d : dirs) {
                     int subCount = countImagesInFolder(d);
                     String badge = subCount > 0
-                            ? "  (" + subCount + " " + I18n.s(activity, "images", "görsel") + ")"
+                            ? "  (" + subCount + " " + I18n.resourceString(activity, R.string.text_images) + ")"
                             : "";
                     labels.add("📁  " + d.getName() + badge);
                     actions.add(() -> showFolderBrowser(activity, title, d, callback));
@@ -2428,7 +2423,7 @@ public final class CustomMedia {
                         actions.get(which).run();
                     }
                 })
-                .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(activity, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2649,23 +2644,16 @@ public final class CustomMedia {
                 if (onDone != null) onDone.run();
                 if (success) {
                     new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                            .setTitle(I18n.s(activity, "Settings Backed Up", "Ayarlar Yedeklendi"))
-                            .setMessage(I18n.s(activity,
-                                    "Your current tvOS Launcher settings have been saved to:\n\n" + finalPath,
-                                    "Mevcut tvOS Launcher ayarlarınız şu konuma kaydedildi:\n\n" + finalPath))
-                            .setPositiveButton(I18n.s(activity, "OK", "Tamam"), null)
+                            .setTitle(I18n.resourceString(activity, R.string.text_settings_backed_up))
+                            .setMessage(I18n.resourceString(activity, R.string.message_your_current_tvos_launcher_settings_have_been_sa, finalPath))
+                            .setPositiveButton(I18n.resourceString(activity, R.string.text_ok), null)
                             .show();
                 } else {
                     new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                            .setTitle(I18n.s(activity, "Backup Failed", "Yedekleme Başarısız"))
-                            .setMessage(I18n.s(activity,
-                                    "Could not write to Download/" + SETTINGS_BACKUP_FILENAME
-                                            + (finalErr != null ? "\n\n" + finalErr : "")
-                                            + "\n\nPlease allow storage access and try again.",
-                                    "Download/" + SETTINGS_BACKUP_FILENAME + " dosyasına yazılamadı"
-                                            + (finalErr != null ? "\n\n" + finalErr : "")
-                                            + "\n\nLütfen depolama erişimine izin verip tekrar deneyin."))
-                            .setPositiveButton(I18n.s(activity, "Grant Storage Access…", "Depolama İzni Ver…"), (d, w) -> {
+                            .setTitle(I18n.resourceString(activity, R.string.text_backup_failed))
+                            .setMessage(I18n.resourceString(activity, R.string.settings_backup_write_failed,
+                                    finalErr != null ? "\n\n" + finalErr : "", SETTINGS_BACKUP_FILENAME))
+                            .setPositiveButton(I18n.resourceString(activity, R.string.text_grant_storage_access), (d, w) -> {
                                 if (Build.VERSION.SDK_INT >= 30) {
                                     try {
                                         activity.startActivity(new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
@@ -2676,7 +2664,7 @@ public final class CustomMedia {
                                 }
                                 ensureStoragePermissions(activity);
                             })
-                            .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                            .setNegativeButton(I18n.resourceString(activity, R.string.text_cancel), null)
                             .show();
                 }
             });
@@ -2699,9 +2687,7 @@ public final class CustomMedia {
             File dl = resolveDownloadFolder();
             File defaultBackup = new File(dl, SETTINGS_BACKUP_FILENAME);
             if (defaultBackup.exists() && defaultBackup.isFile()) {
-                labels.add("⚡  " + I18n.s(activity,
-                        "Restore from Download/" + SETTINGS_BACKUP_FILENAME,
-                        "Download/" + SETTINGS_BACKUP_FILENAME + " dosyasından geri yükle"));
+                labels.add("⚡  " + I18n.resourceString(activity, R.string.settings_restore_from_download, SETTINGS_BACKUP_FILENAME));
                 actions.add(() -> restoreSettingsFromFile(activity, defaultBackup, onRestored));
             }
             Map<String, File> roots = getStorageRoots(activity);
@@ -2711,7 +2697,7 @@ public final class CustomMedia {
                 actions.add(() -> showRestoreFolderBrowser(activity, dir, onRestored));
             }
             if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-                labels.add("🔓  " + I18n.s(activity, "Grant All Files Access…", "Tüm Dosyalara Erişim İzni Ver…"));
+                labels.add("🔓  " + I18n.resourceString(activity, R.string.text_grant_all_files_access));
                 actions.add(() -> {
                     try {
                         Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
@@ -2728,13 +2714,11 @@ public final class CustomMedia {
         } else {
             File defaultInFolder = new File(currentDir, SETTINGS_BACKUP_FILENAME);
             if (defaultInFolder.exists() && defaultInFolder.isFile()) {
-                labels.add("✓  " + I18n.s(activity,
-                        "Restore from this folder (" + SETTINGS_BACKUP_FILENAME + ")",
-                        "Bu klasörden geri yükle (" + SETTINGS_BACKUP_FILENAME + ")"));
+                labels.add("✓  " + I18n.resourceString(activity, R.string.settings_restore_from_folder, SETTINGS_BACKUP_FILENAME));
                 actions.add(() -> restoreSettingsFromFile(activity, defaultInFolder, onRestored));
             }
 
-            labels.add("⬆️  .. (" + I18n.s(activity, "Back to parent folder", "Üst klasöre dön") + ")");
+            labels.add("⬆️  .. (" + I18n.resourceString(activity, R.string.text_back_to_parent_folder) + ")");
             actions.add(() -> {
                 File parent = currentDir.getParentFile();
                 if (parent != null && parent.canRead() && !currentDir.getAbsolutePath().equals("/storage/emulated/0")
@@ -2775,15 +2759,13 @@ public final class CustomMedia {
                 }
             }
             if (labels.size() == 1) {
-                labels.add("ℹ️  " + I18n.s(activity,
-                        "No settings backup (.json) found in this folder",
-                        "Bu klasörde ayar yedeği (.json) bulunamadı"));
+                labels.add("ℹ️  " + I18n.resourceString(activity, R.string.text_no_settings_backup_json_found_in_this_fo));
                 actions.add(() -> showRestoreFolderBrowser(activity, currentDir, onRestored));
             }
         }
 
         String dlgTitle = currentDir == null
-                ? I18n.s(activity, "Choose Folder to Restore Settings", "Ayarların Geri Yükleneceği Klasörü Seçin")
+                ? I18n.resourceString(activity, R.string.text_choose_folder_to_restore_settings)
                 : currentDir.getAbsolutePath();
 
         new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
@@ -2793,7 +2775,7 @@ public final class CustomMedia {
                         actions.get(which).run();
                     }
                 })
-                .setNegativeButton(I18n.s(activity, "Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(activity, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2819,22 +2801,18 @@ public final class CustomMedia {
                 if (success) {
                     if (onRestored != null) onRestored.run();
                     new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                            .setTitle(I18n.s(activity, "Settings Restored", "Ayarlar Geri Yüklendi"))
-                            .setMessage(I18n.s(activity,
-                                    "Settings were successfully restored from:\n" + file.getAbsolutePath(),
-                                    "Ayarlar şu dosyadan başarıyla geri yüklendi:\n" + file.getAbsolutePath()))
-                            .setPositiveButton(I18n.s(activity, "OK", "Tamam"), (d, w) -> activity.recreate())
+                            .setTitle(I18n.resourceString(activity, R.string.text_settings_restored))
+                            .setMessage(I18n.resourceString(activity, R.string.settings_restored_from_path,
+                                    file.getAbsolutePath()))
+                            .setPositiveButton(I18n.resourceString(activity, R.string.text_ok), (d, w) -> activity.recreate())
                             .setOnCancelListener(d -> activity.recreate())
                             .show();
                 } else {
                     new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                            .setTitle(I18n.s(activity, "Restore Failed", "Geri Yükleme Başarısız"))
-                            .setMessage(I18n.s(activity,
-                                    "Could not restore settings from:\n" + file.getAbsolutePath()
-                                            + (finalErr != null ? "\n\n" + finalErr : ""),
-                                    "Ayarlar şu dosyadan geri yüklenemedi:\n" + file.getAbsolutePath()
-                                            + (finalErr != null ? "\n\n" + finalErr : "")))
-                            .setPositiveButton(I18n.s(activity, "OK", "Tamam"), null)
+                            .setTitle(I18n.resourceString(activity, R.string.text_restore_failed))
+                            .setMessage(I18n.resourceString(activity, R.string.settings_restore_failed_from_path,
+                                    file.getAbsolutePath() + (finalErr != null ? "\n\n" + finalErr : "")))
+                            .setPositiveButton(I18n.resourceString(activity, R.string.text_ok), null)
                             .show();
                 }
             });

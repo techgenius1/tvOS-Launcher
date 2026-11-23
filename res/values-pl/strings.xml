@@ -1,0 +1,1710 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="message_no_place_found">"Nie znaleziono miejsca „%1$s”."</string>
+    <string name="message_location_set">"Ustawiono lokalizację: %1$s."</string>
+    <string name="message_update_current">"Masz aktualną wersję (v%1$s)"</string>
+    <string name="message_update_changelog">"Lista zmian — v%1$s"</string>
+    <string name="message_update_downloading">"Pobieranie aktualizacji v%1$s…"</string>
+    <string name="message_update_installing_adb">"Automatyczne instalowanie aktualizacji v%1$s przez ADB…"</string>
+    <string name="message_update_available_details">"W serwisie GitHub dostępna jest nowa wersja tvOS Launcher.\nObecna wersja: v%1$s  →  Nowa wersja: v%2$s\n\n%3$s"</string>
+    <string name="message_update_signature_mismatch">"Pobrana aktualizacja (v%1$s) jest podpisana innym kluczem niż zainstalowana aplikacja.\n\nAndroid wymaga odinstalowania aplikacji przed zmianą podpisu. Przed ponowną instalacją wykonaj kopię ustawień w Ustawieniach -&gt; Kopia zapasowa i przywracanie."</string>
+    <string name="message_cloud_sign_in">"Zaloguj się do %1$s"</string>
+    <string name="message_cloud_unreachable">"Nie można połączyć się z %1$s"</string>
+    <string name="message_cloud_unreachable_retry">"Nie można połączyć się z %1$s. Zaznacz kafelek ponownie, aby spróbować jeszcze raz."</string>
+    <string name="message_cloud_sign_in_instructions">"Aby się zalogować, zaznacz kafelek %1$s na ekranie głównym i zeskanuj kod QR."</string>
+    <string name="message_cloud_sign_out_question">"Wylogować się z %1$s?"</string>
+    <string name="message_cloud_sign_out_details">"Sekcja kontynuowania oglądania w doku przestanie pokazywać materiały z %1$s. W samej aplikacji %1$s pozostaniesz zalogowany."</string>
+    <string name="message_cloud_signed_out">"Wylogowano z %1$s."</string>
+    <string name="message_app_not_installed">"%1$s nie jest zainstalowana na tym telewizorze"</string>
+    <string name="message_sleep_off_in_minutes">"Wyłączenie za %1$s min"</string>
+    <string name="message_cannot_open_app">"Nie można otworzyć %1$s"</string>
+    <string name="message_cannot_switch_input">"Nie można przełączyć na %1$s"</string>
+    <string name="message_app_moved_to_other_apps">"Przeniesiono %1$s do innych aplikacji"</string>
+    <string name="message_app_hidden">"Ukryto %1$s (Ustawienia &gt; Aplikacje &gt; Ukryte aplikacje)"</string>
+    <string name="message_app_back_home">"Przywrócono %1$s na ekran główny"</string>
+    <string name="message_app_restored_home">"Przywrócono %1$s na ekran główny."</string>
+    <string name="message_delete_profile">"Usunąć „%1$s”?"</string>
+    <string name="search_open_in">"▶  Otwórz w %1$s"</string>
+    <string name="search_get_app">"Pobierz %1$s"</string>
+    <string name="message_removed">"Usunięto %1$s"</string>
+    <string name="message_refreshing">"Odświeżanie"</string>
+    <string name="message_not_available_on_tv">"Niedostępne na tym telewizorze"</string>
+    <string name="message_use_arrows_to_move">"Przesuwaj strzałkami · Po zakończeniu naciśnij OK"</string>
+    <string name="news_age_now">"Przed chwilą"</string>
+    <string name="news_age_yesterday">"Wczoraj"</string>
+    <string name="news_age_minutes">"%1$s min temu"</string>
+    <string name="news_age_hours">"%1$s godz. temu"</string>
+    <plurals name="news_age_days">
+        <item quantity="one">"%1$s dzień temu"</item>
+        <item quantity="few">"%1$s dni temu"</item>
+        <item quantity="many">"%1$s dni temu"</item>
+        <item quantity="other">"%1$s dnia temu"</item>
+    </plurals>
+    <plurals name="message_closed_apps">
+        <item quantity="one">"Zamknięto %1$s aplikację"</item>
+        <item quantity="few">"Zamknięto %1$s aplikacje"</item>
+        <item quantity="many">"Zamknięto %1$s aplikacji"</item>
+        <item quantity="other">"Zamknięto %1$s aplikacji"</item>
+    </plurals>
+    <plurals name="message_closed_apps_freed">
+        <item quantity="one">"Zamknięto %1$s aplikację · zwolniono %2$s MB"</item>
+        <item quantity="few">"Zamknięto %1$s aplikacje · zwolniono %2$s MB"</item>
+        <item quantity="many">"Zamknięto %1$s aplikacji · zwolniono %2$s MB"</item>
+        <item quantity="other">"Zamknięto %1$s aplikacji · zwolniono %2$s MB"</item>
+    </plurals>
+    <string name="text_12_hour" formatted="false">"12 godzin"</string>
+    <string name="text_1_set_tvos_launcher_as_default_via_local" formatted="false">"1. Ustaw tvOS Launcher jako domyślny za pomocą lokalnego ADB"</string>
+    <string name="text_24_hour" formatted="false">"24 godziny"</string>
+    <string name="text_2_disable_system_launchers_google_tv_and" formatted="false">"Wyłącz systemowe launchery (Google TV / Android TV / OEM)"</string>
+    <string name="text_3_fix_home_button_via_accessibility_butt" formatted="false">"Napraw przycisk Home za pomocą dostępności (Button Mapper)"</string>
+    <string name="text_4_open_android_system_home_settings" formatted="false">"Otwórz ustawienia domowe systemu Android"</string>
+    <string name="text_5_day_forecast" formatted="false">"Prognoza 5-dniowa"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"Duży szklany zegar, sceny zmieniają się kolejno"</string>
+    <string name="text_about" formatted="false">"O aplikacji"</string>
+    <string name="text_accessibility_service_a268b7" formatted="false">"USŁUGA DOSTĘPNOŚCI"</string>
+    <string name="text_account" formatted="false">"Konto"</string>
+    <string name="text_actions" formatted="false">"AKCJE"</string>
+    <string name="text_active_42209d" formatted="false">"aktywne"</string>
+    <string name="text_active_60b543" formatted="false">"Aktywny"</string>
+    <string name="text_active_set_as_default_home_launcher" formatted="false">"Aktywne — Ustaw jako domyślny launcher ekranu głównego"</string>
+    <string name="text_ad_blocking_private_dns_adguard" formatted="false">"Blokowanie reklam za pomocą prywatnego DNS (AdGuard)"</string>
+    <string name="text_adb_connection_status" formatted="false">"Status połączenia ADB"</string>
+    <string name="text_adb_enabled_not_paired" formatted="false">"ADB włączone · Nie sparowano"</string>
+    <string name="text_adb_operating_mode_01f44c" formatted="false">"Tryb operacyjny ADB"</string>
+    <string name="text_adb_security_mode" formatted="false">"TRYB ADB I BEZPIECZEŃSTWA"</string>
+    <string name="text_add_a_person_ef7edb" formatted="false">"Dodaj użytkownika..."</string>
+    <string name="text_add_a_person_f14c89" formatted="false">"Dodaj użytkownika"</string>
+    <string name="text_add" formatted="false">"Dodaj"</string>
+    <string name="text_add_custom_subreddit" formatted="false">"Dodaj niestandardowy subreddit…"</string>
+    <string name="text_add_favorite_football_team_0ba5b6" formatted="false">"Dodaj ulubioną drużynę piłkarską"</string>
+    <string name="text_add_new_button_to_remap_7d8e68" formatted="false">"+ Dodaj nowy przycisk do mapowania…"</string>
+    <string name="text_add_new_button_to_remap_e322f7" formatted="false">"Dodaj nowy przycisk do mapowania"</string>
+    <string name="text_add_new_wallpaper" formatted="false">"Dodaj nową tapetę…"</string>
+    <string name="text_added_custom_wallpaper_s" formatted="false">"Dodano niestandardową tapetę #%s."</string>
+    <string name="text_adds_a_presentation_card_to_home" formatted="false">"Dodaje kartę Prezentacja do ekranu głównego"</string>
+    <string name="text_advanced_981d59" formatted="false">"Zaawansowane ›"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"Zaawansowane"</string>
+    <string name="text_align_center" formatted="false">"Środek"</string>
+    <string name="text_align_dynamic" formatted="false">"Dynamiczne"</string>
+    <string name="text_align_left" formatted="false">"Lewo"</string>
+    <string name="text_align_right" formatted="false">"Prawo"</string>
+    <string name="text_all_disabled_s" formatted="false">"Wszystkie wyłączone (%s)"</string>
+    <string name="text_all_s" formatted="false">"Wszystkie (%s)"</string>
+    <string name="text_allow" formatted="false">"Zezwól…"</string>
+    <string name="text_allowed" formatted="false">"Dozwolone"</string>
+    <string name="text_ambient_colour_themes_028289" formatted="false">"Motywy kolorów ambient"</string>
+    <string name="text_ambient_mode" formatted="false">"Tryb Ambient"</string>
+    <string name="text_ambient_mode_standby" formatted="false">"Tryb ambientowy / Tryb gotowości"</string>
+    <string name="text_app_info_c575c9" formatted="false">"Informacje o aplikacji"</string>
+    <string name="text_app_name_or_package_name" formatted="false">"Nazwa aplikacji lub pakietu…"</string>
+    <string name="text_appearance" formatted="false">"Wygląd"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"Wygląd i sceny"</string>
+    <string name="text_application" formatted="false">"APLIKACJA"</string>
+    <string name="text_apps_825c0a" formatted="false">"Aplikacje"</string>
+    <string name="text_ask_who_is_watching_on_wake" formatted="false">"Zapytaj, kto ogląda po włączeniu"</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_and_t" formatted="false">"Przypisz akcje Pojedynczego naciśnięcia (1x), Podwójnego naciśnięcia (2x) i Potrójnego naciśnięcia (3x) dla każdego przycisku pilota - na przykład otwieranie nakładki Panelu sterowania, nakładki Przełącznika ostatnich aplikacji lub dowolnej zainstalowanej aplikacji."</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_tripl" formatted="false">"Przypisz akcje Pojedyncze stuknięcie (1x), Podwójne stuknięcie (2x) i Potrójne stuknięcie (3x)"</string>
+    <string name="text_auto_change_interval" formatted="false">"Interwał automatycznej zmiany"</string>
+    <string name="text_automatic_launch_on_boot_disabled" formatted="false">"Automatyczne uruchamianie przy starcie systemu wyłączone."</string>
+    <string name="text_automatic_updates" formatted="false">"Automatyczne aktualizacje"</string>
+    <string name="text_automatic_updates_disabled" formatted="false">"Automatyczne aktualizacje wyłączone."</string>
+    <string name="text_automatic_updates_enabled" formatted="false">"Automatyczne aktualizacje włączone."</string>
+    <string name="text_back" formatted="false">"Wstecz"</string>
+    <string name="text_back_to_apps" formatted="false">"Powrót do aplikacji"</string>
+    <string name="text_backup_restore" formatted="false">"KOPIA ZAPASOWA I PRZYWRACANIE"</string>
+    <string name="text_backup_settings_to_download" formatted="false">"Kopia ustawień do Pobrania"</string>
+    <string name="text_big_clock_night_scene_style" formatted="false">"Duży zegar (styl sceny nocnej)"</string>
+    <string name="text_bm_inputs_overlay" formatted="false">"Nakładka wejść TV (Ekran nakładki)"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"Mapowanie przycisków"</string>
+    <string name="text_button_mapper_accessibility_service" formatted="false">"Usługa dostępności mapowania przycisków"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"Mapowanie przycisków"</string>
+    <string name="text_button_mapper_control_panel_accessibilit" formatted="false">"Mapowanie przycisków i panel sterowania (Dostępność)"</string>
+    <string name="text_button_remapping" formatted="false">"MAPOWANIE PRZYCISKÓW"</string>
+    <string name="text_by_default_most_watched_automatically_sy" formatted="false">"Domyślnie Most Watched automatycznie synchronizuje się z wybranym językiem interfejsu. Wybór dowolnego kraju powyżej przełącza na niestandardowy tryb wielokrajowy."</string>
+    <string name="text_caffeine_desc" formatted="false">"Caffeine odrzuca tryb bezczynności (idle) Androida i blokuje automatyczne włączanie trybu otoczenia na Android TV, utrzymując TV w stanie aktywnym i uniemożliwiając przejście w tryb uśpienia."</string>
+    <string name="text_caffeine_disabled" formatted="false">"Caffeine wyłączona."</string>
+    <string name="text_caffeine_enabled_tv_will_stay_awake_and" formatted="false">"Caffeine włączona — TV pozostanie aktywne i zablokuje automatyczny tryb Ambient / uśpienia."</string>
+    <string name="text_caffeine_title" formatted="false">"Caffeine (Blokuj tryb uśpienia i tryb otoczenia)"</string>
+    <string name="text_cancel" formatted="false">"Anuluj"</string>
+    <string name="text_center" formatted="false">"Środek"</string>
+    <string name="text_change_any_of_this_later_in_settings_fro" formatted="false">"Zmień dowolne ustawienia później w Ustawieniach, korzystając z ikony koła zębatego w Centrum sterowania."</string>
+    <string name="text_change_app_icon" formatted="false">"Zmień ikonę aplikacji"</string>
+    <string name="text_check_for_updates" formatted="false">"Sprawdź aktualizacje"</string>
+    <string name="text_check_now" formatted="false">"Sprawdź teraz ›"</string>
+    <string name="text_check_permissions" formatted="false">"Sprawdź uprawnienia"</string>
+    <string name="text_checked_items_are_currently_disabled_dis" formatted="false">"Zaznaczone elementy są obecnie WYŁĄCZONE. Wyłączenie stockowego launchera systemowego (np. Google TV Home / LauncherX + setupwraith, Android TV Home lub TCL/Philips OEM Home) wymusza użycie tvOS Launchera po naciśnięciu klawisza Home."</string>
+    <string name="text_checking" formatted="false">"Sprawdzanie…"</string>
+    <string name="text_checks_github_releases_techgenius1_tvos" formatted="false">"Sprawdza wydania GitHub (techgenius1/tvOS-Launcher) pod kątem najnowszego APK i instaluje aktualizacje bezpośrednio na Twoim TV."</string>
+    <string name="text_choose_a_city" formatted="false">"Wybierz miasto…"</string>
+    <string name="text_choose_city" formatted="false">"Wybierz miasto"</string>
+    <string name="text_choose_folder_840d4f" formatted="false">"Wybierz folder ›"</string>
+    <string name="text_choose_how_you_want_your_home_screen_to" formatted="false">"Wybierz, jak ma wyglądać Twój ekran główny."</string>
+    <string name="text_choose_tv_model_6fead7" formatted="false">"Wybierz model TV..."</string>
+    <string name="text_choose_tv_model_eb4b40" formatted="false">"Wybierz model TV"</string>
+    <string name="text_choose_which_scenes_take_turns_behind_th" formatted="false">"Wybierz, które sceny będą się zmieniać za szklanym zegarem."</string>
+    <string name="text_choose_your_scenes" formatted="false">"Wybierz swoje sceny"</string>
+    <string name="text_classic" formatted="false">"Klasyczny"</string>
+    <string name="text_classic_clock_weather" formatted="false">"KLASYCZNY ZEGAR I POGODA"</string>
+    <string name="text_cleanyourtv_beta_runs_the_cleanyourtv_de" formatted="false">"CleanYourTV (Beta) uruchamia profile debloat CleanYourTV bezpośrednio na Twoim TV przez Local ADB bez potrzeby używania PC. Wybierz model TV (lub zeskanuj według zainstalowanych pakietów aplikacji systemowych), wyłącz stockowe launchery lub bloatware i przywróć je w dowolnym momencie jednym kliknięciem."</string>
+    <string name="text_clear_aeec76" formatted="false">"Wyczyść"</string>
+    <string name="text_clear_continue_watching_history" formatted="false">"Wyczyść historię Kontynuuj oglądanie"</string>
+    <string name="text_clear_filter" formatted="false">"Wyczyść filtr"</string>
+    <string name="text_clock_alignment" formatted="false">"Wyrównanie zegara"</string>
+    <string name="text_clock" formatted="false">"Zegar"</string>
+    <string name="text_clock_font" formatted="false">"Czcionka zegara"</string>
+    <string name="text_close_all" formatted="false">"Zamknij wszystkie"</string>
+    <string name="text_connected" formatted="false">"Połączono"</string>
+    <string name="text_continue" formatted="false">"Kontynuuj"</string>
+    <string name="text_continue_watching" formatted="false">"Kontynuuj oglądanie"</string>
+    <string name="text_continue_watching_dnd_notification_acces" formatted="false">"Kontynuuj oglądanie i DND (Dostęp do powiadomień)"</string>
+    <string name="text_continue_watching_dnd_permission" formatted="false">"Uprawnienia Kontynuuj oglądanie i Nie przeszkadzać"</string>
+    <string name="text_continue_watching_on_dock" formatted="false">"Kontynuuj oglądanie w docku"</string>
+    <string name="text_control_panel" formatted="false">"Panel sterowania"</string>
+    <string name="text_control_panel_items_show_hide" formatted="false">"ELEMENTY PANELU STEROWANIA (POKAŻ / UKRYJ)"</string>
+    <string name="text_control_panel_overlay" formatted="false">"Panel sterowania (Nakładka)"</string>
+    <string name="text_core_system_package" formatted="false">"⚠️ Podstawowy pakiet systemowy"</string>
+    <string name="text_countries_select_one_or_multiple" formatted="false">"KRAJE (WYBIERZ JEDEN LUB WIELE)"</string>
+    <string name="text_cp_bg_blurry" formatted="false">"Rozmyte (Rozmycie bieżącej zawartości)"</string>
+    <string name="text_cp_bg_mode" formatted="false">"Tło panelu sterowania"</string>
+    <string name="text_cp_bg_transparent" formatted="false">"Przezroczyste"</string>
+    <string name="text_create_your_profile" formatted="false">"Utwórz swój profil"</string>
+    <string name="text_critical_system_service" formatted="false">"🛑 Krytyczna usługa systemowa"</string>
+    <string name="text_critical_system_service_protected" formatted="false">" [Krytyczna usługa systemowa — Chronione]"</string>
+    <string name="text_current_place" formatted="false">"Aktualne miejsce"</string>
+    <string name="text_current_version" formatted="false">"Aktualna wersja"</string>
+    <string name="text_currently_synced_to_d6cd7b" formatted="false">"Aktualnie zsynchronizowano z: "</string>
+    <string name="text_currently_synced_to_e6a065" formatted="false">"Aktualnie zsynchronizowano z: "</string>
+    <string name="text_custom" formatted="false">"Niestandardowy"</string>
+    <string name="text_custom_wallpaper_208136" formatted="false">"NIESTANDARDOWA TAPETA"</string>
+    <string name="text_custom_wallpaper_clock_alignment" formatted="false">"Wyrównanie zegara na niestandardowej tapecie"</string>
+    <string name="text_custom_wallpaper_mode_f2890b" formatted="false">"Tryb niestandardowej tapety"</string>
+    <string name="text_custom_wallpaper_settings" formatted="false">"Ustawienia niestandardowej tapety…"</string>
+    <string name="text_dash_football" formatted="false">"Mecze"</string>
+    <string name="text_dash_latest_releases" formatted="false">"Najnowsze wydania"</string>
+    <string name="text_dash_prayer_times" formatted="false">"Pory modlitw"</string>
+    <string name="text_debloat_status" formatted="false">"Status debloat"</string>
+    <string name="text_default" formatted="false">"Domyślny"</string>
+    <string name="text_default_automatic" formatted="false">"Domyślne (Automatyczne)"</string>
+    <string name="text_default_home_screen_3e8523" formatted="false">"Domyślny ekran główny"</string>
+    <string name="text_default_home_screen_57e442" formatted="false">"Domyślny ekran główny"</string>
+    <string name="text_default_launcher_setup_tcl_philips_googl" formatted="false">"USTAWIENIA DOMYŚLNEGO LAUNCHERA (TCL / PHILIPS / GOOGLE TV)"</string>
+    <string name="text_default_wallpaper_clock_alignment" formatted="false">"Wyrównanie zegara na domyślnej tapecie"</string>
+    <string name="text_detected_automatically" formatted="false">"Wykryto automatycznie"</string>
+    <string name="text_developer" formatted="false">"Deweloper"</string>
+    <string name="text_disable_all" formatted="false">"Wyłącz wszystkie ›"</string>
+    <string name="text_disable_all_stock_launchers_set_tvos_lau" formatted="false">"Wyłącz wszystkie stockowe launchery i ustaw tvOS Launcher jako domyślny"</string>
+    <string name="text_disable_system_launchers_13dcb9" formatted="false">"Wyłącz systemowe launchery"</string>
+    <string name="text_disable_system_launchers_e1810e" formatted="false">"Wyłącz systemowe launchery…"</string>
+    <string name="text_disabled_31f3e7" formatted="false">" [Wyłączone]"</string>
+    <string name="text_disabled_62ff42" formatted="false">"Wyłączone"</string>
+    <string name="text_disabled_a89c2a" formatted="false">" [Wyłączone]"</string>
+    <string name="text_disabled_ae652f" formatted="false">"Wyłączone"</string>
+    <string name="text_disabled_apps_backup" formatted="false">"Kopia zapasowa wyłączonych aplikacji"</string>
+    <string name="text_disabled_tap_to_enable_85233e" formatted="false">" [Wyłączone — Stuknij, aby włączyć]"</string>
+    <string name="text_disabled_tap_to_enable_ad587c" formatted="false">" [Wyłączone — Stuknij, aby włączyć]"</string>
+    <string name="text_disconnected_adb_off" formatted="false">"Rozłączono (ADB wyłączone)"</string>
+    <string name="text_displayed_when_no_app_is_focused_when_fo" formatted="false">"Wyświetlane, gdy żadna aplikacja nie jest aktywna, gdy fokus jest na ustawieniach / elementach niebędących aplikacjami lub gdy aktywna aplikacja nie ma elementów Kontynuuj oglądanie."</string>
+    <string name="text_do_not_disturb" formatted="false">"Nie przeszkadzać"</string>
+    <string name="text_dock_size" formatted="false">"Rozmiar docka"</string>
+    <string name="text_don_t_show_weather" formatted="false">"Nie pokazuj pogody"</string>
+    <string name="text_double_tap_2x" formatted="false">"Podwójne naciśnięcie (2x)"</string>
+    <string name="text_each_person_keeps_their_own_keep_watchin" formatted="false">"Każda osoba ma własny wiersz Kontynuuj oglądanie i kolejność aplikacji."</string>
+    <string name="text_each_scene_stays" formatted="false">"Każda scena trwa"</string>
+    <string name="text_each_tv_brand_uses_different_package_and" formatted="false">"Każda marka TV używa różnych nazw pakietów i aktywności dla Wi-Fi, Bluetooth, Dźwięku, Wejść i Trybu ambientowego. Możesz również wybrać Ekran blokady dla Trybu ambientowego (dla telewizorów bez wbudowanego Trybu ambientowego) i włączać lub wyłączać poszczególne elementy panelu sterowania."</string>
+    <string name="text_enable_all" formatted="false">"Włącz wszystkie ›"</string>
+    <string name="text_enable_button_mapper_in_accessibility" formatted="false">"Włącz Button Mapper w dostępności…"</string>
+    <string name="text_enable_home_button_fix_accessibility_rem" formatted="false">"Włącz naprawę przycisku Home (Mapowanie dostępności)"</string>
+    <string name="text_enable_home_dashboard" formatted="false">"Włącz panel ekranu głównego"</string>
+    <string name="text_enable_in_accessibility" formatted="false">"Włącz w Ułatwieniach dostępu…"</string>
+    <string name="text_enabled" formatted="false">" [Włączone]"</string>
+    <string name="text_enabled_tap_to_disable_046b6f" formatted="false">" [Włączone — Stuknij, aby wyłączyć]"</string>
+    <string name="text_enabled_tap_to_disable_fff589" formatted="false">" [Włączone — Stuknij, aby wyłączyć]"</string>
+    <string name="text_filter_b3bfd1" formatted="false">"Filtruj"</string>
+    <string name="text_filter_system_apps_b26cf2" formatted="false">"🔍 Filtruj aplikacje systemowe…"</string>
+    <string name="text_filter_system_apps_f2c530" formatted="false">"Filtruj aplikacje systemowe"</string>
+    <string name="text_finish_setting_up" formatted="false">"Zakończ konfigurację"</string>
+    <string name="text_fix_home_button_launch_tvos_launcher" formatted="false">"Napraw przycisk Home (Uruchom tvOS Launcher)"</string>
+    <string name="text_football_fav_teams" formatted="false">"Ulubione drużyny"</string>
+    <string name="text_football_loading" formatted="false">"Ładowanie meczów…"</string>
+    <string name="text_football_no_matches" formatted="false">"Brak zaplanowanych meczów"</string>
+    <string name="text_free_forecast_service_no_account_needed" formatted="false">"Bezpłatna prognoza, konto nie jest wymagane"</string>
+    <string name="text_get_started" formatted="false">"Rozpocznij"</string>
+    <string name="text_github_release_latest_version" formatted="false">"Najnowsza wersja na GitHub"</string>
+    <string name="text_go_to_home_screen" formatted="false">"Przejdź do ekranu głównego"</string>
+    <string name="text_good_afternoon" formatted="false">"Dzień dobry"</string>
+    <string name="text_good_evening" formatted="false">"Dobry wieczór"</string>
+    <string name="text_good_morning" formatted="false">"Dzień dobry"</string>
+    <string name="text_good_night" formatted="false">"Dobranoc"</string>
+    <string name="text_grant_all" formatted="false">"Nadaj wszystkie ›"</string>
+    <string name="text_grant_all_permissions_via_local_adb" formatted="false">"Nadaj wszystkie uprawnienia przez lokalne ADB"</string>
+    <string name="text_grant_permissions_one_by_one_manually_th" formatted="false">"Nadaj uprawnienia jeden po drugim ręcznie w ustawieniach Android TV"</string>
+    <string name="text_grants_write_secure_settings_once_to_sel" formatted="false">"Nadaje WRITE_SECURE_SETTINGS raz w celu samonaprawy Dostępności, a następnie zamyka port 5555"</string>
+    <string name="text_hidden_apps" formatted="false">"Ukryte aplikacje"</string>
+    <string name="text_hide" formatted="false">"Ukryj"</string>
+    <string name="text_home_button_fix_disabled" formatted="false">"Naprawa przycisku Home wyłączona."</string>
+    <string name="text_home_button_fix_enabled_5232e5" formatted="false">"Naprawa przycisku Home włączona."</string>
+    <string name="text_home_permissions" formatted="false">"EKRAN GŁÓWNY I UPRAWNIENIA"</string>
+    <string name="text_home_screen" formatted="false">"Ekran główny"</string>
+    <string name="text_home_screen_weather_shortcut" formatted="false">"Skrót pogody na ekranie głównym"</string>
+    <string name="text_home_screen_widget_settings" formatted="false">"Ustawienia widżetów ekranu głównego"</string>
+    <string name="text_home_screen_widgets" formatted="false">"WIDŻETY EKRANU GŁÓWNEGO"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"Ustawienia ekranu głównego"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"Ustawienia Ekranu Głównego"</string>
+    <string name="text_hourly_forecast" formatted="false">"Prognoza godzinowa"</string>
+    <string name="text_humidity" formatted="false">"Wilgotność "</string>
+    <string name="text_images_videos_and_webpages_sent_from_any" formatted="false">"Obrazy, filmy i strony internetowe wysyłane z dowolnego telefonu lub komputera w tej samej sieci Wi-Fi. Dla wszystkich na tym telewizorze."</string>
+    <string name="text_included_in_rotation" formatted="false">"Uwzględnione w rotacji"</string>
+    <string name="text_inputs_app_on_dock" formatted="false">"PANEL WEJŚĆ NA DOCKU"</string>
+    <string name="text_inputs" formatted="false">"Wejścia"</string>
+    <string name="text_inputs_control_panel_dock" formatted="false">"Wejścia (Panel sterowania i Dock)"</string>
+    <string name="text_installed_system_launchers_on_this_tv_s" formatted="false">"ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TV (%s)"</string>
+    <string name="text_keep_alive_auto_repair_accessibility" formatted="false">"Utrzymuj aktywność (Automatyczna naprawa dostępności)"</string>
+    <string name="text_keep_screen_awake" formatted="false">"Utrzymuj ekran aktywny"</string>
+    <string name="text_keeps_network_adb_enabled_for_cleanyourt" formatted="false">"Utrzymuje sieciowe ADB włączone dla odchudzania CleanYourTV (Uwaga: pozostawia port 5555 otwarty w LAN)"</string>
+    <string name="text_language" formatted="false">"Język"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"Język, pogoda, sceny, aplikacje i profile"</string>
+    <string name="text_launch_automatically_on_system_boot" formatted="false">"Uruchamiaj automatycznie przy starcie systemu"</string>
+    <string name="text_left" formatted="false">"Lewo"</string>
+    <string name="text_let_s_set_up_tvos_launcher" formatted="false">"Skonfiguruj tvOS Launcher."</string>
+    <string name="text_location_873ca7" formatted="false">"LOKALIZACJA"</string>
+    <string name="text_location_eeea97" formatted="false">"Lokalizacja"</string>
+    <string name="text_lock_screen" formatted="false">"Ekran blokady"</string>
+    <string name="text_long_press_volume_button_fix" formatted="false">"Napraw przycisk głośności przy długim naciśnięciu"</string>
+    <string name="text_look" formatted="false">"WYGLĄD"</string>
+    <string name="text_looks_like" formatted="false">"Wygląda na to "</string>
+    <string name="text_make_home_screen" formatted="false">"Ustaw jako ekran główny"</string>
+    <string name="text_make_tvos_launcher_default_home" formatted="false">"Ustaw tvOS Launcher jako domyślny ekran główny"</string>
+    <string name="text_make_tvos_launcher_your_home_screen" formatted="false">"Ustaw tvOS Launcher jako ekran główny?"</string>
+    <string name="text_manage_system_apps_in_tv_settings" formatted="false">"Zarządzaj aplikacjami systemowymi w ustawieniach TV"</string>
+    <string name="text_manual_debloat_all_system_apps_22aced" formatted="false">"Ręczne usuwanie bloatware (Wszystkie aplikacje systemowe)"</string>
+    <string name="text_manual_debloat_all_system_apps_99b35c" formatted="false">"Ręczny debloat (Wszystkie aplikacje systemowe)…"</string>
+    <string name="text_map_any_button_on_your_remote_with_singl" formatted="false">"Mapuj dowolny przycisk na pilocie za pomocą akcji Pojedyncze stuknięcie (1x), Podwójne stuknięcie (2x) i Potrójne stuknięcie (3x) — otwórz Panel sterowania, Przełącznik ostatnich aplikacji lub dowolną aplikację."</string>
+    <string name="text_memory" formatted="false">"Pamięć"</string>
+    <string name="text_min_left" formatted="false">" min"</string>
+    <string name="text_mode_1_standard_default" formatted="false">"Tryb 1 (Standardowy · Domyślny)"</string>
+    <string name="text_mode_1_standard_default_for_most_android" formatted="false">"Tryb 1 - Standardowy (Domyślny, dla większości telewizorów Android i pilotów IR)"</string>
+    <string name="text_mode_3_onn_tv_box_fast_release_stop_0_ex" formatted="false">"Tryb 3 - Onn TV Box (Szybkie zatrzymanie zwolnienia, 0 dodatkowych kroków przy zwolnieniu, tryb ADB i Bezpieczny)"</string>
+    <string name="text_mode_manual_setup_without_adb" formatted="false">"Tryb: Ręczna konfiguracja (bez ADB)"</string>
+    <string name="text_mode_secure_auto_setup_close_adb_recomme" formatted="false">"Tryb: Bezpieczna automatyczna konfiguracja i zamknięcie ADB (zalecane)"</string>
+    <string name="text_move" formatted="false">"Przenieś"</string>
+    <string name="text_move_icon" formatted="false">"Przenieś icon"</string>
+    <string name="text_move_to_other_apps" formatted="false">"Przenieś do innych aplikacji"</string>
+    <string name="text_movies_tv" formatted="false">"Filmy i TV"</string>
+    <string name="text_name" formatted="false">"Nazwa"</string>
+    <string name="text_navigation_click_sounds" formatted="false">"Dźwięki kliknięć nawigacji"</string>
+    <string name="text_next_9f81b4" formatted="false">"Dalej"</string>
+    <string name="text_next_page" formatted="false">"Następna strona"</string>
+    <string name="text_next_wallpaper_f38b4f" formatted="false">"Następna tapeta"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"Sceny nocne"</string>
+    <string name="text_night_scenes_clock" formatted="false">"ZEGAR SCEN NOCNYCH"</string>
+    <string name="text_no_disabled_packages_have_been_recorded" formatted="false">"Żadne wyłączone pakiety nie zostały jeszcze zapisane przez CleanYourTV."</string>
+    <string name="text_no_hidden_apps_hold_ok_on_any_app_on_the" formatted="false">"Brak ukrytych aplikacji. Przytrzymaj OK na dowolnej aplikacji w docku ekranu głównego i wybierz Ukryj."</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"Brak ostatnich aplikacji"</string>
+    <string name="text_no_saved_disabled_app_backup_was_found_a" formatted="false">"Nie znaleziono zapisanej kopii zapasowej wyłączonych aplikacji i nie wybrano jeszcze modelu TV. Najpierw wybierz model TV, jeśli chcesz przywrócić według profilu modelu."</string>
+    <string name="text_no_stock_android_tv_google_tv_oem_launch" formatted="false">"Nie wykryto pakietów stockowych launcherów Android TV / Google TV / OEM na tym TV."</string>
+    <string name="text_none_no_action" formatted="false">"Brak (Brak akcji)"</string>
+    <string name="text_none_saved" formatted="false">"Brak zapisanych"</string>
+    <string name="text_not_allowed" formatted="false">"Niedozwolone"</string>
+    <string name="text_not_connected_85d0dd" formatted="false">"Nie połączono"</string>
+    <string name="text_not_done_select_tv_model_first" formatted="false">"Nie wykonano (Najpierw wybierz model TV)"</string>
+    <string name="text_not_set" formatted="false">"Nie ustawiono"</string>
+    <string name="text_not_signed_in" formatted="false">"Nie zalogowano"</string>
+    <string name="text_now" formatted="false">"Teraz"</string>
+    <string name="status_off" formatted="false">"Wyłączone"</string>
+    <string name="text_off_tap_to_enable_home_button_remap" formatted="false">"Wyłączone — Stuknij, aby włączyć mapowanie przycisku Home"</string>
+    <string name="text_ok_to_change_back_to_go_back" formatted="false">"OK, aby zmienić, Wstecz, aby wrócić"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore_back_to_go" formatted="false">"OK, aby otworzyć  ·  Przytrzymaj OK, aby przywrócić  ·  Wstecz, aby wrócić"</string>
+    <string name="status_on" formatted="false">"Włączone"</string>
+    <string name="text_on_pressing_home_launches_tvos_launcher" formatted="false">"Włączone — Naciśnięcie przycisku Home uruchamia tvOS Launcher"</string>
+    <string name="text_on_tcl_and_philips_android_11_12_tvs_the" formatted="false">"W przypadku telewizorów TCL i Philips z systemem Android 11/12 oprogramowanie OEM często ukrywa domyślny interfejs Android Home i wymusza użycie standardowego launchera po naciśnięciu przycisku Home. Wyłączenie standardowego launchera (Opcja 2) lub włączenie naprawy przycisku Home (Opcja 3) gwarantuje, że naciśnięcie przycisku Home zawsze otwiera tvOS Launcher."</string>
+    <string name="text_on_tcl_philips_and_google_tvs_oem_firmwa" formatted="false">"Na telewizorach TCL, Philips i Google, oprogramowanie OEM często wymusza użycie domyślnego launchera po naciśnięciu przycisku Home. Postępuj zgodnie z poniższymi krokami, aby naciśnięcie przycisku Home zawsze otwierało tvOS Launcher, a następnie kliknij Kontynuuj."</string>
+    <string name="text_on_this_tv" formatted="false">"Na tym TV"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"Jedno zdjęcie i siatka banerów aplikacji"</string>
+    <string name="text_one_tap_actions" formatted="false">"JEDNOKLIKOWE AKCJE"</string>
+    <string name="text_open_4f0000" formatted="false">"Otwórz"</string>
+    <string name="text_open_55abf9" formatted="false">"Otwórz"</string>
+    <string name="text_open_android_default_home_settings" formatted="false">"Otwórz domyślne ustawienia ekranu głównego Androida"</string>
+    <string name="text_open_android_tv_settings" formatted="false">"Otwórz ustawienia Android TV…"</string>
+    <string name="text_open_system_selector_if_supported_by_tv" formatted="false">"Otwórz selektor systemu (jeśli TV go obsługuje) ›"</string>
+    <string name="text_options" formatted="false">"OPCJE"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"Inne aplikacje"</string>
+    <string name="text_page_navigation" formatted="false">"NAWIGACJA STRON"</string>
+    <string name="text_pair_now" formatted="false">"Paruj teraz"</string>
+    <string name="text_pair_repair_adb_connection" formatted="false">"Sparuj / Napraw połączenie ADB"</string>
+    <string name="text_paired_adb_enabled" formatted="false">"Sparowano · ADB włączone"</string>
+    <string name="text_people_3a2eb8" formatted="false">"Profile"</string>
+    <string name="text_people_c31d4d" formatted="false">"UŻYTKOWNICY"</string>
+    <string name="text_play_as_soon_as_the_tv_turns_on_signage" formatted="false">"Odtwarzaj, gdy tylko telewizor się włączy (reklama)"</string>
+    <string name="text_power_off" formatted="false">"Wyłącz"</string>
+    <string name="text_power_off_screen_off" formatted="false">"Wyłącz (Ekran wyłączony)"</string>
+    <string name="text_prayer_asr" formatted="false">"Popołudnie"</string>
+    <string name="text_prayer_calculation_method_92d541" formatted="false">"Metoda obliczania modlitw"</string>
+    <string name="text_prayer_dhuhr" formatted="false">"Południe"</string>
+    <string name="text_prayer_fajr" formatted="false">"Świt"</string>
+    <string name="text_prayer_isha" formatted="false">"Noc"</string>
+    <string name="text_prayer_maghrib" formatted="false">"Zmierzch"</string>
+    <string name="text_prayer_method_label" formatted="false">"Metoda obliczeń"</string>
+    <string name="text_prayer_remaining" formatted="false">"pozostało"</string>
+    <string name="text_prayer_sunrise" formatted="false">"Wschód słońca"</string>
+    <string name="text_presentation" formatted="false">"Prezentacja"</string>
+    <string name="text_presentation_address_qr_code" formatted="false">"Adres prezentacji i kod QR"</string>
+    <string name="text_presentation_mode" formatted="false">"Tryb prezentacji"</string>
+    <string name="text_presentation_system" formatted="false">"PREZENTACJA I SYSTEM"</string>
+    <string name="text_press_ok_to_include_releases_from_this_c" formatted="false">"Naciśnij OK, aby uwzględnić wydania z tego kraju"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"Naciśnij ▲ na aplikacji, aby ją zamknąć"</string>
+    <string name="text_previous_page" formatted="false">"Poprzednia strona"</string>
+    <string name="text_proceed_to_the_next_setup_step_when_you" formatted="false">"Przejdź do następnego kroku konfiguracji, gdy skończysz tutaj"</string>
+    <string name="text_quick_settings" formatted="false">"Szybkie ustawienia"</string>
+    <string name="text_ram_s_used_of_s" formatted="false">"RAM %s używane z %s"</string>
+    <string name="text_re_enable_all_packages_disabled_by_clean" formatted="false">"Ponownie włącz wszystkie pakiety wyłączone przez CleanYourTV przez ADB"</string>
+    <string name="text_re_enable_all_stock_launchers" formatted="false">"Włącz wszystkie stockowe launchery"</string>
+    <string name="text_recent_apps" formatted="false">"Ostatnie aplikacje"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"Przełącznik ostatnich aplikacji (Nakładka)"</string>
+    <string name="text_reddit_wallpapers" formatted="false">"Tapety Reddit"</string>
+    <string name="text_refresh" formatted="false">"Odśwież"</string>
+    <string name="text_refresh_system_app_list" formatted="false">"↻ Odśwież listę aplikacji systemowych"</string>
+    <string name="text_region_mode" formatted="false">"TRYB REGIONU"</string>
+    <string name="text_releases_country_auto" formatted="false">"Automatycznie (zgodnie z językiem interfejsu)"</string>
+    <string name="text_releases_country_setting" formatted="false">"Najczęściej oglądane kraje"</string>
+    <string name="text_releases_loading" formatted="false">"Ładowanie zawartości…"</string>
+    <string name="text_remove_revoke_all_permissions_c108cc" formatted="false">"Usuń / cofnij wszystkie uprawnienia"</string>
+    <string name="text_rename_e8372b" formatted="false">"Zmień nazwę..."</string>
+    <string name="text_rename_f9a6a6" formatted="false">"Zmień nazwę"</string>
+    <string name="text_rename_person" formatted="false">"Zmień nazwę użytkownika"</string>
+    <string name="text_required_so_mapped_buttons_work_over_eve" formatted="false">"Wymagane, aby mapowane przyciski działały w każdej aplikacji"</string>
+    <string name="text_reset_a1f27d" formatted="false">"Resetuj"</string>
+    <string name="text_reset_app_order_unhide_all" formatted="false">"Resetuj kolejność aplikacji i pokaż wszystkie"</string>
+    <string name="text_reset_control_panel_actions_to_default" formatted="false">"Resetuj akcje panelu sterowania do domyślnych"</string>
+    <string name="text_reset_layout" formatted="false">"Resetuj układ"</string>
+    <string name="text_reset_settings" formatted="false">"Przywrócić ustawienia domyślne?"</string>
+    <string name="text_reset_settings_to_defaults" formatted="false">"Przywróć ustawienia domyślne"</string>
+    <string name="text_restore_all_0aeae4" formatted="false">"Przywróć wszystkie ›"</string>
+    <string name="text_restore_debloated_apps_2f2301" formatted="false">"Przywróć usunięte aplikacje"</string>
+    <string name="text_restore_debloated_apps_3d05c1" formatted="false">"Przywróć usunięte aplikacje…"</string>
+    <string name="text_restore_options" formatted="false">"OPCJE PRZYWRACANIA"</string>
+    <string name="text_restore_settings_from_folder" formatted="false">"Przywróć ustawienia z folderu…"</string>
+    <string name="text_revoke" formatted="false">"Cofnij ›"</string>
+    <string name="text_right" formatted="false">"Prawo"</string>
+    <string name="text_rotating_nature_scenes_with_a_glass_cloc" formatted="false">"Obracające się sceny przyrody z szklanym zegarem i dolnym dokiem"</string>
+    <string name="text_run_first_time_setup_again" formatted="false">"Uruchom ponownie konfigurację pierwszego uruchomienia…"</string>
+    <string name="text_run_role_home_set_home_activity" formatted="false">"Uruchom ROLE_HOME i ustaw aktywność domową ›"</string>
+    <string name="text_run_role_home_set_home_activity_over_loc" formatted="false">"Uruchom ROLE_HOME i ustaw aktywność ekranu głównego za pomocą lokalnego ADB ›"</string>
+    <string name="text_s_active_s_found" formatted="false">"%s aktywne / %s znalezione ›"</string>
+    <string name="text_save" formatted="false">"Zapisz"</string>
+    <string name="text_saved_disabled_packages_tap_to_re_enable" formatted="false">"ZAPISANE WYŁĄCZONE PAKIETY (STUKNIJ, ABY PONOWNIE WŁĄCZYĆ)"</string>
+    <string name="text_scenes" formatted="false">"SCENY"</string>
+    <string name="text_screensaver" formatted="false">"Wygaszacz ekranu"</string>
+    <string name="text_search_946f53" formatted="false">"Szukaj"</string>
+    <string name="text_search_apps_movies_and_shows" formatted="false">"Szukaj aplikacji, filmów i programów"</string>
+    <string name="text_search_by_name" formatted="false">"Szukaj według nazwy"</string>
+    <string name="text_search_for_a_city_or_town" formatted="false">"Wyszukaj miasto lub miejscowość..."</string>
+    <string name="text_seconds_ee379b" formatted="false">" sekund"</string>
+    <string name="text_secure_mode_active_adb_not_used_self_rep" formatted="false">"Tryb bezpieczny aktywny (ADB nie używane · Gotowe do samonaprawy)"</string>
+    <string name="text_secure_mode_needs_one_time_pair_to_grant" formatted="false">"Tryb bezpieczny (wymaga jednorazowego sparowania w celu nadania uprawnień)"</string>
+    <string name="text_security_note_keep_alive_is_enabled_by_d" formatted="false">"Uwaga bezpieczeństwa: Utrzymuj aktywność jest domyślnie włączona. W trybie bezpiecznym tvOS Launcher używa WRITE_SECURE_SETTINGS do przywracania dostępności bezpośrednio w procesie bez dotykania ADB (nawet jeśli ADB jest włączone na TV). W trybie trwałego ADB, Utrzymuj aktywność może również używać lokalnego ADB na porcie 5555."</string>
+    <string name="text_select_a_usage_mode_for_permissions_butt" formatted="false">"Wybierz tryb użycia dla uprawnień (Dostępność Button Mapper, Kontynuuj oglądanie i Wi-Fi). Wybierz JEDEN tryb użycia poniżej:"</string>
+    <string name="text_select_wallpaper_folder_9bea6b" formatted="false">"Wybierz folder tapet…"</string>
+    <string name="text_selected_press_ok_to_toggle" formatted="false">"Wybrano — naciśnij OK, aby przełączyć"</string>
+    <string name="text_send_key_code_remote_media_system" formatted="false">"Wyślij kod klawisza (Pilot / Media / System)..."</string>
+    <string name="text_set_as_default" formatted="false">"Ustaw jako domyślny…"</string>
+    <string name="text_set_default_home_launcher" formatted="false">"Ustaw jako domyślny launcher"</string>
+    <string name="text_setting_default_launcher" formatted="false">"Ustawianie domyślnego launchera…"</string>
+    <string name="text_setting_role_home_and_default_home_activ" formatted="false">"Ustawianie ROLE_HOME i domyślnej aktywności domowej za pomocą lokalnego ADB…"</string>
+    <string name="text_settings" formatted="false">"Ustawienia"</string>
+    <string name="text_settings_kept" formatted="false">"Ustawienia zapisane"</string>
+    <string name="text_show_app_names" formatted="false">"Pokaż nazwy aplikacji"</string>
+    <string name="text_show_continue_watching_on_home" formatted="false">"Pokaż opcję Kontynuuj oglądanie na ekranie głównym"</string>
+    <string name="text_show_inputs_app_on_dock" formatted="false">"Pokaż panel Wejścia na Docku"</string>
+    <string name="text_show_widgets_when_selected_app_has_no_co" formatted="false">"Pokaż widżety, gdy wybrana aplikacja nie ma opcji Kontynuuj oglądanie"</string>
+    <string name="text_shuffle_folder_dc8ec3" formatted="false">"Tasuj folder"</string>
+    <string name="text_single_multi_wallpapers" formatted="false">"Pojedyncza / Wielokrotna Tapeta"</string>
+    <string name="text_single_tap_1x" formatted="false">"Pojedyncze naciśnięcie (1x)"</string>
+    <string name="text_skip_setup" formatted="false">"Pomiń konfigurację"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"Timer Uśpienia"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"Timer uśpienia"</string>
+    <string name="text_sound" formatted="false">"Dźwięk"</string>
+    <string name="text_start_with_the_tv" formatted="false">"Uruchom z telewizorem"</string>
+    <string name="text_startup_keep_alive" formatted="false">"URUCHAMIANIE I UTRZYMYWANIE AKTYWNEGO"</string>
+    <string name="text_step_1_set_tvos_launcher_as_default_via" formatted="false">"Krok 1: Ustaw tvOS Launcher jako domyślny za pomocą lokalnego ADB"</string>
+    <string name="text_step_2_disable_system_launchers_google_t" formatted="false">"Krok 2: Wyłącz systemowe launchery (Google TV / Android TV / OEM)"</string>
+    <string name="text_step_3_fix_home_button_via_accessibility" formatted="false">"Krok 3: Napraw przycisk Home za pomocą dostępności (Button Mapper)"</string>
+    <string name="text_step_4_open_android_system_home_settings" formatted="false">"Krok 4: Otwórz ustawienia ekranu głównego systemu Android"</string>
+    <string name="text_system_launchers_83a49b" formatted="false">"Launchery systemowe"</string>
+    <string name="text_system_launchers_d659b5" formatted="false">"Launchery systemowe"</string>
+    <string name="text_tap_actions" formatted="false">"AKCJE NACISNIĘCIA"</string>
+    <string name="text_tap_check_for_updates" formatted="false">"Stuknij Sprawdź aktualizacje"</string>
+    <string name="text_tap_to_detect_select" formatted="false">"Stuknij, aby wykryć / wybrać…"</string>
+    <string name="text_tap_to_set_as_active_wallpaper" formatted="false">"Stuknij, aby ustawić jako aktywną tapetę"</string>
+    <string name="text_tap_to_toggle_in_scene_rotation_long_pre" formatted="false">"Stuknij, aby przełączać w rotacji sceny · Przytrzymaj lub użyj poniższych akcji"</string>
+    <string name="text_target_action_application" formatted="false">"CEL AKCJI / APLIKACJA"</string>
+    <string name="text_temperature" formatted="false">"Temperatura"</string>
+    <string name="text_the_home_button_on_the_remote_will_open" formatted="false">"Przycisk Home na pilocie otworzy tvOS Launcher."</string>
+    <string name="text_this_resets_look_scenes_clock_and_langua" formatted="false">"Przywraca wygląd, sceny, zegar i ustawienia języka do wartości domyślnych."</string>
+    <string name="text_tip_blur_can_t_be_shown_while_a_video_is" formatted="false">"Wskazówka: Rozmycie nie może być wyświetlane podczas odtwarzania wideo. Android nie może rozmywać wideo na żywo (a wideo DRM nie może być przechwycone), więc wideo nadal odtwarzane jest za panelem z miękkim odcieniem."</string>
+    <string name="text_tip_hold_ok_on_any_app_on_the_home_scree" formatted="false">"Wskazówka: Przytrzymaj OK na dowolnej aplikacji w docku ekranu głównego, aby ją przenieść lub ukryć."</string>
+    <string name="text_today" formatted="false">"Dzisiaj"</string>
+    <string name="text_tomorrow_short" formatted="false">"Jutro"</string>
+    <string name="text_top_right_weather_shortcut" formatted="false">"Skrót pogody w prawym górnym rogu"</string>
+    <string name="text_top_shelf_6_column_app_grid_and_custom_w" formatted="false">"Górna półka, siatka aplikacji 6-kolumnowa i niestandardowe tapety"</string>
+    <string name="text_triple_tap_3x" formatted="false">"Potrójne naciśnięcie (3x)"</string>
+    <string name="text_turn_on_first" formatted="false">"Włącz najpierw"</string>
+    <string name="text_turn_on_off_adb" formatted="false">"Włącz / Wyłącz ADB"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"Ustawienia TV"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"Ustawienia TV"</string>
+    <string name="text_tv_speakers" formatted="false">"Głośniki TV"</string>
+    <string name="text_tvos_launcher_will_launch_immediately_on" formatted="false">"tvOS Launcher uruchomi się natychmiast po starcie systemu"</string>
+    <string name="text_type_to_search_your_apps_settings_movies" formatted="false">"Wpisz, aby wyszukać aplikacje, ustawienia, filmy i programy"</string>
+    <string name="text_universal_shortcut_actions" formatted="false">"UNIWERSALNE AKCJE SKRÓTÓW"</string>
+    <string name="text_up_and_down_to_browse_ok_to_change_back" formatted="false">"Góra i dół, aby przeglądać, OK, aby zmienić, Wstecz, aby zamknąć"</string>
+    <string name="text_update_every" formatted="false">"Aktualizuj co"</string>
+    <string name="text_updates_22906d" formatted="false">"AKTUALIZACJE"</string>
+    <string name="text_updates_3c957c" formatted="false">"Aktualizacje"</string>
+    <string name="text_use_my_location" formatted="false">"Użyj mojej lokalizacji"</string>
+    <string name="text_use_presentation" formatted="false">"Użyj prezentacji"</string>
+    <string name="text_used_for_the_weather_on_the_home_screen" formatted="false">"Używane do pogody na ekranie głównym i lokalnych nagłówków."</string>
+    <string name="text_used_recent_apps" formatted="false">"% · Ostatnie aplikacje"</string>
+    <string name="text_version" formatted="false">"Wersja"</string>
+    <string name="text_version_info" formatted="false">"INFORMACJE O WERSJI"</string>
+    <string name="text_volume_button_fix_mode_28c643" formatted="false">"Tryb naprawy przycisku głośności"</string>
+    <string name="text_volume_button_fix_mode_87cb31" formatted="false">"Tryb naprawy przycisku głośności"</string>
+    <string name="text_watching_now_ok_to_switch_or_rename" formatted="false">"Ogląda teraz · OK, aby przełączyć lub zmienić nazwę"</string>
+    <string name="text_weather" formatted="false">"Pogoda"</string>
+    <string name="text_weather_a5c8c4" formatted="false">"POGODA"</string>
+    <string name="text_weather_and_location" formatted="false">"Pogoda i lokalizacja"</string>
+    <string name="text_weather_from" formatted="false">"Pogoda z"</string>
+    <string name="text_weather_on_the_home_screen" formatted="false">"Pogoda na ekranie głównym"</string>
+    <string name="text_weather_source" formatted="false">"Źródło pogody"</string>
+    <string name="text_weather_updating" formatted="false">"Aktualizacja…"</string>
+    <string name="text_welcome" formatted="false">"Witaj"</string>
+    <string name="text_wi_fi_name_location" formatted="false">"Nazwa Wi-Fi (Lokalizacja)"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, obraz, dźwięk i reszta TV"</string>
+    <string name="text_wind" formatted="false">"Wiatr "</string>
+    <string name="text_you_can_also_configure_buttons_later_in" formatted="false">"Możesz również skonfigurować przyciski później w Ustawieniach"</string>
+    <string name="text_you_re_all_set" formatted="false">"Jesteś gotowy"</string>
+    <string name="text_your_name" formatted="false">"Twoje imię"</string>
+    <string name="text_your_name_and_an_avatar_each_profile_kee" formatted="false">"Twoje imię i awatar. Każdy profil przechowuje własne aplikacje, tło i ekran główny. Maksymalnie trzy osoby mogą mieć profil."</string>
+    <string name="weather_condition_sunny">"Słonecznie"</string>
+    <string name="weather_condition_clear">"Bezchmurnie"</string>
+    <string name="weather_condition_mostly_sunny">"Przeważnie słonecznie"</string>
+    <string name="weather_condition_mostly_clear">"Przeważnie czysto"</string>
+    <string name="weather_condition_partly_cloudy">"Częściowo pochmurno"</string>
+    <string name="weather_condition_cloudy">"Pochmurno"</string>
+    <string name="weather_condition_foggy">"Mglisto"</string>
+    <string name="weather_condition_drizzle">"Mżawka"</string>
+    <string name="weather_condition_rain">"Deszcz"</string>
+    <string name="weather_condition_heavy_rain">"Ulewny deszcz"</string>
+    <string name="weather_condition_sleet">"Deszcz ze śniegiem"</string>
+    <string name="weather_condition_snow">"Śnieg"</string>
+    <string name="weather_condition_thunderstorms">"Burze z piorunami"</string>
+
+    <string name="control_item_memory" formatted="false">"Pamięć / Ostatnie aplikacje"</string>
+    <string name="control_item_audio" formatted="false">"Wyjście audio"</string>
+    <string name="control_item_ambient" formatted="false">"Tryb ambientowy / Ekran blokady"</string>
+    <string name="control_item_power" formatted="false">"Wyłączanie / Ekran wyłączony"</string>
+    <string name="control_item_mapper" formatted="false">"Skrót mapowania przycisków"</string>
+    <string name="control_item_settings" formatted="false">"Skrót ustawień"</string>
+    <string name="control_item_search" formatted="false">"Skrót wyszukiwania / asystenta"</string>
+    <string name="control_item_weather_panel" formatted="false">"Panel pogody (Bieżąca i Jutro)"</string>
+    <string name="remaining_minutes" formatted="false">"%1$s min"</string>
+    <string name="remaining_hours_minutes" formatted="false">"%1$s h %2$s min"</string>
+    <string name="scene_fog" formatted="false">"Mgła"</string>
+    <string name="scene_golden_hour" formatted="false">"Złota godzina"</string>
+    <string name="scene_night" formatted="false">"Noc"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"Świt w lesie deszczowym"</string>
+    <string name="scene_waterline" formatted="false">"Linia wodna"</string>
+    <string name="cyt_summary_done" formatted="false">"Done (%1$s apps)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"Not done (%1$s/%2$s)"</string>
+    <string name="dock_move_tooltip" formatted="false">"Przenieś %1$s  ·  Left/Right, OK when done"</string>
+    <string name="dock_move_tooltip_empty" formatted="false">"Przenieś   ·  Left/Right, OK when done"</string>
+    <string name="profile_switch_to" formatted="false">"Switch: %1$s"</string>
+    <string name="profile_switch_to_empty" formatted="false">"Switch: "</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"Switch: Manual Setup"</string>
+    <string name="legacy_error_choose_action_403e2eb1f6" formatted="false">"- Wybierz akcję"</string>
+    <string name="legacy_error_active_2a222bd79b" formatted="false">" aktywne"</string>
+    <string name="legacy_error_found_710b0411e0" formatted="false">" znaleziono"</string>
+    <string name="legacy_error_d_pad_navigation_ok_and_back_are_ke_64801f9ee7" formatted="false">"(Nawigacja D-padem, OK i Wstecz są zachowane dla normalnej nawigacji.)"</string>
+    <string name="legacy_error_a_small_weather_display_on_home_wit_19aaf9e964" formatted="false">"Mały wyświetlacz pogody na ekranie głównym, z prognozą na 5 dni."</string>
+    <string name="legacy_error_build_in_actions_e2a57ada34" formatted="false">"WBUDOWANE AKCJE"</string>
+    <string name="legacy_error_city_name_e_g_instanbul_f4d0c7eac7" formatted="false">"Nazwa miasta, np. Instanbul"</string>
+    <string name="legacy_error_city_name_e_g_instanbul_8632013492" formatted="false">"Nazwa miasta, np. Instanbul..."</string>
+    <string name="legacy_error_connected_paired_port_5555_open_96f4110956" formatted="false">"Połączono i sparowano (Port 5555 otwarty)"</string>
+    <string name="legacy_error_disable_stock_tv_launcher_tcl_phili_b3988da24a" formatted="false">"Wyłącz domyślny launcher TV (TCL / Philips / Google TV)"</string>
+    <string name="legacy_error_dynamic_b6ee7b3e8d" formatted="false">"Dynamiczny"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"Mniej aplikacji"</string>
+    <string name="legacy_error_home_dashboard_5531ff6113" formatted="false">"PANEL EKRANU GŁÓWNEGO"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"Obfity śnieg"</string>
+    <string name="legacy_error_home_system_7ed5ca2145" formatted="false">"Ekran główny i system"</string>
+    <string name="legacy_error_home_dashboard_d1e758408c" formatted="false">"Panel ekranu głównego"</string>
+    <string name="legacy_error_home_dashboard_widgets_1149c5b41e" formatted="false">"Widżety panelu ekranu głównego…"</string>
+    <string name="legacy_error_humidity_46819ccb5e" formatted="false">"Wilgotność"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"Kontynuuj oglądanie"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"Wygląd i sceny"</string>
+    <string name="legacy_error_mode_2_hy320_projector_ef5ee01ce9" formatted="false">"Tryb 2 (Hy320 / Projektor)"</string>
+    <string name="legacy_error_mode_2_hy320_projector_audioservice_60a1cd7cd6" formatted="false">"Tryb 2 - HY320 / Projektor (tryb AudioService i impulsu IR)"</string>
+    <string name="legacy_error_mode_persistent_adb_setup_keep_adb__df15d3c67c" formatted="false">"Tryb: Utrzymanie konfiguracji ADB (trzymaj ADB otwarte)"</string>
+    <string name="legacy_error_more_apps_2216905b85" formatted="false">"Więcej Aplikacji"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"Więcej aplikacji"</string>
+    <string name="legacy_error_most_watched_68c54c41e7" formatted="false">"Najczęściej oglądane"</string>
+    <string name="legacy_error_no_screensaver_or_skleep_while_pres_f11df8428e" formatted="false">"Brak wygaszacza ekranu ani uśpienia podczas prezentacji"</string>
+    <string name="legacy_error_port_5555_open_ready_to_pair_59e62f7f6c" formatted="false">"Port 5555 otwarty · Gotowe do sparowania"</string>
+    <string name="legacy_error_press_the_button_on_your_remote_tha_31115834c8" formatted="false">"Naciśnij przycisk na pilocie, który chcesz zmapować..."</string>
+    <string name="legacy_error_profile_d696a35bdd" formatted="false">"Profil"</string>
+    <string name="legacy_error_restore_a76e13b983" formatted="false">"Przywróć"</string>
+    <string name="legacy_error_screen_off_d658cfab35" formatted="false">"Ekran wyłączony"</string>
+    <string name="legacy_error_send_any_android_keyevent_keycode_w_971fee0a57" formatted="false">"Wyślij dowolny kod klawisza Android KeyEvent bez aplikacji firm trzecich"</string>
+    <string name="legacy_error_set_default_via_local_adb_067b44d9c3" formatted="false">"Ustaw jako domyślny za pomocą lokalnego ADB"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"Przelotne opady"</string>
+    <string name="legacy_error_switch_7156dbe932" formatted="false">"Przełącz: "</string>
+    <string name="legacy_error_tv_input_shortcut_04ee12cd52" formatted="false">"Skrót wejścia TV"</string>
+    <string name="legacy_error_updated_3a5ecca188" formatted="false">"Zaktualizowano"</string>
+    <string name="legacy_error_wind_d151346fe7" formatted="false">"Wiatr"</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"Ustawienia ekranu głównego"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"Kontynuuj oglądanie"</string>
+    <string name="legacy_error_now_ed5eb9a37e" formatted="false">"Teraz"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"Timer uśpienia"</string>
+    <string name="legacy_error_c_celsius_0532f5b86c" formatted="false">"°C (Celsjusz)"</string>
+    <string name="language_option_title" formatted="false">"Polski"</string>
+    <string name="language_option_description" formatted="false">"Użyj tvOS Launcher w języku polskim"</string>
+    <string name="power_service_desc">"Pozwala aplikacji tvOS Launcher by techgenius mapować przyciski pilota, otwierać panel sterowania nad dowolną aplikacją, usypiać telewizor (wyłączanie, wyłącznik czasowy) oraz zamykać aplikacje działające w tle."</string>
+    <string name="text_a_small_weather_display_on_home_with_a_5" formatted="false">"Niewielki widżet pogody na ekranie głównym z prognozą na 5 dni (synchronizuje także lokalizację godzin modlitwy)."</string>
+    <string name="text_accessibility" formatted="false">"Ułatwienia dostępu"</string>
+    <string name="text_accessibility_service_bb9182" formatted="false">"Usługa ułatwień dostępu"</string>
+    <string name="text_active_in_accessibility" formatted="false">"Aktywna w ułatwieniach dostępu"</string>
+    <string name="text_activities_in" formatted="false">"AKTYWNOŚCI W "</string>
+    <string name="text_adb_connection_required" formatted="false">"Wymagane połączenie ADB"</string>
+    <string name="text_adb_debugging_is_currently_turned_off_pe" formatted="false">"Debugowanie ADB jest obecnie wyłączone. Tryb stałego ADB wymaga włączonego debugowania.\n\nCzy chcesz włączyć ADB i przełączyć się na tryb stałego ADB?"</string>
+    <string name="text_adb_debugging_needed" formatted="false">"Wymagane debugowanie ADB"</string>
+    <string name="text_adb_enabled_and_switched_to_persistent_a" formatted="false">"Włączono ADB i przełączono na tryb stałego ADB."</string>
+    <string name="text_adb_install_failed_opening_package_insta" formatted="false">"Instalacja przez ADB nie powiodła się. Otwieranie instalatora pakietów…"</string>
+    <string name="text_adb_is_active_selecting_install_will_dow" formatted="false">"ADB jest aktywne — wybranie opcji Instaluj spowoduje automatyczne pobranie i zainstalowanie aktualizacji."</string>
+    <string name="text_adb_is_turned_off_secure_mode_selecting" formatted="false">"ADB jest wyłączone (tryb bezpieczny) — wybranie opcji Instaluj spowoduje pobranie aktualizacji i otwarcie systemowego instalatora pakietów."</string>
+    <string name="text_adb_mode_required" formatted="false">"Wymagany tryb ADB"</string>
+    <string name="text_adb_operating_mode_1c02d4" formatted="false">"Tryb pracy ADB"</string>
+    <string name="text_add_as_many_custom_wallpapers_as_you_wan" formatted="false">"Dodaj dowolną liczbę własnych tapet, bez ograniczeń"</string>
+    <string name="text_add_favorite_football_team_56b172" formatted="false">"Dodaj ulubioną drużynę piłkarską"</string>
+    <string name="text_add_images_videos_or_webpages_from_a_pho" formatted="false">"Dodaj obrazy, filmy lub strony internetowe z telefonu albo komputera w tej samej sieci Wi-Fi."</string>
+    <string name="text_add_subreddit" formatted="false">"Dodaj subreddit"</string>
+    <string name="text_add_user" formatted="false">"Dodaj użytkownika"</string>
+    <string name="text_all_341_models" formatted="false">"Wszystkie 341 modeli"</string>
+    <string name="text_ambient_colour_themes_930057" formatted="false">"Motywy kolorów otoczenia"</string>
+    <string name="text_ambient_themes" formatted="false">"MOTYWY OTOCZENIA"</string>
+    <string name="text_android_power_menu" formatted="false">"Menu zasilania Androida"</string>
+    <string name="text_android_power_menu_shutdown_reboot_stand" formatted="false">"Menu zasilania Androida (wyłączanie / ponowne uruchamianie / czuwanie)"</string>
+    <string name="text_android_tv_remote_service_optional_keep" formatted="false">"Usługa pilota Android TV (opcjonalna — zachowaj, jeśli używasz pilota Google TV na telefonie)"</string>
+    <string name="text_app_icon_editor" formatted="false">"Edytor ikony aplikacji"</string>
+    <string name="text_app_switch_recents_187" formatted="false">"Przełączanie aplikacji / Ostatnie aplikacje (187)"</string>
+    <string name="text_auto_launch_lock_screen_when_idle" formatted="false">"Automatycznie uruchamiaj ekran blokady podczas bezczynności"</string>
+    <string name="text_automatically_follows_your_weather_locat" formatted="false">"Automatycznie używa lokalizacji z ustawień pogody"</string>
+    <string name="text_back_to_return_hold_ok_for_options" formatted="false">"Wstecz, aby wrócić   ·   Przytrzymaj OK, aby wyświetlić opcje"</string>
+    <string name="text_blue_button" formatted="false">"Niebieski przycisk"</string>
+    <string name="text_browse_all_341_tv_models" formatted="false">"📋 Przeglądaj wszystkie 341 modeli TV"</string>
+    <string name="text_built_in_actions" formatted="false">"WBUDOWANE DZIAŁANIA"</string>
+    <string name="text_button_mapper_control_panel" formatted="false">"Mapowanie przycisków i panel sterowania"</string>
+    <string name="text_by_default_live_news_automatically_syncs" formatted="false">"Domyślnie wiadomości na żywo dostosowują się do wybranego języka launchera. Wybór kraju powyżej zastępuje to ustawienie dla widżetu wiadomości."</string>
+    <string name="text_by_default_prayer_times_syncs_with_the_w" formatted="false">"Domyślnie godziny modlitwy używają lokalizacji pogody wybranej podczas konfiguracji lub w ustawieniach pogody. Wyszukaj albo wybierz miasto powyżej, aby ustawić osobną lokalizację dla godzin modlitwy."</string>
+    <string name="text_changes_the_words_on_the_home_screen_dat" formatted="false">"Zmienia język tekstów na ekranie głównym oraz język daty, pogody i ustawień."</string>
+    <string name="text_choose_a_photo_or_ambient_colour_theme_b" formatted="false">"Wybierz zdjęcie lub motyw kolorów otoczenia jako tło aplikacji."</string>
+    <string name="text_choose_tvos_launcher_when_asked" formatted="false">"Gdy pojawi się pytanie, wybierz tvOS Launcher"</string>
+    <string name="text_chromecast_built_in_google_cast_receiver" formatted="false">"Wbudowany Chromecast / odbiornik Google Cast (opcjonalny — zachowaj, jeśli przesyłasz obraz z telefonu)"</string>
+    <string name="text_city_name_e_g_istanbul" formatted="false">"Nazwa miasta, np. Stambuł"</string>
+    <string name="text_city_or_country_e_g_istanbul_london" formatted="false">"Miasto lub kraj, np. Stambuł, Londyn"</string>
+    <string name="text_classic_look" formatted="false">"Klasyczny wygląd"</string>
+    <string name="text_classic_top_shelf" formatted="false">"Klasyczna górna półka"</string>
+    <string name="text_cleaning_up_files" formatted="false">"Czyszczenie plików…"</string>
+    <string name="text_cleanyourtv_files_missing" formatted="false">"⚠️ Brak plików CleanYourTV"</string>
+    <string name="text_close_adb_disable_port_5555" formatted="false">"Zamknij ADB (wyłącz port 5555)"</string>
+    <string name="text_close_adb_now" formatted="false">"Zamknij ADB teraz"</string>
+    <string name="text_closing_adb" formatted="false">"Zamykanie ADB…"</string>
+    <string name="text_continue_watching_cleared" formatted="false">"Wyczyszczono listę kontynuowania oglądania."</string>
+    <string name="text_continue_watching_do_not_disturb" formatted="false">"Kontynuowanie oglądania i tryb Nie przeszkadzać"</string>
+    <string name="text_continue_watching_isn_t_available_on_thi" formatted="false">"Kontynuowanie oglądania nie jest dostępne na tym telewizorze (Android ogranicza tę funkcję na telewizorach z małą ilością pamięci)."</string>
+    <string name="text_control_center" formatted="false">"Centrum sterowania"</string>
+    <string name="text_core_system_package_disabling_may_affect" formatted="false">"⚠️ Podstawowy pakiet systemowy — wyłączenie może wpłynąć na stabilność systemu"</string>
+    <string name="text_could_not_connect_to_adb_enable_usb_netw" formatted="false">"Nie można połączyć się z ADB — włącz debugowanie USB/sieciowe lub wykonaj krok 3 albo 4."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_1f7e75" formatted="false">"Nie można połączyć się z lokalnym ADB na porcie 5555.\n\nUpewnij się, że debugowanie USB/sieciowe jest włączone w opcjach programisty, i spróbuj ponownie albo wybierz konfigurację ręczną."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_2d1be7" formatted="false">"Nie można połączyć się z lokalnym ADB na porcie 5555.\n\n1. Otwórz Ustawienia → System → Informacje i naciśnij numer kompilacji 7 razy.\n2. Otwórz opcje programisty i włącz debugowanie USB/sieciowe.\n3. Wróć tutaj i ponownie wybierz Sparuj / Napraw."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_4d4bb1" formatted="false">"Nie można połączyć się z lokalnym ADB na porcie 5555.\nWłącz debugowanie USB/sieciowe w opcjach programisty, a następnie wybierz Sparuj / Napraw ADB."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_58099e" formatted="false">"Nie można połączyć się z lokalnym ADB na porcie 5555.\nUpewnij się, że debugowanie USB/sieciowe jest włączone w opcjach programisty, a następnie wybierz Sparuj / Napraw ADB."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_ac5816" formatted="false">"Nie można połączyć się z lokalnym ADB na porcie 5555."</string>
+    <string name="text_critical_system_service_protected_cannot" formatted="false">"🛑 Krytyczna usługa systemowa — chroniona (nie można jej wyłączyć)"</string>
+    <string name="text_custom_background_updated" formatted="false">"Zaktualizowano własne tło."</string>
+    <string name="text_custom_folder_shuffle" formatted="false">"WŁASNE TAPETY I LOSOWANIE Z FOLDERU"</string>
+    <string name="text_custom_image" formatted="false">"Własny obraz"</string>
+    <string name="text_custom_key_code_enter_number" formatted="false">"Własny kod przycisku (wpisz numer…)"</string>
+    <string name="text_custom_lock_screen_image_updated" formatted="false">"Zaktualizowano własny obraz ekranu blokady."</string>
+    <string name="text_custom_scene_wallpaper_updated" formatted="false">"Zaktualizowano własną tapetę sceny."</string>
+    <string name="text_custom_wallpaper_1e4315" formatted="false">"Własna tapeta #"</string>
+    <string name="text_custom_wallpaper_mode_9acb13" formatted="false">"TRYB WŁASNEJ TAPETY"</string>
+    <string name="text_dashboard_widgets" formatted="false">"WIDŻETY PANELU"</string>
+    <string name="text_date_time" formatted="false">"Data i godzina"</string>
+    <string name="text_debloat_tv_3ec289" formatted="false">"Oczyszczanie TV…"</string>
+    <string name="text_debloat_tv_af7d50" formatted="false">"Oczyszczanie TV — "</string>
+    <string name="text_debloating_tv" formatted="false">"Oczyszczanie TV…"</string>
+    <string name="text_default_app_launch_main_activity" formatted="false">"Domyślne uruchomienie aplikacji (główna aktywność)"</string>
+    <string name="text_default_playlist_cannot_be_deleted" formatted="false">"Nie można usunąć domyślnej listy odtwarzania"</string>
+    <string name="text_depth_effect_foreground_png" formatted="false">"Pierwszy plan efektu głębi (PNG) #"</string>
+    <string name="text_depth_effect_foreground_removed" formatted="false">"Usunięto pierwszy plan efektu głębi."</string>
+    <string name="text_depth_effect_foreground_updated" formatted="false">"Zaktualizowano pierwszy plan efektu głębi."</string>
+    <string name="text_detected_your_current_wi_fi_network_is_o" formatted="false">"⚠️ Wykryto: obecna sieć Wi-Fi należy do setupwraith (cname=com.google.android.tungsten.setupwraith).\n\n"</string>
+    <string name="text_developer_options" formatted="false">"Opcje programisty…"</string>
+    <string name="text_disabled_apps_record" formatted="false">"Lista wyłączonych aplikacji"</string>
+    <string name="text_disabling_package" formatted="false">"Wyłączanie pakietu…"</string>
+    <string name="text_display" formatted="false">"Ekran"</string>
+    <string name="text_dock_rows" formatted="false">"Rzędy doku"</string>
+    <string name="text_dock_scale_50_to_50" formatted="false">"SKALA DOKU (OD -50% DO +50%)"</string>
+    <string name="text_download_failed" formatted="false">"Pobieranie nie powiodło się"</string>
+    <string name="text_downloading_cleanyourtv" formatted="false">"Pobieranie CleanYourTV…"</string>
+    <string name="text_downloading_to_download_folder" formatted="false">"Pobieranie do folderu Pobrane…"</string>
+    <string name="text_each_wallpaper_stays" formatted="false">"Każda tapeta pozostaje"</string>
+    <string name="text_back_4" formatted="false">"Wstecz (4)"</string>
+    <string name="text_bloatware_background_service" formatted="false">"Zbędne oprogramowanie / usługa w tle"</string>
+    <string name="text_choose_background_folder_to_shuffle" formatted="false">"Wybierz folder z obrazami tła do losowania"</string>
+    <string name="text_choose_custom_scene_image" formatted="false">"Wybierz własny obraz sceny"</string>
+    <string name="text_choose_lock_screen_folder_to_shuffle" formatted="false">"Wybierz folder z obrazami ekranu blokady do losowania"</string>
+    <string name="text_choose_lock_screen_image" formatted="false">"Wybierz obraz ekranu blokady"</string>
+    <string name="text_classic_custom_wallpaper" formatted="false">"Klasyczna własna tapeta"</string>
+    <string name="text_classic_wallpapers" formatted="false">"KLASYCZNE TAPETY"</string>
+    <string name="text_clean_up_space" formatted="false">"Zwolnić miejsce?"</string>
+    <string name="search_keywords_input" formatted="false">"wejście hdmi av tv źródło"</string>
+    <string name="search_keywords_control_center" formatted="false">"panel sterowanie zasilanie wyłączanie uśpienie"</string>
+    <string name="search_keywords_weather" formatted="false">"pogoda temperatura deszcz prognoza"</string>
+    <string name="search_keywords_profile" formatted="false">"profil użytkownik osoba"</string>
+    <string name="search_keywords_home_settings" formatted="false">"ustawienia launcher preferencje wygląd sceny język"</string>
+    <string name="search_keywords_refresh" formatted="false">"odśwież przeładuj wiadomości rekomendacje"</string>
+    <string name="search_keywords_wifi" formatted="false">"wifi sieć internet bezprzewodowa"</string>
+    <string name="search_keywords_bluetooth" formatted="false">"bluetooth pilot kontroler słuchawki głośnik parowanie"</string>
+    <string name="search_keywords_sound" formatted="false">"dźwięk audio głośność głośnik"</string>
+    <string name="search_keywords_display" formatted="false">"ekran wyświetlacz rozdzielczość obraz"</string>
+    <string name="search_keywords_screen_saver" formatted="false">"wygaszacz ekranu otoczenie"</string>
+    <string name="search_keywords_date_time" formatted="false">"data czas godzina zegar"</string>
+    <string name="search_keywords_accessibility" formatted="false">"dostępność ułatwienia napisy"</string>
+    <string name="search_keywords_apps" formatted="false">"aplikacje odinstaluj usuń pamięć"</string>
+    <string name="search_keywords_storage" formatted="false">"pamięć miejsce przestrzeń"</string>
+    <string name="search_keywords_tv_settings" formatted="false">"ustawienia system urządzenie"</string>
+    <string name="text_3_days" formatted="false">"3 dni"</string>
+    <string name="text_active_works_in_all_apps" formatted="false">"Aktywny (działa we wszystkich aplikacjach)"</string>
+    <string name="text_adb_debugging_enabled" formatted="false">"Debugowanie ADB włączone."</string>
+    <string name="text_adb_paired_and_all_permissions_granted" formatted="false">"ADB sparowane i wszystkie uprawnienia przyznane!"</string>
+    <string name="text_all_button_mappings_cleared" formatted="false">"Wszystkie mapowania przycisków zostały wyczyszczone."</string>
+    <string name="text_all_permissions_granted_automatically" formatted="false">"Wszystkie uprawnienia przyznane automatycznie!"</string>
+    <string name="text_already_disabled" formatted="false">" [Już wyłączone]"</string>
+    <string name="text_always_on" formatted="false">"Zawsze włączony"</string>
+    <string name="text_and_enter" formatted="false">" i wprowadź:"</string>
+    <string name="text_android_accessibility_suite_talkback_opt" formatted="false">"Android Accessibility Suite / TalkBack (opcjonalnie)"</string>
+    <string name="text_app_icon_reset_to_default" formatted="false">"Ikona aplikacji zresetowana do domyślnej"</string>
+    <string name="text_app_icon_updated" formatted="false">"Ikona aplikacji zaktualizowana"</string>
+    <string name="text_app_info_3cd62b" formatted="false">"Informacje o aplikacji"</string>
+    <string name="text_app_layout_reset_to_default" formatted="false">"Układ aplikacji zresetowany do domyślnego."</string>
+    <string name="text_applications" formatted="false">"Aplikacje"</string>
+    <string name="text_apply" formatted="false">"Zastosuj"</string>
+    <string name="text_apps_ebb18e" formatted="false">"aplikacje"</string>
+    <string name="text_apps_settings" formatted="false">"Aplikacje i ustawienia"</string>
+    <string name="text_apps_using_nuvio" formatted="false">"Aplikacje korzystające z Nuvio"</string>
+    <string name="text_audio" formatted="false">"Audio"</string>
+    <string name="text_audio_track_222" formatted="false">"Ścieżka audio (222)"</string>
+    <string name="text_auto" formatted="false">"Auto"</string>
+    <string name="text_auto_changing_1080p_4k_wallpapers_from_y" formatted="false">"Automatyczne zmienianie tapet 1080p/4K z wybranych subredditów"</string>
+    <string name="text_automatic_from_internet" formatted="false">"Automatycznie (z internetu)"</string>
+    <string name="text_back_to_folders" formatted="false">"Wróć do folderów"</string>
+    <string name="text_back_to_parent_folder" formatted="false">"Wróć do folderu nadrzędnego"</string>
+    <string name="text_back_to_usage_mode_selection" formatted="false">"Wróć do wyboru trybu użytkowania"</string>
+    <string name="text_background_color" formatted="false">"Kolor tła"</string>
+    <string name="text_background_mode" formatted="false">"TRYB TŁA"</string>
+    <string name="text_backup_failed" formatted="false">"Tworzenie kopii zapasowej nie powiodło się"</string>
+    <string name="text_black" formatted="false">"Czarny"</string>
+    <string name="text_blue" formatted="false">"Niebieski"</string>
+    <string name="text_bluetooth" formatted="false">"Bluetooth"</string>
+    <string name="text_bookmark_favorite" formatted="false">"Zakładka / Ulubione"</string>
+    <string name="text_can_t_reach_the_internet" formatted="false">"Nie można połączyć się z internetem"</string>
+    <string name="text_change_colour" formatted="false">"Zmień kolor"</string>
+    <string name="text_change_emoji" formatted="false">"Zmień emoji"</string>
+    <string name="text_change_model" formatted="false">"Zmień model…"</string>
+    <string name="text_change_name_of_input" formatted="false">"Zmień nazwę wejścia"</string>
+    <string name="text_channel_down" formatted="false">"Kanał w dół"</string>
+    <string name="text_channel_up" formatted="false">"Kanał w górę"</string>
+    <string name="text_channels" formatted="false">"Kanały"</string>
+    <string name="text_choose_a_background" formatted="false">"Wybierz tło"</string>
+    <string name="text_choose_action" formatted="false">"Wybierz działanie"</string>
+    <string name="text_choose_activity" formatted="false">"Wybierz aktywność"</string>
+    <string name="text_choose_custom_background_image" formatted="false">"Wybierz niestandardowe tło"</string>
+    <string name="text_choose_folder_768e16" formatted="false">"Wybierz folder…"</string>
+    <string name="text_choose_folder_to_restore_settings" formatted="false">"Wybierz folder do przywrócenia ustawień"</string>
+    <string name="text_choose_image_44c803" formatted="false">"Wybierz obraz…"</string>
+    <string name="text_choose_image_d3f17f" formatted="false">"Wybierz obraz ›"</string>
+    <string name="text_choose_tv_model_fcb2e7" formatted="false">"Wybierz model TV…"</string>
+    <string name="text_choose_wallpaper_folder_to_shuffle" formatted="false">"Wybierz folder z tapetami do losowania"</string>
+    <string name="text_classic_background" formatted="false">"TŁO KLASYCZNE"</string>
+    <string name="text_classic_photo" formatted="false">"Zdjęcie klasyczne"</string>
+    <string name="text_cleanyourtv_beta" formatted="false">"CLEANYOURTV (BETA)"</string>
+    <string name="text_cleanyourtv_downloaded_to_download_folde" formatted="false">"CleanYourTV pobrano do folderu Pobrane."</string>
+    <string name="text_clear_all_remapped_buttons" formatted="false">"Wyczyść wszystkie przypisane przyciski"</string>
+    <string name="text_clear_d47414" formatted="false">"wyczyść"</string>
+    <string name="text_clear_filter_show_all" formatted="false">"Wyczyść filtr (Pokaż wszystko)"</string>
+    <string name="text_clock_position" formatted="false">"Położenie zegara"</string>
+    <string name="text_close" formatted="false">"Zamknij"</string>
+    <string name="text_colour" formatted="false">"Kolor"</string>
+    <string name="text_connecting_to_local_adb_on_port_5555_and" formatted="false">"Łączenie z lokalnym ADB na porcie 5555 i udzielanie uprawnień…\n\nJeśli pojawi się okno z pytaniem „Zezwól na debugowanie przez USB?”, zaznacz „Zawsze zezwalaj” i naciśnij Zezwalaj."</string>
+    <string name="text_continue_watching_5df929" formatted="false">"Kontynuuj oglądanie"</string>
+    <string name="text_control_panel_actions_and_items_reset_to" formatted="false">"Działania i elementy panelu sterowania zresetowane do domyślnych."</string>
+    <string name="text_could_not_check_for_updates" formatted="false">"Nie można sprawdzić aktualizacji."</string>
+    <string name="text_could_not_decode_image_file" formatted="false">"Nie można odczytać pliku obrazu."</string>
+    <string name="text_could_not_load_selected_image" formatted="false">"Nie można załadować wybranego obrazu."</string>
+    <string name="text_could_not_start_installer" formatted="false">"Nie można uruchomić instalatora."</string>
+    <string name="text_couldn_t_search_check_the_internet_conne" formatted="false">"Nie można wyszukać. Sprawdź połączenie z internetem."</string>
+    <string name="text_country" formatted="false">"KRAJ"</string>
+    <string name="text_custom_label" formatted="false">"Niestandardowa etykieta"</string>
+    <string name="text_custom_wallpapers_unlimited" formatted="false">"NIESTANDARDOWE TAPETY (BEZ LIMITU)"</string>
+    <string name="text_dark" formatted="false">"Ciemny"</string>
+    <string name="text_dash_news" formatted="false">"Aktualności na żywo"</string>
+    <string name="text_dash_top_media" formatted="false">"Najlepsze filmy i seriale"</string>
+    <string name="text_debloat_complete" formatted="false">"Debloat ukończony"</string>
+    <string name="text_default_ambient_mode" formatted="false">"Domyślny (Tryb otoczenia)"</string>
+    <string name="text_default_home_launcher_set_via_adb" formatted="false">"Domyślny launcher ekranu głównego ustawiony za pomocą ADB!"</string>
+    <string name="text_default_screen_off" formatted="false">"Domyślny (Wyłączenie ekranu)"</string>
+    <string name="text_delete" formatted="false">"Usuń"</string>
+    <string name="text_didn_t_catch_that_press_the_mic_to_try_a" formatted="false">"Nie zrozumiałem — naciśnij mikrofon, aby spróbować ponownie"</string>
+    <string name="text_disable_all_stock_launchers" formatted="false">"Wyłącz wszystkie domyślne launchery"</string>
+    <string name="text_disable_anyway" formatted="false">"Wyłącz mimo to"</string>
+    <string name="text_disable" formatted="false">"Wyłącz"</string>
+    <string name="text_disable_selected" formatted="false">"Wyłącz zaznaczone"</string>
+    <string name="text_disable_stock_tv_launchers_tcl_philips_g" formatted="false">"Wyłącz domyślne launchery TV (TCL / Philips / Google TV)"</string>
+    <string name="text_disable_system_launchers_072c87" formatted="false">"Wyłącz launchery systemowe"</string>
+    <string name="text_dock" formatted="false">"DOCK"</string>
+    <string name="text_done" formatted="false">"Gotowe"</string>
+    <string name="text_down" formatted="false">"Dół"</string>
+    <string name="text_download_all_tv_models_again" formatted="false">"Pobrać ponownie wszystkie modele TV?"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"Pobierz CleanYourTV"</string>
+    <string name="text_download_cleanyourtv_first" formatted="false">"Najpierw pobierz CleanYourTV"</string>
+    <string name="text_download_cleanyourtv_now" formatted="false">"Pobierz CleanYourTV teraz"</string>
+    <string name="text_download_cleanyourtv_required" formatted="false">"Wymagane jest pobranie CleanYourTV"</string>
+    <string name="text_download" formatted="false">"Pobierz"</string>
+    <string name="text_e_g_85_play_pause_164_mute_178_tv_input" formatted="false">"np. 85 (Odtwarzaj/Wstrzymaj), 164 (Wycisz), 178 (Wejście TV)"</string>
+    <string name="text_e_g_tcl_philips_sony_hisense_xiaomi" formatted="false">"np. tcl, philips, sony, hisense, xiaomi..."</string>
+    <string name="text_e_g_tcl_sony_hisense_xiaomi_philips_skyw" formatted="false">"np. tcl, sony, hisense, xiaomi, philips, skyworth..."</string>
+    <string name="presentation_web_presentation_tvos_launcher_c959811f" formatted="false">"Prezentacja · tvOS Launcher"</string>
+    <string name="presentation_web_pair_with_your_tv_72e248d6" formatted="false">"Sparuj z telewizorem"</string>
+    <string name="presentation_web_enter_the_6_digit_code_shown_on_the_tv_5bdd16e7" formatted="false">"Wpisz 6-cyfrowy kod wyświetlony na telewizorze."</string>
+    <string name="presentation_web_pairing_code_1c5ea2f7" formatted="false">"Kod parowania"</string>
+    <string name="presentation_web_digit_1_ae93e575" formatted="false">"Cyfra 1"</string>
+    <string name="presentation_web_digit_2_beadac2c" formatted="false">"Cyfra 2"</string>
+    <string name="presentation_web_digit_3_f8b74e73" formatted="false">"Cyfra 3"</string>
+    <string name="presentation_web_digit_4_c36fd656" formatted="false">"Cyfra 4"</string>
+    <string name="presentation_web_digit_5_9d7fe2d6" formatted="false">"Cyfra 5"</string>
+    <string name="presentation_web_digit_6_a4865e85" formatted="false">"Cyfra 6"</string>
+    <string name="presentation_web_pair_989da04b" formatted="false">"Sparuj"</string>
+    <string name="presentation_web_can_t_see_the_code_on_the_tv_open_presentatio_8ebb1347" formatted="false">"Nie widzisz kodu? Otwórz Prezentację na telewizorze i naciśnij ▲ na pilocie."</string>
+    <string name="presentation_web_sections_9bae918a" formatted="false">"Sekcje"</string>
+    <string name="presentation_web_library_dc20b3d5" formatted="false">"Biblioteka"</string>
+    <string name="presentation_web_playlist_7af36c50" formatted="false">"Lista odtwarzania"</string>
+    <string name="presentation_web_forget_this_browser_94e93346" formatted="false">"Usuń sparowanie tej przeglądarki"</string>
+    <string name="presentation_web_unpair_10be2fd8" formatted="false">"Usuń sparowanie"</string>
+    <string name="presentation_web_now_playing_on_tv_abe04c28" formatted="false">"Teraz odtwarzane na telewizorze"</string>
+    <string name="presentation_web_connecting_72021eb7" formatted="false">"Łączenie…"</string>
+    <string name="presentation_web_previous_slide_bfb54922" formatted="false">"Poprzedni slajd"</string>
+    <string name="presentation_web_next_slide_cdc93d1c" formatted="false">"Następny slajd"</string>
+    <string name="text_pause" formatted="false">"Wstrzymaj"</string>
+    <string name="text_play" formatted="false">"Odtwórz"</string>
+    <string name="presentation_web_start_over_5eed7e9f" formatted="false">"Odtwórz od początku"</string>
+    <string name="presentation_web_show_the_address_and_code_on_the_tv_120c6380" formatted="false">"Pokaż adres i kod na telewizorze"</string>
+    <string name="presentation_web_show_code_on_tv_4bb6f289" formatted="false">"Pokaż kod na telewizorze"</string>
+    <string name="presentation_web_drop_images_or_videos_here_02e76e67" formatted="false">"Przeciągnij tutaj obrazy lub filmy"</string>
+    <string name="presentation_web_or_link_uploads_go_straight_to_the_tv_80b3ef38" formatted="false">"lub {link} · pliki zostaną przesłane bezpośrednio na telewizor"</string>
+    <string name="presentation_web_choose_files_70deb128" formatted="false">"wybierz pliki"</string>
+    <string name="presentation_web_all_a52ace42" formatted="false">"Wszystkie"</string>
+    <string name="presentation_web_images_be7e2f20" formatted="false">"Obrazy"</string>
+    <string name="presentation_web_videos_c9a96394" formatted="false">"Filmy"</string>
+    <string name="presentation_web_add_slide_51dd24ab" formatted="false">"Dodaj slajd"</string>
+    <string name="presentation_web_from_library_b5e37739" formatted="false">"Z biblioteki…"</string>
+    <string name="presentation_web_webpage_b1c356d7" formatted="false">"Strona internetowa…"</string>
+    <string name="presentation_web_slides_a0ffe381" formatted="false">"Slajdy"</string>
+    <string name="presentation_web_drag_to_reorder_ef86a0ed" formatted="false">"Przeciągnij, aby zmienić kolejność"</string>
+    <string name="presentation_web_slide_settings_430bbbc9" formatted="false">"Ustawienia slajdu"</string>
+    <string name="presentation_web_no_slides_yet_b0e09084" formatted="false">"Brak slajdów"</string>
+    <string name="presentation_web_add_images_or_videos_from_your_library_or_a_w_78c8f641" formatted="false">"Dodaj obrazy lub filmy z biblioteki albo stronę internetową. Slajdy są odtwarzane kolejno w pętli."</string>
+    <string name="presentation_web_add_webpage_fff7d0f1" formatted="false">"Dodaj stronę internetową"</string>
+    <string name="presentation_web_add_from_library_e9a0efb1" formatted="false">"Dodaj z biblioteki"</string>
+    <string name="presentation_web_unsaved_changes_a710c2b9" formatted="false">"Niezapisane zmiany"</string>
+    <string name="presentation_web_revert_0026c505" formatted="false">"Cofnij zmiany"</string>
+    <string name="presentation_web_save_to_tv_46bc0108" formatted="false">"Zapisz na telewizorze"</string>
+    <string name="presentation_web_paired_with_the_tv_2a24e68a" formatted="false">"Sparowano z telewizorem"</string>
+    <string name="presentation_web_not_on_screen_797f0f00" formatted="false">"Nie jest wyświetlana"</string>
+    <string name="presentation_web_open_presentation_on_the_tv_or_turn_on_start_09099f48" formatted="false">"Otwórz Prezentację na telewizorze lub włącz opcję „Uruchamiaj po włączeniu” w ustawieniach."</string>
+    <string name="presentation_web_nothing_playing_05aed12e" formatted="false">"Nic nie jest odtwarzane"</string>
+    <string name="presentation_web_add_slides_in_playlist_then_save_to_tv_34d9de3a" formatted="false">"Dodaj slajdy do listy odtwarzania, a następnie zapisz ją na telewizorze."</string>
+    <string name="text_playing" formatted="false">"Odtwarzanie"</string>
+    <string name="text_paused" formatted="false">"Wstrzymano"</string>
+    <string name="presentation_web_skipping_dc5420d3" formatted="false">"Przechodzenie do kolejnego slajdu"</string>
+    <string name="presentation_web_starting_aeed4d26" formatted="false">"Uruchamianie"</string>
+    <string name="presentation_web_label_slide_n_of_count_4197ebe9" formatted="false">"{label} · Slajd {n} z {count}"</string>
+    <string name="presentation_web_no_files_yet_drop_images_or_videos_above_3bfd937b" formatted="false">"Brak plików. Przeciągnij obrazy lub filmy do obszaru powyżej."</string>
+    <string name="presentation_web_no_images_yet_c397a5b4" formatted="false">"Brak obrazów."</string>
+    <string name="presentation_web_no_videos_yet_1151b358" formatted="false">"Brak filmów."</string>
+    <string name="presentation_web_video_d534be82" formatted="false">"Film"</string>
+    <string name="presentation_web_image_1aa4cb0b" formatted="false">"Obraz"</string>
+    <string name="presentation_web_file_50009ce1" formatted="false">"Plik"</string>
+    <string name="presentation_web_add_to_playlist_f659f573" formatted="false">"Dodaj do listy odtwarzania"</string>
+    <string name="presentation_web_delete_name_3cf8146e" formatted="false">"Usuń {name}"</string>
+    <string name="presentation_web_delete_name_8e13216a" formatted="false">"Usunąć „{name}”?"</string>
+    <string name="presentation_web_it_will_be_removed_from_the_tv_along_with_any_f1383104" formatted="false">"Plik zostanie usunięty z telewizora wraz ze slajdami, które go używają."</string>
+    <string name="presentation_web_deleted_b48ff39c" formatted="false">"Usunięto"</string>
+    <string name="presentation_web_only_images_and_videos_can_be_uploaded_7cf8003d" formatted="false">"Można przesyłać tylko obrazy i filmy"</string>
+    <string name="presentation_web_waiting_612ffc5c" formatted="false">"Oczekiwanie…"</string>
+    <string name="presentation_web_pct_of_size_7b41a303" formatted="false">"{pct}% z {size}"</string>
+    <string name="presentation_web_uploaded_3cc3767e" formatted="false">"Przesłano"</string>
+    <string name="presentation_web_upload_failed_6efc5d27" formatted="false">"Nie udało się przesłać"</string>
+    <string name="presentation_web_name_uploaded_2ba2624a" formatted="false">"Przesłano {name}"</string>
+    <string name="presentation_web_n_files_uploaded_862e4840" formatted="false">"Przesłane pliki: {n}"</string>
+    <string name="presentation_web_ok_uploaded_failed_failed_f434f81f" formatted="false">"Przesłano: {ok}, niepowodzenie: {failed}"</string>
+    <string name="presentation_web_n_uploads_failed_54a17745" formatted="false">"Nieudane przesyłanie: {n}"</string>
+    <string name="presentation_web_upload_failed_status_08b501ad" formatted="false">"Nie udało się przesłać ({status})"</string>
+    <string name="presentation_web_upload_failed_check_the_tv_is_on_and_on_the_s_5574c47b" formatted="false">"Nie udało się przesłać. Sprawdź, czy telewizor jest włączony i połączony z tą samą siecią."</string>
+    <string name="presentation_web_webpage_dccfc4ad" formatted="false">"Strona internetowa"</string>
+    <string name="presentation_web_missing_file_693f5909" formatted="false">"Brak pliku"</string>
+    <string name="presentation_web_slide_n_title_beab46ed" formatted="false">"Slajd {n}: {title}"</string>
+    <string name="presentation_web_on_tv_7001d394" formatted="false">"Na telewizorze"</string>
+    <string name="presentation_web_scroll_291873e3" formatted="false">"Przewijanie"</string>
+    <string name="presentation_web_no_address_yet_7a908fce" formatted="false">"Brak adresu"</string>
+    <string name="presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_84248c8b" formatted="false">"Wyświetlana na telewizorze jako strona o szerokości 1920 pikseli"</string>
+    <string name="presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_scroll_71ebcb30" formatted="false">"Wyświetlana na telewizorze jako strona o szerokości 1920 pikseli, przewijana w dół"</string>
+    <string name="presentation_web_choose_another_file_for_this_slide_9084e548" formatted="false">"Wybierz inny plik dla tego slajdu."</string>
+    <string name="presentation_web_n_of_count_03e1f091" formatted="false">"{n} z {count}"</string>
+    <string name="presentation_web_on_tv_now_4b481d71" formatted="false">"Teraz na telewizorze"</string>
+    <string name="presentation_web_hidden_7e6fefff" formatted="false">"Ukryty"</string>
+    <string name="presentation_web_webpage_address_c02cb87f" formatted="false">"Adres strony internetowej"</string>
+    <string name="presentation_web_auto_scroll_30fb5ec8" formatted="false">"Automatyczne przewijanie"</string>
+    <string name="presentation_web_scroll_speed_2632882d" formatted="false">"Szybkość przewijania"</string>
+    <string name="presentation_web_pause_on_each_screen_d6a984d0" formatted="false">"Pauza na każdym ekranie"</string>
+    <string name="presentation_web_n_px_s_e1159729" formatted="false">"{n} px/s"</string>
+    <string name="presentation_web_n_s_8e6df4a0" formatted="false">"{n} s"</string>
+    <string name="presentation_web_s_043a7187" formatted="false">"s"</string>
+    <string name="presentation_web_time_on_screen_9fa05c65" formatted="false">"Czas wyświetlania"</string>
+    <string name="presentation_web_plays_to_the_end_194589fa" formatted="false">"Odtwarzany do końca"</string>
+    <string name="presentation_web_until_it_reaches_the_bottom_f3c94373" formatted="false">"Do przewinięcia na dół"</string>
+    <string name="presentation_web_5_seconds_less_bccb7d2e" formatted="false">"O 5 sekund mniej"</string>
+    <string name="presentation_web_5_seconds_more_0ff54420" formatted="false">"O 5 sekund więcej"</string>
+    <string name="presentation_web_seconds_381a8e96" formatted="false">"Sekundy"</string>
+    <string name="presentation_web_playback_2db1db07" formatted="false">"Odtwarzanie"</string>
+    <string name="presentation_web_fit_9f872ed4" formatted="false">"Dopasowanie"</string>
+    <string name="presentation_web_contain_e534a2c2" formatted="false">"Dopasuj"</string>
+    <string name="presentation_web_cover_fa8d8456" formatted="false">"Wypełnij"</string>
+    <string name="presentation_web_fill_033955d4" formatted="false">"Rozciągnij"</string>
+    <string name="presentation_web_show_all_of_it_8b61252d" formatted="false">"Pokaż całą zawartość"</string>
+    <string name="presentation_web_fill_the_screen_cropping_edges_3c4d2350" formatted="false">"Wypełnij ekran, przycinając krawędzie"</string>
+    <string name="presentation_web_stretch_to_the_screen_0e4fa364" formatted="false">"Rozciągnij do rozmiaru ekranu"</string>
+    <string name="presentation_web_play_sound_017e4fd8" formatted="false">"Odtwarzaj dźwięk"</string>
+    <string name="presentation_web_show_this_slide_47e42125" formatted="false">"Pokaż ten slajd"</string>
+    <string name="presentation_web_earlier_e10ae990" formatted="false">"Przesuń wcześniej"</string>
+    <string name="presentation_web_later_73b6e48a" formatted="false">"Przesuń później"</string>
+    <string name="presentation_web_remove_slide_913ae394" formatted="false">"Usuń slajd"</string>
+    <string name="presentation_web_only_images_and_videos_can_be_slides_11e3db96" formatted="false">"Slajdami mogą być tylko obrazy i filmy"</string>
+    <string name="presentation_web_slide_added_save_to_tv_when_ready_ac4d8f72" formatted="false">"Dodano slajd — zapisz na telewizorze, gdy skończysz"</string>
+    <string name="presentation_web_the_page_opens_full_screen_on_the_tv_and_scro_cd0e902c" formatted="false">"Strona otworzy się na pełnym ekranie telewizora i będzie powoli przewijana w dół. Przewijanie możesz zmienić w ustawieniach slajdu."</string>
+    <string name="presentation_web_webpage_address_must_start_with_http_or_https_10e086d4" formatted="false">"Adres strony musi zaczynać się od http:// lub https://"</string>
+    <string name="presentation_web_your_library_is_empty_upload_images_or_videos_1b1e7e11" formatted="false">"Biblioteka jest pusta. Najpierw prześlij obrazy lub filmy."</string>
+    <string name="presentation_web_saving_23e39291" formatted="false">"Zapisywanie…"</string>
+    <string name="presentation_web_saved_now_playing_on_the_tv_53e2afb1" formatted="false">"Zapisano — odtwarzanie na telewizorze"</string>
+    <string name="presentation_web_showing_the_address_and_code_on_the_tv_7b38bbb2" formatted="false">"Wyświetlanie adresu i kodu na telewizorze"</string>
+    <string name="presentation_web_slide_n_time_on_screen_must_be_at_least_1_sec_33e688bf" formatted="false">"Slajd {n}: czas wyświetlania musi wynosić co najmniej 1 sekundę."</string>
+    <string name="presentation_web_slide_n_webpage_address_must_start_with_http_c20d1c1c" formatted="false">"Slajd {n}: adres strony musi zaczynać się od http:// lub https://."</string>
+    <string name="presentation_web_slide_n_scroll_speed_must_be_between_5_and_10_7bf1f5cf" formatted="false">"Slajd {n}: szybkość przewijania musi wynosić od 5 do 1000."</string>
+    <string name="presentation_web_slide_n_pause_must_be_between_0_and_300_secon_ee5928bf" formatted="false">"Slajd {n}: pauza musi wynosić od 0 do 300 sekund."</string>
+    <string name="presentation_web_slide_n_choose_a_file_ce3b2b2e" formatted="false">"Slajd {n}: wybierz plik."</string>
+    <string name="presentation_web_slide_n_uses_a_deleted_file_59410ac6" formatted="false">"Slajd {n}: używa usuniętego pliku."</string>
+    <string name="presentation_web_you_have_unsaved_playlist_changes_leave_anywa_794f9b62" formatted="false">"Lista odtwarzania zawiera niezapisane zmiany. Opuścić stronę?"</string>
+    <string name="presentation_web_video_plays_to_the_end_d1317306" formatted="false">"Film · odtwarzany do końca"</string>
+    <string name="presentation_web_image_d_a95fd646" formatted="false">"Obraz · {d}"</string>
+    <string name="presentation_web_webpage_auto_scroll_7b4685ed" formatted="false">"Strona internetowa · automatyczne przewijanie"</string>
+    <string name="presentation_web_webpage_d_5742e375" formatted="false">"Strona internetowa · {d}"</string>
+    <string name="presentation_web_empty_c6c094bc" formatted="false">"Pusta"</string>
+    <string name="presentation_web_loop_d_af1a13c7" formatted="false">"Pętla {d}"</string>
+    <string name="presentation_web_base_n_video_scroll_109344e2" formatted="false">"{base} + filmów/przewijanych stron: {n}"</string>
+    <string name="presentation_web_request_failed_status_d5f9abf9" formatted="false">"Żądanie nie powiodło się ({status})"</string>
+    <string name="presentation_web_pair_this_browser_again_with_the_code_on_the_36a7b9e9" formatted="false">"Sparuj ponownie tę przeglądarkę, używając kodu z telewizora."</string>
+    <string name="presentation_web_something_went_wrong_ab827e3f" formatted="false">"Coś poszło nie tak"</string>
+    <string name="presentation_web_s_s_07f67a15" formatted="false">"{s} s"</string>
+    <string name="presentation_web_m_m_79989309" formatted="false">"{m} min"</string>
+    <string name="presentation_web_m_m_s_s_53e20375" formatted="false">"{m} min {s} s"</string>
+    <string name="text_emoji" formatted="false">"Emoji"</string>
+    <string name="text_enable_accessibility_service_in_settings" formatted="false">"Włącz usługę ułatwień dostępu w ustawieniach, aby otworzyć menu zasilania Androida"</string>
+    <string name="text_enable_adb_debugging" formatted="false">"Włącz debugowanie ADB"</string>
+    <string name="text_enable_adb_for_persistent_mode" formatted="false">"Włączyć ADB dla trybu stałego?"</string>
+    <string name="text_enable_adb_now" formatted="false">"Włącz ADB teraz"</string>
+    <string name="text_enable_adb_switch" formatted="false">"Włącz ADB i przełącz"</string>
+    <string name="text_enable_in_accessibility_so_remapped_butt" formatted="false">"Włącz w ułatwieniach dostępu, aby przypisane przyciski działały we wszystkich aplikacjach"</string>
+    <string name="text_enable_keep_alive_348093" formatted="false">"Włącz podtrzymywanie działania"</string>
+    <string name="text_enable_keep_alive_5ae818" formatted="false">"Włączyć podtrzymywanie działania?"</string>
+    <string name="text_enable_usb_network_debugging_in_develope" formatted="false">"Włącz debugowanie USB / sieciowe w opcjach programisty"</string>
+    <string name="text_enable_via_adb" formatted="false">"Włącz przez ADB"</string>
+    <string name="text_enabled_in_shuffle" formatted="false">"Uwzględniono w losowaniu"</string>
+    <string name="text_enabling_adb" formatted="false">"Włączanie ADB…"</string>
+    <string name="text_enabling_adb_debugging" formatted="false">"Włączanie debugowania ADB…"</string>
+    <string name="text_enabling_adb_debugging_and_switching_to" formatted="false">"Włączanie debugowania ADB i przełączanie na stały tryb ADB…"</string>
+    <string name="text_enabling_package" formatted="false">"Włączanie pakietu…"</string>
+    <string name="text_endpoint_not_found" formatted="false">"Nie znaleziono punktu końcowego"</string>
+    <string name="text_enter_android_key_code" formatted="false">"Wpisz kod klawisza Androida"</string>
+    <string name="text_enter_any_club_or_national_team" formatted="false">"Wpisz nazwę klubu lub reprezentacji…"</string>
+    <string name="text_exact_model_code_match" formatted="false">"Dokładna zgodność kodu modelu"</string>
+    <string name="text_exact_model_match" formatted="false">"Dokładna zgodność modelu"</string>
+    <string name="text_fast_forward" formatted="false">"Przewiń do przodu"</string>
+    <string name="text_fetching_next_reddit_wallpaper" formatted="false">"Pobieranie kolejnej tapety z Reddita…"</string>
+    <string name="text_filter_all_matches" formatted="false">"Filtr: wszystkie mecze"</string>
+    <string name="text_filter_bf262c" formatted="false">"Filtruj ›"</string>
+    <string name="text_filter_favorites" formatted="false">"Filtr: ★ Ulubione"</string>
+    <string name="text_filter_tv_models" formatted="false">"Filtruj modele TV"</string>
+    <string name="text_folder_shuffle" formatted="false">"Losowanie z folderu"</string>
+    <string name="text_forecast_provider" formatted="false">"DOSTAWCA PROGNOZY"</string>
+    <string name="text_found_from_your_internet_connection" formatted="false">"Ustalono na podstawie połączenia z internetem"</string>
+    <string name="text_generic_android_tv_google_tv_profile" formatted="false">"Ogólny profil Android TV / Google TV"</string>
+    <string name="text_get" formatted="false">"Pobierz"</string>
+    <string name="text_getting_the_weather" formatted="false">"Pobieranie pogody…"</string>
+    <string name="text_google_assistant_voice_search_optional" formatted="false">"Asystent Google / wyszukiwanie głosowe (opcjonalnie)"</string>
+    <string name="text_google_play_games_optional" formatted="false">"Gry Google Play (opcjonalnie)"</string>
+    <string name="text_google_telemetry_diagnostics" formatted="false">"Telemetria i diagnostyka Google"</string>
+    <string name="text_google_tv_notice_setupwraith_wi_fi_check" formatted="false">"ℹ️ Informacja Google TV (sprawdzanie Wi-Fi przez setupwraith):\n\n"</string>
+    <string name="text_google_tv_setup_wizard_launcher_watchdog" formatted="false">"Kreator konfiguracji Google TV i nadzorowanie launchera"</string>
+    <string name="text_google_tv_store_movies_tv" formatted="false">"Sklep Google TV / Filmy i TV"</string>
+    <string name="text_google_tv_wi_fi_notice" formatted="false">"INFORMACJA O WI-FI GOOGLE TV"</string>
+    <string name="text_google_tv_wi_fi_warning" formatted="false">"Ostrzeżenie o Wi-Fi Google TV"</string>
+    <string name="text_grant_all_files_access" formatted="false">"Przyznaj dostęp do wszystkich plików…"</string>
+    <string name="text_grant_permissions_close_adb_now" formatted="false">"Przyznaj uprawnienia i zamknij ADB teraz"</string>
+    <string name="text_grant_permissions_now_keep_adb_open" formatted="false">"Przyznaj uprawnienia teraz (pozostaw ADB otwarte)"</string>
+    <string name="text_grant_storage_access" formatted="false">"Przyznaj dostęp do pamięci…"</string>
+    <string name="text_granting_permissions_via_local_adb_if_an" formatted="false">"Przyznawanie uprawnień przez lokalne ADB…\n\nJeśli pojawi się pytanie „Zezwolić na debugowanie USB?”, zaznacz „Zawsze zezwalaj” i naciśnij Zezwól."</string>
+    <string name="text_grants_write_secure_settings_closes_port" formatted="false">"Przyznaje WRITE_SECURE_SETTINGS i zamyka port 5555 po zakończeniu"</string>
+    <string name="text_gray" formatted="false">"Szary"</string>
+    <string name="text_green_button" formatted="false">"Zielony przycisk"</string>
+    <string name="text_green" formatted="false">"Zielony"</string>
+    <string name="text_guide_button" formatted="false">"Przycisk przewodnika"</string>
+    <string name="text_h" formatted="false">"Maks:"</string>
+    <string name="text_headlines_from_your_city_and_the_world" formatted="false">"Wiadomości z Twojego miasta i ze świata"</string>
+    <string name="text_hide_input" formatted="false">"Ukryj wejście"</string>
+    <string name="text_hide_inputs_or_change_name_of_hdmi_tv_in" formatted="false">"Ukryj wejścia lub zmień nazwy wejść HDMI i TV ›"</string>
+    <string name="text_home_3" formatted="false">"Ekran główny (3)"</string>
+    <string name="text_home_button_fix_accessibility_enabled" formatted="false">"Poprawka przycisku Home i ułatwienia dostępu są włączone!"</string>
+    <string name="text_home_button_fix_enabled_d7a9be" formatted="false">"Poprawka przycisku Home jest włączona!"</string>
+    <string name="text_home_button_fix_enabled_please_also_enab" formatted="false">"Poprawka przycisku Home jest włączona — włącz również powyższą usługę ułatwień dostępu, aby można było przechwycić przycisk Home."</string>
+    <string name="text_home_button_fix_enabled_pressing_home_wi" formatted="false">"Poprawka przycisku Home jest włączona — naciśnięcie Home uruchomi tvOS Launcher."</string>
+    <string name="text_home_screen_search_shortcut" formatted="false">"Skrót wyszukiwania na ekranie głównym"</string>
+    <string name="text_how_to_watch" formatted="false">"JAK OGLĄDAĆ"</string>
+    <string name="text_i_understand_open_manual_debloat" formatted="false">"Rozumiem — otwórz ręczne oczyszczanie"</string>
+    <string name="text_images" formatted="false">"obrazy"</string>
+    <string name="text_in_app_results" formatted="false">"Wyniki w aplikacji"</string>
+    <string name="text_in_control_center_needs_location_access" formatted="false">"W centrum sterowania (wymaga dostępu do lokalizacji)"</string>
+    <string name="text_indigo" formatted="false">"Indygo"</string>
+    <string name="text_info_button" formatted="false">"Przycisk informacji"</string>
+    <string name="text_input" formatted="false">"Wejście"</string>
+    <string name="text_install" formatted="false">"Zainstaluj"</string>
+    <string name="text_installed_apps" formatted="false">"ZAINSTALOWANE APLIKACJE"</string>
+    <string name="text_internal_storage" formatted="false">"Pamięć wewnętrzna"</string>
+    <string name="text_iphone_duo" formatted="false">"iPhone Duo"</string>
+    <string name="text_iphone_rounded" formatted="false">"iPhone Rounded"</string>
+    <string name="text_its_layout_and_continue_watching_list_wi" formatted="false">"Jego układ i lista kontynuowania oglądania zostaną usunięte."</string>
+    <string name="text_just_your_background_for_now" formatted="false">"Na razie tylko Twoje tło"</string>
+    <string name="text_keep_alive_disabled" formatted="false">"Podtrzymywanie działania wyłączone."</string>
+    <string name="text_keep_alive_enabled" formatted="false">"Podtrzymywanie działania włączone."</string>
+    <string name="text_keep_typing_to_search_movies_and_shows" formatted="false">"Pisz dalej, aby wyszukać filmy i seriale"</string>
+    <string name="text_key" formatted="false">"Klawisz: "</string>
+    <string name="text_l" formatted="false">"Min:"</string>
+    <string name="text_larger_dock_extra_apps_automatically_mov" formatted="false">"Większy dok — w razie potrzeby dodatkowe aplikacje są automatycznie przenoszone do innych aplikacji"</string>
+    <string name="text_last_channel" formatted="false">"Ostatni kanał"</string>
+    <string name="text_link_nuvio_forks_like_nuvio_native_legac" formatted="false">"Połącz odmiany Nuvio (np. Nuvio Native Legacy), które logują się na to samo konto Nuvio. Ich kafelki w doku będą pokazywać listę kontynuowania oglądania Nuvio, a wyszukiwarka będzie w nich otwierać tytuły."</string>
+    <string name="text_listening" formatted="false">"Nasłuchiwanie…"</string>
+    <string name="text_live_cricket_scores" formatted="false">"Wyniki krykieta na żywo"</string>
+    <string name="text_live_news_headlines" formatted="false">"Najnowsze wiadomości"</string>
+    <string name="text_loading_cricket_scores" formatted="false">"Wczytywanie wyników krykieta…"</string>
+    <string name="text_loading_imdb_top" formatted="false">"Wczytywanie rankingu IMDb…"</string>
+    <string name="text_loading_next_reddit_wallpaper" formatted="false">"Wczytywanie kolejnej tapety z Reddita…"</string>
+    <string name="text_loading_top_headlines" formatted="false">"Wczytywanie najważniejszych wiadomości…"</string>
+    <string name="text_loading_tv_models" formatted="false">"Wczytywanie modeli TV…"</string>
+    <string name="text_location_mode" formatted="false">"TRYB LOKALIZACJI"</string>
+    <string name="text_lock_now" formatted="false">"Zablokuj teraz"</string>
+    <string name="text_lock_screen_options" formatted="false">"OPCJE EKRANU BLOKADY"</string>
+    <string name="text_lock_screen_settings_8b5317" formatted="false">"Ustawienia ekranu blokady…"</string>
+    <string name="text_lock_screen_settings_d4db1f" formatted="false">"Ustawienia ekranu blokady"</string>
+    <string name="text_long_press_volume_fix_disabled_using_nat" formatted="false">"Poprawka długiego naciśnięcia przycisku głośności wyłączona (używana jest regulacja telewizora)."</string>
+    <string name="text_long_press_volume_fix_enabled_for_tvs_wh" formatted="false">"Poprawka długiego naciśnięcia przycisku głośności włączona (dla telewizorów, które przestają reagować na przytrzymanie przycisku)."</string>
+    <string name="text_m" formatted="false">"m"</string>
+    <string name="text_make_tvos_launcher_the_home_screen" formatted="false">"Ustaw tvOS Launcher jako ekran główny"</string>
+    <string name="text_manual_debloat_warning" formatted="false">"⚠️ Ostrzeżenie dotyczące ręcznego oczyszczania"</string>
+    <string name="text_manual_setup" formatted="false">"Konfiguracja ręczna"</string>
+    <string name="text_matching_models_for" formatted="false">"PASUJĄCE MODELE DLA "</string>
+    <string name="text_matching_places" formatted="false">"Pasujące miejsca"</string>
+    <string name="text_media_file_is_missing_for_slide" formatted="false">"Brak pliku multimedialnego dla slajdu"</string>
+    <string name="text_media_item_not_found" formatted="false">"Nie znaleziono elementu multimedialnego"</string>
+    <string name="text_menu_button" formatted="false">"Przycisk menu"</string>
+    <string name="text_min_0240eb" formatted="false">" min"</string>
+    <string name="text_min_938b57" formatted="false">"min"</string>
+    <string name="text_minutes" formatted="false">" min"</string>
+    <string name="text_mode_2_hy320_projector" formatted="false">"Tryb 2 (HY320 / projektor)"</string>
+    <string name="text_mode_2_hy320_projector_audioservice_ir_p" formatted="false">"Tryb 2 — HY320 / projektor (AudioService i seria impulsów podczerwieni)"</string>
+    <string name="text_mode_persistent_adb_setup_keep_adb_open" formatted="false">"Tryb: stała konfiguracja ADB (pozostaw ADB otwarte)"</string>
+    <string name="text_models_by_system_app_similarity" formatted="false">"Modele według podobieństwa aplikacji systemowych"</string>
+    <string name="text_movie" formatted="false">"Film"</string>
+    <string name="text_mute_unmute_164" formatted="false">"Wycisz / włącz dźwięk (164)"</string>
+    <string name="text_my_location" formatted="false">"Moja lokalizacja"</string>
+    <string name="text_new_profile" formatted="false">"Nowy profil"</string>
+    <string name="text_news" formatted="false">"Wiadomości"</string>
+    <string name="text_news_country_auto" formatted="false">"Automatycznie (zgodnie z językiem interfejsu)"</string>
+    <string name="text_news_country_setting" formatted="false">"Kraj wiadomości na żywo"</string>
+    <string name="text_next_b8f003" formatted="false">"Następny: "</string>
+    <string name="text_next_track" formatted="false">"Następny utwór"</string>
+    <string name="text_next_wallpaper_b7a1c2" formatted="false">"Następna tapeta"</string>
+    <string name="text_night_scenes_b6104d" formatted="false">"SCENY NOCNE"</string>
+    <string name="text_night_scenes_custom_wallpaper" formatted="false">"Własna tapeta scen nocnych"</string>
+    <string name="text_no_apps_to_close" formatted="false">"Brak aplikacji do zamknięcia"</string>
+    <string name="text_no_changelog_text_provided_for_this_rele" formatted="false">"Nie podano listy zmian dla tej wersji."</string>
+    <string name="text_no_enabled_slides_in_the_active_playlist" formatted="false">"Brak włączonych slajdów na aktywnej liście odtwarzania"</string>
+    <string name="text_no_images_in_this_folder_open_a_subfolde" formatted="false">"Brak obrazów w tym folderze (otwórz podfolder poniżej)"</string>
+    <string name="text_no_keep_all" formatted="false">"Nie, zachowaj wszystko"</string>
+    <string name="text_no_matching_apps_found" formatted="false">"Nie znaleziono pasujących aplikacji"</string>
+    <string name="text_no_matching_city_or_country_found" formatted="false">"Nie znaleziono pasującego miasta ani kraju."</string>
+    <string name="text_no_movies_or_shows_found" formatted="false">"Nie znaleziono filmów ani seriali"</string>
+    <string name="text_no_results" formatted="false">"Brak wyników"</string>
+    <string name="text_no_screensaver_or_sleep_while_presenting" formatted="false">"Bez wygaszacza ekranu i usypiania podczas prezentacji"</string>
+    <string name="text_no_settings_backup_json_found_in_this_fo" formatted="false">"Nie znaleziono kopii ustawień (.json) w tym folderze"</string>
+    <string name="text_no_stock_android_tv_google_tv_launcher_p" formatted="false">"Na tym telewizorze nie wykryto domyślnych pakietów launchera Android TV / Google TV."</string>
+    <string name="text_no_system_file_picker_available_on_this" formatted="false">"Na tym telewizorze nie jest dostępny systemowy wybór plików."</string>
+    <string name="text_no_upcoming_or_live_matches_found_for_yo" formatted="false">"Nie znaleziono nadchodzących ani trwających meczów Twoich ulubionych drużyn."</string>
+    <string name="text_none" formatted="false">"Brak"</string>
+    <string name="text_none_choose_png" formatted="false">"Brak — wybierz PNG ›"</string>
+    <string name="text_none_clear_action" formatted="false">"Brak (usuń działanie)"</string>
+    <string name="text_none_found" formatted="false">"Nic nie znaleziono"</string>
+    <string name="text_not_connected_ebd8d2" formatted="false">"Nie połączono"</string>
+    <string name="text_not_done" formatted="false">"Nie ukończono"</string>
+    <string name="text_not_downloaded_tap_to_download" formatted="false">"Nie pobrano · Naciśnij, aby pobrać ›"</string>
+    <string name="text_not_installed" formatted="false">"Nie zainstalowano"</string>
+    <string name="text_not_now" formatted="false">"Nie teraz"</string>
+    <string name="text_not_on_this_tv" formatted="false">"Nie na tym telewizorze"</string>
+    <string name="text_not_selected" formatted="false">"Nie wybrano"</string>
+    <string name="text_not_streaming_right_now" formatted="false">"Obecnie nie jest transmitowany."</string>
+    <string name="text_nothing_to_continue_yet" formatted="false">"Brak materiałów do kontynuowania"</string>
+    <string name="text_nothing_to_present_yet" formatted="false">"Brak materiałów do prezentacji"</string>
+    <string name="text_notifications_83" formatted="false">"Powiadomienia (83)"</string>
+    <string name="text_official_app" formatted="false">"Oficjalna aplikacja"</string>
+    <string name="text_ok" formatted="false">"OK"</string>
+    <string name="text_ok_to_change_hold_ok_to_move_back_to_go" formatted="false">"OK — zmień, przytrzymaj OK — przesuń, Wstecz — wróć"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore" formatted="false">"OK — otwórz · Przytrzymaj OK — przywróć"</string>
+    <string name="text_ok_to_switch_or_edit" formatted="false">"OK — przełącz lub edytuj"</string>
+    <string name="legacy_he_on_prefix" formatted="false">"W "</string>
+    <string name="text_on_default" formatted="false">"Wł. (domyślnie)"</string>
+    <string name="text_on_google_tv_if_you_disable_setupwraith" formatted="false">"Jeśli wyłączysz setupwraith na Google TV, upewnij się, że ponownie dodano sieć Wi-Fi w ustawieniach Wi-Fi."</string>
+    <string name="text_on_the_lock_screen_only_clock_date_and_g" formatted="false">"Na ekranie blokady nad wybranym tłem wyświetlane są tylko zegar, data i powitanie. Naciśnięcie dowolnego przycisku pilota przywraca poprzedni ekran."</string>
+    <string name="text_one_scene_has_to_stay_on" formatted="false">"Co najmniej jedna scena musi pozostać włączona."</string>
+    <string name="text_one_wallpaper_has_to_stay_on" formatted="false">"Co najmniej jedna tapeta musi pozostać włączona."</string>
+    <string name="text_only_your_currently_selected_tv_model_is" formatted="false">"W folderze Pobrane przechowywany jest tylko obecnie wybrany model TV.\n\nCzy chcesz ponownie pobrać wszystkie modele CleanYourTV, aby wybrać inny model TV?"</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_9d4f5e" formatted="false">"Otwórz opcje programisty i włącz debugowanie USB / sieciowe."</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_c22f55" formatted="false">"Otwórz opcje programisty i włącz debugowanie USB / sieciowe, aby dokończyć przełączanie na stały tryb ADB."</string>
+    <string name="text_open_developer_options" formatted="false">"Otwórz opcje programisty…"</string>
+    <string name="text_open_developer_options_tv_settings" formatted="false">"Otwórz opcje programisty / ustawienia TV…"</string>
+    <string name="text_open_on_a_phone_or_computer_on_the_same" formatted="false">"Otwórz na telefonie lub komputerze w tej samej sieci Wi-Fi:\n\n"</string>
+    <string name="text_open_settings" formatted="false">"Otwórz ustawienia"</string>
+    <string name="text_open_system_file_picker" formatted="false">"Otwórz systemowy wybór plików…"</string>
+    <string name="text_open_tv_ambient_mode_screensaver_or_buil" formatted="false">"Otwórz tryb otoczenia / wygaszacz ekranu telewizora (lub wbudowaną alternatywę)"</string>
+    <string name="text_open_wi_fi_settings" formatted="false">"📶 Otwórz ustawienia Wi-Fi…"</string>
+    <string name="text_optional" formatted="false">" [Opcjonalnie]"</string>
+    <string name="text_or_open" formatted="false">"Lub otwórz "</string>
+    <string name="text_orange" formatted="false">"Pomarańczowy"</string>
+    <string name="text_other_apps_bdcc9c" formatted="false">"Inne aplikacje"</string>
+    <string name="text_packages" formatted="false">"pakiety"</string>
+    <string name="text_pair_repair_adb" formatted="false">"Sparuj / napraw ADB"</string>
+    <string name="text_pair_with_the_tv_pin_first" formatted="false">"Najpierw sparuj za pomocą kodu PIN telewizora"</string>
+    <string name="text_paired" formatted="false">" sparowano"</string>
+    <string name="text_pairing_code_146fc7" formatted="false">"Kod parowania\n"</string>
+    <string name="text_pairing_code_216a41" formatted="false">"KOD PAROWANIA"</string>
+    <string name="text_permission_status" formatted="false">"STAN UPRAWNIEŃ"</string>
+    <string name="text_permissions_granted_adb_closed" formatted="false">"Uprawnienia przyznane, ADB zamknięte"</string>
+    <string name="text_persistent_adb_mode_keep_network_adb_ope" formatted="false">"Stały tryb ADB — pozostaw sieciowe ADB otwarte (opcjonalnie)"</string>
+    <string name="text_persistent_adb_mode_required" formatted="false">"Wymagany stały tryb ADB"</string>
+    <string name="text_persistent_adb_mode_selected_port_5555_s" formatted="false">"Wybrano stały tryb ADB — port 5555 pozostanie otwarty dla CleanYourTV i narzędzi ADB."</string>
+    <string name="text_persistent_adb_setup" formatted="false">"Stała konfiguracja ADB"</string>
+    <string name="text_pictures" formatted="false">"Obrazy"</string>
+    <string name="text_pink" formatted="false">"Różowy"</string>
+    <string name="text_play_pause" formatted="false">"Odtwórz / wstrzymaj"</string>
+    <string name="text_please_allow_install_unknown_apps_for_tv" formatted="false">"Zezwól aplikacji tvOS Launcher na instalowanie nieznanych aplikacji."</string>
+    <string name="text_please_download_cleanyourtv_first_it_wil" formatted="false">"Najpierw pobierz CleanYourTV. Najnowsza wersja zostanie pobrana do folderu Pobrane, a profile telewizorów zostaną wypakowane."</string>
+    <string name="text_please_enable_usb_debugging_network_debu" formatted="false">"Włącz debugowanie USB / sieciowe w opcjach programisty, a następnie wróć tutaj, aby wykonać ten krok."</string>
+    <string name="text_popular_cities" formatted="false">"POPULARNE MIASTA"</string>
+    <string name="text_popular_movies_and_series_on_your_stream" formatted="false">"Popularne filmy i seriale w Twoich serwisach streamingowych"</string>
+    <string name="text_power_menu" formatted="false">"Menu zasilania"</string>
+    <string name="text_prayer_calculation_method_f4f921" formatted="false">"Metoda obliczania godzin modlitwy"</string>
+    <string name="text_prayer_times_location_01fe75" formatted="false">"Lokalizacja godzin modlitwy"</string>
+    <string name="text_prayer_times_location_3a3188" formatted="false">"Lokalizacja godzin modlitwy"</string>
+    <string name="text_preparing_cleanyourtv" formatted="false">"Przygotowywanie CleanYourTV…"</string>
+    <string name="text_preparing_download_folder" formatted="false">"Przygotowywanie folderu Pobrane…"</string>
+    <string name="text_preparing_qr_code" formatted="false">"Przygotowywanie kodu QR…"</string>
+    <string name="text_preparing_to_clean_up_unnecessary_files" formatted="false">"Przygotowywanie do usunięcia niepotrzebnych plików…"</string>
+    <string name="text_preparing_uninstall" formatted="false">"Przygotowywanie odinstalowania…"</string>
+    <string name="text_presentation_isn_t_on_screen" formatted="false">"Prezentacja nie jest wyświetlana"</string>
+    <string name="text_presentation_isn_t_on_screen_start_it_fr" formatted="false">"Prezentacja nie jest wyświetlana. Uruchom ją na telewizorze lub włącz opcję „Uruchamiaj przy starcie”."</string>
+    <string name="text_press_back_again_to_exit" formatted="false">"Naciśnij ponownie Wstecz, aby wyjść"</string>
+    <string name="text_press_ok_to_select_this_city" formatted="false">"Naciśnij OK, aby wybrać to miasto"</string>
+    <string name="text_press_ok_to_select_this_country" formatted="false">"Naciśnij OK, aby wybrać ten kraj"</string>
+    <string name="text_press_the_button_on_your_remote_that_you" formatted="false">"Naciśnij przycisk pilota, który chcesz przypisać ponownie…\n\n(Klawisze kierunkowe, OK i Wstecz pozostają dostępne do zwykłej nawigacji.)"</string>
+    <string name="text_preview" formatted="false">"Podgląd"</string>
+    <string name="text_preview_lock_screen_now" formatted="false">"Wyświetl teraz podgląd ekranu blokady"</string>
+    <string name="text_previous_track" formatted="false">"Poprzedni utwór"</string>
+    <string name="text_profile" formatted="false">"Profil "</string>
+    <string name="text_protected_core_package" formatted="false">"Chroniony pakiet systemowy"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_17de20" formatted="false">"Pobierz pełną listę aplikacji przez ADB i dopasuj modele według nazw pakietów systemowych i producenta"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_795599" formatted="false">"Pobierz pełną listę aplikacji przez ADB i dopasuj modele według pakietów producenta i systemowych"</string>
+    <string name="text_pulling_full_package_list_from_adb_and_c" formatted="false">"Pobieranie pełnej listy pakietów przez ADB i porównywanie nazw pakietów systemowych i producenta dla 341 modeli TV…"</string>
+    <string name="text_purple" formatted="false">"Fioletowy"</string>
+    <string name="text_quick_brand_filters" formatted="false">"SZYBKIE FILTRY MAREK"</string>
+    <string name="text_re_added_wi_fi_continue" formatted="false">"✅ Ponownie dodano Wi-Fi (kontynuuj)"</string>
+    <string name="text_recent_apps_manager_cannot_clear_apps_wh" formatted="false">"Menedżer ostatnich aplikacji nie może ich czyścić, gdy aktywny jest bezpieczny tryb ADB.\n\nAby korzystać z ostatnich aplikacji, włącz stały tryb ADB w Ustawienia › Zaawansowane › Tryb działania ADB."</string>
+    <string name="text_recent_apps_switcher" formatted="false">"Przełączanie ostatnich aplikacji"</string>
+    <string name="text_recent_searches" formatted="false">"Ostatnie wyszukiwania"</string>
+    <string name="text_recommendations" formatted="false">"Rekomendacje"</string>
+    <string name="text_recommendations_news" formatted="false">"Rekomendacje i wiadomości"</string>
+    <string name="text_record_button" formatted="false">"Przycisk nagrywania"</string>
+    <string name="text_red" formatted="false">"Czerwony"</string>
+    <string name="text_red_button" formatted="false">"Czerwony przycisk"</string>
+    <string name="text_reddit_wallpaper_options" formatted="false">"OPCJE TAPET Z REDDITA"</string>
+    <string name="text_reddit_wallpaper_updated" formatted="false">"Zaktualizowano tapetę z Reddita."</string>
+    <string name="text_refresh_carousel" formatted="false">"Odśwież karuzelę"</string>
+    <string name="text_refresh_scores" formatted="false">"Odśwież wyniki"</string>
+    <string name="text_remapped_buttons_1x_2x_3x_tap" formatted="false">"PRZYPISANE PRZYCISKI (1 / 2 / 3 NACIŚNIĘCIA)"</string>
+    <string name="text_remember_what_you_play_in_each_app" formatted="false">"Zapamiętuj, co odtwarzasz w każdej aplikacji"</string>
+    <string name="text_remove_7e2800" formatted="false">"USUŃ"</string>
+    <string name="text_remove_8d75c6" formatted="false">"Usuń"</string>
+    <string name="text_remove_button_remap" formatted="false">"Usuń przypisanie przycisku"</string>
+    <string name="text_remove_foreground_cutout" formatted="false">"Usuń wycięty pierwszy plan"</string>
+    <string name="text_remove_from_continue_watching" formatted="false">"Usuń z kontynuowania oglądania"</string>
+    <string name="text_remove_from_keep_watching" formatted="false">"Usuń z kontynuowania oglądania"</string>
+    <string name="text_remove_person" formatted="false">"Usuń osobę"</string>
+    <string name="text_remove_revoke_all_permissions_0a9dac" formatted="false">"Usuń / cofnij wszystkie uprawnienia"</string>
+    <string name="text_remove_this_wallpaper" formatted="false">"Usuń tę tapetę"</string>
+    <string name="text_remove_wallpaper" formatted="false">"Usuń tapetę #"</string>
+    <string name="text_rename_app" formatted="false">"Zmień nazwę aplikacji"</string>
+    <string name="text_rename_profile" formatted="false">"Zmień nazwę profilu"</string>
+    <string name="text_repair" formatted="false">"Napraw"</string>
+    <string name="text_replace_wallpaper" formatted="false">"Zastąp tapetę #"</string>
+    <string name="text_reset_043c3c" formatted="false">"RESETUJ"</string>
+    <string name="text_reset_to_default" formatted="false">"Przywróć ustawienia domyślne"</string>
+    <string name="text_reset_to_default_icon" formatted="false">"Przywróć domyślną ikonę"</string>
+    <string name="text_restore" formatted="false">"Przywróć ›"</string>
+    <string name="text_restore_all_9e718c" formatted="false">"Przywróć wszystko"</string>
+    <string name="text_restore_apps_launchers_first" formatted="false">"Najpierw przywróć aplikacje i launchery"</string>
+    <string name="text_restore_by_selected_tv_model" formatted="false">"Przywróć według wybranego modelu TV"</string>
+    <string name="text_restore_complete" formatted="false">"Przywracanie zakończone"</string>
+    <string name="text_restore_debloated_apps_43153c" formatted="false">"Przywróć wyłączone aplikacje"</string>
+    <string name="text_restore_debloated_apps_disabled_launcher" formatted="false">"Przywróć wyłączone aplikacje i launchery, cofnij uprawnienia i odinstaluj ›"</string>
+    <string name="text_restore_failed" formatted="false">"Przywracanie nie powiodło się"</string>
+    <string name="text_restoring_apps" formatted="false">"Przywracanie aplikacji…"</string>
+    <string name="text_resume_06852b" formatted="false">"Wznów"</string>
+    <string name="text_resume_45e750" formatted="false">"Wznów"</string>
+    <string name="text_resume_playback" formatted="false">"Wznów odtwarzanie"</string>
+    <string name="text_retry" formatted="false">"Spróbuj ponownie"</string>
+    <string name="text_revoke_all_permissions" formatted="false">"Cofnij wszystkie uprawnienia"</string>
+    <string name="text_revoking_all_permissions" formatted="false">"Cofanie wszystkich uprawnień…"</string>
+    <string name="text_revoking_all_permissions_and_opening_and" formatted="false">"Cofanie wszystkich uprawnień i otwieranie ekranu odinstalowania Androida…"</string>
+    <string name="text_revoking_permissions" formatted="false">"Cofanie uprawnień…"</string>
+    <string name="text_rewind" formatted="false">"Przewiń do tyłu"</string>
+    <string name="text_run_via_adb" formatted="false">"Uruchom przez ADB ›"</string>
+    <string name="text_running_settings_put_global_adb_enabled" formatted="false">"Uruchamianie polecenia settings put global adb_enabled 0 i sprawdzanie portu 5555…"</string>
+    <string name="text_say_a_movie_show_or_app" formatted="false">"Powiedz nazwę filmu, serialu lub aplikacji"</string>
+    <string name="text_scan_apps_adb" formatted="false">"Skanuj aplikacje (ADB)"</string>
+    <string name="text_scan_installed_apps" formatted="false">"Skanuj zainstalowane aplikacje"</string>
+    <string name="text_scan_installed_system_apps_to_find_match" formatted="false">"🔍 Skanuj zainstalowane aplikacje systemowe, aby znaleźć pasujący model"</string>
+    <string name="text_scan_installed_system_apps_via_adb" formatted="false">"🔍 Skanuj zainstalowane aplikacje systemowe przez ADB"</string>
+    <string name="text_scan_the_code_or_open_this_address_on_a" formatted="false">"Zeskanuj kod lub otwórz ten adres na telefonie albo komputerze w tej samej sieci Wi-Fi."</string>
+    <string name="text_scan_with_your_phone_and_approve" formatted="false">"Zeskanuj telefonem i zatwierdź."</string>
+    <string name="text_scanning_tv_system_apps" formatted="false">"Skanowanie aplikacji systemowych TV…"</string>
+    <string name="text_screen_off" formatted="false">"Wyłącz ekran"</string>
+    <string name="text_screen_saver" formatted="false">"Wygaszacz ekranu"</string>
+    <string name="text_scroll_for_more" formatted="false">"Przewiń, aby zobaczyć więcej ›"</string>
+    <string name="text_search_button" formatted="false">"Przycisk wyszukiwania"</string>
+    <string name="text_search_city_or_country_65bcc6" formatted="false">"Wyszukaj miasto lub kraj"</string>
+    <string name="text_search_city_or_country_96234e" formatted="false">"Wyszukaj miasto lub kraj…"</string>
+    <string name="text_search_city_or_country_e_g_istanbul_lond" formatted="false">"Wyszukaj miasto lub kraj (np. Stambuł, Londyn)…"</string>
+    <string name="text_search_def46e" formatted="false">"🔍 Szukaj…"</string>
+    <string name="text_search_failed_check_internet_connection" formatted="false">"Wyszukiwanie nie powiodło się. Sprawdź połączenie z internetem."</string>
+    <string name="text_search_filter_by_brand_or_model" formatted="false">"🔍 Szukaj / filtruj według marki lub modelu…"</string>
+    <string name="text_search_in_apps" formatted="false">"Szukaj w aplikacjach"</string>
+    <string name="text_search_tv_model_or_brand" formatted="false">"Wyszukaj model lub markę TV"</string>
+    <string name="text_searching" formatted="false">"Wyszukiwanie…"</string>
+    <string name="text_seconds_344f8a" formatted="false">"sekund"</string>
+    <string name="text_secure_mode_grant_write_secure_settings" formatted="false">"Tryb bezpieczny — przyznaj WRITE_SECURE_SETTINGS i zamknij ADB (zalecane)"</string>
+    <string name="text_secure_mode_selected_adb_will_grant_writ" formatted="false">"Wybrano tryb bezpieczny — po sparowaniu ADB przyzna WRITE_SECURE_SETTINGS i zamknie port 5555."</string>
+    <string name="text_secure_mode_write_secure_settings_close" formatted="false">"Tryb bezpieczny — WRITE_SECURE_SETTINGS i zamknięcie ADB (zalecane)"</string>
+    <string name="text_secure_setup_adb" formatted="false">"Bezpieczna konfiguracja (ADB)"</string>
+    <string name="text_select_a_folder_and_enable_or_disable_in" formatted="false">"Wybierz folder i włącz lub wyłącz znajdujące się w nim tapety"</string>
+    <string name="text_select_all_none" formatted="false">"Zaznacz wszystko / nic"</string>
+    <string name="text_select_all_select_none" formatted="false">"Zaznacz wszystko / odznacz wszystko"</string>
+    <string name="text_select_at_least_one_package_first" formatted="false">"Najpierw wybierz co najmniej jeden pakiet."</string>
+    <string name="text_select_home_app" formatted="false">"Wybierz aplikację ekranu głównego"</string>
+    <string name="text_select_transparent_png_foreground" formatted="false">"Wybierz przezroczysty plik PNG pierwszego planu"</string>
+    <string name="text_select_tv_model_first" formatted="false">"Najpierw wybierz model TV"</string>
+    <string name="text_select_wallpaper_folder_0c14ac" formatted="false">"Wybierz folder tapet"</string>
+    <string name="text_select_wallpaper_image" formatted="false">"Wybierz obraz tapety"</string>
+    <string name="text_selected" formatted="false">"Wybrano"</string>
+    <string name="text_send_any_android_keyevent_keycode_withou" formatted="false">"Wyślij dowolny kod klawisza Android KeyEvent bez aplikacji innych firm"</string>
+    <string name="text_send_key_code_566257" formatted="false">"Wyślij kod klawisza…"</string>
+    <string name="text_send_key_code_fb16e1" formatted="false">"Wyślij kod klawisza"</string>
+    <string name="text_send_to_this_tv_535246" formatted="false">"Wyślij na ten telewizor"</string>
+    <string name="text_send_to_this_tv_f2720f" formatted="false">"Wyślij na ten telewizor"</string>
+    <string name="text_series" formatted="false">"Serial"</string>
+    <string name="text_set_default_via_local_adb_recommended" formatted="false">"Ustaw jako domyślny przez lokalne ADB (zalecane)"</string>
+    <string name="text_set_manually" formatted="false">"Ustaw ręcznie"</string>
+    <string name="text_set_png_cutout" formatted="false">"Ustaw (wycięty obraz PNG) ›"</string>
+    <string name="text_settings_602_scan_641" formatted="false">"Ustawienia (#602 · Scan 641)"</string>
+    <string name="text_settings_backed_up" formatted="false">"Utworzono kopię ustawień"</string>
+    <string name="text_settings_button" formatted="false">"Przycisk ustawień"</string>
+    <string name="text_settings_restored" formatted="false">"Przywrócono ustawienia"</string>
+    <string name="text_show_changelog" formatted="false">"Pokaż listę zmian"</string>
+    <string name="text_show_clock_date_greeting_over_your_chose" formatted="false">"Pokaż zegar, datę i powitanie na wybranej tapecie (naciśnij dowolny przycisk, aby wrócić)"</string>
+    <string name="text_show_native_android_shutdown_reboot_and" formatted="false">"Pokaż natywne menu wyłączania, ponownego uruchamiania i uśpienia Androida"</string>
+    <string name="text_show_on_home_screen" formatted="false">"Pokaż na ekranie głównym"</string>
+    <string name="text_show_the_wi_fi_name" formatted="false">"Pokaż nazwę sieci Wi-Fi"</string>
+    <string name="text_shows_and_movies_you_play_will_appear_he" formatted="false">"Odtwarzane seriale i filmy pojawią się tutaj."</string>
+    <string name="text_shuffle_folder_86fcb0" formatted="false">"LOSUJ Z FOLDERU"</string>
+    <string name="text_sign_out" formatted="false">"Wyloguj"</string>
+    <string name="text_signed_in_sign_out" formatted="false">"Zalogowano · Wyloguj"</string>
+    <string name="text_similar_model_name" formatted="false">"Podobna nazwa modelu"</string>
+    <string name="text_skip_now" formatted="false">"Pomiń teraz ›"</string>
+    <string name="text_skip_restore_continue" formatted="false">"Pomiń przywracanie i kontynuuj"</string>
+    <string name="text_skip_setupwraith" formatted="false">"🛡️ Pomiń setupwraith"</string>
+    <string name="text_skip_this_step" formatted="false">"Pomiń ten krok"</string>
+    <string name="text_skip_to_the_next_reddit_wallpaper" formatted="false">"Przejdź do następnej tapety z Reddita"</string>
+    <string name="text_skipping_this_slide" formatted="false">"Pomijanie tego slajdu"</string>
+    <string name="text_sleep_standby_223" formatted="false">"Uśpienie / tryb czuwania (223)"</string>
+    <string name="text_small_clock" formatted="false">"Mały zegar"</string>
+    <string name="text_smaller_more_compact_dock" formatted="false">"Mniejszy, bardziej zwarty dok"</string>
+    <string name="text_sources_input_602_scan_757" formatted="false">"Źródła / wejście (#602 · Scan 757)"</string>
+    <string name="text_space" formatted="false">"spacja"</string>
+    <string name="text_standard_apple_tvos_dock_size" formatted="false">"Standardowy rozmiar doku Apple tvOS"</string>
+    <string name="text_start" formatted="false">"Rozpocznij ›"</string>
+    <string name="text_step_1_complete_default_home_launcher_se" formatted="false">"Krok 1 zakończony: domyślny launcher ekranu głównego ustawiono przez ADB!"</string>
+    <string name="text_stock_android_tv_home_sponsored_rows" formatted="false">"Domyślny ekran główny Android TV i sponsorowane rzędy"</string>
+    <string name="text_stock_google_tv_home_banner_ads" formatted="false">"Domyślny ekran główny Google TV i banery reklamowe"</string>
+    <string name="text_stop" formatted="false">"Zatrzymaj"</string>
+    <string name="text_storage" formatted="false">"Pamięć"</string>
+    <string name="text_subreddits_select_single_or_multiple" formatted="false">"SUBREDDITY (WYBIERZ JEDEN LUB WIĘCEJ)"</string>
+    <string name="text_subtitles_cc" formatted="false">"Napisy / CC"</string>
+    <string name="text_suggested" formatted="false">"Sugerowane"</string>
+    <string name="text_suggestions" formatted="false">"Sugestie"</string>
+    <string name="text_switch_between_secure_auto_setup_persist" formatted="false">"Przełącz między bezpieczną konfiguracją automatyczną, stałym ADB i konfiguracją ręczną"</string>
+    <string name="text_switch_profile" formatted="false">"Przełącz profil"</string>
+    <string name="text_switch_tv_hdmi_inputs_on_screen_even_if" formatted="false">"Przełączaj wejścia TV / HDMI na ekranie, nawet gdy Google TV Launcher jest wyłączony"</string>
+    <string name="text_sync_with_weather" formatted="false">"Synchronizuj z pogodą"</string>
+    <string name="text_sync_with_weather_location" formatted="false">"Synchronizuj z lokalizacją pogody"</string>
+    <string name="text_system_home_launcher_detected_on_this_tv" formatted="false">"Wykryto systemowy launcher ekranu głównego na tym telewizorze"</string>
+    <string name="text_tall_glass" formatted="false">"Tall Glass"</string>
+    <string name="text_tap_to_include" formatted="false">"Naciśnij, aby uwzględnić"</string>
+    <string name="text_teal" formatted="false">"Morski"</string>
+    <string name="text_that_pin_doesn_t_match_the_one_on_the_tv" formatted="false">"Ten PIN nie zgadza się z kodem na telewizorze."</string>
+    <string name="text_the_home_button_opens_tvos_launcher" formatted="false">"Przycisk Home otwiera tvOS Launcher"</string>
+    <string name="text_this_tv_does_not_have_a_built_in_accessi" formatted="false">"Ten telewizor nie ma wbudowanego ekranu ustawień ułatwień dostępu. Możesz automatycznie włączyć usługę mapowania przycisków i panelu sterowania przez lokalne ADB."</string>
+    <string name="text_this_tv_s_settings_have_no_switch_for_th" formatted="false">"Ustawienia tego telewizora nie zawierają przełącznika tego uprawnienia. Osoba konfigurująca telewizor może jednorazowo włączyć je z komputera w tej samej sieci:\n\n"</string>
+    <string name="text_this_will_disable_keep_alive_and_remove" formatted="false">"Spowoduje to wyłączenie podtrzymywania działania oraz usunięcie usługi ułatwień dostępu, dostępu do powiadomień, roli domyślnego ekranu głównego i uprawnień launchera (lokalnie i przez ADB)."</string>
+    <string name="text_tip_press_and_hold_ok_on_any_widget_on_t" formatted="false">"Wskazówka: przytrzymaj OK na dowolnym widżecie ekranu głównego, aby otworzyć menu przesuwania lub wyłączenia widżetu."</string>
+    <string name="text_tmdb_connected" formatted="false">"Połączono z TMDB"</string>
+    <string name="text_to_see_what_you_watch_here_allow_it_in_s" formatted="false">"Aby zobaczyć tutaj oglądane materiały, zezwól na to w Ustawienia → Uprawnienia."</string>
+    <string name="text_top_movies_web_series" formatted="false">"Najpopularniejsze filmy i seriale internetowe"</string>
+    <string name="text_top_right_search_shortcut" formatted="false">"Skrót wyszukiwania w prawym górnym rogu"</string>
+    <string name="text_top_shelf_content" formatted="false">"ZAWARTOŚĆ GÓRNEJ PÓŁKI"</string>
+    <string name="text_trending" formatted="false">"Popularne"</string>
+    <string name="text_turn_off_custom_image" formatted="false">"Wyłącz własny obraz"</string>
+    <string name="text_turn_off_custom_scene" formatted="false">"Wyłącz własną scenę"</string>
+    <string name="text_turn_off_folder_shuffle" formatted="false">"Wyłącz losowanie z folderu"</string>
+    <string name="text_turn_off_screen_put_tv_to_sleep" formatted="false">"Wyłącz ekran / uśpij telewizor"</string>
+    <string name="text_turn_on_adb_debugging" formatted="false">"Włącz debugowanie ADB"</string>
+    <string name="text_turn_on_custom_image" formatted="false">"Włącz własny obraz"</string>
+    <string name="text_turn_on_custom_scene" formatted="false">"Włącz własną scenę"</string>
+    <string name="text_turn_on_folder_shuffle" formatted="false">"Włącz losowanie z folderu"</string>
+    <string name="text_turn_on_presentation_mode_first" formatted="false">"Najpierw włącz tryb prezentacji"</string>
+    <string name="text_turn_the_tv_off_after" formatted="false">"Wyłącz telewizor po"</string>
+    <string name="text_turning_on_adb" formatted="false">"Włączanie ADB…"</string>
+    <string name="text_turning_on_adb_debugging_for_this_troubl" formatted="false">"Włączanie debugowania ADB na potrzeby diagnostyki…"</string>
+    <string name="text_tv_input_source" formatted="false">"Wejście / źródło TV"</string>
+    <string name="text_tv_model_matched" formatted="false">"Dopasowano model TV"</string>
+    <string name="text_tvos_launcher_works_best_as_the_home_scr" formatted="false">"tvOS Launcher działa najlepiej jako ekran główny. Przyznaj te uprawnienia jednorazowo; funkcje nieobsługiwane przez telewizor zostaną pominięte."</string>
+    <string name="text_unexpected_server_error" formatted="false">"Nieoczekiwany błąd serwera"</string>
+    <string name="text_uninstall_3fd78c" formatted="false">"Odinstaluj"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"ODINSTALUJ"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"Odinstaluj tvOS Launcher"</string>
+    <string name="text_unsupported_playback_command" formatted="false">"Nieobsługiwane polecenie odtwarzania"</string>
+    <string name="text_up_and_down_to_move_ok_when_done" formatted="false">"Góra i dół — przesuń, OK — zakończ"</string>
+    <string name="text_up" formatted="false">"Góra"</string>
+    <string name="text_up_next" formatted="false">"Następne"</string>
+    <string name="text_update_available" formatted="false">"Dostępna aktualizacja"</string>
+    <string name="text_update_download_failed" formatted="false">"Pobieranie aktualizacji nie powiodło się."</string>
+    <string name="text_update_installed" formatted="false">"Zainstalowano aktualizację!"</string>
+    <string name="text_update_signature_mismatch" formatted="false">"Niezgodny podpis aktualizacji"</string>
+    <string name="text_update_signature_mismatch_cannot_update" formatted="false">"Niezgodny podpis aktualizacji: nie można zaktualizować zainstalowanej aplikacji."</string>
+    <string name="text_updated" formatted="false">"Zaktualizowano "</string>
+    <string name="text_upload_form_field_named_file_is_required" formatted="false">"W formularzu przesyłania wymagane jest pole o nazwie file"</string>
+    <string name="text_usb_storage" formatted="false">"USB / pamięć"</string>
+    <string name="text_use_automatic_location" formatted="false">"Użyj automatycznej lokalizacji"</string>
+    <string name="text_use_built_in_android_tv_shortcut" formatted="false">"Użyj wbudowanego skrótu Android TV"</string>
+    <string name="text_use_custom_background" formatted="false">"Użyj własnego tła"</string>
+    <string name="text_use_folder_shuffle_background" formatted="false">"Użyj losowego tła z folderu"</string>
+    <string name="text_used_clean" formatted="false">"% zajęte · Wyczyść"</string>
+    <string name="text_uses_local_adb_to_grant_permissions_and" formatted="false">"Używa lokalnego ADB do przyznania uprawnień i pozostawia ADB otwarte"</string>
+    <string name="text_video_failed_1_s_2_s" formatted="false">"Błąd filmu: %1$s\n%2$s"</string>
+    <string name="text_video_failed_1_s_media_error_2_d_3_d" formatted="false">"Błąd filmu: %1$s\nBłąd multimediów %2$d (%3$d)"</string>
+    <string name="text_view_or_filter_the_complete_list_of_supp" formatted="false">"Wyświetl lub filtruj pełną listę obsługiwanych modeli TV"</string>
+    <string name="text_voice_input_isn_t_available_on_this_tv" formatted="false">"Wprowadzanie głosowe nie jest dostępne na tym telewizorze"</string>
+    <string name="text_voice_needs_the_internet" formatted="false">"Funkcja głosowa wymaga internetu"</string>
+    <string name="text_volume_down_25" formatted="false">"Zmniejsz głośność (25)"</string>
+    <string name="text_volume_fix_mode_1_standard_selected" formatted="false">"Wybrano tryb 1 poprawki głośności (standardowy)."</string>
+    <string name="text_volume_fix_mode_2_hy320_projector_select" formatted="false">"Wybrano tryb 2 poprawki głośności (HY320 / projektor)."</string>
+    <string name="text_volume_fix_mode_3_onn_tv_box_selected" formatted="false">"Wybrano tryb 3 poprawki głośności (Onn TV Box)."</string>
+    <string name="text_volume_up_24" formatted="false">"Zwiększ głośność (24)"</string>
+    <string name="text_waiting_for_approval" formatted="false">"Oczekiwanie na zatwierdzenie…"</string>
+    <string name="text_wallpapers_in_folder_tap_to_enable_disab" formatted="false">"TAPETY W FOLDERZE (NACIŚNIJ, ABY WŁĄCZYĆ / WYŁĄCZYĆ)"</string>
+    <string name="text_weather_forecast_0d1601" formatted="false">"Prognoza pogody"</string>
+    <string name="text_weather_forecast_1f637b" formatted="false">"Prognoza pogody"</string>
+    <string name="text_web_series" formatted="false">"Serial internetowy"</string>
+    <string name="text_webpage_failed_to_load_1_s" formatted="false">"Nie udało się załadować strony: %1$s"</string>
+    <string name="text_webpage_slide_is_missing_a_url" formatted="false">"Slajd ze stroną internetową nie ma adresu URL"</string>
+    <string name="text_what_appears_at_the_top_of_home_behind_y" formatted="false">"Co pojawia się na górze ekranu głównego, za aplikacjami. Wybierz dowolne elementy, wszystkie lub żaden."</string>
+    <string name="text_what_you_were_watching_mixed_into_the_ca" formatted="false">"Oglądane materiały wplecione w karuzelę"</string>
+    <string name="text_white" formatted="false">"Biały"</string>
+    <string name="text_who_s_watching" formatted="false">"Kto ogląda?"</string>
+    <string name="text_wi_fi" formatted="false">"Wi-Fi"</string>
+    <string name="text_wi_fi_settings" formatted="false">"📶 Ustawienia Wi-Fi…"</string>
+    <string name="text_widget_settings" formatted="false">"USTAWIENIA WIDŻETÓW"</string>
+    <string name="text_yellow" formatted="false">"Żółty"</string>
+    <string name="text_yellow_button" formatted="false">"Żółty przycisk"</string>
+    <string name="text_yes_delete_unnecessary_files" formatted="false">"Tak, usuń niepotrzebne pliki"</string>
+    <string name="text_you_need_the_adb_mode_enabled_for_this_t" formatted="false">"Do tego kroku diagnostyki wymagany jest włączony tryb ADB. Tryb ADB można później zmienić w ustawieniach.\n\nCzy chcesz teraz włączyć ADB, czy pominąć ten krok?"</string>
+    <string name="text_your_home_screen" formatted="false">"Twój ekran główny"</string>
+    <string name="text_your_selected_tv_model_s_files_in_the_do" formatted="false">"Pliki wybranego modelu TV w folderze Pobrane zostały usunięte.\n\nCzy chcesz ponownie pobrać CleanYourTV, aby kontynuować?"</string>
+    <string name="text_your_wi_fi_network_is_currently_owned_by" formatted="false">"⚠️ Twoja sieć Wi-Fi należy obecnie do setupwraith. Przed wyłączeniem setupwraith otwórz ustawienia Wi-Fi, usuń zapisaną sieć i połącz się z nią ponownie, aby pozostała zapisana."</string>
+    <string name="text_youtube_music_optional" formatted="false">"YouTube Music (opcjonalnie)"</string>
+    <string name="text_zoom" formatted="false">"Powiększenie"</string>
+    <string name="text_zoom_in" formatted="false">"Powiększ"</string>
+    <string name="text_zoom_out" formatted="false">"Pomniejsz"</string>
+    <string name="message_downloaded_1_s_tv_models_ready" formatted="false">"Pobrano (modele TV gotowe: %1$s)"</string>
+    <string name="message_selected_tv_files_missing_1_s_download_cleanyour" formatted="false">"⚠️ Brak plików wybranego telewizora (%1$s) — pobierz ponownie CleanYourTV"</string>
+    <string name="message_selected_tv_model_1_s_would_you_like_to_delete_t" formatted="false">"Wybrany model TV:\n%1$s\n\nCzy chcesz usunąć pozostałe niepotrzebne pliki modeli CleanYourTV, aby zwolnić miejsce?"</string>
+    <string name="message_deleting_unnecessary_model_files_1_s_2_s" formatted="false">"Usuwanie niepotrzebnych plików modeli… (%1$s / %2$s)"</string>
+    <string name="message_downloading_to_download_folder_1_s" formatted="false">"Pobieranie do folderu Pobrane… (%1$s)"</string>
+    <string name="message_unzipping_tv_models_in_download_folder_1_s_files" formatted="false">"Rozpakowywanie modeli TV w folderze Pobrane… (pliki: %1$s)"</string>
+    <string name="message_could_not_download_cleanyourtv_from_github_1_s" formatted="false">"Nie można pobrać CleanYourTV z GitHub.\n\n%1$s"</string>
+    <string name="message_model_1_s" formatted="false">"Model: %1$s"</string>
+    <string name="message_product_1_s" formatted="false">"Produkt: %1$s"</string>
+    <string name="message_board_device_1_s" formatted="false">"Płyta / urządzenie: %1$s"</string>
+    <string name="message_oem_family_1_s" formatted="false">"Rodzina producenta: %1$s"</string>
+    <string name="message_exact_tv_model_found_and_selected_automatically" formatted="false">"Znaleziono i automatycznie wybrano dokładny model TV:\n\n• %1$s (%2$s)\n%3$s"</string>
+    <string name="message_choose_closest_tv_model_1_s" formatted="false">"Wybierz najbardziej zbliżony model TV — %1$s"</string>
+    <string name="message_on_google_tv_sets_wi_fi_networks_saved_during_in" formatted="false">"Na urządzeniach Google TV sieci Wi-Fi zapisane podczas początkowej konfiguracji należą do com.google.android.tungsten.setupwraith. Wyłączenie setupwraith, aby domyślny launcher Google TV pozostał wyłączony, spowoduje usunięcie należącej do niego sieci Wi-Fi.\n\nPrzed wyłączeniem setupwraith:\n1. Otwórz ustawienia Wi-Fi → wybierz swoją sieć → Usuń sieć.\n2. Połącz się ponownie z siecią Wi-Fi (będzie teraz należeć do com.android.tv.settings).\n3. Wróć tutaj i wybierz „Usunięto i ponownie dodano Wi-Fi — kontynuuj”."</string>
+    <string name="message_no_disabled_app_list_has_been_saved_by_cleanyour" formatted="false">"CleanYourTV nie zapisało jeszcze listy wyłączonych aplikacji.\n\nPo rozpoczęciu oczyszczania każdy wyłączony pakiet jest tutaj zapisywany, dzięki czemu możesz przeglądać i ponownie włączać poszczególne aplikacje lub przywrócić je wszystkie."</string>
+    <string name="message_no_saved_disabled_app_backup_was_found_and_no_tv" formatted="false">"Nie znaleziono zapisanej kopii wyłączonych aplikacji i nie wybrano modelu TV.\n\nNajpierw wybierz model TV, aby funkcja przywracania wiedziała, które pakiety ponownie włączyć."</string>
+    <string name="message_your_current_tvos_launcher_settings_have_been_sa" formatted="false">"Obecne ustawienia tvOS Launcher zapisano w:\n\n%1$s"</string>
+    <string name="message_persistent_adb_mode_keep_port_1_s_open" formatted="false">"Stały tryb ADB (pozostaw port %1$s otwarty)"</string>
+    <string name="message_connected_paired_port_1_s_open" formatted="false">"Połączono i sparowano (port %1$s otwarty)"</string>
+    <string name="message_port_1_s_open_ready_to_pair" formatted="false">"Port %1$s otwarty · Gotowe do sparowania"</string>
+    <string name="message_this_runs_settings_put_global_adb_enabled_0_over" formatted="false">"Ta opcja uruchamia polecenie „settings put global adb_enabled 0” przez lokalne ADB i sprawdza, czy port 5555 jest zamknięty w sieci domowej.\n\nJeśli WRITE_SECURE_SETTINGS jest już przyznane, tvOS Launcher będzie nadal naprawiać ułatwienia dostępu we własnym procesie, bez potrzeby korzystania z ADB!\n\nWskazówka: dla maksymalnego bezpieczeństwa możesz również otworzyć opcje programisty i wybrać „Cofnij autoryzacje debugowania USB”."</string>
+    <string name="message_keep_alive_monitors_the_accessibility_service_an" formatted="false">"Podtrzymywanie działania monitoruje usługę ułatwień dostępu i automatycznie ją przywraca, jeśli telewizor ją wyłączy.\n\n✓ Ponieważ na tym telewizorze przyznano WRITE_SECURE_SETTINGS, funkcja naprawia ułatwienia dostępu bezpośrednio we własnym procesie, bez potrzeby pozostawiania otwartego sieciowego ADB (port 5555)."</string>
+    <string name="message_security_warning_keep_alive_monitors_and_restore" formatted="false">"⚠️ Ostrzeżenie o bezpieczeństwie:\n\nPodtrzymywanie działania monitoruje i przywraca uprawnienia, jeśli telewizor wyłączy je w tle.\n\nBez WRITE_SECURE_SETTINGS funkcja wymaga, aby debugowanie sieciowe (ADB na porcie 5555) pozostało włączone w sieci domowej. Dla większego bezpieczeństwa najpierw uruchom Sparuj / napraw ADB w trybie bezpiecznym, aby przyznać WRITE_SECURE_SETTINGS i zamknąć port 5555.\n\nMimo to włączyć podtrzymywanie działania?"</string>
+    <string name="message_warning_manual_debloat_lists_all_system_apps_ins" formatted="false">"OSTRZEŻENIE: ręczne oczyszczanie wyświetla WSZYSTKIE aplikacje systemowe zainstalowane na telewizorze.\n\n• Wyłączaj pakiety tylko wtedy, gdy dokładnie wiesz, co robisz.\n• Wyłączenie podstawowych usług Androida, usług wejść / tunera TV lub pakietów ustawień może spowodować awarię wejść HDMI, Wi-Fi lub pilota albo zapętlenie uruchamiania.\n\nKontynuować na własne ryzyko?"</string>
+    <string name="message_browse_search_all_1_s_tv_models" formatted="false">"📋 Przeglądaj / wyszukaj wszystkie modele TV (%1$s)"</string>
+    <string name="message_scanning_installed_system_packages_over_adb_and" formatted="false">"Skanowanie zainstalowanych pakietów systemowych przez ADB i porównywanie modeli TV (%1$s)…"</string>
+    <string name="message_all_1_s_tv_models" formatted="false">"Wszystkie modele TV (%1$s)"</string>
+    <string name="message_write_secure_settings_and_all_launcher_permissio" formatted="false">"WRITE_SECURE_SETTINGS i wszystkie uprawnienia launchera są teraz aktywne, a ADB (port 5555) zostało zamknięte dla bezpieczeństwa.\n\nWskazówka: dla maksymalnego bezpieczeństwa możesz również wybrać „Cofnij autoryzacje debugowania USB” w opcjach programisty."</string>
+    <string name="search_offer_subscription">"Subskrypcja"</string>
+    <string name="search_offer_free">"Bezpłatnie"</string>
+    <string name="search_offer_free_with_ads">"Bezpłatnie z reklamami"</string>
+    <string name="search_offer_rent">"Wypożycz"</string>
+    <string name="search_offer_buy">"Kup"</string>
+    <string name="search_offer_addons">"Dodatki"</string>
+    <string name="network_online">"Online"</string>
+    <string name="network_no_internet">"Brak internetu"</string>
+    <string name="network_offline">"Offline"</string>
+    <string name="presentation_video_missing_media">"Slajd wideo nie ma pliku multimedialnego"</string>
+    <string name="presentation_image_missing_media">"Slajd z obrazem nie ma pliku multimedialnego"</string>
+    <string name="control_item_inputs" formatted="false">"Skrót wejść TV"</string>
+    <string name="cyt_all_count">"Wszystkie (%1$s)"</string>
+    <string name="cyt_page_range">"STRONA %1$s Z %2$s (%3$s–%4$s Z %5$s)"</string>
+    <string name="cyt_models_count">"MODELE (%1$s)"</string>
+    <string name="cyt_page_number">"Strona %1$s z %2$s"</string>
+    <string name="cyt_packages_on_tv">"PAKIETY NA TYM TELEWIZORZE (%1$s)"</string>
+    <string name="cyt_all_system_apps">"WSZYSTKIE APLIKACJE SYSTEMOWE (%1$s — NACIŚNIJ, ABY WYŁĄCZYĆ / WŁĄCZYĆ)"</string>
+    <string name="football_favorite_team_added">"Dodano ulubioną drużynę: %1$s"</string>
+    <string name="wallpaper_tessellated_pavement" formatted="false">"Tessellated Pavement"</string>
+    <string name="wallpaper_grose_valley" formatted="false">"Dolina Grose"</string>
+    <string name="wallpaper_albury_storm" formatted="false">"Burza nad Albury"</string>
+    <string name="wallpaper_aresquiers_beach" formatted="false">"Plaża Aresquiers"</string>
+    <string name="wallpaper_vang_vieng_sunset" formatted="false">"Zachód słońca w Vang Vieng"</string>
+    <string name="wallpaper_aurora" formatted="false">"Zorza"</string>
+    <string name="wallpaper_midnight" formatted="false">"Północ"</string>
+    <string name="wallpaper_sunset" formatted="false">"Zachód słońca"</string>
+    <string name="wallpaper_ocean" formatted="false">"Ocean"</string>
+    <string name="wallpaper_graphite" formatted="false">"Grafit"</string>
+    <string name="profile_emoji_grin" formatted="false">"Uśmiech"</string>
+    <string name="profile_emoji_cool" formatted="false">"Okulary"</string>
+    <string name="profile_emoji_cowboy" formatted="false">"Kowboj"</string>
+    <string name="profile_emoji_party" formatted="false">"Impreza"</string>
+    <string name="profile_emoji_fox" formatted="false">"Lis"</string>
+    <string name="profile_emoji_panda" formatted="false">"Panda"</string>
+    <string name="profile_emoji_tiger" formatted="false">"Tygrys"</string>
+    <string name="profile_emoji_lion" formatted="false">"Lew"</string>
+    <string name="profile_emoji_frog" formatted="false">"Żaba"</string>
+    <string name="profile_emoji_monkey" formatted="false">"Małpa"</string>
+    <string name="profile_emoji_koala" formatted="false">"Koala"</string>
+    <string name="profile_emoji_unicorn" formatted="false">"Jednorożec"</string>
+    <string name="profile_emoji_dog" formatted="false">"Pies"</string>
+    <string name="profile_emoji_cat" formatted="false">"Kot"</string>
+    <string name="profile_emoji_bear" formatted="false">"Niedźwiedź"</string>
+    <string name="profile_emoji_bunny" formatted="false">"Królik"</string>
+    <string name="profile_emoji_ghost" formatted="false">"Duch"</string>
+    <string name="profile_emoji_robot" formatted="false">"Robot"</string>
+    <string name="profile_emoji_alien" formatted="false">"Kosmita"</string>
+    <string name="profile_emoji_pumpkin" formatted="false">"Dynia"</string>
+    <string name="profile_color_sky" formatted="false">"Błękitny"</string>
+    <string name="profile_color_pink" formatted="false">"Różowy"</string>
+    <string name="profile_color_mint" formatted="false">"Miętowy"</string>
+    <string name="profile_color_lemon" formatted="false">"Cytrynowy"</string>
+    <string name="profile_color_lavender" formatted="false">"Lawendowy"</string>
+    <string name="profile_color_peach" formatted="false">"Brzoskwiniowy"</string>
+    <string name="profile_color_silver" formatted="false">"Srebrny"</string>
+    <string name="setup_adb_close_steps" formatted="false">"1. Otwórz Ustawienia TV → System → Informacje i naciśnij numer kompilacji 7 razy, aby odblokować opcje programisty.\n2. Otwórz Ustawienia → System → Opcje programisty i włącz debugowanie USB / sieciowe.\n3. Wróć tutaj i wybierz Przyznaj uprawnienia teraz (port ADB 5555 zostanie automatycznie zamknięty po konfiguracji)."</string>
+    <string name="setup_adb_keep_steps" formatted="false">"1. Otwórz Ustawienia TV → System → Informacje i naciśnij numer kompilacji 7 razy, aby odblokować opcje programisty.\n2. Otwórz Ustawienia → System → Opcje programisty i włącz debugowanie USB / sieciowe.\n3. Wróć tutaj i wybierz Przyznaj uprawnienia teraz (ADB pozostanie włączone dla CleanYourTV)."</string>
+    <string name="cyt_disable_selected_packages" formatted="false">"✅ Wyłącz wybrane pakiety (%1$s)"</string>
+    <string name="cyt_restore_all_saved_packages" formatted="false">"Przywróć wszystkie zapisane pakiety (%1$s)"</string>
+    <string name="cyt_all_tv_models" formatted="false">"Wszystkie modele TV (%1$s)"</string>
+    <string name="cyt_disabled_apps" formatted="false">"Wyłączone aplikacje (%1$s — naciśnij aplikację, aby ją ponownie włączyć)"</string>
+    <string name="cyt_restore_saved" formatted="false">"Przywróć zapisane (%1$s)"</string>
+    <string name="cyt_restore_model_list" formatted="false">"Przywróć listę modeli (%1$s)"</string>
+    <string name="launcher_desc_stock_google_tv_home_screen_banner_ads" formatted="false">"Domyślny ekran główny Google TV i banery reklamowe"</string>
+    <string name="launcher_desc_google_tv_launcher_watchdog_disable_together_with_launcherx" formatted="false">"Nadzorowanie launchera Google TV (wyłącz razem z LauncherX)"</string>
+    <string name="launcher_desc_stock_android_tv_home_screen" formatted="false">"Domyślny ekran główny Android TV"</string>
+    <string name="launcher_desc_stock_android_tv_leanback_launcher" formatted="false">"Domyślny launcher Android TV Leanback"</string>
+    <string name="launcher_desc_philips_oem_home_launcher" formatted="false">"Launcher ekranu głównego Philips"</string>
+    <string name="launcher_desc_philips_oem_home_screen" formatted="false">"Ekran główny Philips"</string>
+    <string name="launcher_desc_tcl_oem_home_screen" formatted="false">"Ekran główny TCL"</string>
+    <string name="launcher_desc_tcl_oem_tv_home_launcher" formatted="false">"Launcher ekranu głównego TCL TV"</string>
+    <string name="launcher_desc_tcl_oem_home_launcher" formatted="false">"Launcher ekranu głównego TCL"</string>
+    <string name="launcher_desc_tcl_iffalcon_oem_home_launcher" formatted="false">"Launcher ekranu głównego TCL / iFFALCON"</string>
+    <string name="launcher_desc_ffalcon_oem_home_launcher" formatted="false">"Launcher ekranu głównego FFALCON"</string>
+    <string name="launcher_desc_hisense_oem_tv_home_screen" formatted="false">"Ekran główny Hisense TV"</string>
+    <string name="launcher_desc_xiaomi_oem_tv_home_screen" formatted="false">"Ekran główny Xiaomi TV"</string>
+    <string name="launcher_desc_sony_oem_tv_home_menu" formatted="false">"Menu główne Sony TV"</string>
+    <string name="launcher_desc_skyworth_oem_tv_home_screen" formatted="false">"Ekran główny Skyworth TV"</string>
+    <string name="launcher_desc_coocaa_oem_tv_home_screen" formatted="false">"Ekran główny Coocaa TV"</string>
+    <string name="launcher_desc_haier_oem_tv_home_screen" formatted="false">"Ekran główny Haier TV"</string>
+    <string name="launcher_desc_zeasn_oem_tv_home_screen" formatted="false">"Ekran główny Zeasn TV"</string>
+    <string name="launcher_desc_sdmc_oem_tv_home_screen" formatted="false">"Ekran główny SDMC TV"</string>
+    <string name="launcher_desc_amlogic_oem_tv_box_home_caution_disabling_may_bootloop_some" formatted="false">"Ekran główny Amlogic TV Box — uwaga: wyłączenie może zapętlić uruchamianie niektórych urządzeń; najpierw wypróbuj ustawienie jako domyślny i uruchamianie przy starcie"</string>
+    <string name="launcher_desc_amazon_oem_tv_home_screen" formatted="false">"Ekran główny Amazon TV"</string>
+    <string name="launcher_desc_amazon_fire_os_home_button_interceptor" formatted="false">"Przechwytywanie przycisku Home Amazon Fire OS"</string>
+    <string name="presentation_name_required" formatted="false">"Nazwa listy odtwarzania jest wymagana"</string>
+    <string name="presentation_name_too_long" formatted="false">"Nazwa listy odtwarzania może mieć najwyżej 80 znaków"</string>
+    <string name="presentation_duplicate_id" formatted="false">"Slajd %1$d ma identyfikator używany już przez inny slajd"</string>
+    <string name="presentation_invalid_duration" formatted="false">"Czas trwania slajdu %1$d musi wynosić od 1 sekundy do 24 godzin"</string>
+    <string name="presentation_negative_order" formatted="false">"Kolejność slajdu %1$d nie może być ujemna"</string>
+    <string name="presentation_media_required" formatted="false">"Slajd %1$d wymaga pliku multimedialnego"</string>
+    <string name="presentation_invalid_url" formatted="false">"Adres URL strony w slajdzie %1$d musi zaczynać się od http:// lub https://"</string>
+    <string name="presentation_invalid_scroll_speed" formatted="false">"Prędkość przewijania strony w slajdzie %1$d musi wynosić od 5 do 1000 pikseli na sekundę"</string>
+    <string name="presentation_invalid_wait" formatted="false">"Czas oczekiwania strony w slajdzie %1$d musi wynosić od 0 do 300 sekund"</string>
+    <string name="presentation_type_required" formatted="false">"Typ slajdu jest wymagany"</string>
+    <string name="unit_row_one" formatted="false">"rząd"</string>
+    <string name="unit_row_other" formatted="false">"rzędy"</string>
+    <string name="unit_minute_one" formatted="false">"min"</string>
+    <string name="unit_minute_other" formatted="false">"min"</string>
+    <string name="unit_hour_one" formatted="false">"godz."</string>
+    <string name="unit_hour_other" formatted="false">"godz."</string>
+    <string name="scene_custom_lock_image" formatted="false">"Własny obraz blokady"</string>
+    <string name="scene_custom_number" formatted="false">"Własna %1$s"</string>
+    <string name="scene_custom_number_fallback" formatted="false">"Własna %1$s"</string>
+    <string name="scene_folder_shuffle" formatted="false">"Losowanie z folderu"</string>
+    <string name="scene_gradient_aurora">@string/wallpaper_aurora</string>
+    <string name="scene_photo_tessellated">@string/wallpaper_tessellated_pavement</string>
+    <string name="cyt_similar_apps_scanned" formatted="false">"Modele z podobnymi aplikacjami systemowymi (przeskanowane aplikacje: %1$s)"</string>
+    <string name="cyt_closest_matches_scanned" formatted="false">"NAJBLIŻSZE DOPASOWANIA (PRZESKANOWANE APLIKACJE: %1$s)"</string>
+    <string name="cyt_restore_saved_disabled_apps" formatted="false">"Przywróć zapisane wyłączone aplikacje (pakiety: %1$s)"</string>
+    <string name="cyt_restore_package_count" formatted="false">"Przywróć (pakiety: %1$s)"</string>
+    <string name="cyt_starting_disable" formatted="false">"Rozpoczynanie oczyszczania przez ADB (pakiety: %1$s)…"</string>
+    <string name="cyt_starting_restore" formatted="false">"Ponowne włączanie pakietów przez ADB (pakiety: %1$s)…"</string>
+    <string name="cyt_restore_success" formatted="false">"Ponownie włączono pakiety na tym telewizorze (pakiety: %1$s) i zapisano stan na dysku (sync)."</string>
+    <string name="folder_select_shuffle_count" formatted="false">"Wybierz ten folder i losuj (obrazy: %1$s)"</string>
+    <string name="folder_no_image_files" formatted="false">"Brak plików obrazów (%1$s) w tym folderze"</string>
+    <string name="settings_restore_from_download" formatted="false">"Przywróć z Download/%1$s"</string>
+    <string name="settings_restore_from_folder" formatted="false">"Przywróć z tego folderu (%1$s)"</string>
+    <string name="uninstall_restore_permissions_explanation" formatted="false">"Przed odinstalowaniem tvOS Launcher:\n\n1. Przywróć / ponownie włącz wyłączone aplikacje i launchery systemowe, aby telewizor miał działający domyślny ekran główny.\n2. Automatycznie cofnij wszystkie specjalne uprawnienia tvOS Launcher (ułatwienia dostępu, podtrzymywanie działania, rola domyślnego ekranu głównego), aby Android mógł poprawnie odinstalować aplikację.\n3. Otwórz ekran odinstalowania aplikacji tvOS Launcher w Androidzie.\n\nJak chcesz kontynuować?"</string>
+    <string name="dock_size_changed" formatted="false">"Ustawiono rozmiar doku na %1$s%%."</string>
+    <string name="cyt_restore_saved_confirmation" formatted="false">"Znaleziono zapisane dane wyłączonych aplikacji (pakiety: %1$s).\n\nPonownie włączyć wszystkie zapisane pakiety (%1$s) przez ADB?"</string>
+    <string name="folder_shuffle_enabled" formatted="false">"Włączono losowanie z folderu: %1$s"</string>
+    <string name="folder_shuffle_enabled_empty" formatted="false">"Włączono losowanie z folderu: "</string>
+    <string name="lock_folder_shuffle_enabled" formatted="false">"Włączono losowanie z folderu dla ekranu blokady: %1$s"</string>
+    <string name="lock_folder_shuffle_enabled_empty" formatted="false">"Włączono losowanie z folderu dla ekranu blokady: "</string>
+    <string name="cyt_no_direct_model" formatted="false">"Brak dokładnego dopasowania nazwy modelu do %1$s. Aby znaleźć najbardziej zbliżony profil TV, użyj powyższej opcji skanowania zainstalowanych aplikacji systemowych przez ADB."</string>
+    <string name="cyt_no_direct_model_empty" formatted="false">"Brak dokładnego dopasowania nazwy modelu do . Aby znaleźć najbardziej zbliżony profil TV, użyj powyższej opcji skanowania zainstalowanych aplikacji systemowych przez ADB."</string>
+    <string name="cyt_selected_model" formatted="false">"Wybrany model: %1$s"</string>
+    <string name="cyt_selected_model_empty" formatted="false">"Wybrany model: "</string>
+    <string name="cyt_checking_model" formatted="false">"Sprawdzanie zainstalowanych pakietów przez ADB dla %1$s…"</string>
+    <string name="cyt_checking_model_empty" formatted="false">"Sprawdzanie zainstalowanych pakietów przez ADB dla …"</string>
+    <string name="cyt_checking_model_wifi" formatted="false">"Sprawdzanie zainstalowanych pakietów i stanu Wi-Fi przez ADB dla %1$s…"</string>
+    <string name="cyt_checking_model_wifi_empty" formatted="false">"Sprawdzanie zainstalowanych pakietów i stanu Wi-Fi przez ADB dla …"</string>
+    <string name="cyt_no_model_packages" formatted="false">"Żaden z pakietów wymienionych w %1$s nie jest zainstalowany na tym telewizorze."</string>
+    <string name="cyt_no_model_packages_empty" formatted="false">"Żaden z pakietów wymienionych w  nie jest zainstalowany na tym telewizorze."</string>
+    <string name="cyt_restore_selected_model" formatted="false">"Przywróć profil wybranego modelu (%1$s — pakiety: %2$s)"</string>
+    <string name="cyt_restore_selected_model_empty" formatted="false">"Przywróć profil wybranego modelu ( — pakiety: %2$s)"</string>
+    <string name="cyt_reenable_model_packages" formatted="false">"Ponownie włącz wszystkie pakiety w %1$s"</string>
+    <string name="cyt_reenable_model_packages_empty" formatted="false">"Ponownie włącz wszystkie pakiety w "</string>
+    <string name="cyt_brand_oem" formatted="false">"Marka / producent: %1$s"</string>
+    <string name="cyt_model_search" formatted="false">"Wyszukiwanie: „%1$s” (%2$s)"</string>
+    <string name="cyt_disabling_progress" formatted="false">"Wyłączanie (%1$s/%2$s):\n%3$s"</string>
+    <string name="cyt_enabling_progress" formatted="false">"Włączanie (%1$s/%2$s):\n%3$s"</string>
+    <string name="settings_restored_from_path" formatted="false">"Ustawienia zostały przywrócone z:\n%1$s"</string>
+    <string name="settings_restore_failed_from_path" formatted="false">"Nie można przywrócić ustawień z:\n%1$s"</string>
+    <string name="settings_backup_write_failed" formatted="false">"Nie można zapisać do Download/%2$s%1$s\n\nZezwól na dostęp do pamięci i spróbuj ponownie."</string>
+    <string name="cyt_one_model_kept" formatted="false">"Zachowano 1 model (%1$s) · Naciśnij, aby pobrać wszystkie"</string>
+    <string name="cyt_oem_package_match" formatted="false">"Pakiety producenta %1$s/%2$s: %3$s"</string>
+    <string name="cyt_protected_package" formatted="false">"%1$s jest chronionym podstawowym pakietem systemowym i nie można go wyłączyć automatycznie."</string>
+    <string name="cyt_select_apps_for_model" formatted="false">"Wybierz aplikacje do wyłączenia — %1$s (znaleziono: %2$s)"</string>
+    <string name="cyt_select_apps_for_model_empty" formatted="false">"Wybierz aplikacje do wyłączenia —  (znaleziono: %2$s)"</string>
+    <string name="cyt_disabled_for_model" formatted="false">"Wyłączono pakiety dla %2$s (pakiety: %1$s).\n\n• Zapisano listę wyłączonych aplikacji (aplikacje: %3$s), aby umożliwić ich przywrócenie jednym naciśnięciem.\n• Zapisano stan pakietów na dysku (sync)."</string>
+    <string name="cyt_disabled_for_model_empty" formatted="false">"Wyłączono pakiety dla  (pakiety: %1$s).\n\n• Zapisano listę wyłączonych aplikacji (aplikacje: %3$s), aby umożliwić ich przywrócenie jednym naciśnięciem.\n• Zapisano stan pakietów na dysku (sync)."</string>
+    <string name="cyt_restore_model_confirmation" formatted="false">"Nie znaleziono zapisanej listy wyłączonych aplikacji.\n\nPrzywracanie użyje wybranego modelu TV (%1$s) i ponownie włączy jego pakiety przez ADB (pakiety: %2$s)."</string>
+    <string name="cyt_restore_model_confirmation_empty" formatted="false">"Nie znaleziono zapisanej listy wyłączonych aplikacji.\n\nPrzywracanie użyje wybranego modelu TV () i ponownie włączy jego pakiety przez ADB (pakiety: %2$s)."</string>
+    <string name="cyt_critical_service_warning" formatted="false">"%1$s (%2$s) jest krytyczną usługą systemową wymaganą do działania pilota i połączeń Bluetooth.\n\nNie można jej wyłączyć w żadnych okolicznościach."</string>
+    <string name="cyt_critical_service_warning_hebrew_fallback" formatted="false">"%1$s (%2$s) jest krytyczną usługą systemową wymaganą do działania pilota i połączeń Bluetooth.\n\nNie można jej wyłączyć w żadnych okolicznościach."</string>
+    <string name="cyt_core_package_warning" formatted="false">"%1$s (%2$s) jest podstawowym pakietem systemowym.\n\nJego wyłączenie może zakłócić działanie ustawień systemowych lub wejść TV albo spowodować niestabilność. Mimo to wyłączyć?"</string>
+    <string name="cyt_core_package_warning_hebrew_fallback" formatted="false">"%1$s (%2$s) jest podstawowym pakietem systemowym.\n\nJego wyłączenie może zakłócić działanie ustawień systemowych lub wejść TV albo spowodować niestabilność. Mimo to wyłączyć?"</string>
+    <string name="cyt_no_model_packages_scan" formatted="false">"Żaden z pakietów wymienionych w %1$s (%2$s) nie jest zainstalowany na tym telewizorze.\n\nCzy chcesz przeskanować zainstalowane aplikacje przez ADB, aby znaleźć najbardziej zbliżony model TV?"</string>
+    <string name="cyt_no_model_packages_scan_hebrew_fallback" formatted="false">"Żaden z pakietów wymienionych w %1$s (%2$s) nie jest zainstalowany na tym telewizorze.\n\nCzy chcesz przeskanować zainstalowane aplikacje przez ADB, aby znaleźć najbardziej zbliżony model TV?"</string>
+    <string name="button_remap_removed" formatted="false">"Usunięto przypisanie przycisku %1$s."</string>
+    <string name="button_remap_removed_empty" formatted="false">"Usunięto przypisanie przycisku ."</string>
+    <string name="cyt_package_match_reason" formatted="false">"Aplikacje %1$s/%2$s (%3$s)"</string>
+    <string name="profile_name_default" formatted="false">"Domyślny"</string>
+    <string name="profile_name_kids" formatted="false">"Dzieci"</string>
+    <string name="profile_name_person" formatted="false">"Osoba %1$s"</string>
+    <string name="profile_name_profile" formatted="false">"Profil %1$s"</string>
+    <string name="legacy_error_free_ccebf23d24" formatted="false">" wolne"</string>
+    <string name="legacy_error_minute_e00000d893" formatted="false">" min"</string>
+    <string name="legacy_error_add_a_person_309e22dac5" formatted="false">"+ Dodaj osobę"</string>
+    <string name="legacy_error_add_new_button_to_remap_bbc1125205" formatted="false">"+ Dodaj przycisk do ponownego przypisania"</string>
+    <string name="legacy_error_adb_permissions_451adb98f2" formatted="false">"ADB I UPRAWNIENIA"</string>
+    <string name="legacy_error_applications_fa3dec2685" formatted="false">"APLIKACJE"</string>
+    <string name="legacy_error_accessories_b08648dbd6" formatted="false">"Akcesoria"</string>
+    <string name="legacy_error_automatic_d461a493a3" formatted="false">"Automatycznie"</string>
+    <string name="legacy_error_automatic_setup_d8ce96413f" formatted="false">"Konfiguracja automatyczna"</string>
+    <string name="legacy_error_avatar_color_7c73323031" formatted="false">"Kolor awatara"</string>
+    <string name="legacy_error_avatar_color_87f835ea14" formatted="false">"Kolor awatara…"</string>
+    <string name="legacy_error_blurry_current_content_blur_4a1054836b" formatted="false">"Rozmycie (bieżąca zawartość)"</string>
+    <string name="legacy_error_button_mapper_service_516a7641b3" formatted="false">"Usługa mapowania przycisków"</string>
+    <string name="legacy_error_change_what_this_button_opens_0c7956f2f7" formatted="false">"Zmień, co otwiera ten przycisk…"</string>
+    <string name="legacy_error_check_permissions_4f4ffcde63" formatted="false">"Sprawdź uprawnienia"</string>
+    <string name="legacy_error_checking_github_releases_for_the_la_70ea1523c9" formatted="false">"Sprawdzanie najnowszej wersji w GitHub Releases…"</string>
+    <string name="legacy_error_checking_for_updates_3bbfc1bb9d" formatted="false">"Sprawdzanie aktualizacji"</string>
+    <string name="legacy_error_choose_a_look_b0197fc035" formatted="false">"Wybierz wygląd"</string>
+    <string name="legacy_error_choose_how_to_grant_permissions_bce1ef190d" formatted="false">"Wybierz sposób przyznania uprawnień"</string>
+    <string name="legacy_error_choose_icon_for_8ffffe2f45" formatted="false">"Wybierz ikonę dla "</string>
+    <string name="legacy_error_choose_new_icon_file_51b8d338e7" formatted="false">"Wybierz nowy plik ikony…"</string>
+    <string name="legacy_error_choose_new_image_4e083a8186" formatted="false">"Wybierz nowy obraz…"</string>
+    <string name="legacy_error_classic_top_shelf_content_d32fd61430" formatted="false">"Zawartość klasycznej górnej półki"</string>
+    <string name="legacy_error_classic_background_e6c62ea46d" formatted="false">"Klasyczne tło"</string>
+    <string name="legacy_error_clean_5137c8760c" formatted="false">"Wyczyść"</string>
+    <string name="legacy_error_cleanyourtv_beta_runs_the_cleanyour_36754ded33" formatted="false">"CleanYourTV (beta) uruchamia profile oczyszczania CleanYourTV bezpośrednio na telewizorze przez lokalne ADB, bez komputera. Wybierz model TV (lub wyszukaj go według zainstalowanych pakietów systemowych), wybierz zbędne aplikacje i aplikacje telemetryczne do wyłączenia, a w dowolnej chwili przywróć je jednym naciśnięciem."</string>
+    <string name="legacy_error_cleaned_b8fa1c69b2" formatted="false">"Wyczyszczono · "</string>
+    <string name="legacy_error_clear_all_button_mappings_05b5f94a5b" formatted="false">"Wyczyść wszystkie przypisania przycisków"</string>
+    <string name="legacy_error_clock_style_2020700db5" formatted="false">"Styl zegara"</string>
+    <string name="legacy_error_control_panel_background_4e3133c08f" formatted="false">"Tło panelu sterowania"</string>
+    <string name="legacy_error_could_not_decode_image_file_9aeb05d774" formatted="false">"Nie można odczytać pliku obrazu"</string>
+    <string name="legacy_error_could_not_reach_github_releases_ple_f56e67ee43" formatted="false">"Nie można połączyć się z GitHub Releases. Sprawdź połączenie z internetem."</string>
+    <string name="legacy_error_current_version_v_b7f8adcdff" formatted="false">"Obecna wersja: v"</string>
+    <string name="legacy_error_custom_2_6270e7f85a" formatted="false">"Własna 2"</string>
+    <string name="legacy_error_custom_3_e4222ac6d8" formatted="false">"Własna 3"</string>
+    <string name="legacy_error_custom_4_b20dec98ad" formatted="false">"Własna 4"</string>
+    <string name="legacy_error_custom_5_6db5ba8e39" formatted="false">"Własna 5"</string>
+    <string name="legacy_error_default_icon_restored_4651574a02" formatted="false">"Przywrócono domyślną ikonę"</string>
+    <string name="legacy_error_delete_profile_47311af432" formatted="false">"Usuń profil"</string>
+    <string name="legacy_error_download_install_680ffe96e7" formatted="false">"Pobierz i zainstaluj"</string>
+    <string name="legacy_error_downloading_latest_apk_from_github_9a141b483e" formatted="false">"Pobieranie najnowszego APK z GitHub…"</string>
+    <string name="legacy_error_each_tv_brand_uses_different_packag_ec560b3b62" formatted="false">"Każda marka telewizora używa innych nazw pakietów i aktywności dla Wi-Fi, Bluetooth, dźwięku i wejść. Wybierz aplikację, a następnie konkretną aktywność uruchamianą z panelu sterowania (oraz z aplikacji Wejścia w doku)."</string>
+    <string name="legacy_error_each_person_gets_their_own_pinned_a_350015e5c6" formatted="false">"Każda osoba ma własne przypięte aplikacje i listę kontynuowania oglądania."</string>
+    <string name="legacy_error_easy_setup_automatic_via_adb_3f7a6b2155" formatted="false">"Prosta konfiguracja (automatycznie przez ADB)"</string>
+    <string name="legacy_error_enable_5342e09f27" formatted="false">"Włącz"</string>
+    <string name="legacy_error_enable_tvos_launcher_in_android_tv__63d54093cc" formatted="false">"Włącz tvOS Launcher w ustawieniach ułatwień dostępu Android TV, aby ponownie przypisane przyciski pilota i nakładka panelu sterowania działały w każdej aplikacji."</string>
+    <string name="legacy_error_enabled_92c1cdfdf4" formatted="false">"Włączone"</string>
+    <string name="legacy_error_glass_82c268188c" formatted="false">"Szkło"</string>
+    <string name="legacy_error_grant_all_via_adb_320e08a9da" formatted="false">"Przyznaj wszystkie przez ADB"</string>
+    <string name="legacy_error_grant_permissions_now_859526e49d" formatted="false">"Przyznaj uprawnienia teraz"</string>
+    <string name="legacy_error_grant_permissions_one_by_one_manual_b5cbe865ab" formatted="false">"Przyznaj uprawnienia ręcznie, jedno po drugim"</string>
+    <string name="legacy_error_grant_storage_permission_76e254101d" formatted="false">"Przyznaj dostęp do pamięci"</string>
+    <string name="legacy_error_grant_19c1380d8a" formatted="false">"Przyznaj ›"</string>
+    <string name="legacy_error_grants_all_required_permissions_aut_811773c2f1" formatted="false">"Automatycznie przyznaje wszystkie wymagane uprawnienia naraz"</string>
+    <string name="legacy_error_hidden_from_dock_press_ok_to_show_1290340827" formatted="false">"Ukryto w doku · naciśnij OK, aby pokazać"</string>
+    <string name="legacy_error_hide_from_all_apps_f82d9040ea" formatted="false">"Ukryj na liście wszystkich aplikacji"</string>
+    <string name="legacy_error_home_screen_a9bd313674" formatted="false">"Ekran główny"</string>
+    <string name="legacy_error_installing_update_29e74e90ba" formatted="false">"Instalowanie aktualizacji…"</string>
+    <string name="legacy_error_keep_alive_194eed9348" formatted="false">"PODTRZYMYWANIE DZIAŁANIA"</string>
+    <string name="legacy_error_keep_alive_auto_repair_permissions_64dec5b4f2" formatted="false">"Podtrzymywanie działania (automatyczna naprawa uprawnień)"</string>
+    <string name="legacy_error_latest_github_version_v_81c9e53520" formatted="false">"Najnowsza wersja na GitHub: v"</string>
+    <string name="legacy_error_listen_for_a_remote_key_press_b07b1c60a5" formatted="false">"Oczekuj na naciśnięcie przycisku pilota"</string>
+    <string name="legacy_error_loading_matches_ad34faae05" formatted="false">"Wczytywanie meczów…"</string>
+    <string name="legacy_error_loading_titles_be1d486f11" formatted="false">"Wczytywanie tytułów…"</string>
+    <string name="legacy_error_manual_permissions_bbed716e43" formatted="false">"Ręczne przyznawanie uprawnień"</string>
+    <string name="legacy_error_modern_eef6c7f6dd" formatted="false">"Nowoczesny"</string>
+    <string name="legacy_error_move_left_in_dock_d545778104" formatted="false">"Przesuń w lewo w doku"</string>
+    <string name="legacy_error_move_right_in_dock_b44019a1fc" formatted="false">"Przesuń w prawo w doku"</string>
+    <string name="legacy_error_next_wallpaper_324bb3e2c2" formatted="false">"Następna tapeta"</string>
+    <string name="legacy_error_no_recent_apps_6337834ebc" formatted="false">"Brak ostatnich aplikacji"</string>
+    <string name="legacy_error_not_paired_adb_off_0b378808e9" formatted="false">"Nie sparowano (ADB wyłączone)"</string>
+    <string name="legacy_error_output_b2439bcb8d" formatted="false">"Wyjście"</string>
+    <string name="legacy_error_presentation_classic_shelf_9e32077c30" formatted="false">"PREZENTACJA I KLASYCZNA PÓŁKA"</string>
+    <string name="legacy_error_profiles_3e77bfe515" formatted="false">"PROFILE"</string>
+    <string name="legacy_error_paired_ready_2379bb9b76" formatted="false">"Sparowano i gotowe"</string>
+    <string name="legacy_error_pin_to_home_db029e6fe7" formatted="false">"Przypnij do ekranu głównego"</string>
+    <string name="legacy_error_port_5555_open_tap_to_pair_3b338792bb" formatted="false">"Port 5555 otwarty (naciśnij, aby sparować)"</string>
+    <string name="legacy_error_power_off_sleep_timer_permission_ddd313295f" formatted="false">"Uprawnienie do wyłączania i wyłącznika czasowego"</string>
+    <string name="legacy_error_press_ok_on_an_app_to_show_or_hide__924fe7b892" formatted="false">"Naciśnij OK na aplikacji, aby pokazać ją w doku ekranu głównego lub ukryć."</string>
+    <string name="legacy_error_profiles_535e52e4a2" formatted="false">"Profile"</string>
+    <string name="legacy_error_quick_buttons_c1ecfd327d" formatted="false">"Szybkie przyciski"</string>
+    <string name="legacy_error_remapped_buttons_c7ad2f6241" formatted="false">"PRZYPISANE PRZYCISKI"</string>
+    <string name="legacy_error_remote_fixes_dbaca856c6" formatted="false">"POPRAWKI PILOTA"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"Pobierz ponownie CleanYourTV"</string>
+    <string name="legacy_error_refresh_weather_now_995b85be8d" formatted="false">"Odśwież pogodę teraz"</string>
+    <string name="legacy_error_remove_from_dock_b27d77465c" formatted="false">"Usuń z doku"</string>
+    <string name="legacy_error_rounded_0a62cd800f" formatted="false">"Zaokrąglony"</string>
+    <string name="legacy_error_screen_6e56137e21" formatted="false">"Ekran"</string>
+    <string name="legacy_error_select_your_language_to_begin_2878d6f6a0" formatted="false">"Wybierz język, aby rozpocząć"</string>
+    <string name="legacy_error_serif_1b5e747e50" formatted="false">"Szeryfowy"</string>
+    <string name="legacy_error_settings_reset_to_defaults_f10770eb1d" formatted="false">"Przywrócono domyślne ustawienia."</string>
+    <string name="legacy_error_settings_c239b59a77" formatted="false">"Ustawienia ›"</string>
+    <string name="legacy_error_setup_complete_5983596601" formatted="false">"Konfiguracja zakończona"</string>
+    <string name="legacy_error_show_in_dock_press_ok_to_hide_c6db8a2352" formatted="false">"Pokaż w doku · naciśnij OK, aby ukryć"</string>
+    <string name="legacy_error_sleep_d466bcf52e" formatted="false">"Uśpienie"</string>
+    <string name="legacy_error_some_tvs_disable_accessibility_or_o_6fb4d5d368" formatted="false">"Niektóre telewizory automatycznie wyłączają w tle ułatwienia dostępu lub inne uprawnienia. Gdy podtrzymywanie działania jest włączone, tvOS Launcher lekko sprawdza stan uprawnień w tle, bez dodatkowego obciążenia pamięci RAM ani procesora, i automatycznie przywraca wyłączone uprawnienia przez ADB."</string>
+    <string name="legacy_error_stencil_0d2302c761" formatted="false">"Szablon"</string>
+    <string name="legacy_error_storage_folders_65d3d1d26d" formatted="false">"Foldery pamięci"</string>
+    <string name="legacy_error_switch_39921a740b" formatted="false">"Przełącz"</string>
+    <string name="legacy_error_system_file_picker_c706f36550" formatted="false">"Systemowy wybór plików…"</string>
+    <string name="legacy_error_transparent_aac7e89fcd" formatted="false">"Przezroczysty"</string>
+    <string name="legacy_error_unpin_from_home_df00f5de07" formatted="false">"Odepnij od ekranu głównego"</string>
+    <string name="legacy_error_up_to_date_105c24d6fc" formatted="false">"Aktualne"</string>
+    <string name="legacy_error_update_check_failed_2983d175b8" formatted="false">"Nie udało się sprawdzić aktualizacji"</string>
+    <string name="legacy_error_update_failed_5da8e751a4" formatted="false">"Aktualizacja nie powiodła się"</string>
+    <string name="legacy_error_updating_tvos_launcher_56b2074873" formatted="false">"Aktualizowanie tvOS Launcher"</string>
+    <string name="legacy_error_updating_dfe40efe92" formatted="false">"Aktualizowanie…"</string>
+    <string name="legacy_error_wallpaper_f7d9acadfd" formatted="false">"TAPETA"</string>
+    <string name="legacy_error_you_are_running_the_latest_version_e9af7e897b" formatted="false">"Używasz najnowszej wersji."</string>
+    <string name="legacy_error_f_fahrenheit_28bf499373" formatted="false">"°F (Fahrenheit)"</string>
+    <string name="legacy_error_parent_folder_27421160e5" formatted="false">"⬅  .. (Folder nadrzędny)"</string>
+    <string name="legacy_error_back_to_storage_folders_a393f054ee" formatted="false">"⬅  Wróć do folderów pamięci"</string>
+    <string name="legacy_he_text_e3b0c44298" formatted="false">""</string>
+    <string name="legacy_he_all_341_c5540847a4" formatted="false">"Wszystkie (341)"</string>
+    <string name="legacy_he_all_341_tv_models_ccd1e9f493" formatted="false">"Wszystkie 341 modeli TV"</string>
+    <string name="legacy_he_classic_top_shelf_suggestions_e94f17dee4" formatted="false">"Sugestie klasycznej górnej półki"</string>
+    <string name="legacy_he_dashboard_widgets_4_horizontal_tile_3979f14004" formatted="false">"WIDŻETY PANELU (4 POZIOME KAFELKI)"</string>
+    <string name="legacy_he_persistent_adb_mode_keep_port_5555__6898113324" formatted="false">"Stały tryb ADB (pozostaw port 5555 otwarty)"</string>
+    <string name="legacy_he_scanning_installed_system_packages__c89e27386e" formatted="false">"Skanowanie zainstalowanych pakietów systemowych przez ADB i porównywanie 341 modeli TV…"</string>
+    <string name="legacy_he_this_tv_has_no_inputs_062f3f25f4" formatted="false">"Ten telewizor nie ma wejść"</string>
+    <string name="legacy_he_browse_search_all_341_tv_models_638ce40f94" formatted="false">"📋 Przeglądaj / wyszukaj wszystkie 341 modeli TV"</string>
+    <string name="legacy_he_dynamic_09aabeb4c03e" formatted="false">"Znaleziono i automatycznie wybrano dokładny model TV:\n\n• %1$s"</string>
+    <string name="legacy_he_dynamic_82314871b94c" formatted="false">"Wyłączono wszystkie (%1$s)"</string>
+    <string name="legacy_he_dynamic_f9b11dd83db2" formatted="false">"Aktywne: %1$s / znaleziono: %2$s ›"</string>
+    <string name="legacy_he_dynamic_5cacc9d910db" formatted="false">"Znaleziono zapisane dane wyłączonych aplikacji (pakiety: %1$s).\n\nPonownie włączyć wszystkie zapisane pakiety (%2$s) przez ADB?"</string>
+    <string name="legacy_he_dynamic_15b45c924e73" formatted="false">"Dodano własną tapetę #%1$s."</string>
+    <string name="legacy_he_dynamic_f6e850b4f2e6" formatted="false">"Nie można zapisać do Download/%1$s%2$s\n\nZezwól na dostęp do pamięci i spróbuj ponownie."</string>
+    <string name="legacy_he_dynamic_5b540d791476" formatted="false">"%1$s dni temu"</string>
+    <string name="legacy_he_dynamic_703dfc96737f" formatted="false">"%1$s%% zajęte · Ostatnie aplikacje"</string>
+    <string name="legacy_he_dynamic_699b3b53a882" formatted="false">"%1$s%% zajęte · Wyczyść"</string>
+    <string name="legacy_he_dynamic_92ea28b4da86" formatted="false">"RAM: zajęte %1$s z %2$s"</string>
+    <string name="legacy_he_dynamic_b61dee1514f6" formatted="false">"Sekcja kontynuowania oglądania w doku przestanie pokazywać materiały z %1$s. W samej aplikacji %2$s pozostaniesz zalogowany."</string>
+    <string name="legacy_he_dynamic_edecd490aeae" formatted="false">"ZAINSTALOWANE LAUNCHERY SYSTEMOWE NA TYM TELEWIZORZE (%1$s)"</string>
+    <string name="search_available_on">"W %1$s"</string>
+</resources>

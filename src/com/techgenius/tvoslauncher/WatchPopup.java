@@ -550,10 +550,10 @@ final class WatchPopup {
         moreHint = null;
         moreScroll = null;
 
-        String cw = I18n.s(host, "Continue watching", "İzlemeye devam et");
+        String cw = I18n.resourceString(host, R.string.text_continue_watching_5df929);
         if (!cloud.isSignedIn()) {
             // Turkish: both "Nuvio" and "Stremio" end in a back vowel, so "'ya" fits each.
-            addHeader(I18n.s(host, "Sign in to " + cloud.name(), cloud.name() + "'ya giriş yap"), 0);
+            addHeader(I18n.resourceString(host, R.string.message_cloud_sign_in, cloud.name()), 0);
             renderLogin();
         } else if (items != null && !items.isEmpty()) {
             renderItems(cw);
@@ -561,8 +561,8 @@ final class WatchPopup {
             renderGhosts(cw);  // this profile's row hasn't loaded yet
         } else {
             addHeader(cw, 0);
-            String msg = items == null ? I18n.s(host, "Couldn't reach " + cloud.name(), cloud.name() + "'ya ulaşılamadı")
-                    : I18n.s(host, "Nothing to continue yet", "Devam edecek bir şey yok");
+            String msg = items == null ? I18n.resourceString(host, R.string.message_cloud_unreachable, cloud.name())
+                    : I18n.resourceString(host, R.string.text_nothing_to_continue_yet);
             LinearLayout box = glassBox();
             box.addView(label(msg, 11.5f, 0xB8F4F4F6, "regular"));
             // As tall as a show card, so the header and profile buttons stay put when moving
@@ -637,9 +637,8 @@ final class WatchPopup {
     private void renderLogin() {
         LinearLayout box = glassBox();
         if (qr == null || qrBitmap == null) {
-            box.addView(label(qrFailed ? I18n.s(host, "Couldn't reach " + cloud.name() + ". Focus the tile again to retry.",
-                            cloud.name() + "'ya ulaşılamadı. Tekrar denemek için simgeye yeniden gel.")
-                    : I18n.s(host, "Preparing QR code…", "QR kodu hazırlanıyor…"), 11.5f, 0xB8F4F4F6, "regular"));
+            box.addView(label(qrFailed ? I18n.resourceString(host, R.string.message_cloud_unreachable_retry, cloud.name())
+                    : I18n.resourceString(host, R.string.text_preparing_qr_code), 11.5f, 0xB8F4F4F6, "regular"));
             addStatusBox(box);
             return;
         }
@@ -658,18 +657,17 @@ final class WatchPopup {
 
         LinearLayout text = new LinearLayout(host);
         text.setOrientation(LinearLayout.VERTICAL);
-        text.addView(label(I18n.s(host, "Scan with your phone and approve.",
-                "Telefonunla tara ve onayla."), 11.5f, 0xFFF4F4F6, "semibold"));
-        TextView how = label(I18n.s(host, "Or open ", "Veya şu adrese git: ")
+        text.addView(label(I18n.resourceString(host, R.string.text_scan_with_your_phone_and_approve), 11.5f, 0xFFF4F4F6, "semibold"));
+        TextView how = label(I18n.resourceString(host, R.string.text_or_open)
                 + qr.verificationUrl.replace("https://", "")
-                + I18n.s(host, " and enter:", " ve kodu gir:"), 9.2f, 0xB8F4F4F6, "regular");
+                + I18n.resourceString(host, R.string.text_and_enter), 9.2f, 0xB8F4F4F6, "regular");
         how.setPadding(0, dp(2), 0, 0);
         text.addView(how);
         TextView userCode = label(qr.userCode, 18f, 0xFFF4F4F6, "semibold");
         userCode.setLetterSpacing(0.15f);
         userCode.setPadding(0, dp(4), 0, dp(4));
         text.addView(userCode);
-        text.addView(label(I18n.s(host, "Waiting for approval…", "Onay bekleniyor…"), 9.2f, 0x8CF4F4F6, "regular"));
+        text.addView(label(I18n.resourceString(host, R.string.text_waiting_for_approval), 9.2f, 0x8CF4F4F6, "regular"));
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(dp(200), ViewGroup.LayoutParams.WRAP_CONTENT);
         tlp.leftMargin = dp(12);
         box.addView(text, tlp);
@@ -777,7 +775,7 @@ final class WatchPopup {
         headerRow.setLayoutParams(hlp);
 
         headerRow.addView(new View(host), new LinearLayout.LayoutParams(0, 0, 1f));
-        TextView hint = label(I18n.s(host, "Scroll for more ›", "Daha fazlası için kaydır ›"),
+        TextView hint = label(I18n.resourceString(host, R.string.text_scroll_for_more),
                 10f, 0x99F4F4F6, "regular");
         hint.setSingleLine(true);
         hint.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
@@ -794,7 +792,7 @@ final class WatchPopup {
         d.pkg = pkg;
         d.appName = appName;
         d.title = it.title == null || it.title.isEmpty()
-                ? (it.isSeries() ? I18n.s(host, "Series", "Dizi") : I18n.s(host, "Movie", "Film")) : it.title;
+                ? (it.isSeries() ? I18n.resourceString(host, R.string.text_series) : I18n.resourceString(host, R.string.text_movie)) : it.title;
         d.subtitle = subtitle(it);
         d.progress = (float) Math.max(0.0, Math.min(1.0, it.fraction()));
         d.thumb = thumbs.get(it.contentId);
@@ -812,12 +810,12 @@ final class WatchPopup {
         long leftMin = Math.max(0, it.duration - it.position) / 60_000L;
         if (it.upNext) {
             if (sb.length() > 0) sb.append(" · ");
-            sb.append(I18n.s(host, "Up next", "Sıradaki"));
+            sb.append(I18n.resourceString(host, R.string.text_up_next));
         } else if (leftMin > 0) {
             if (sb.length() > 0) sb.append(" · ");
-            sb.append(leftMin).append(I18n.s(host, " min left", " dk kaldı"));
+            sb.append(leftMin).append(I18n.resourceString(host, R.string.text_min_left));
         }
-        if (sb.length() == 0) sb.append(I18n.s(host, "Resume playback", "Oynatmaya devam et"));
+        if (sb.length() == 0) sb.append(I18n.resourceString(host, R.string.text_resume_playback));
         return sb.toString();
     }
 
@@ -968,7 +966,7 @@ final class WatchPopup {
             Ui.textSize(b, 10.5f);
             b.setTypeface(Ui.font(host, "semibold"));
             b.setText(p.name == null || p.name.isEmpty()
-                    ? I18n.s(host, "Profile ", "Profil ") + p.index : p.name);
+                    ? I18n.resourceString(host, R.string.text_profile) + p.index : p.name);
             b.setSingleLine(true);
             b.setEllipsize(android.text.TextUtils.TruncateAt.END);
             b.setMaxWidth(dp(130));

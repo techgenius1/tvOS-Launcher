@@ -513,7 +513,7 @@ final class SceneHome {
         int left = SleepReceiver.timerLeft(host);
         int mSize = dp(42);
         if (left > 0) {
-            moonText.setText(left + I18n.s(host, "m", " dk"));
+            moonText.setText(left + I18n.resourceString(host, R.string.text_m));
             moonText.setVisibility(View.VISIBLE);
             moonBtn.setPadding(dp(13), 0, dp(14), 0);
         } else {
@@ -577,7 +577,7 @@ final class SceneHome {
         shelfHeader.setTypeface(Ui.font(host, "semibold"));
         shelfHeader.setTextColor(0xC7F4F4F6);
         shelfHeader.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
-        shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
+        shelfHeader.setText(I18n.resourceString(host, R.string.text_continue_watching_5df929));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         hlp.bottomMargin = 0;
@@ -811,7 +811,7 @@ final class SceneHome {
 
     void refreshKeepWatching() {
         if (shelfRow == null) return;
-        shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
+        shelfHeader.setText(I18n.resourceString(host, R.string.text_continue_watching_5df929));
         if (!host.cwEnabled() || moreExpanded) {
             pkgWatchCache.clear();
             hideShelf();
@@ -918,7 +918,7 @@ final class SceneHome {
     private void showShelfForPackage(View tile, String pkg) {
         activeShelfTile = tile;
         activeShelfPkg = pkg;
-        shelfHeader.setText(I18n.s(host, "Continue watching", "İzlemeye devam et"));
+        shelfHeader.setText(I18n.resourceString(host, R.string.text_continue_watching_5df929));
         List<WatchCardData> cached = pkgWatchCache.get(pkg);
         if (cached != null && !cached.isEmpty()) {
             hideDashboard();
@@ -1046,7 +1046,7 @@ final class SceneHome {
                         c.pkg = pkg;
                         c.appName = appName;
                         c.title = (it.title == null || it.title.isEmpty())
-                                ? (it.isSeries() ? I18n.s(host, "Series", "Dizi") : I18n.s(host, "Movie", "Film"))
+                                ? (it.isSeries() ? I18n.resourceString(host, R.string.text_series) : I18n.resourceString(host, R.string.text_movie))
                                 : it.title;
                         StringBuilder sub = new StringBuilder();
                         if (it.season >= 0 && it.episode >= 0) sub.append('S').append(it.season).append(" · E").append(it.episode);
@@ -1054,12 +1054,12 @@ final class SceneHome {
                         long leftMin = Math.max(0, it.duration - it.position) / 60_000L;
                         if (it.upNext) {
                             if (sub.length() > 0) sub.append(" · ");
-                            sub.append(I18n.s(host, "Up next", "Sıradaki"));
+                            sub.append(I18n.resourceString(host, R.string.text_up_next));
                         } else if (leftMin > 0) {
                             if (sub.length() > 0) sub.append(" · ");
-                            sub.append(leftMin).append(I18n.s(host, " min left", " dk kaldı"));
+                            sub.append(leftMin).append(I18n.resourceString(host, R.string.text_min_left));
                         }
-                        if (sub.length() == 0) sub.append(I18n.s(host, "Resume playback", "Oynatmaya devam et"));
+                        if (sub.length() == 0) sub.append(I18n.resourceString(host, R.string.text_resume_playback));
                         c.subtitle = sub.toString();
                         c.progress = (float) Math.max(0.05, Math.min(1.0, it.fraction()));
                         String base = it.baseId();
@@ -1086,13 +1086,13 @@ final class SceneHome {
             c.appName = appName;
             c.title = it.title;
             if (it.remainingMin > 0 && it.overview != null && !it.overview.isEmpty() && !it.overview.equals(it.title)) {
-                c.subtitle = it.overview + " · " + it.remainingMin + I18n.s(host, " min left", " dk kaldı");
+                c.subtitle = it.overview + " · " + it.remainingMin + I18n.resourceString(host, R.string.text_min_left);
             } else if (it.remainingMin > 0) {
-                c.subtitle = it.remainingMin + I18n.s(host, " min left", " dk kaldı");
+                c.subtitle = it.remainingMin + I18n.resourceString(host, R.string.text_min_left);
             } else if (it.overview != null && !it.overview.isEmpty()) {
                 c.subtitle = it.overview;
             } else {
-                c.subtitle = I18n.s(host, "Resume playback", "Oynatmaya devam et");
+                c.subtitle = I18n.resourceString(host, R.string.text_resume_playback);
             }
             c.progress = it.progress > 0 ? it.progress : 0.08f;
             c.backdropUrl = it.backdrop;
@@ -1486,12 +1486,12 @@ final class SceneHome {
         final int classicIdx = Math.max(0, host.classicCwCards.indexOf(anchor));
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
-        labels.add(I18n.s(host, "Resume", "Devam Et"));
+        labels.add(I18n.resourceString(host, R.string.text_resume_45e750));
         actions.add(() -> openWatchCard(d));
         int destructive = -1;
         if (d.removable && d.key != null) {
             destructive = labels.size();
-            labels.add(I18n.s(host, "Remove from Keep Watching", "İzlemeye Devam Et'ten Kaldır"));
+            labels.add(I18n.resourceString(host, R.string.text_remove_from_keep_watching));
             actions.add(() -> {
                 MediaWatchService.Store.remove(host, d.key, d.pkg, d.title);
                 lastWatchSig = "";
@@ -1888,14 +1888,14 @@ final class SceneHome {
         // Add Gear tile
         MainActivity.AppEntry gearEntry = new MainActivity.AppEntry();
         gearEntry.key = GEAR_KEY;
-        gearEntry.label = I18n.s(host, "Settings", "Ayarlar");
+        gearEntry.label = I18n.resourceString(host, R.string.text_settings);
         dockEntries.add(gearEntry);
 
         // Only show Other Apps (...) tile if there are apps in Other Apps or overflow apps from the dock
         if (hasAnyOtherOrOverflow) {
             MainActivity.AppEntry moreEntry = new MainActivity.AppEntry();
             moreEntry.key = MORE_KEY;
-            moreEntry.label = I18n.s(host, "Other apps", "Diğer uygulamalar");
+            moreEntry.label = I18n.resourceString(host, R.string.text_other_apps_5ccac2);
             dockEntries.add(moreEntry);
         }
 
@@ -2013,9 +2013,9 @@ final class SceneHome {
             if (has) {
                 focusedDockIdx = index;
                 if (moveDockIdx >= 0) {
-                    updateDockTooltip(v, I18n.s(host,
-                            "Move " + a.label + "  ·  Left/Right, OK when done",
-                            a.label + " taşınıyor  ·  Sol/Sağ, bitince OK"));
+                    String label = String.valueOf(a.label);
+                    updateDockTooltip(v, I18n.resourceString(host, label.isEmpty()
+                            ? R.string.dock_move_tooltip_empty : R.string.dock_move_tooltip, label));
                 } else {
                     updateDockTooltip(v, a.label);
                 }
@@ -2087,7 +2087,7 @@ final class SceneHome {
             }
             // Try opening Play Store or Settings if not installed on this device
             if (!Suggestions.start(host, a.launch)) {
-                host.toast(I18n.s(host, a.label + " is not installed on this TV", a.label + " bu TV'de yüklü değil"));
+                host.toast(I18n.resourceString(host, R.string.message_app_not_installed, a.label));
             }
             return;
         }
@@ -2230,7 +2230,7 @@ final class SceneHome {
         Ui.textSize(titleTv, 15.5f);
         titleTv.setTypeface(Ui.font(host, "semibold"));
         titleTv.setTextColor(0xFFF4F4F6);
-        titleTv.setText(I18n.s(host, "Applications", "Uygulamalar"));
+        titleTv.setText(I18n.resourceString(host, R.string.text_applications));
         header.addView(titleTv, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         // Options (...) circular button on top-right of Applications header
@@ -2255,7 +2255,7 @@ final class SceneHome {
         optBtn.setOnClickListener(v -> {
             List<String> mLabels = new ArrayList<>();
             List<Runnable> mActions = new ArrayList<>();
-            mLabels.add(I18n.s(host, "Reset Layout", "Düzeni Sıfırla"));
+            mLabels.add(I18n.resourceString(host, R.string.text_reset_layout));
             mActions.add(() -> {
                 closeSheetImmediate();
                 host.prefs.edit().remove(MainActivity.PREF_ORDER).remove(MainActivity.PREF_OTHER).apply();
@@ -2263,7 +2263,7 @@ final class SceneHome {
                 rebuildDock();
                 focusDock(0);
             });
-            host.showMenu(v, I18n.s(host, "Applications", "Uygulamalar"), mLabels, mActions, -1);
+            host.showMenu(v, I18n.resourceString(host, R.string.text_applications), mLabels, mActions, -1);
         });
         header.addView(optBtn, new LinearLayout.LayoutParams(optSz, optSz));
         card.addView(header, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -2442,13 +2442,13 @@ final class SceneHome {
     private void showOtherAppItemMenu(MainActivity.AppEntry a, View anchor) {
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
-        labels.add(I18n.s(host, "Open", "Aç"));
+        labels.add(I18n.resourceString(host, R.string.text_open_4f0000));
         actions.add(() -> {
             closeSheetImmediate();
             openDockApp(anchor, a);
         });
 
-        labels.add(I18n.s(host, "Show on Home Screen", "Ana Ekranda Göster"));
+        labels.add(I18n.resourceString(host, R.string.text_show_on_home_screen));
         actions.add(() -> {
             showAppOnHomeDock(a);
             rebuildDock();
@@ -2459,7 +2459,7 @@ final class SceneHome {
             }
         });
 
-        labels.add(I18n.s(host, "Rename", "Yeniden Adlandır"));
+        labels.add(I18n.resourceString(host, R.string.text_rename_f9a6a6));
         actions.add(() -> host.promptRenameApp(a, () -> {
             rebuildDock();
             if (sheetLayer != null) {
@@ -2469,7 +2469,7 @@ final class SceneHome {
             }
         }));
 
-        labels.add(I18n.s(host, "Change app icon", "Uygulama simgesini değiştir"));
+        labels.add(I18n.resourceString(host, R.string.text_change_app_icon));
         actions.add(() -> host.promptChangeAppIcon(a, () -> {
             invalidateAppLogoCache(a);
             host.loadApps();
@@ -2483,7 +2483,7 @@ final class SceneHome {
         }));
 
         if (!host.isSettings(a)) {
-            labels.add(I18n.s(host, "Hide", "Gizle"));
+            labels.add(I18n.resourceString(host, R.string.text_hide));
             actions.add(() -> {
                 host.setHidden(a, true);
                 rebuildDock();
@@ -2496,14 +2496,14 @@ final class SceneHome {
         }
 
         if (a.pkg != null && !a.key.startsWith("demo_app:") && !MainActivity.INPUTS_KEY.equals(a.key)) {
-            labels.add(I18n.s(host, "App Info", "Uygulama Bilgileri"));
+            labels.add(I18n.resourceString(host, R.string.text_app_info_c575c9));
             actions.add(() -> {
                 closeSheetImmediate();
                 host.startSafe(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.parse("package:" + a.pkg)));
             });
             if (!a.system) {
-                labels.add(I18n.s(host, "Uninstall", "Kaldır"));
+                labels.add(I18n.resourceString(host, R.string.text_uninstall_3fd78c));
                 actions.add(() -> {
                     closeSheetImmediate();
                     host.startSafe(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + a.pkg)));
@@ -2511,23 +2511,23 @@ final class SceneHome {
             }
         }
 
-        int uninstIdx = labels.indexOf(I18n.s(host, "Uninstall", "Kaldır"));
+        int uninstIdx = labels.indexOf(I18n.resourceString(host, R.string.text_uninstall_3fd78c));
         host.showMenu(anchor, a.label, labels, actions, uninstIdx);
     }
 
     private void showDockAppMenu(int index, MainActivity.AppEntry a, View tile) {
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
-        labels.add(I18n.s(host, "Open", "Aç"));
+        labels.add(I18n.resourceString(host, R.string.text_open_4f0000));
         actions.add(() -> openDockApp(tile, a));
 
         int realIdx = host.apps.indexOf(a);
         if (realIdx >= 0) {
-            labels.add(I18n.s(host, "Move", "Taşı"));
+            labels.add(I18n.resourceString(host, R.string.text_move));
             actions.add(() -> startDockMove(index));
         }
 
-        labels.add(I18n.s(host, "Rename", "Yeniden Adlandır"));
+        labels.add(I18n.resourceString(host, R.string.text_rename_f9a6a6));
         actions.add(() -> host.promptRenameApp(a, () -> {
             rebuildDock();
             int targetIdx = Math.min(index, Math.max(0, dockTiles.size() - 1));
@@ -2537,7 +2537,7 @@ final class SceneHome {
             }
         }));
 
-        labels.add(I18n.s(host, "Change app icon", "Uygulama simgesini değiştir"));
+        labels.add(I18n.resourceString(host, R.string.text_change_app_icon));
         actions.add(() -> host.promptChangeAppIcon(a, () -> {
             invalidateAppLogoCache(a);
             host.loadApps();
@@ -2550,21 +2550,21 @@ final class SceneHome {
         boolean inOtherApps = host.otherApps.contains(a);
         if (!host.isSettings(a)) {
             if (inOtherApps) {
-                labels.add(I18n.s(host, "Show on Home Screen", "Ana Ekranda Göster"));
+                labels.add(I18n.resourceString(host, R.string.text_show_on_home_screen));
                 actions.add(() -> {
                     showAppOnHomeDock(a);
                     rebuildDock();
                     focusDock(Math.min(index, Math.max(0, dockTiles.size() - 1)));
                 });
             } else {
-                labels.add(I18n.s(host, "Move to Other Apps", "Diğer Uygulamalara Taşı"));
+                labels.add(I18n.resourceString(host, R.string.text_move_to_other_apps));
                 actions.add(() -> {
                     moveVisibleDockAppToOtherApps(a);
                     rebuildDock();
                     focusDock(Math.min(index, Math.max(0, dockTiles.size() - 1)));
                 });
             }
-            labels.add(I18n.s(host, "Hide", "Gizle"));
+            labels.add(I18n.resourceString(host, R.string.text_hide));
             actions.add(() -> {
                 host.setHidden(a, true);
                 rebuildDock();
@@ -2573,16 +2573,16 @@ final class SceneHome {
         }
 
         if (a.pkg != null && !a.key.startsWith("demo_app:") && !MainActivity.INPUTS_KEY.equals(a.key)) {
-            labels.add(I18n.s(host, "App Info", "Uygulama Bilgileri"));
+            labels.add(I18n.resourceString(host, R.string.text_app_info_c575c9));
             actions.add(() -> host.startSafe(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.parse("package:" + a.pkg))));
             if (!a.system) {
-                labels.add(I18n.s(host, "Uninstall", "Kaldır"));
+                labels.add(I18n.resourceString(host, R.string.text_uninstall_3fd78c));
                 actions.add(() -> host.startSafe(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + a.pkg))));
             }
         }
 
-        labels.add(I18n.s(host, "Reset Layout", "Düzeni Sıfırla"));
+        labels.add(I18n.resourceString(host, R.string.text_reset_layout));
         actions.add(() -> {
             host.prefs.edit().remove(MainActivity.PREF_ORDER).remove(MainActivity.PREF_OTHER).apply();
             host.loadApps();
@@ -2590,7 +2590,7 @@ final class SceneHome {
             focusDock(0);
         });
 
-        int uninstIdx = labels.indexOf(I18n.s(host, "Uninstall", "Kaldır"));
+        int uninstIdx = labels.indexOf(I18n.resourceString(host, R.string.text_uninstall_3fd78c));
         host.showMenu(tile, a.label, labels, actions, uninstIdx);
     }
 
@@ -2973,9 +2973,8 @@ final class SceneHome {
         List<View> rows = new ArrayList<>();
         View btnHomeSettings = makeGearOptionRow(
                 "sliders",
-                I18n.s(host, "Home settings", "Ana ekran ayarları"),
-                I18n.s(host, "Language, weather, scenes, apps and people",
-                        "Dil, hava durumu, sahneler, uygulamalar ve kişiler"),
+                I18n.resourceString(host, R.string.text_home_settings_2f49b8),
+                I18n.resourceString(host, R.string.text_language_weather_scenes_apps_and_people),
                 () -> {
                     closeSheetImmediate();
                     host.returningFromSettings = true;
@@ -2986,9 +2985,8 @@ final class SceneHome {
 
         View btnTvSettings = makeGearOptionRow(
                 "gear",
-                I18n.s(host, "TV settings", "TV ayarları"),
-                I18n.s(host, "Wi-Fi, picture, sound and the rest of the TV",
-                        "Wi-Fi, görüntü, ses ve diğer TV ayarları"),
+                I18n.resourceString(host, R.string.text_tv_settings_95b137),
+                I18n.resourceString(host, R.string.text_wi_fi_picture_sound_and_the_rest_of_the),
                 () -> {
                     closeSheetImmediate();
                     host.startSafe(new Intent(Settings.ACTION_SETTINGS));
@@ -3002,11 +3000,11 @@ final class SceneHome {
         if (CustomMedia.isRedditWallpaperActiveOnCurrentLook(host)) {
             View btnNextWall = makeGearOptionRow(
                     "refresh",
-                    I18n.s(host, "Next wallpaper", "Sonraki duvar kağıdı"),
-                    I18n.s(host, "Skip to the next Reddit wallpaper", "Sonraki Reddit duvar kağıdına geç"),
+                    I18n.resourceString(host, R.string.text_next_wallpaper_b7a1c2),
+                    I18n.resourceString(host, R.string.text_skip_to_the_next_reddit_wallpaper),
                     () -> {
                         closeSheet();
-                        host.toast(I18n.s(host, "Loading next Reddit wallpaper…", "Sonraki Reddit duvar kağıdı yükleniyor…"));
+                        host.toast(I18n.resourceString(host, R.string.text_loading_next_reddit_wallpaper));
                         CustomMedia.skipToNextRedditWallpaperOnCurrentLook(host, () -> {
                             if (Scenes.isScenesLook(host)) {
                                 sceneView.syncSettings();
@@ -3145,7 +3143,7 @@ final class SceneHome {
         Ui.textSize(hTitle, 17f);
         hTitle.setTypeface(Ui.font(host, "semibold"));
         hTitle.setTextColor(0xFFF4F4F6);
-        hTitle.setText(I18n.s(host, "Sleep timer", "Uyku zamanlayıcısı"));
+        hTitle.setText(I18n.resourceString(host, R.string.text_sleep_timer_e034d8));
         card.addView(hTitle);
 
         TextView hSub = new TextView(host);
@@ -3154,8 +3152,8 @@ final class SceneHome {
         hSub.setTextColor(0xB3F4F4F6);
         int curLeft = SleepReceiver.timerLeft(host);
         hSub.setText(curLeft > 0
-                ? I18n.s(host, "Off in " + curLeft + " min", curLeft + " dk içinde kapanacak")
-                : I18n.s(host, "Turn the TV off after", "TV'yi şu süreden sonra kapat:"));
+                ? I18n.resourceString(host, R.string.message_sleep_off_in_minutes, curLeft)
+                : I18n.resourceString(host, R.string.text_turn_the_tv_off_after));
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         slp.topMargin = dp(2);
@@ -3176,8 +3174,8 @@ final class SceneHome {
             pill.setFocusable(true);
             pill.setClickable(true);
             pill.setText(m == 0
-                    ? I18n.s(host, "Off", "Kapalı")
-                    : m + I18n.s(host, " min", " dk"));
+                    ? I18n.resourceString(host, R.string.status_off)
+                    : m + I18n.resourceString(host, R.string.text_min_0240eb));
             GradientDrawable pbg = new GradientDrawable();
             pbg.setCornerRadius(dp(11));
             pbg.setColor(0x18FFFFFF);
@@ -3212,15 +3210,15 @@ final class SceneHome {
         qrlp.topMargin = dp(12);
         card.addView(quickRow, qrlp);
 
-        View ccShortcut = makeQuickChip(I18n.s(host, "Control Center", "Denetim Merkezi"), () -> {
+        View ccShortcut = makeQuickChip(I18n.resourceString(host, R.string.text_control_center), () -> {
             closeSheet();
             host.showControlCenter();
         });
-        View searchShortcut = makeQuickChip(I18n.s(host, "Search", "Ara"), () -> {
+        View searchShortcut = makeQuickChip(I18n.resourceString(host, R.string.text_search_946f53), () -> {
             closeSheet();
             host.showSearch(null);
         });
-        View weatherShortcut = makeQuickChip(I18n.s(host, "Weather Forecast", "Hava Durumu"), () -> {
+        View weatherShortcut = makeQuickChip(I18n.resourceString(host, R.string.text_weather_forecast_1f637b), () -> {
             closeSheet();
             host.showWeather();
         });

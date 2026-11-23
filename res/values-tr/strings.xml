@@ -1,4 +1,1270 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="message_no_place_found">"“%1$s” için konum bulunamadı."</string>
+    <string name="message_location_set">"Konum %1$s olarak ayarlandı."</string>
+    <string name="message_update_current">"Sürümünüz güncel (v%1$s)"</string>
+    <string name="message_update_changelog">"Değişiklik Günlüğü — v%1$s"</string>
+    <string name="message_update_downloading">"Güncelleme indiriliyor v%1$s…"</string>
+    <string name="message_update_installing_adb">"v%1$s güncellemesi ADB ile otomatik kuruluyor…"</string>
+    <string name="message_update_available_details">"GitHub\'da yeni bir tvOS Launcher sürümü mevcut.\nMevcut sürüm: v%1$s  →  Yeni sürüm: v%2$s\n\n%3$s"</string>
+    <string name="message_update_signature_mismatch">"İndirilen güncelleme (v%1$s), yüklü uygulamanızdan farklı bir anahtarla imzalanmış.\n\nAndroid farklı imzalar arasında güncellemeyi engeller. Yüklemek için Ayarlar -&gt; Yedekle ve Geri Yükle bölümünden yedek alıp uygulamayı yeniden kurun."</string>
+    <string name="message_cloud_sign_in">"%1$s\'ya giriş yap"</string>
+    <string name="message_cloud_unreachable">"%1$s\'ya ulaşılamadı"</string>
+    <string name="message_cloud_unreachable_retry">"%1$s\'ya ulaşılamadı. Tekrar denemek için simgeye yeniden gel."</string>
+    <string name="message_cloud_sign_in_instructions">"Giriş yapmak için Ana ekranda %1$s simgesine gel ve QR kodu tara."</string>
+    <string name="message_cloud_sign_out_question">"%1$s hesabından çıkılsın mı?"</string>
+    <string name="message_cloud_sign_out_details">"Dock\'taki izlemeye devam et artık %1$s içeriklerini göstermeyecek. %1$s uygulamasının kendisinde oturum açık kalır."</string>
+    <string name="message_cloud_signed_out">"%1$s hesabından çıkıldı."</string>
+    <string name="message_app_not_installed">"%1$s bu TV\'de yüklü değil"</string>
+    <string name="message_sleep_off_in_minutes">"%1$s dk içinde kapanacak"</string>
+    <string name="message_cannot_open_app">"%1$s açılamıyor"</string>
+    <string name="message_cannot_switch_input">"%1$s girişine geçilemiyor"</string>
+    <string name="message_app_moved_to_other_apps">"%1$s Diğer Uygulamalar\'a taşındı"</string>
+    <string name="message_app_hidden">"%1$s gizlendi (Ayarlar &gt; Uygulamalar &gt; Gizlenen uygulamalar)"</string>
+    <string name="message_app_back_home">"%1$s Ana Ekran\'a geri döndü"</string>
+    <string name="message_app_restored_home">"%1$s Ana Ekran\'a geri yüklendi."</string>
+    <string name="message_delete_profile">"“%1$s” silinsin mi?"</string>
+    <string name="search_open_in">"▶  %1$s ile Aç"</string>
+    <string name="search_get_app">"%1$s İndir"</string>
+    <string name="message_removed">"%1$s kaldırıldı"</string>
+    <string name="message_refreshing">"Yenileniyor"</string>
+    <string name="message_not_available_on_tv">"Bu TV\'de kullanılamıyor"</string>
+    <string name="message_use_arrows_to_move">"Taşımak için okları kullanın · Bitince OK"</string>
+    <string name="news_age_now">"Az önce"</string>
+    <string name="news_age_yesterday">"Dün"</string>
+    <string name="news_age_minutes">"%1$s dk önce"</string>
+    <string name="news_age_hours">"%1$s sa önce"</string>
+    <plurals name="news_age_days">
+        <item quantity="other">"%1$s gün önce"</item>
+    </plurals>
+    <plurals name="message_closed_apps">
+        <item quantity="other">"%1$s uygulama kapatıldı"</item>
+    </plurals>
+    <plurals name="message_closed_apps_freed">
+        <item quantity="other">"%1$s uygulama kapatıldı · %2$s MB boşaltıldı"</item>
+    </plurals>
     <string name="power_service_desc">tvOS Launcher (techgenius) uygulamasının kumanda düğmelerini yeniden eşlemesini, Denetim Paneli katmanını herhangi bir uygulamanın üzerinde açmasını, TV\'yi uykuya almasını ve arka plan uygulamalarını kapatmasını sağlar.</string>
+    <string name="text_12_hour" formatted="false">"12 saat"</string>
+    <string name="text_1_set_tvos_launcher_as_default_via_local" formatted="false">"1. Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"</string>
+    <string name="text_24_hour" formatted="false">"24 saat"</string>
+    <string name="text_2_disable_system_launchers_google_tv_and" formatted="false">"2. Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"</string>
+    <string name="text_3_days" formatted="false">"3 gün"</string>
+    <string name="text_3_fix_home_button_via_accessibility_butt" formatted="false">"3. Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"</string>
+    <string name="text_4_open_android_system_home_settings" formatted="false">"4. Android Sistem Ana Ekran Ayarlarını Aç"</string>
+    <string name="text_5_day_forecast" formatted="false">"5 GÜNLÜK TAHMİN"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"Büyük cam saat, sırayla değişen sahneler"</string>
+    <string name="text_a_small_weather_display_on_home_with_a_5" formatted="false">"Ana Ekranda 5 günlük tahminle birlikte hava durumu görünümü (Namaz Vakitleri konumunu da eşitler)."</string>
+    <string name="text_about" formatted="false">"Hakkında"</string>
+    <string name="text_accessibility" formatted="false">"Erişilebilirlik"</string>
+    <string name="text_accessibility_service_a268b7" formatted="false">"ERİŞİLEBİLİRLİK SERVİSİ"</string>
+    <string name="text_accessibility_service_bb9182" formatted="false">"Erişilebilirlik Servisi"</string>
+    <string name="text_account" formatted="false">"Hesap"</string>
+    <string name="text_actions" formatted="false">"İŞLEMLER"</string>
+    <string name="text_active_42209d" formatted="false">"etkin"</string>
+    <string name="text_active_60b543" formatted="false">"Etkin"</string>
+    <string name="text_active_in_accessibility" formatted="false">"Erişilebilirlik'te etkin"</string>
+    <string name="text_active_set_as_default_home_launcher" formatted="false">"Etkin — Varsayılan ana ekran olarak ayarlandı"</string>
+    <string name="text_active_works_in_all_apps" formatted="false">"Etkin (tüm uygulamalarda çalışır)"</string>
+    <string name="text_activities_in" formatted="false">"ETKİNLİKLER: "</string>
+    <string name="text_ad_blocking_private_dns_adguard" formatted="false">"Reklam engelleyici Özel DNS (AdGuard)"</string>
+    <string name="text_adb_connection_required" formatted="false">"ADB Bağlantısı Gerekli"</string>
+    <string name="text_adb_connection_status" formatted="false">"ADB bağlantı durumu"</string>
+    <string name="text_adb_debugging_enabled" formatted="false">"ADB hata ayıklama açıldı."</string>
+    <string name="text_adb_debugging_is_currently_turned_off_pe" formatted="false">"ADB hata ayıklama şu anda kapalı. Kalıcı ADB Modu için ADB'nin açık olması gerekir.\n\nADB'yi açıp Kalıcı ADB Moduna geçmek ister misiniz?"</string>
+    <string name="text_adb_debugging_needed" formatted="false">"ADB Hata Ayıklama Gerekli"</string>
+    <string name="text_adb_enabled_and_switched_to_persistent_a" formatted="false">"ADB açıldı ve Kalıcı ADB Moduna geçildi."</string>
+    <string name="text_adb_enabled_not_paired" formatted="false">"ADB Açık · Eşleşmedi"</string>
+    <string name="text_adb_install_failed_opening_package_insta" formatted="false">"ADB kurulumu başarısız, paket yükleyici açılıyor…"</string>
+    <string name="text_adb_is_active_selecting_install_will_dow" formatted="false">"ADB aktif — Yükle'yi seçtiğinizde güncelleme otomatik olarak indirilip kurulacaktır."</string>
+    <string name="text_adb_is_turned_off_secure_mode_selecting" formatted="false">"ADB kapalı (Güvenli Mod) — Yükle'yi seçtiğinizde güncelleme indirilecek ve sistem paket yükleyicisi açılacaktır."</string>
+    <string name="text_adb_mode_required" formatted="false">"ADB Modu Gerekli"</string>
+    <string name="text_adb_operating_mode_01f44c" formatted="false">"ADB çalışma modu"</string>
+    <string name="text_adb_operating_mode_1c02d4" formatted="false">"ADB Çalışma Modu"</string>
+    <string name="text_adb_paired_and_all_permissions_granted" formatted="false">"ADB eşleşti ve tüm izinler verildi!"</string>
+    <string name="text_adb_security_mode" formatted="false">"ADB VE GÜVENLİK MODU"</string>
+    <string name="text_add_a_person_ef7edb" formatted="false">"Kişi ekle…"</string>
+    <string name="text_add_a_person_f14c89" formatted="false">"Kişi ekle"</string>
+    <string name="text_add_as_many_custom_wallpapers_as_you_wan" formatted="false">"Herhangi bir sınır olmadan istediğiniz kadar özel duvar kağıdı ekleyin"</string>
+    <string name="text_add" formatted="false">"Ekle"</string>
+    <string name="text_add_custom_subreddit" formatted="false">"Özel subreddit ekle…"</string>
+    <string name="text_add_favorite_football_team_0ba5b6" formatted="false">"Favori futbol takımı ekle…"</string>
+    <string name="text_add_favorite_football_team_56b172" formatted="false">"Favori Futbol Takımı Ekle"</string>
+    <string name="text_add_new_button_to_remap_7d8e68" formatted="false">"+ Yeniden Eşlemek İçin Yeni Düğme Ekle…"</string>
+    <string name="text_add_new_button_to_remap_e322f7" formatted="false">"Yeniden eşlemek için yeni düğme ekle"</string>
+    <string name="text_add_new_wallpaper" formatted="false">"Yeni duvar kağıdı ekle…"</string>
+    <string name="text_add_subreddit" formatted="false">"Subreddit Ekle"</string>
+    <string name="text_add_user" formatted="false">"Kullanıcı Ekle"</string>
+    <string name="text_added_custom_wallpaper_s" formatted="false">"Özel duvar kağıdı #%s eklendi."</string>
+    <string name="text_adds_a_presentation_card_to_home" formatted="false">"Ana Ekrana bir Sunum kartı ekler"</string>
+    <string name="text_advanced_981d59" formatted="false">"Gelişmiş ›"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"Gelişmiş"</string>
+    <string name="text_align_center" formatted="false">"Orta"</string>
+    <string name="text_align_dynamic" formatted="false">"Dinamik"</string>
+    <string name="text_align_left" formatted="false">"Sol"</string>
+    <string name="text_align_right" formatted="false">"Sağ"</string>
+    <string name="text_all_341_models" formatted="false">"Tüm 341 Model"</string>
+    <string name="text_all_button_mappings_cleared" formatted="false">"Tüm düğme eşlemeleri temizlendi."</string>
+    <string name="text_all_disabled_s" formatted="false">"Tümü devre dışı (%s)"</string>
+    <string name="text_all_permissions_granted_automatically" formatted="false">"Tüm izinler otomatik olarak verildi!"</string>
+    <string name="text_all_s" formatted="false">"Tümü (%s)"</string>
+    <string name="text_allow" formatted="false">"İzin ver…"</string>
+    <string name="text_allowed" formatted="false">"İzin verildi"</string>
+    <string name="text_already_disabled" formatted="false">" [Zaten devre dışı]"</string>
+    <string name="text_always_on" formatted="false">"Her zaman açık"</string>
+    <string name="text_ambient_colour_themes_028289" formatted="false">"Ortam renk temaları…"</string>
+    <string name="text_ambient_colour_themes_930057" formatted="false">"Ortam renk temaları"</string>
+    <string name="text_ambient_mode" formatted="false">"Ortam Modu"</string>
+    <string name="text_ambient_mode_standby" formatted="false">"Ortam Modu / StandBy"</string>
+    <string name="text_ambient_themes" formatted="false">"ORTAM TEMALARI"</string>
+    <string name="text_and_enter" formatted="false">" ve kodu gir:"</string>
+    <string name="text_android_accessibility_suite_talkback_opt" formatted="false">"Erişilebilirlik Paketi / TalkBack (isteğe bağlı)"</string>
+    <string name="text_android_power_menu" formatted="false">"Android Güç Menüsü"</string>
+    <string name="text_android_power_menu_shutdown_reboot_stand" formatted="false">"Android Güç Menüsü (Kapat / Yeniden Başlat / Bekleme)"</string>
+    <string name="text_android_tv_remote_service_optional_keep" formatted="false">"Android TV Uzaktan Kumanda Servisi (telefon kumandası kullanıyorsanız koruyun)"</string>
+    <string name="text_app_icon_editor" formatted="false">"Uygulama Simgesi Düzenleyici"</string>
+    <string name="text_app_icon_reset_to_default" formatted="false">"Uygulama simgesi varsayılana sıfırlandı"</string>
+    <string name="text_app_icon_updated" formatted="false">"Uygulama simgesi güncellendi"</string>
+    <string name="text_app_info_3cd62b" formatted="false">"Uygulama bilgisi"</string>
+    <string name="text_app_info_c575c9" formatted="false">"Uygulama Bilgileri"</string>
+    <string name="text_app_layout_reset_to_default" formatted="false">"Uygulama düzeni varsayılana sıfırlandı."</string>
+    <string name="text_app_name_or_package_name" formatted="false">"Uygulama adı veya paket adı…"</string>
+    <string name="text_app_switch_recents_187" formatted="false">"Son Uygulamalar (187)"</string>
+    <string name="text_appearance" formatted="false">"Görünüm"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"Görünüm ve sahneler"</string>
+    <string name="text_application" formatted="false">"UYGULAMA"</string>
+    <string name="text_applications" formatted="false">"Uygulamalar"</string>
+    <string name="text_apply" formatted="false">"Uygula"</string>
+    <string name="text_apps_825c0a" formatted="false">"Uygulamalar"</string>
+    <string name="text_apps_ebb18e" formatted="false">"uygulama"</string>
+    <string name="text_apps_settings" formatted="false">"Uygulamalar ve Ayarlar"</string>
+    <string name="text_apps_using_nuvio" formatted="false">"Nuvio kullanan uygulamalar"</string>
+    <string name="text_ask_who_is_watching_on_wake" formatted="false">"TV açıldığında kimin izlediğini sor"</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_and_t" formatted="false">"Her kumanda düğmesi için Tek Basış (1x), Çift Basış (2x) ve Üçlü Basış (3x) eylemleri atayın — örneğin Denetim Paneli katmanını, Son Uygulamalar Değiştiricisi katmanını veya yüklü herhangi bir uygulamayı açın."</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_tripl" formatted="false">"Tek Basış (1x), Çift Basış (2x) ve Üçlü Basış (3x) eylemleri atayın"</string>
+    <string name="text_audio" formatted="false">"Ses"</string>
+    <string name="text_audio_track_222" formatted="false">"Ses Parçası / Dil (222)"</string>
+    <string name="text_auto" formatted="false">"Otomatik"</string>
+    <string name="text_auto_change_interval" formatted="false">"Otomatik değişim süresi"</string>
+    <string name="text_auto_changing_1080p_4k_wallpapers_from_y" formatted="false">"Seçtiğiniz subreddit'lerden otomatik değişen 1080p/4K duvar kağıtları"</string>
+    <string name="text_auto_launch_lock_screen_when_idle" formatted="false">"Boşta kaldığında Kilit Ekranını otomatik başlat"</string>
+    <string name="text_automatic_from_internet" formatted="false">"Otomatik (internetten)"</string>
+    <string name="text_automatic_launch_on_boot_disabled" formatted="false">"Sistem açılışında otomatik başlatma kapatıldı."</string>
+    <string name="text_automatic_updates" formatted="false">"Otomatik güncellemeler"</string>
+    <string name="text_automatic_updates_disabled" formatted="false">"Otomatik güncellemeler devre dışı bırakıldı."</string>
+    <string name="text_automatic_updates_enabled" formatted="false">"Otomatik güncellemeler etkinleştirildi."</string>
+    <string name="text_automatically_follows_your_weather_locat" formatted="false">"Hava Durumu konumunuzu otomatik olarak takip eder"</string>
+    <string name="text_back_4" formatted="false">"Geri (4)"</string>
+    <string name="text_back" formatted="false">"Geri"</string>
+    <string name="text_back_to_apps" formatted="false">"Uygulamalara dön"</string>
+    <string name="text_back_to_folders" formatted="false">"Klasörlere dön"</string>
+    <string name="text_back_to_parent_folder" formatted="false">"Üst klasöre dön"</string>
+    <string name="text_back_to_return_hold_ok_for_options" formatted="false">"Dönmek için Geri   ·   Seçenekler için OK'e basılı tutun"</string>
+    <string name="text_back_to_usage_mode_selection" formatted="false">"Kullanım Modu Seçimine Dön"</string>
+    <string name="text_background_color" formatted="false">"Arka plan rengi"</string>
+    <string name="text_background_mode" formatted="false">"ARKA PLAN MODU"</string>
+    <string name="text_backup_failed" formatted="false">"Yedekleme Başarısız"</string>
+    <string name="text_backup_restore" formatted="false">"YEDEKLEME VE GERİ YÜKLEME"</string>
+    <string name="text_backup_settings_to_download" formatted="false">"Ayarları Download klasörüne yedekle"</string>
+    <string name="text_big_clock_night_scene_style" formatted="false">"Büyük Saat (Gece Sahnesi stili)"</string>
+    <string name="text_black" formatted="false">"Siyah"</string>
+    <string name="text_bloatware_background_service" formatted="false">"Gereksiz sistem uygulaması / arka plan servisi"</string>
+    <string name="text_blue" formatted="false">"Mavi"</string>
+    <string name="text_blue_button" formatted="false">"Mavi Tuş"</string>
+    <string name="text_bm_inputs_overlay" formatted="false">"TV Girişleri Paneli (Ekran Üstü)"</string>
+    <string name="text_bookmark_favorite" formatted="false">"Favori Tuşu"</string>
+    <string name="text_browse_all_341_tv_models" formatted="false">"📋 Tüm 341 TV Modeline Göz At"</string>
+    <string name="text_built_in_actions" formatted="false">"YERLEŞİK EYLEMLER"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"Düğme Eşleyici"</string>
+    <string name="text_button_mapper_accessibility_service" formatted="false">"Düğme Eşleyici erişilebilirlik servisi"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"Düğme eşleyici"</string>
+    <string name="text_button_mapper_control_panel" formatted="false">"Düğme Eşleyici ve Denetim Paneli"</string>
+    <string name="text_button_mapper_control_panel_accessibilit" formatted="false">"Düğme Eşleyici ve Denetim Paneli (Erişilebilirlik)"</string>
+    <string name="text_button_remapping" formatted="false">"DÜĞME YENİDEN EŞLEME"</string>
+    <string name="text_by_default_live_news_automatically_syncs" formatted="false">"Varsayılan olarak Canlı Haberler widget'ı seçili başlatıcı diliyle otomatik eşitlenir. Yukarıdan bir ülke seçtiğinizde Haberler widget'ı o ülkenin haberlerini gösterir."</string>
+    <string name="text_by_default_most_watched_automatically_sy" formatted="false">"Varsayılan olarak Çok İzlenenler widget'ı seçili arayüz diliyle otomatik eşitlenir. Yukarıdan ülke seçtiğinizde özel çoklu ülke moduna geçilir."</string>
+    <string name="text_by_default_prayer_times_syncs_with_the_w" formatted="false">"Varsayılan olarak Namaz Vakitleri, ilk kurulumda veya Hava Durumu ayarlarında seçilen konumla eşitlenir. Namaz Vakitleri için ayrı bir konum belirlemek üzere yukarıdan şehir arayabilir veya seçebilirsiniz."</string>
+    <string name="text_caffeine_desc" formatted="false">"Caffeine, Android'in boşta kalma (idle) modunu reddeder ve Android TV'nin otomatik Ortam Modu'nun açılmasını engelleyerek TV'nizi uyanık tutar ve uykuya geçmesini önler."</string>
+    <string name="text_caffeine_disabled" formatted="false">"Caffeine devre dışı bırakıldı."</string>
+    <string name="text_caffeine_enabled_tv_will_stay_awake_and" formatted="false">"Caffeine etkinleştirildi — TV uyanık kalacak ve otomatik Ortam / uyku modunu engelleyecek."</string>
+    <string name="text_caffeine_title" formatted="false">"Caffeine (Uyku ve Ortam Modunu Engelle)"</string>
+    <string name="text_can_t_reach_the_internet" formatted="false">"İnternete ulaşılamıyor"</string>
+    <string name="text_cancel" formatted="false">"İptal"</string>
+    <string name="text_center" formatted="false">"Orta"</string>
+    <string name="text_change_any_of_this_later_in_settings_fro" formatted="false">"Bunları daha sonra Ayarlar'dan istediğiniz zaman değiştirebilirsiniz."</string>
+    <string name="text_change_app_icon" formatted="false">"Uygulama simgesini değiştir"</string>
+    <string name="text_change_colour" formatted="false">"Rengi Değiştir"</string>
+    <string name="text_change_emoji" formatted="false">"Emojiyi Değiştir"</string>
+    <string name="text_change_model" formatted="false">"Modeli Değiştir…"</string>
+    <string name="text_change_name_of_input" formatted="false">"Girişin adını değiştirin"</string>
+    <string name="text_changes_the_words_on_the_home_screen_dat" formatted="false">"Ana ekrandaki, tarihteki, hava durumundaki ve ayarlardaki dili değiştirir."</string>
+    <string name="text_channel_down" formatted="false">"Kanal Aşağı"</string>
+    <string name="text_channel_up" formatted="false">"Kanal Yukarı"</string>
+    <string name="text_channels" formatted="false">"Kanallar"</string>
+    <string name="text_check_for_updates" formatted="false">"Güncellemeleri kontrol et"</string>
+    <string name="text_check_now" formatted="false">"Şimdi kontrol et ›"</string>
+    <string name="text_check_permissions" formatted="false">"İzinleri kontrol et"</string>
+    <string name="text_checked_items_are_currently_disabled_dis" formatted="false">"İşaretli öğeler şu anda DEVRE DIŞI bırakılmıştır. Stok sistem başlatıcısını devre dışı bırakmak, Home tuşuna basıldığında Android'in her zaman tvOS Launcher'ı kullanmasını sağlar."</string>
+    <string name="text_checking" formatted="false">"Kontrol ediliyor…"</string>
+    <string name="text_checks_github_releases_techgenius1_tvos" formatted="false">"En güncel APK için GitHub Sürümlerini (techgenius1/tvOS-Launcher) kontrol eder ve güncellemeleri doğrudan TV'nize kurar."</string>
+    <string name="text_choose_a_background" formatted="false">"Bir Arka Plan Seçin"</string>
+    <string name="text_choose_a_city" formatted="false">"Şehir Seçin…"</string>
+    <string name="text_choose_a_photo_or_ambient_colour_theme_b" formatted="false">"Uygulamalarınızın arkasında bir fotoğraf veya ortam renk teması seçin."</string>
+    <string name="text_choose_action" formatted="false">"Eylem Seçin"</string>
+    <string name="text_choose_activity" formatted="false">"Etkinlik Seçin"</string>
+    <string name="text_choose_background_folder_to_shuffle" formatted="false">"Karıştırılacak arka plan klasörünü seçin"</string>
+    <string name="text_choose_city" formatted="false">"Şehir Seçin"</string>
+    <string name="text_choose_custom_background_image" formatted="false">"Özel arka plan görseli seçin"</string>
+    <string name="text_choose_custom_scene_image" formatted="false">"Özel sahne görseli seçin"</string>
+    <string name="text_choose_folder_768e16" formatted="false">"Klasör seç…"</string>
+    <string name="text_choose_folder_840d4f" formatted="false">"Klasör seç ›"</string>
+    <string name="text_choose_folder_to_restore_settings" formatted="false">"Ayarların Geri Yükleneceği Klasörü Seçin"</string>
+    <string name="text_choose_how_you_want_your_home_screen_to" formatted="false">"Ana Ekranınızın nasıl görünmesini istediğinizi seçin."</string>
+    <string name="text_choose_image_44c803" formatted="false">"Görsel seç…"</string>
+    <string name="text_choose_image_d3f17f" formatted="false">"Görsel seç ›"</string>
+    <string name="text_choose_lock_screen_folder_to_shuffle" formatted="false">"Karıştırılacak Kilit Ekranı klasörünü seçin"</string>
+    <string name="text_choose_lock_screen_image" formatted="false">"Kilit Ekranı görseli seçin"</string>
+    <string name="text_choose_tv_model_6fead7" formatted="false">"TV modelini seçin…"</string>
+    <string name="text_choose_tv_model_eb4b40" formatted="false">"TV modelini seçin"</string>
+    <string name="text_choose_tv_model_fcb2e7" formatted="false">"TV Modeli Seç…"</string>
+    <string name="text_choose_tvos_launcher_when_asked" formatted="false">"Sorulduğunda tvOS Launcher'ı seçin"</string>
+    <string name="text_choose_wallpaper_folder_to_shuffle" formatted="false">"Karıştırılacak duvar kağıdı klasörünü seçin"</string>
+    <string name="text_choose_which_scenes_take_turns_behind_th" formatted="false">"Cam saatin arkasında hangi sahnelerin sırayla görüneceğini seçin."</string>
+    <string name="text_choose_your_scenes" formatted="false">"Sahnelerinizi Seçin"</string>
+    <string name="text_chromecast_built_in_google_cast_receiver" formatted="false">"Chromecast built-in / Google Cast alıcısı (telefondan ekran yansıtıyorsanız koruyun)"</string>
+    <string name="text_city_name_e_g_istanbul" formatted="false">"Şehir adı, örn. İstanbul"</string>
+    <string name="text_city_or_country_e_g_istanbul_london" formatted="false">"Şehir veya ülke, örn. İstanbul, Londra"</string>
+    <string name="text_classic" formatted="false">"Klasik"</string>
+    <string name="text_classic_background" formatted="false">"KLASİK ARKA PLAN"</string>
+    <string name="text_classic_clock_weather" formatted="false">"KLASİK SAAT VE HAVA DURUMU"</string>
+    <string name="text_classic_custom_wallpaper" formatted="false">"Klasik Özel Duvar Kağıdı"</string>
+    <string name="text_classic_look" formatted="false">"Klasik görünüm"</string>
+    <string name="text_classic_photo" formatted="false">"Klasik fotoğraf"</string>
+    <string name="text_classic_top_shelf" formatted="false">"Klasik Üst Raf"</string>
+    <string name="text_classic_wallpapers" formatted="false">"KLASİK DUVAR KAĞITLARI"</string>
+    <string name="text_clean_up_space" formatted="false">"Alan Temizlensin mi?"</string>
+    <string name="text_cleaning_up_files" formatted="false">"Dosyalar Temizleniyor…"</string>
+    <string name="text_cleanyourtv_beta_runs_the_cleanyourtv_de" formatted="false">"CleanYourTV (Beta), bilgisayara ihtiyaç duymadan CleanYourTV debloat profillerini Yerel ADB üzerinden doğrudan TV'nizde çalıştırır. TV modelinizi seçin (veya yüklü sistem uygulaması paketlerine göre tarayın), stok başlatıcıları veya gereksiz uygulamaları devre dışı bırakın ve istediğiniz zaman tek dokunuşla geri yükleyin."</string>
+    <string name="text_cleanyourtv_downloaded_to_download_folde" formatted="false">"CleanYourTV Download klasörüne indirildi."</string>
+    <string name="text_cleanyourtv_files_missing" formatted="false">"⚠️ CleanYourTV Dosyaları Bulunamadı"</string>
+    <string name="text_clear_aeec76" formatted="false">"Temizle"</string>
+    <string name="text_clear_all_remapped_buttons" formatted="false">"Tüm eşlenmiş düğmeleri temizle"</string>
+    <string name="text_clear_continue_watching_history" formatted="false">"İzlemeye Devam Et geçmişini temizle"</string>
+    <string name="text_clear_d47414" formatted="false">"temizle"</string>
+    <string name="text_clear_filter" formatted="false">"Filtreyi temizle"</string>
+    <string name="text_clear_filter_show_all" formatted="false">"Filtreyi temizle (Tümünü göster)"</string>
+    <string name="text_clock_alignment" formatted="false">"Saat hizalaması"</string>
+    <string name="text_clock" formatted="false">"Saat"</string>
+    <string name="text_clock_font" formatted="false">"Saat yazı tipi"</string>
+    <string name="text_clock_position" formatted="false">"Saat konumu"</string>
+    <string name="text_close_adb_disable_port_5555" formatted="false">"ADB'yi Kapat (Port 5555'i Kapat)"</string>
+    <string name="text_close_adb_now" formatted="false">"ADB'yi Şimdi Kapat"</string>
+    <string name="text_close_all" formatted="false">"Tümünü Kapat"</string>
+    <string name="text_close" formatted="false">"Kapat"</string>
+    <string name="text_closing_adb" formatted="false">"ADB Kapatılıyor…"</string>
+    <string name="text_colour" formatted="false">"Renk"</string>
+    <string name="text_connected" formatted="false">"Bağlı"</string>
+    <string name="text_connecting_to_local_adb_on_port_5555_and" formatted="false">"Port 5555 üzerinden yerel ADB'ye bağlanılıyor ve izinler veriliyor…\n\nEkranda “USB hata ayıklamaya izin verilsin mi?” penceresi çıkarsa “Her zaman izin ver”i işaretleyip İzin Ver'e basın."</string>
+    <string name="text_continue" formatted="false">"Devam Et"</string>
+    <string name="text_continue_watching" formatted="false">"İzlemeye Devam Et"</string>
+    <string name="text_continue_watching_5df929" formatted="false">"İzlemeye devam et"</string>
+    <string name="text_continue_watching_cleared" formatted="false">"İzlemeye Devam Et geçmişi temizlendi."</string>
+    <string name="text_continue_watching_dnd_notification_acces" formatted="false">"İzlemeye Devam Et ve Rahatsız Etmeyin"</string>
+    <string name="text_continue_watching_dnd_permission" formatted="false">"İzlemeye Devam Et ve Rahatsız Etmeyin izni"</string>
+    <string name="text_continue_watching_do_not_disturb" formatted="false">"İzlemeye Devam Et ve Rahatsız Etmeyin"</string>
+    <string name="text_continue_watching_on_dock" formatted="false">"Dock'ta İzlemeye Devam Et"</string>
+    <string name="text_control_center" formatted="false">"Denetim Merkezi"</string>
+    <string name="text_control_panel" formatted="false">"Denetim Paneli"</string>
+    <string name="text_control_panel_actions_and_items_reset_to" formatted="false">"Denetim Paneli eylemleri ve öğeleri varsayılana sıfırlandı."</string>
+    <string name="text_control_panel_items_show_hide" formatted="false">"DENETİM PANELİ ÖĞELERİ (GÖSTER / GİZLE)"</string>
+    <string name="text_control_panel_overlay" formatted="false">"Denetim Paneli (Ekran Üstü)"</string>
+    <string name="text_core_system_package" formatted="false">"⚠️ Temel Sistem Paketi"</string>
+    <string name="text_core_system_package_disabling_may_affect" formatted="false">"⚠️ Temel sistem paketi — devre dışı bırakmak sistemi etkileyebilir"</string>
+    <string name="text_could_not_check_for_updates" formatted="false">"Güncellemeler kontrol edilemedi."</string>
+    <string name="text_could_not_connect_to_adb_enable_usb_netw" formatted="false">"ADB'ye bağlanılamadı — USB/Ağ Hata Ayıklamayı açın veya 3. / 4. Adımı kullanın."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_1f7e75" formatted="false">"Port 5555 üzerinden yerel ADB'ye bağlanılamadı.\n\nLütfen Geliştirici Seçenekleri'nde USB / Ağ Hata Ayıklamanın AÇIK olduğundan emin olup tekrar deneyin veya Manuel Kurulum'u seçin."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_2d1be7" formatted="false">"Port 5555 üzerinden yerel ADB'ye bağlanılamadı.\n\n1. Ayarlar → Sistem → Hakkında menüsünden Yapı Numarası'na 7 kez basın.\n2. Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın.\n3. Buraya dönüp tekrar Eşleştir / Onar'a basın."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_4d4bb1" formatted="false">"Port 5555 üzerinden yerel ADB'ye bağlanılamadı.\nLütfen Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın ve önce ADB Eşleştir / Onar'a basın."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_58099e" formatted="false">"Port 5555 üzerinden yerel ADB'ye bağlanılamadı.\nLütfen Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamanın açık olduğundan emin olun ve önce ADB Eşleştir / Onar'a dokunun."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_ac5816" formatted="false">"Port 5555 üzerinden yerel ADB'ye bağlanılamadı."</string>
+    <string name="text_could_not_decode_image_file" formatted="false">"Görsel dosyası okunamadı."</string>
+    <string name="text_could_not_load_selected_image" formatted="false">"Seçilen görsel yüklenemedi."</string>
+    <string name="text_could_not_start_installer" formatted="false">"Yükleyici başlatılamadı."</string>
+    <string name="text_couldn_t_search_check_the_internet_conne" formatted="false">"Arama yapılamadı. İnternet bağlantısını kontrol edin."</string>
+    <string name="text_countries_select_one_or_multiple" formatted="false">"ÜLKELER (BİR VEYA BİRDEN FAZLA SEÇİN)"</string>
+    <string name="text_country" formatted="false">"ÜLKE"</string>
+    <string name="text_cp_bg_blurry" formatted="false">"Bulanık (Mevcut içerik bulanıklığı)"</string>
+    <string name="text_cp_bg_mode" formatted="false">"Denetim Paneli arka planı"</string>
+    <string name="text_cp_bg_transparent" formatted="false">"Şeffaf"</string>
+    <string name="text_create_your_profile" formatted="false">"Profilinizi Oluşturun"</string>
+    <string name="text_critical_system_service" formatted="false">"🛑 Kritik Sistem Servisi"</string>
+    <string name="text_critical_system_service_protected_cannot" formatted="false">"🛑 Kritik sistem servisi — korumalı (devre dışı bırakılamaz)"</string>
+    <string name="text_critical_system_service_protected" formatted="false">" [Kritik Sistem Servisi — Korumalı]"</string>
+    <string name="text_current_place" formatted="false">"Geçerli konum"</string>
+    <string name="text_current_version" formatted="false">"Mevcut sürüm"</string>
+    <string name="text_currently_synced_to_d6cd7b" formatted="false">"Şu anda eşitlenen ülke: "</string>
+    <string name="text_currently_synced_to_e6a065" formatted="false">"Şu anda eşitlenen konum: "</string>
+    <string name="text_custom" formatted="false">"Özel"</string>
+    <string name="text_custom_background_updated" formatted="false">"Özel arka plan güncellendi."</string>
+    <string name="text_custom_folder_shuffle" formatted="false">"ÖZEL GÖRSEL VE KLASÖR KARIŞTIRMA"</string>
+    <string name="text_custom_image" formatted="false">"Özel görsel"</string>
+    <string name="text_custom_key_code_enter_number" formatted="false">"Özel Tuş Kodu (Sayı Girin…)"</string>
+    <string name="text_custom_label" formatted="false">"Özel etiket"</string>
+    <string name="text_custom_lock_screen_image_updated" formatted="false">"Özel Kilit Ekranı görseli güncellendi."</string>
+    <string name="text_custom_scene_wallpaper_updated" formatted="false">"Özel sahne duvar kağıdı güncellendi."</string>
+    <string name="text_custom_wallpaper_1e4315" formatted="false">"Özel Duvar Kağıdı #"</string>
+    <string name="text_custom_wallpaper_208136" formatted="false">"ÖZEL DUVAR KAĞIDI"</string>
+    <string name="text_custom_wallpaper_clock_alignment" formatted="false">"Özel duvar kağıdı saat hizalaması"</string>
+    <string name="text_custom_wallpaper_mode_9acb13" formatted="false">"ÖZEL DUVAR KAĞIDI MODU"</string>
+    <string name="text_custom_wallpaper_mode_f2890b" formatted="false">"Özel duvar kağıdı modu"</string>
+    <string name="text_custom_wallpaper_settings" formatted="false">"Özel duvar kağıdı ayarları…"</string>
+    <string name="text_custom_wallpapers_unlimited" formatted="false">"ÖZEL DUVAR KAĞITLARI (SINIRSIZ)"</string>
+    <string name="text_dark" formatted="false">"Koyu"</string>
+    <string name="text_dash_football" formatted="false">"Futbol Maçları"</string>
+    <string name="text_dash_latest_releases" formatted="false">"Çok İzlenenler"</string>
+    <string name="text_dash_news" formatted="false">"Canlı Haberler"</string>
+    <string name="text_dash_prayer_times" formatted="false">"Namaz Vakitleri"</string>
+    <string name="text_dash_top_media" formatted="false">"En İyi Film ve Diziler"</string>
+    <string name="text_dashboard_widgets" formatted="false">"PANEL WIDGET'LARI"</string>
+    <string name="text_date_time" formatted="false">"Tarih ve Saat"</string>
+    <string name="text_debloat_complete" formatted="false">"Debloat Tamamlandı"</string>
+    <string name="text_debloat_status" formatted="false">"Debloat durumu"</string>
+    <string name="text_debloat_tv_3ec289" formatted="false">"TV Debloat Başlat…"</string>
+    <string name="text_debloat_tv_af7d50" formatted="false">"TV Debloat — "</string>
+    <string name="text_debloating_tv" formatted="false">"TV Temizleniyor (Debloat)…"</string>
+    <string name="text_default" formatted="false">"Varsayılan"</string>
+    <string name="text_default_ambient_mode" formatted="false">"Varsayılan (Ortam Modu)"</string>
+    <string name="text_default_app_launch_main_activity" formatted="false">"Uygulamayı Normal Başlat (Ana Etkinlik)"</string>
+    <string name="text_default_automatic" formatted="false">"Varsayılan (Otomatik)"</string>
+    <string name="text_default_home_launcher_set_via_adb" formatted="false">"Varsayılan ana ekran ADB ile ayarlandı!"</string>
+    <string name="text_default_home_screen_3e8523" formatted="false">"Varsayılan Ana Ekran"</string>
+    <string name="text_default_home_screen_57e442" formatted="false">"Varsayılan ana ekran"</string>
+    <string name="text_default_launcher_setup_tcl_philips_googl" formatted="false">"VARSAYILAN BAŞLATICI KURULUMU (TCL / PHILIPS / GOOGLE TV)"</string>
+    <string name="text_default_screen_off" formatted="false">"Varsayılan (Ekranı Kapat)"</string>
+    <string name="text_default_wallpaper_clock_alignment" formatted="false">"Varsayılan duvar kağıdı saat hizalaması"</string>
+    <string name="text_delete" formatted="false">"Sil"</string>
+    <string name="text_depth_effect_foreground_png" formatted="false">"Derinlik Efekti Ön Planı (PNG) #"</string>
+    <string name="text_depth_effect_foreground_removed" formatted="false">"Derinlik efekti ön planı kaldırıldı."</string>
+    <string name="text_depth_effect_foreground_updated" formatted="false">"Derinlik efekti ön planı güncellendi."</string>
+    <string name="text_detected_automatically" formatted="false">"Otomatik algılandı"</string>
+    <string name="text_detected_your_current_wi_fi_network_is_o" formatted="false">"⚠️ Tespit edildi: Mevcut Wi-Fi ağınız setupwraith tarafından kaydedilmiş (cname=com.google.android.tungsten.setupwraith).\n\n"</string>
+    <string name="text_developer" formatted="false">"Geliştirici"</string>
+    <string name="text_developer_options" formatted="false">"Geliştirici Seçenekleri…"</string>
+    <string name="text_didn_t_catch_that_press_the_mic_to_try_a" formatted="false">"Anlaşılamadı — tekrar denemek için mikrofona basın"</string>
+    <string name="text_disable_all" formatted="false">"Tümünü kapat ›"</string>
+    <string name="text_disable_all_stock_launchers" formatted="false">"Tüm Stok Başlatıcıları Devre Dışı Bırak"</string>
+    <string name="text_disable_all_stock_launchers_set_tvos_lau" formatted="false">"Tüm Stok Başlatıcıları Devre Dışı Bırak ve tvOS'u Ana Ekran Yap"</string>
+    <string name="text_disable_anyway" formatted="false">"Yine de Devre Dışı Bırak"</string>
+    <string name="text_disable" formatted="false">"Kapat"</string>
+    <string name="text_disable_selected" formatted="false">"Seçilenleri Devre Dışı Bırak"</string>
+    <string name="text_disable_stock_tv_launchers_tcl_philips_g" formatted="false">"Stok TV Başlatıcılarını Devre Dışı Bırak (TCL / Philips / Google TV)"</string>
+    <string name="text_disable_system_launchers_072c87" formatted="false">"Sistem Başlatıcılarını Devre Dışı Bırak"</string>
+    <string name="text_disable_system_launchers_13dcb9" formatted="false">"Sistem başlatıcılarını devre dışı bırak"</string>
+    <string name="text_disable_system_launchers_e1810e" formatted="false">"Sistem başlatıcılarını devre dışı bırak…"</string>
+    <string name="text_disabled_31f3e7" formatted="false">" [Devre Dışı]"</string>
+    <string name="text_disabled_62ff42" formatted="false">"Kapalı"</string>
+    <string name="text_disabled_a89c2a" formatted="false">" [Devre dışı]"</string>
+    <string name="text_disabled_ae652f" formatted="false">"Devre dışı"</string>
+    <string name="text_disabled_apps_backup" formatted="false">"Devre dışı bırakılan uygulamalar kaydı"</string>
+    <string name="text_disabled_apps_record" formatted="false">"Devre Dışı Bırakılan Uygulamalar Kaydı"</string>
+    <string name="text_disabled_tap_to_enable_85233e" formatted="false">" [Devre Dışı — Etkinleştirmek İçin OK]"</string>
+    <string name="text_disabled_tap_to_enable_ad587c" formatted="false">" [Devre Dışı — Etkinleştir]"</string>
+    <string name="text_disabling_package" formatted="false">"Paket Devre Dışı Bırakılıyor…"</string>
+    <string name="text_disconnected_adb_off" formatted="false">"Bağlı Değil (ADB Kapalı)"</string>
+    <string name="text_display" formatted="false">"Ekran"</string>
+    <string name="text_displayed_when_no_app_is_focused_when_fo" formatted="false">"Hiçbir uygulama seçili olmadığında, odak Ayarlar veya uygulama dışı öğelerde olduğunda ya da seçili uygulamanın İzlemeye Devam Et içeriği olmadığında görüntülenir."</string>
+    <string name="text_do_not_disturb" formatted="false">"Rahatsız Etmeyin"</string>
+    <string name="text_dock_rows" formatted="false">"Dock satır sayısı"</string>
+    <string name="text_dock_scale_50_to_50" formatted="false">"DOCK BOYUTU (-%50 İLE +%50 ARASI)"</string>
+    <string name="text_dock_size" formatted="false">"Dock boyutu"</string>
+    <string name="text_don_t_show_weather" formatted="false">"Hava Durumunu Gösterme"</string>
+    <string name="text_done" formatted="false">"Tamam"</string>
+    <string name="text_double_tap_2x" formatted="false">"Çift Basış (2x)"</string>
+    <string name="text_down" formatted="false">"Aşağı"</string>
+    <string name="text_download_all_tv_models_again" formatted="false">"Tüm TV Modelleri Tekrar İndirilsin mi?"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"CleanYourTV'yi İndir"</string>
+    <string name="text_download_cleanyourtv_first" formatted="false">"Önce CleanYourTV'yi indirin"</string>
+    <string name="text_download_cleanyourtv_now" formatted="false">"CleanYourTV'yi Şimdi İndir"</string>
+    <string name="text_download_cleanyourtv_required" formatted="false">"CleanYourTV İndirilmesi Gerekli"</string>
+    <string name="text_download_failed" formatted="false">"İndirme Başarısız"</string>
+    <string name="text_downloading_cleanyourtv" formatted="false">"CleanYourTV İndiriliyor…"</string>
+    <string name="text_downloading_to_download_folder" formatted="false">"Download klasörüne indiriliyor…"</string>
+    <string name="text_e_g_85_play_pause_164_mute_178_tv_input" formatted="false">"örn. 85 (Oynat/Duraklat), 164 (Sessiz), 178 (TV Girişi)"</string>
+    <string name="text_e_g_tcl_philips_sony_hisense_xiaomi" formatted="false">"örn. tcl, philips, sony, hisense, xiaomi…"</string>
+    <string name="text_e_g_tcl_sony_hisense_xiaomi_philips_skyw" formatted="false">"örn. tcl, sony, hisense, xiaomi, philips, skyworth…"</string>
+    <string name="text_each_person_keeps_their_own_keep_watchin" formatted="false">"Her kişi kendi İzlemeye Devam Et satırını ve uygulama düzenini korur."</string>
+    <string name="text_each_scene_stays" formatted="false">"Her sahne süresi"</string>
+    <string name="text_each_tv_brand_uses_different_package_and" formatted="false">"Her TV markası Wi-Fi, Bluetooth, Ses, Girişler ve Ortam Modu için farklı paket ve etkinlik adları kullanır. Ayrıca Ortam Modu için Kilit Ekranı'nı seçebilir (yerleşik Ortam Modu olmayan TV'ler için) ve Denetim Paneli öğelerini tek tek açıp kapatabilirsiniz."</string>
+    <string name="text_each_wallpaper_stays" formatted="false">"Her duvar kağıdı süresi"</string>
+    <string name="text_enable_accessibility_service_in_settings" formatted="false">"Android Güç Menüsünü açmak için Ayarlar'dan Erişilebilirlik Servisini etkinleştirin"</string>
+    <string name="text_enable_adb_debugging" formatted="false">"ADB Hata Ayıklamayı Etkinleştirin"</string>
+    <string name="text_enable_adb_for_persistent_mode" formatted="false">"Kalıcı Mod İçin ADB Açılsın mı?"</string>
+    <string name="text_enable_adb_now" formatted="false">"ADB'yi Şimdi Etkinleştir"</string>
+    <string name="text_enable_adb_switch" formatted="false">"ADB'yi Aç ve Geç"</string>
+    <string name="text_enable_all" formatted="false">"Tümünü aç ›"</string>
+    <string name="text_enable_button_mapper_in_accessibility" formatted="false">"Erişilebilirlik'te Düğme Eşleyiciyi Etkinleştir…"</string>
+    <string name="text_enable_home_button_fix_accessibility_rem" formatted="false">"Ana Ekran Tuşu Düzeltmesini Aç (Erişilebilirlik)"</string>
+    <string name="text_enable_home_dashboard" formatted="false">"Ana Ekran Panelini Etkinleştir"</string>
+    <string name="text_enable_in_accessibility" formatted="false">"Erişilebilirlik'te etkinleştir…"</string>
+    <string name="text_enable_in_accessibility_so_remapped_butt" formatted="false">"Eşlenen düğmelerin tüm uygulamalarda çalışması için Erişilebilirlik'te etkinleştirin"</string>
+    <string name="text_enable_keep_alive_348093" formatted="false">"Keep Alive'ı Etkinleştir"</string>
+    <string name="text_enable_keep_alive_5ae818" formatted="false">"Keep Alive Etkinleştirilsin mi?"</string>
+    <string name="text_enable_usb_network_debugging_in_develope" formatted="false">"Geliştirici Seçeneklerinde USB / Ağ Hata Ayıklamayı açın"</string>
+    <string name="text_enable_via_adb" formatted="false">"ADB ile Etkinleştir"</string>
+    <string name="text_enabled" formatted="false">" [Etkin]"</string>
+    <string name="text_enabled_in_shuffle" formatted="false">"Karıştırmada etkin"</string>
+    <string name="text_enabled_tap_to_disable_046b6f" formatted="false">" [Etkin — Devre Dışı Bırak]"</string>
+    <string name="text_enabled_tap_to_disable_fff589" formatted="false">" [Etkin — Devre Dışı Bırakmak İçin OK]"</string>
+    <string name="text_enabling_adb" formatted="false">"ADB Etkinleştiriliyor…"</string>
+    <string name="text_enabling_adb_debugging" formatted="false">"ADB hata ayıklama etkinleştiriliyor…"</string>
+    <string name="text_enabling_adb_debugging_and_switching_to" formatted="false">"ADB hata ayıklama açılıyor ve Kalıcı ADB Moduna geçiliyor…"</string>
+    <string name="text_enabling_package" formatted="false">"Paket Etkinleştiriliyor…"</string>
+    <string name="text_enter_android_key_code" formatted="false">"Android Tuş Kodunu Girin"</string>
+    <string name="text_enter_any_club_or_national_team" formatted="false">"Herhangi bir kulüp veya milli takım yazın…"</string>
+    <string name="text_exact_model_code_match" formatted="false">"Tam model kodu eşleşmesi"</string>
+    <string name="text_exact_model_match" formatted="false">"Tam model eşleşmesi"</string>
+    <string name="text_fast_forward" formatted="false">"İleri Sar"</string>
+    <string name="text_fetching_next_reddit_wallpaper" formatted="false">"Sonraki Reddit duvar kağıdı indiriliyor…"</string>
+    <string name="text_filter_all_matches" formatted="false">"Filtre: Tüm Maçlar"</string>
+    <string name="text_filter_b3bfd1" formatted="false">"Filtrele"</string>
+    <string name="text_filter_bf262c" formatted="false">"Filtrele ›"</string>
+    <string name="text_filter_favorites" formatted="false">"Filtre: ★ Favoriler"</string>
+    <string name="text_filter_system_apps_b26cf2" formatted="false">"🔍 Sistem uygulamalarını filtrele…"</string>
+    <string name="text_filter_system_apps_f2c530" formatted="false">"Sistem Uygulamalarını Filtrele"</string>
+    <string name="text_filter_tv_models" formatted="false">"TV Modellerini Filtrele"</string>
+    <string name="text_finish_setting_up" formatted="false">"Kurulumu Tamamla"</string>
+    <string name="text_fix_home_button_launch_tvos_launcher" formatted="false">"Ana Ekran tuşu düzeltmesi (tvOS Launcher'ı aç)"</string>
+    <string name="text_folder_shuffle" formatted="false">"Klasör karıştırma"</string>
+    <string name="text_football_fav_teams" formatted="false">"Favori Takımlar"</string>
+    <string name="text_football_loading" formatted="false">"Maçlar yükleniyor…"</string>
+    <string name="text_football_no_matches" formatted="false">"Şu anda planlanmış maç yok"</string>
+    <string name="text_forecast_provider" formatted="false">"HAVA TAHMİNİ SAĞLAYICISI"</string>
+    <string name="text_found_from_your_internet_connection" formatted="false">"İnternet bağlantınızdan bulunur"</string>
+    <string name="text_free_forecast_service_no_account_needed" formatted="false">"Ücretsiz hava tahmini servisi, hesap gerekmez"</string>
+    <string name="text_generic_android_tv_google_tv_profile" formatted="false">"Genel Android TV / Google TV profili"</string>
+    <string name="text_get_started" formatted="false">"Başla"</string>
+    <string name="text_getting_the_weather" formatted="false">"Hava durumu alınıyor…"</string>
+    <string name="text_github_release_latest_version" formatted="false">"GitHub son sürüm"</string>
+    <string name="text_go_to_home_screen" formatted="false">"Ana Ekrana Git"</string>
+    <string name="text_good_afternoon" formatted="false">"İyi günler"</string>
+    <string name="text_good_evening" formatted="false">"İyi akşamlar"</string>
+    <string name="text_good_morning" formatted="false">"Günaydın"</string>
+    <string name="text_good_night" formatted="false">"İyi geceler"</string>
+    <string name="text_google_assistant_voice_search_optional" formatted="false">"Google Asistan / Sesli Arama (isteğe bağlı)"</string>
+    <string name="text_google_play_games_optional" formatted="false">"Google Play Oyunlar (isteğe bağlı)"</string>
+    <string name="text_google_telemetry_diagnostics" formatted="false">"Google telemetri ve hata raporlama"</string>
+    <string name="text_google_tv_notice_setupwraith_wi_fi_check" formatted="false">"ℹ️ Google TV Uyarısı (setupwraith Wi-Fi kontrolü):\n\n"</string>
+    <string name="text_google_tv_setup_wizard_launcher_watchdog" formatted="false">"Google TV kurulum sihirbazı ve başlatıcı bekçisi"</string>
+    <string name="text_google_tv_store_movies_tv" formatted="false">"Google TV mağazası / Filmler ve TV"</string>
+    <string name="text_google_tv_wi_fi_notice" formatted="false">"GOOGLE TV WI-FI UYARISI"</string>
+    <string name="text_google_tv_wi_fi_warning" formatted="false">"Google TV Wi-Fi Uyarısı"</string>
+    <string name="text_grant_all" formatted="false">"Tümünü Ver ›"</string>
+    <string name="text_grant_all_files_access" formatted="false">"Tüm Dosyalara Erişim İzni Ver…"</string>
+    <string name="text_grant_all_permissions_via_local_adb" formatted="false">"Tüm İzinleri Yerel ADB ile Ver"</string>
+    <string name="text_grant_permissions_close_adb_now" formatted="false">"İzinleri Ver ve ADB'yi Şimdi Kapat"</string>
+    <string name="text_grant_permissions_now_keep_adb_open" formatted="false">"İzinleri Şimdi Ver (ADB'yi Açık Tut)"</string>
+    <string name="text_grant_permissions_one_by_one_manually_th" formatted="false">"İzinleri Android TV Ayarları üzerinden tek tek elle verin"</string>
+    <string name="text_grant_storage_access" formatted="false">"Depolama İzni Ver…"</string>
+    <string name="text_granting_permissions_via_local_adb_if_an" formatted="false">"Yerel ADB ile izinler veriliyor…\n\nEkranda “USB hata ayıklamaya izin verilsin mi?” penceresi çıkarsa “Her zaman izin ver”i işaretleyip İzin Ver'e basın."</string>
+    <string name="text_grants_write_secure_settings_closes_port" formatted="false">"WRITE_SECURE_SETTINGS verir ve bittiğinde port 5555'i kapatır"</string>
+    <string name="text_grants_write_secure_settings_once_to_sel" formatted="false">"Erişilebilirliği korumak için bir kez WRITE_SECURE_SETTINGS verir, ardından port 5555'i kapatır"</string>
+    <string name="text_gray" formatted="false">"Gri"</string>
+    <string name="text_green_button" formatted="false">"Yeşil Tuş"</string>
+    <string name="text_green" formatted="false">"Yeşil"</string>
+    <string name="text_guide_button" formatted="false">"Rehber Tuşu"</string>
+    <string name="text_h" formatted="false">"Y:"</string>
+    <string name="text_headlines_from_your_city_and_the_world" formatted="false">"Şehrinizden ve dünyadan manşetler"</string>
+    <string name="text_hidden_apps" formatted="false">"Gizlenen uygulamalar"</string>
+    <string name="text_hide" formatted="false">"Gizle"</string>
+    <string name="text_hide_input" formatted="false">"Girişi gizle"</string>
+    <string name="text_hide_inputs_or_change_name_of_hdmi_tv_in" formatted="false">"Girişleri gizleyin veya HDMI ve TV girişlerinin adını değiştirin ›"</string>
+    <string name="text_home_3" formatted="false">"Ana Ekran (3)"</string>
+    <string name="text_home_button_fix_accessibility_enabled" formatted="false">"Ana Ekran Tuşu Düzeltmesi ve Erişilebilirlik etkinleştirildi!"</string>
+    <string name="text_home_button_fix_disabled" formatted="false">"Ana Ekran tuşu düzeltmesi kapatıldı."</string>
+    <string name="text_home_button_fix_enabled_5232e5" formatted="false">"Ana Ekran tuşu düzeltmesi etkinleştirildi."</string>
+    <string name="text_home_button_fix_enabled_d7a9be" formatted="false">"Ana Ekran Tuşu Düzeltmesi etkinleştirildi!"</string>
+    <string name="text_home_button_fix_enabled_please_also_enab" formatted="false">"Ana Ekran tuşu düzeltmesi açıldı — çalışması için yukarıdan Erişilebilirlik servisini de etkinleştirin."</string>
+    <string name="text_home_button_fix_enabled_pressing_home_wi" formatted="false">"Ana Ekran tuşu düzeltmesi etkinleştirildi — Ana Ekran tuşu tvOS Launcher'ı açacak."</string>
+    <string name="text_home_permissions" formatted="false">"ANA EKRAN VE İZİNLER"</string>
+    <string name="text_home_screen" formatted="false">"Ana ekran"</string>
+    <string name="text_home_screen_search_shortcut" formatted="false">"Ana ekranda arama kısayolu"</string>
+    <string name="text_home_screen_weather_shortcut" formatted="false">"Ana ekranda hava durumu kısayolu"</string>
+    <string name="text_home_screen_widget_settings" formatted="false">"Ana ekran widget ayarları"</string>
+    <string name="text_home_screen_widgets" formatted="false">"ANA EKRAN WIDGET'LARI"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"Ana ekran ayarları"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"tvOS Launcher Ayarları"</string>
+    <string name="text_hourly_forecast" formatted="false">"SAATLİK TAHMİN"</string>
+    <string name="text_how_to_watch" formatted="false">"NASIL İZLENİR"</string>
+    <string name="text_humidity" formatted="false">"Nem %"</string>
+    <string name="text_i_understand_open_manual_debloat" formatted="false">"Anladım — Manuel Debloat'u Aç"</string>
+    <string name="text_images" formatted="false">"görsel"</string>
+    <string name="text_images_videos_and_webpages_sent_from_any" formatted="false">"Aynı Wi-Fi ağındaki herhangi bir telefon veya bilgisayardan gönderilen görseller, videolar ve web sayfaları."</string>
+    <string name="text_in_app_results" formatted="false">"Uygulama İçi Sonuçlar"</string>
+    <string name="text_in_control_center_needs_location_access" formatted="false">"Denetim Merkezi'nde (konum izni gerekir)"</string>
+    <string name="text_included_in_rotation" formatted="false">"Döngüye dahil"</string>
+    <string name="text_indigo" formatted="false">"Çivit"</string>
+    <string name="text_info_button" formatted="false">"Bilgi Tuşu"</string>
+    <string name="text_inputs_app_on_dock" formatted="false">"DOCK ÜZERİNDEKİ GİRİŞLER UYGULAMASI"</string>
+    <string name="text_inputs" formatted="false">"Girişler"</string>
+    <string name="text_inputs_control_panel_dock" formatted="false">"Girişler (Denetim Paneli ve Dock)"</string>
+    <string name="text_install" formatted="false">"Yükle"</string>
+    <string name="text_installed_apps" formatted="false">"YÜKLÜ UYGULAMALAR"</string>
+    <string name="text_installed_system_launchers_on_this_tv_s" formatted="false">"BU TV'DE YÜKLÜ SİSTEM BAŞLATICILARI (%s)"</string>
+    <string name="text_iphone_rounded" formatted="false">"iPhone Yuvarlak"</string>
+    <string name="text_its_layout_and_continue_watching_list_wi" formatted="false">"Düzeni ve İzlemeye Devam Et listesi kaldırılacak."</string>
+    <string name="text_just_your_background_for_now" formatted="false">"Şimdilik yalnızca arka planınız"</string>
+    <string name="text_keep_alive_auto_repair_accessibility" formatted="false">"Keep Alive (Erişilebilirliği otomatik onar)"</string>
+    <string name="text_keep_alive_disabled" formatted="false">"Keep Alive devre dışı bırakıldı."</string>
+    <string name="text_keep_alive_enabled" formatted="false">"Keep Alive etkinleştirildi."</string>
+    <string name="text_keep_screen_awake" formatted="false">"Ekranı Açık Tut"</string>
+    <string name="text_keep_typing_to_search_movies_and_shows" formatted="false">"Film ve dizileri aramak için yazmaya devam edin"</string>
+    <string name="text_keeps_network_adb_enabled_for_cleanyourt" formatted="false">"CleanYourTV debloat özellikleri için ağ ADB'sini açık tutar (Not: yerel ağda port 5555 açık kalır)"</string>
+    <string name="text_key" formatted="false">"Tuş: "</string>
+    <string name="text_l" formatted="false">"D:"</string>
+    <string name="text_language" formatted="false">"Dil"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"Dil, hava durumu, sahneler, uygulamalar ve kişiler"</string>
+    <string name="text_larger_dock_extra_apps_automatically_mov" formatted="false">"Daha büyük dock — ekrana sığmayan fazla uygulamalar otomatik olarak Diğer uygulamalar'a taşınır"</string>
+    <string name="text_last_channel" formatted="false">"Son Kanal"</string>
+    <string name="text_launch_automatically_on_system_boot" formatted="false">"Sistem açılışında otomatik başlat"</string>
+    <string name="text_left" formatted="false">"Sol"</string>
+    <string name="text_let_s_set_up_tvos_launcher" formatted="false">"tvOS Launcher’ı kuralım."</string>
+    <string name="text_link_nuvio_forks_like_nuvio_native_legac" formatted="false">"Aynı Nuvio hesabıyla giriş yapan Nuvio sürümlerini (Nuvio Native Legacy gibi) bağlayın. Dock'taki kutucukları Nuvio'nun İzlemeye Devam Et listesini gösterir ve Arama içerikleri onlarda açar."</string>
+    <string name="text_listening" formatted="false">"Dinleniyor…"</string>
+    <string name="text_live_cricket_scores" formatted="false">"Canlı Kriket Skorları"</string>
+    <string name="text_live_news_headlines" formatted="false">"Canlı Haber Başlıkları"</string>
+    <string name="text_loading_cricket_scores" formatted="false">"Kriket skorları yükleniyor…"</string>
+    <string name="text_loading_imdb_top" formatted="false">"IMDb En İyiler yükleniyor…"</string>
+    <string name="text_loading_next_reddit_wallpaper" formatted="false">"Sonraki Reddit duvar kağıdı yükleniyor…"</string>
+    <string name="text_loading_top_headlines" formatted="false">"Gündem haberleri yükleniyor…"</string>
+    <string name="text_loading_tv_models" formatted="false">"TV modelleri yükleniyor…"</string>
+    <string name="text_location_873ca7" formatted="false">"KONUM"</string>
+    <string name="text_location_eeea97" formatted="false">"Konum"</string>
+    <string name="text_location_mode" formatted="false">"KONUM MODU"</string>
+    <string name="text_lock_now" formatted="false">"Şimdi Kilitle"</string>
+    <string name="text_lock_screen" formatted="false">"Kilit Ekranı"</string>
+    <string name="text_lock_screen_options" formatted="false">"KİLİT EKRANI SEÇENEKLERİ"</string>
+    <string name="text_lock_screen_settings_8b5317" formatted="false">"Kilit ekranı ayarları…"</string>
+    <string name="text_lock_screen_settings_d4db1f" formatted="false">"Kilit ekranı ayarları"</string>
+    <string name="text_long_press_volume_button_fix" formatted="false">"Uzun basış ses tuşu düzeltmesi"</string>
+    <string name="text_long_press_volume_fix_disabled_using_nat" formatted="false">"Uzun basış ses tuşu düzeltmesi kapatıldı (varsayılan TV sesi kullanılıyor)."</string>
+    <string name="text_long_press_volume_fix_enabled_for_tvs_wh" formatted="false">"Uzun basış ses tuşu düzeltmesi etkinleştirildi."</string>
+    <string name="text_look" formatted="false">"GÖRÜNÜM"</string>
+    <string name="text_looks_like" formatted="false">"Tahmini konum: "</string>
+    <string name="text_m" formatted="false">" dk"</string>
+    <string name="text_make_home_screen" formatted="false">"Ana Ekran Yap"</string>
+    <string name="text_make_tvos_launcher_default_home" formatted="false">"tvOS Launcher'ı Varsayılan Ana Ekran Yap"</string>
+    <string name="text_make_tvos_launcher_the_home_screen" formatted="false">"tvOS Launcher'ı Ana Ekran Yap"</string>
+    <string name="text_make_tvos_launcher_your_home_screen" formatted="false">"tvOS Launcher ana ekranınız yapılsın mı?"</string>
+    <string name="text_manage_system_apps_in_tv_settings" formatted="false">"TV ayarlarında uygulamaları yönet…"</string>
+    <string name="text_manual_debloat_all_system_apps_22aced" formatted="false">"Manuel debloat (Tüm sistem uygulamaları)"</string>
+    <string name="text_manual_debloat_all_system_apps_99b35c" formatted="false">"Manuel debloat (Tüm sistem uygulamaları)…"</string>
+    <string name="text_manual_debloat_warning" formatted="false">"⚠️ Manuel Debloat Uyarısı"</string>
+    <string name="text_manual_setup" formatted="false">"Manuel Kurulum"</string>
+    <string name="text_map_any_button_on_your_remote_with_singl" formatted="false">"Kumandanızdaki herhangi bir düğmeye Tek Basış (1x), Çift Basış (2x) ve Üçlü Basış (3x) eylemleri atayın — Denetim Paneli'ni, Son Uygulamalar Değiştiricisi'ni veya herhangi bir uygulamayı açın."</string>
+    <string name="text_matching_models_for" formatted="false">"EŞLEŞEN MODELLER: "</string>
+    <string name="text_matching_places" formatted="false">"Eşleşen konumlar"</string>
+    <string name="text_memory" formatted="false">"Bellek"</string>
+    <string name="text_menu_button" formatted="false">"Menü Tuşu"</string>
+    <string name="text_min_0240eb" formatted="false">" dk"</string>
+    <string name="text_min_938b57" formatted="false">"dk"</string>
+    <string name="text_min_left" formatted="false">" dk kaldı"</string>
+    <string name="text_minutes" formatted="false">" dakika"</string>
+    <string name="text_mode_1_standard_default" formatted="false">"Mod 1 (Standart · Varsayılan)"</string>
+    <string name="text_mode_1_standard_default_for_most_android" formatted="false">"Mod 1 — Standart (Varsayılan, çoğu Android TV ve IR kumanda için)"</string>
+    <string name="text_mode_2_hy320_projector" formatted="false">"Mod 2 (HY320 / Projeksiyon)"</string>
+    <string name="text_mode_2_hy320_projector_audioservice_ir_p" formatted="false">"Mod 2 — HY320 / Projeksiyon (AudioService ve IR darbe modu)"</string>
+    <string name="text_mode_3_onn_tv_box_fast_release_stop_0_ex" formatted="false">"Mod 3 — Onn TV Box (Tuşu bırakınca anında durur, fazladan ses artışı yapmaz, ADB ve Güvenli mod)"</string>
+    <string name="text_mode_manual_setup_without_adb" formatted="false">"Mod: Manuel Kurulum (ADB Olmadan)"</string>
+    <string name="text_mode_persistent_adb_setup_keep_adb_open" formatted="false">"Mod: Kalıcı ADB Kurulumu (ADB'yi Açık Tut)"</string>
+    <string name="text_mode_secure_auto_setup_close_adb_recomme" formatted="false">"Mod: Güvenli Otomatik Kurulum ve ADB'yi Kapat (Önerilen)"</string>
+    <string name="text_models_by_system_app_similarity" formatted="false">"Sistem Uygulaması Benzerliğine Göre Modeller"</string>
+    <string name="text_move" formatted="false">"Taşı"</string>
+    <string name="text_move_icon" formatted="false">"Simgeyi taşı"</string>
+    <string name="text_move_to_other_apps" formatted="false">"Diğer Uygulamalara Taşı"</string>
+    <string name="text_movie" formatted="false">"Film"</string>
+    <string name="text_movies_tv" formatted="false">"Filmler ve Diziler"</string>
+    <string name="text_mute_unmute_164" formatted="false">"Sesi Kapat / Aç (164)"</string>
+    <string name="text_my_location" formatted="false">"Konumum"</string>
+    <string name="text_name" formatted="false">"Ad"</string>
+    <string name="text_navigation_click_sounds" formatted="false">"Gezinme tıklama sesleri"</string>
+    <string name="text_new_profile" formatted="false">"Yeni Profil"</string>
+    <string name="text_news" formatted="false">"Haberler"</string>
+    <string name="text_news_country_auto" formatted="false">"Otomatik (Arayüz diliyle eşitle)"</string>
+    <string name="text_news_country_setting" formatted="false">"Canlı Haberler ülkesi"</string>
+    <string name="text_next_9f81b4" formatted="false">"İleri"</string>
+    <string name="text_next_b8f003" formatted="false">"Sonraki: "</string>
+    <string name="text_next_page" formatted="false">"Sonraki Sayfa"</string>
+    <string name="text_next_track" formatted="false">"Sonraki Parça"</string>
+    <string name="text_next_wallpaper_b7a1c2" formatted="false">"Sonraki duvar kağıdı"</string>
+    <string name="text_next_wallpaper_f38b4f" formatted="false">"Sonraki Duvar Kağıdı"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"Gece sahneleri"</string>
+    <string name="text_night_scenes_b6104d" formatted="false">"GECE SAHNELERİ"</string>
+    <string name="text_night_scenes_clock" formatted="false">"GECE SAHNELERİ SAATİ"</string>
+    <string name="text_night_scenes_custom_wallpaper" formatted="false">"Gece Sahneleri Özel Duvar Kağıdı"</string>
+    <string name="text_no_apps_to_close" formatted="false">"Kapatılacak uygulama yok"</string>
+    <string name="text_no_changelog_text_provided_for_this_rele" formatted="false">"Bu sürüm için değişiklik günlüğü metni bulunamadı."</string>
+    <string name="text_no_disabled_packages_have_been_recorded" formatted="false">"CleanYourTV tarafından henüz kaydedilmiş devre dışı paket yok."</string>
+    <string name="text_no_hidden_apps_hold_ok_on_any_app_on_the" formatted="false">"Gizlenen uygulama yok. Ana ekran dock'undaki herhangi bir uygulamada OK tuşuna basılı tutup Gizle'yi seçin."</string>
+    <string name="text_no_images_in_this_folder_open_a_subfolde" formatted="false">"Bu klasörde görsel yok (aşağıdan bir alt klasör açın)"</string>
+    <string name="text_no_keep_all" formatted="false">"Hayır, Tümünü Tut"</string>
+    <string name="text_no_matching_apps_found" formatted="false">"Eşleşen Uygulama Bulunamadı"</string>
+    <string name="text_no_matching_city_or_country_found" formatted="false">"Eşleşen şehir veya ülke bulunamadı."</string>
+    <string name="text_no_movies_or_shows_found" formatted="false">"Film veya dizi bulunamadı"</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"Henüz son kullanılan uygulama yok"</string>
+    <string name="text_no_results" formatted="false">"Sonuç bulunamadı"</string>
+    <string name="text_no_saved_disabled_app_backup_was_found_a" formatted="false">"Kaydedilmiş devre dışı uygulama yedeği bulunamadı ve henüz bir TV modeli seçilmedi."</string>
+    <string name="text_no_screensaver_or_sleep_while_presenting" formatted="false">"Sunum sırasında ekran koruyucu veya uyku yok"</string>
+    <string name="text_no_settings_backup_json_found_in_this_fo" formatted="false">"Bu klasörde ayar yedeği (.json) bulunamadı"</string>
+    <string name="text_no_stock_android_tv_google_tv_launcher_p" formatted="false">"Bu TV'de stok Android TV / Google TV başlatıcı paketi tespit edilmedi."</string>
+    <string name="text_no_stock_android_tv_google_tv_oem_launch" formatted="false">"Bu TV'de stok Android TV / Google TV / üretici başlatıcı paketi tespit edilmedi."</string>
+    <string name="text_no_system_file_picker_available_on_this" formatted="false">"Bu TV'de sistem dosya seçicisi bulunmuyor."</string>
+    <string name="text_no_upcoming_or_live_matches_found_for_yo" formatted="false">"Favori takımlarınız için yaklaşan veya canlı maç bulunamadı."</string>
+    <string name="text_none" formatted="false">"Yok"</string>
+    <string name="text_none_choose_png" formatted="false">"Yok — PNG seç ›"</string>
+    <string name="text_none_clear_action" formatted="false">"Yok (Eylemi temizle)"</string>
+    <string name="text_none_found" formatted="false">"Bulunamadı"</string>
+    <string name="text_none_no_action" formatted="false">"Yok (Eylem yok)"</string>
+    <string name="text_none_saved" formatted="false">"Kayıt yok"</string>
+    <string name="text_not_allowed" formatted="false">"İzin verilmedi"</string>
+    <string name="text_not_connected_85d0dd" formatted="false">"Bağlı Değil"</string>
+    <string name="text_not_connected_ebd8d2" formatted="false">"Bağlı değil"</string>
+    <string name="text_not_done" formatted="false">"Yapılmadı"</string>
+    <string name="text_not_done_select_tv_model_first" formatted="false">"Yapılmadı (Önce TV modelini seçin)"</string>
+    <string name="text_not_downloaded_tap_to_download" formatted="false">"İndirilmedi · İndirmek için dokunun ›"</string>
+    <string name="text_not_installed" formatted="false">"Yüklü değil"</string>
+    <string name="text_not_now" formatted="false">"Şimdi Değil"</string>
+    <string name="text_not_on_this_tv" formatted="false">"Bu TV'de yok"</string>
+    <string name="text_not_selected" formatted="false">"Seçilmedi"</string>
+    <string name="text_not_set" formatted="false">"Ayarlanmadı"</string>
+    <string name="text_not_signed_in" formatted="false">"Giriş yapılmadı"</string>
+    <string name="text_not_streaming_right_now" formatted="false">"Şu anda yayında değil."</string>
+    <string name="text_nothing_to_continue_yet" formatted="false">"Devam edecek bir şey yok"</string>
+    <string name="text_notifications_83" formatted="false">"Bildirimler (83)"</string>
+    <string name="text_now" formatted="false">"Şimdi"</string>
+    <string name="status_off" formatted="false">"Kapalı"</string>
+    <string name="text_off_tap_to_enable_home_button_remap" formatted="false">"Kapalı — Ana Ekran tuşu yönlendirmesini açmak için dokunun"</string>
+    <string name="text_official_app" formatted="false">"Resmi uygulama"</string>
+    <string name="text_ok" formatted="false">"Tamam"</string>
+    <string name="text_ok_to_change_back_to_go_back" formatted="false">"Değiştirmek için OK, dönmek için Geri"</string>
+    <string name="text_ok_to_change_hold_ok_to_move_back_to_go" formatted="false">"Değiştirmek için OK, taşımak için OK'e basılı tutun, dönmek için Geri"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore" formatted="false">"Açmak için OK  ·  Geri yüklemek için OK'e basılı tutun"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore_back_to_go" formatted="false">"Açmak için OK  ·  Geri yüklemek için OK'e basılı tutun  ·  Dönmek için Geri"</string>
+    <string name="text_ok_to_switch_or_edit" formatted="false">"Geçiş yapmak veya düzenlemek için OK"</string>
+    <string name="legacy_he_on_prefix" formatted="false">""</string>
+    <string name="text_on_default" formatted="false">"Açık (Varsayılan)"</string>
+    <string name="status_on" formatted="false">"Açık"</string>
+    <string name="text_on_google_tv_if_you_disable_setupwraith" formatted="false">"Google TV'de setupwraith'i devre dışı bırakacaksanız Wi-Fi ağınızı Wi-Fi Ayarları'ndan yeniden eklediğinizden emin olun."</string>
+    <string name="text_on_pressing_home_launches_tvos_launcher" formatted="false">"Açık — Ana Ekran tuşu tvOS Launcher'ı açar"</string>
+    <string name="text_on_tcl_and_philips_android_11_12_tvs_the" formatted="false">"TCL ve Philips Android 11/12 TV'lerde üretici yazılımı genellikle Android Varsayılan Ana Ekran seçicisini gizler ve Home tuşuna basıldığında stok başlatıcıyı zorlar. Stok başlatıcıyı devre dışı bırakmak (2. Seçenek) veya Ana Ekran Tuşu Düzeltmesini açmak (3. Seçenek) Home tuşunun her zaman tvOS Launcher'ı açmasını sağlar."</string>
+    <string name="text_on_tcl_philips_and_google_tvs_oem_firmwa" formatted="false">"TCL, Philips ve Google TV'lerde üretici yazılımı genellikle Home tuşuna basıldığında stok başlatıcıyı zorlar. Home tuşunun her zaman tvOS Launcher'ı açması için aşağıdaki adımları uygulayın ve ardından Devam Et'e basın."</string>
+    <string name="text_on_the_lock_screen_only_clock_date_and_g" formatted="false">"Kilit Ekranında yalnızca seçilen arka planların üzerinde Saat, Tarih ve Karşılama gösterilir. Kumandadaki herhangi bir tuşa basmak kaldığınız yere geri döner."</string>
+    <string name="text_on_this_tv" formatted="false">"Bu TV'de"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"Tek fotoğraf ve uygulama afişleri ızgarası"</string>
+    <string name="text_one_scene_has_to_stay_on" formatted="false">"En az bir sahne açık kalmalıdır."</string>
+    <string name="text_one_tap_actions" formatted="false">"TEK DOKUNUŞ İŞLEMLERİ"</string>
+    <string name="text_one_wallpaper_has_to_stay_on" formatted="false">"En az bir duvar kağıdı açık kalmalıdır."</string>
+    <string name="text_only_your_currently_selected_tv_model_is" formatted="false">"Download klasöründe yalnızca seçili TV modeliniz tutuluyor.\n\nFarklı bir TV modeli seçmek için tüm CleanYourTV modellerini tekrar indirmek ister misiniz?"</string>
+    <string name="text_open_4f0000" formatted="false">"Aç"</string>
+    <string name="text_open_android_default_home_settings" formatted="false">"Android Varsayılan Ana Ekran Ayarlarını Aç"</string>
+    <string name="text_open_android_tv_settings" formatted="false">"Android TV Ayarlarını Aç…"</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_9d4f5e" formatted="false">"Geliştirici Seçenekleri'ni açıp USB / Ağ Hata Ayıklamayı etkinleştirin."</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_c22f55" formatted="false">"Kalıcı ADB Moduna geçişi tamamlamak için Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın."</string>
+    <string name="text_open_developer_options" formatted="false">"Geliştirici Seçeneklerini Aç…"</string>
+    <string name="text_open_developer_options_tv_settings" formatted="false">"Geliştirici Seçeneklerini / TV Ayarlarını Aç…"</string>
+    <string name="text_open_on_a_phone_or_computer_on_the_same" formatted="false">"Aynı Wi-Fi ağındaki telefon veya bilgisayarda açın:\n\n"</string>
+    <string name="text_open_settings" formatted="false">"Ayarları Aç"</string>
+    <string name="text_open_system_file_picker" formatted="false">"Sistem Dosya Seçicisini Aç…"</string>
+    <string name="text_open_system_selector_if_supported_by_tv" formatted="false">"Sistem seçicisini aç (TV destekliyorsa) ›"</string>
+    <string name="text_open_tv_ambient_mode_screensaver_or_buil" formatted="false">"TV Ortam Modunu / Ekran Koruyucuyu aç (veya yerleşik görünüm)"</string>
+    <string name="text_open_wi_fi_settings" formatted="false">"📶 Wi-Fi Ayarlarını Aç…"</string>
+    <string name="text_optional" formatted="false">" [İsteğe bağlı]"</string>
+    <string name="text_options" formatted="false">"SEÇENEKLER"</string>
+    <string name="text_or_open" formatted="false">"Veya şu adrese git: "</string>
+    <string name="text_orange" formatted="false">"Turuncu"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"Diğer uygulamalar"</string>
+    <string name="text_other_apps_bdcc9c" formatted="false">"Diğer Uygulamalar"</string>
+    <string name="text_packages" formatted="false">"paket"</string>
+    <string name="text_page_navigation" formatted="false">"SAYFA GEÇİŞİ"</string>
+    <string name="text_pair_now" formatted="false">"Şimdi eşleştir"</string>
+    <string name="text_pair_repair_adb_connection" formatted="false">"ADB bağlantısını eşleştir / onar"</string>
+    <string name="text_pair_repair_adb" formatted="false">"ADB Eşleştir / Onar"</string>
+    <string name="text_paired" formatted="false">" eşleşmiş"</string>
+    <string name="text_paired_adb_enabled" formatted="false">"Eşleşti · ADB Açık"</string>
+    <string name="text_pairing_code_146fc7" formatted="false">"Eşleştirme kodu\n"</string>
+    <string name="text_pause" formatted="false">"Duraklat"</string>
+    <string name="text_people_3a2eb8" formatted="false">"Kişiler"</string>
+    <string name="text_people_c31d4d" formatted="false">"KİŞİLER"</string>
+    <string name="text_permission_status" formatted="false">"İZİN DURUMU"</string>
+    <string name="text_permissions_granted_adb_closed" formatted="false">"İzinler Verildi ve ADB Kapatıldı"</string>
+    <string name="text_persistent_adb_mode_keep_network_adb_ope" formatted="false">"Kalıcı ADB Modu — Ağ ADB'sini Açık Tut (İsteğe Bağlı)"</string>
+    <string name="text_persistent_adb_mode_required" formatted="false">"Kalıcı ADB Modu Gerekli"</string>
+    <string name="text_persistent_adb_mode_selected_port_5555_s" formatted="false">"Kalıcı ADB Modu seçildi — Port 5555 CleanYourTV ve ADB araçları için açık kalır."</string>
+    <string name="text_persistent_adb_setup" formatted="false">"Kalıcı ADB Kurulumu"</string>
+    <string name="text_pink" formatted="false">"Pembe"</string>
+    <string name="text_play_as_soon_as_the_tv_turns_on_signage" formatted="false">"TV açılır açılmaz oynatmaya başla (tabela modu)"</string>
+    <string name="text_play" formatted="false">"Oynat"</string>
+    <string name="text_play_pause" formatted="false">"Oynat / Duraklat"</string>
+    <string name="text_please_allow_install_unknown_apps_for_tv" formatted="false">"Lütfen tvOS Launcher için 'Bilinmeyen uygulamaları yükle' iznini verin."</string>
+    <string name="text_please_download_cleanyourtv_first_it_wil" formatted="false">"Lütfen önce CleanYourTV'yi indirin. En güncel sürüm Download klasörünüze indirilecek ve TV profilleri çıkartılacaktır."</string>
+    <string name="text_please_enable_usb_debugging_network_debu" formatted="false">"Lütfen Geliştirici Seçenekleri'nde USB / Ağ Hata Ayıklamayı açın ve ardından bu adımı çalıştırmak için buraya dönün."</string>
+    <string name="text_popular_cities" formatted="false">"POPÜLER ŞEHİRLER"</string>
+    <string name="text_popular_movies_and_series_on_your_stream" formatted="false">"Yayın servislerinizdeki popüler filmler ve diziler"</string>
+    <string name="text_power_menu" formatted="false">"Güç Menüsü"</string>
+    <string name="text_power_off" formatted="false">"Kapat"</string>
+    <string name="text_power_off_screen_off" formatted="false">"Kapat (Ekranı Kapat)"</string>
+    <string name="text_prayer_asr" formatted="false">"İkindi"</string>
+    <string name="text_prayer_calculation_method_92d541" formatted="false">"Namaz vakti hesaplama yöntemi"</string>
+    <string name="text_prayer_calculation_method_f4f921" formatted="false">"Namaz Vakti Hesaplama Yöntemi"</string>
+    <string name="text_prayer_dhuhr" formatted="false">"Öğle"</string>
+    <string name="text_prayer_fajr" formatted="false">"İmsak"</string>
+    <string name="text_prayer_isha" formatted="false">"Yatsı"</string>
+    <string name="text_prayer_maghrib" formatted="false">"Akşam"</string>
+    <string name="text_prayer_method_label" formatted="false">"Hesaplama Yöntemi"</string>
+    <string name="text_prayer_remaining" formatted="false">"kaldı"</string>
+    <string name="text_prayer_sunrise" formatted="false">"Güneş"</string>
+    <string name="text_prayer_times_location_01fe75" formatted="false">"Namaz Vakitleri Konumu"</string>
+    <string name="text_prayer_times_location_3a3188" formatted="false">"Namaz vakti konumu"</string>
+    <string name="text_preparing_cleanyourtv" formatted="false">"CleanYourTV Hazırlanıyor…"</string>
+    <string name="text_preparing_download_folder" formatted="false">"Download klasörü hazırlanıyor…"</string>
+    <string name="text_preparing_qr_code" formatted="false">"QR kodu hazırlanıyor…"</string>
+    <string name="text_preparing_to_clean_up_unnecessary_files" formatted="false">"Gereksiz dosyalar silinmeye hazırlanıyor…"</string>
+    <string name="text_preparing_uninstall" formatted="false">"Kaldırma Hazırlanıyor…"</string>
+    <string name="text_presentation" formatted="false">"Sunum"</string>
+    <string name="text_presentation_address_qr_code" formatted="false">"Sunum adresi ve QR kodu"</string>
+    <string name="text_presentation_mode" formatted="false">"Sunum modu"</string>
+    <string name="text_presentation_system" formatted="false">"SUNUM VE SİSTEM"</string>
+    <string name="text_press_ok_to_include_releases_from_this_c" formatted="false">"Bu ülkenin içeriklerini dahil etmek için OK'a basın"</string>
+    <string name="text_press_ok_to_select_this_city" formatted="false">"Bu şehri seçmek için OK'a basın"</string>
+    <string name="text_press_ok_to_select_this_country" formatted="false">"Bu ülkeyi seçmek için OK'a basın"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"Kapatmak için uygulamanın üzerinde ▲ tuşuna basın"</string>
+    <string name="text_press_the_button_on_your_remote_that_you" formatted="false">"Yeniden eşlemek istediğiniz kumanda düğmesine basın…\n\n(Yön tuşları, OK ve Geri tuşu normal gezinme için korunur.)"</string>
+    <string name="text_preview" formatted="false">"Önizleme"</string>
+    <string name="text_preview_lock_screen_now" formatted="false">"Kilit Ekranını şimdi önizle"</string>
+    <string name="text_previous_page" formatted="false">"Önceki Sayfa"</string>
+    <string name="text_previous_track" formatted="false">"Önceki Parça"</string>
+    <string name="text_proceed_to_the_next_setup_step_when_you" formatted="false">"Buradaki adımlarla işiniz bittiğinde sonraki kurulum adımına geçin"</string>
+    <string name="text_profile" formatted="false">"Profil "</string>
+    <string name="text_protected_core_package" formatted="false">"Korunan Temel Paket"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_17de20" formatted="false">"ADB'den tam uygulama listesini çek ve sistem/üretici paket adlarına göre eşleştir"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_795599" formatted="false">"ADB'den tam uygulama listesini çek ve sistem/üretici paketlerine göre eşleştir"</string>
+    <string name="text_pulling_full_package_list_from_adb_and_c" formatted="false">"ADB üzerinden tam uygulama listesi çekiliyor ve 341 TV modelinin sistem/üretici paket adlarıyla karşılaştırılıyor…"</string>
+    <string name="text_purple" formatted="false">"Mor"</string>
+    <string name="text_quick_brand_filters" formatted="false">"HIZLI MARKA FİLTRELERİ"</string>
+    <string name="text_quick_settings" formatted="false">"Hızlı ayarlar"</string>
+    <string name="text_ram_s_used_of_s" formatted="false">"RAM %s içinde %s kullanımda"</string>
+    <string name="text_re_added_wi_fi_continue" formatted="false">"✅ Wi-Fi Yenilendi (Devam)"</string>
+    <string name="text_re_enable_all_packages_disabled_by_clean" formatted="false">"CleanYourTV ile devre dışı bırakılan tüm paketleri ADB üzerinden yeniden etkinleştir"</string>
+    <string name="text_re_enable_all_stock_launchers" formatted="false">"Tüm Stok Başlatıcıları Yeniden Etkinleştir"</string>
+    <string name="text_recent_apps" formatted="false">"Son Uygulamalar"</string>
+    <string name="text_recent_apps_manager_cannot_clear_apps_wh" formatted="false">"Güvenli ADB Modu etkinken Son Uygulamalar Yöneticisi uygulamaları kapatamaz.\n\nSon Uygulamalar özelliğini kullanmak için Ayarlar › Gelişmiş › ADB çalışma modu bölümünden Kalıcı ADB Modunu etkinleştirin."</string>
+    <string name="text_recent_apps_switcher" formatted="false">"Son Uygulamalar"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"Son Uygulamalar Değiştiricisi (Ekran Üstü)"</string>
+    <string name="text_recent_searches" formatted="false">"Son Aramalar"</string>
+    <string name="text_recommendations" formatted="false">"Öneriler"</string>
+    <string name="text_recommendations_news" formatted="false">"Öneriler ve Haberler"</string>
+    <string name="text_record_button" formatted="false">"Kayıt Tuşu"</string>
+    <string name="text_red" formatted="false">"Kırmızı"</string>
+    <string name="text_red_button" formatted="false">"Kırmızı Tuş"</string>
+    <string name="text_reddit_wallpaper_options" formatted="false">"REDDIT DUVAR KAĞIDI SEÇENEKLERİ"</string>
+    <string name="text_reddit_wallpaper_updated" formatted="false">"Reddit duvar kağıdı güncellendi."</string>
+    <string name="text_reddit_wallpapers" formatted="false">"Reddit Duvar Kağıtları"</string>
+    <string name="text_refresh" formatted="false">"Yenile"</string>
+    <string name="text_refresh_carousel" formatted="false">"Vitrin Yenile"</string>
+    <string name="text_refresh_scores" formatted="false">"Skorları Yenile"</string>
+    <string name="text_refresh_system_app_list" formatted="false">"↻ Sistem uygulama listesini yenile"</string>
+    <string name="text_region_mode" formatted="false">"BÖLGE MODU"</string>
+    <string name="text_releases_country_auto" formatted="false">"Otomatik (Arayüz diliyle eşitle)"</string>
+    <string name="text_releases_country_setting" formatted="false">"Çok İzlenenler ülkeleri"</string>
+    <string name="text_releases_loading" formatted="false">"İçerikler yükleniyor…"</string>
+    <string name="text_remapped_buttons_1x_2x_3x_tap" formatted="false">"EŞLENMİŞ DÜĞMELER (1X / 2X / 3X BASIŞ)"</string>
+    <string name="text_remember_what_you_play_in_each_app" formatted="false">"Her uygulamada ne oynattığınızı hatırla"</string>
+    <string name="text_remove_7e2800" formatted="false">"KALDIR"</string>
+    <string name="text_remove_button_remap" formatted="false">"Düğme eşlemesini kaldır"</string>
+    <string name="text_remove_foreground_cutout" formatted="false">"Ön plan kesimini kaldır"</string>
+    <string name="text_remove_from_keep_watching" formatted="false">"İzlemeye Devam Et'ten Kaldır"</string>
+    <string name="text_remove_person" formatted="false">"Kişiyi kaldır"</string>
+    <string name="text_remove_revoke_all_permissions_0a9dac" formatted="false">"Tüm İzinleri Kaldır / Geri Al"</string>
+    <string name="text_remove_revoke_all_permissions_c108cc" formatted="false">"Tüm izinleri kaldır / geri al"</string>
+    <string name="text_remove_this_wallpaper" formatted="false">"Bu duvar kağıdını kaldır"</string>
+    <string name="text_remove_wallpaper" formatted="false">"Duvar Kağıdını Kaldır #"</string>
+    <string name="text_rename_app" formatted="false">"Uygulamayı Yeniden Adlandır"</string>
+    <string name="text_rename_e8372b" formatted="false">"Yeniden adlandır…"</string>
+    <string name="text_rename_f9a6a6" formatted="false">"Yeniden Adlandır"</string>
+    <string name="text_rename_person" formatted="false">"Kişiyi yeniden adlandır"</string>
+    <string name="text_rename_profile" formatted="false">"Profili Yeniden Adlandır"</string>
+    <string name="text_repair" formatted="false">"Onar"</string>
+    <string name="text_replace_wallpaper" formatted="false">"Duvar Kağıdını Değiştir #"</string>
+    <string name="text_required_so_mapped_buttons_work_over_eve" formatted="false">"Eşlenen düğmelerin her uygulamanın üzerinde çalışması için gereklidir"</string>
+    <string name="text_reset_043c3c" formatted="false">"SIFIRLAMA"</string>
+    <string name="text_reset_a1f27d" formatted="false">"Sıfırla"</string>
+    <string name="text_reset_app_order_unhide_all" formatted="false">"Uygulama sırasını sıfırla ve gizlenenleri göster"</string>
+    <string name="text_reset_control_panel_actions_to_default" formatted="false">"Denetim Paneli eylemlerini varsayılana sıfırla"</string>
+    <string name="text_reset_layout" formatted="false">"Düzeni Sıfırla"</string>
+    <string name="text_reset_settings" formatted="false">"Ayarlar sıfırlansın mı?"</string>
+    <string name="text_reset_settings_to_defaults" formatted="false">"Ayarları varsayılana sıfırla"</string>
+    <string name="text_reset_to_default" formatted="false">"Varsayılana sıfırla"</string>
+    <string name="text_reset_to_default_icon" formatted="false">"Varsayılan simgeye sıfırla"</string>
+    <string name="text_restore" formatted="false">"Geri Yükle ›"</string>
+    <string name="text_restore_all_0aeae4" formatted="false">"Tümünü yükle ›"</string>
+    <string name="text_restore_all_9e718c" formatted="false">"Tümünü Geri Yükle"</string>
+    <string name="text_restore_apps_launchers_first" formatted="false">"Önce Uygulamaları ve Başlatıcıları Yükle"</string>
+    <string name="text_restore_by_selected_tv_model" formatted="false">"Seçili TV Modeline Göre Geri Yükle"</string>
+    <string name="text_restore_complete" formatted="false">"Geri Yükleme Tamamlandı"</string>
+    <string name="text_restore_debloated_apps_2f2301" formatted="false">"Debloat edilen uygulamaları geri yükle"</string>
+    <string name="text_restore_debloated_apps_3d05c1" formatted="false">"Debloat edilen uygulamaları geri yükle…"</string>
+    <string name="text_restore_debloated_apps_43153c" formatted="false">"Uygulamaları Geri Yükle"</string>
+    <string name="text_restore_debloated_apps_disabled_launcher" formatted="false">"Debloat edilen uygulamaları ve başlatıcıları geri yükle, izinleri kaldır ve sil ›"</string>
+    <string name="text_restore_failed" formatted="false">"Geri Yükleme Başarısız"</string>
+    <string name="text_restore_options" formatted="false">"GERİ YÜKLEME SEÇENEKLERİ"</string>
+    <string name="text_restore_settings_from_folder" formatted="false">"Klasörden ayarları geri yükle…"</string>
+    <string name="text_restoring_apps" formatted="false">"Uygulamalar Geri Yükleniyor…"</string>
+    <string name="text_resume_45e750" formatted="false">"Devam Et"</string>
+    <string name="text_resume_playback" formatted="false">"Oynatmaya devam et"</string>
+    <string name="text_retry" formatted="false">"Tekrar Dene"</string>
+    <string name="text_revoke_all_permissions" formatted="false">"Tüm İzinleri Kaldır"</string>
+    <string name="text_revoke" formatted="false">"Kaldır ›"</string>
+    <string name="text_revoking_all_permissions" formatted="false">"Tüm izinler kaldırılıyor…"</string>
+    <string name="text_revoking_all_permissions_and_opening_and" formatted="false">"Tüm izinler kaldırılıyor ve Android uygulama kaldırma ekranı açılıyor…"</string>
+    <string name="text_revoking_permissions" formatted="false">"İzinler Kaldırılıyor…"</string>
+    <string name="text_rewind" formatted="false">"Geri Sar"</string>
+    <string name="text_right" formatted="false">"Sağ"</string>
+    <string name="text_rotating_nature_scenes_with_a_glass_cloc" formatted="false">"Cam saat ve alt dock ile dönüşümlü doğa sahneleri"</string>
+    <string name="text_run_first_time_setup_again" formatted="false">"İlk kurulumu tekrar çalıştır…"</string>
+    <string name="text_run_role_home_set_home_activity" formatted="false">"ROLE_HOME ve set-home-activity çalıştır ›"</string>
+    <string name="text_run_role_home_set_home_activity_over_loc" formatted="false">"Yerel ADB üzerinden ROLE_HOME ve set-home-activity çalıştır ›"</string>
+    <string name="text_run_via_adb" formatted="false">"ADB ile Çalıştır ›"</string>
+    <string name="text_running_settings_put_global_adb_enabled" formatted="false">"settings put global adb_enabled 0 çalıştırılıyor ve port 5555 kontrol ediliyor…"</string>
+    <string name="text_s_active_s_found" formatted="false">"%s etkin / %s bulundu ›"</string>
+    <string name="text_save" formatted="false">"Kaydet"</string>
+    <string name="text_saved_disabled_packages_tap_to_re_enable" formatted="false">"KAYITLI DEVRE DIŞI PAKETLER (ETKİNLEŞTİRMEK İÇİN OK)"</string>
+    <string name="text_say_a_movie_show_or_app" formatted="false">"Bir film, dizi veya uygulama söyleyin"</string>
+    <string name="text_scan_apps_adb" formatted="false">"Uygulamaları Tara"</string>
+    <string name="text_scan_installed_apps" formatted="false">"Yüklü Uygulamaları Tara"</string>
+    <string name="text_scan_installed_system_apps_to_find_match" formatted="false">"🔍 Eşleşen Modeli Bulmak İçin Yüklü Uygulamaları Tara"</string>
+    <string name="text_scan_installed_system_apps_via_adb" formatted="false">"🔍 ADB ile Yüklü Sistem Uygulamalarını Tara"</string>
+    <string name="text_scan_with_your_phone_and_approve" formatted="false">"Telefonunla tara ve onayla."</string>
+    <string name="text_scanning_tv_system_apps" formatted="false">"TV Sistem Uygulamaları Taranıyor…"</string>
+    <string name="text_scenes" formatted="false">"SAHNELER"</string>
+    <string name="text_screen_off" formatted="false">"Ekranı Kapat"</string>
+    <string name="text_screen_saver" formatted="false">"Ekran Koruyucu"</string>
+    <string name="text_screensaver" formatted="false">"Ekran Koruyucu"</string>
+    <string name="text_scroll_for_more" formatted="false">"Daha fazlası için kaydır ›"</string>
+    <string name="text_search_946f53" formatted="false">"Ara"</string>
+    <string name="text_search_apps_movies_and_shows" formatted="false">"Uygulama, film ve dizi ara"</string>
+    <string name="text_search_button" formatted="false">"Arama Tuşu"</string>
+    <string name="text_search_by_name" formatted="false">"İsme göre ara"</string>
+    <string name="text_search_city_or_country_65bcc6" formatted="false">"Şehir veya Ülke Ara"</string>
+    <string name="text_search_city_or_country_96234e" formatted="false">"Şehir veya ülke ara…"</string>
+    <string name="text_search_city_or_country_e_g_istanbul_lond" formatted="false">"Şehir veya ülke ara (örn. İstanbul, Londra)…"</string>
+    <string name="text_search_def46e" formatted="false">"🔍 Model Ara…"</string>
+    <string name="text_search_failed_check_internet_connection" formatted="false">"Arama başarısız. İnternet bağlantısını kontrol edin."</string>
+    <string name="text_search_filter_by_brand_or_model" formatted="false">"🔍 Marka veya modele göre ara / filtrele…"</string>
+    <string name="text_search_for_a_city_or_town" formatted="false">"Şehir veya ilçe ara…"</string>
+    <string name="text_search_in_apps" formatted="false">"Uygulamalarda Ara"</string>
+    <string name="text_search_tv_model_or_brand" formatted="false">"TV Modeli veya Markası Ara"</string>
+    <string name="text_searching" formatted="false">"Aranıyor…"</string>
+    <string name="text_seconds_344f8a" formatted="false">"saniye"</string>
+    <string name="text_seconds_ee379b" formatted="false">" saniye"</string>
+    <string name="text_secure_mode_active_adb_not_used_self_rep" formatted="false">"Güvenli Mod Aktif (ADB Kullanılmıyor · Otomatik Onarım Hazır)"</string>
+    <string name="text_secure_mode_grant_write_secure_settings" formatted="false">"Güvenli Mod — WRITE_SECURE_SETTINGS Ver ve ADB'yi Kapat (Önerilen)"</string>
+    <string name="text_secure_mode_needs_one_time_pair_to_grant" formatted="false">"Güvenli Mod (İzinler İçin Tek Seferlik Eşleştirme Gerekli)"</string>
+    <string name="text_secure_mode_selected_adb_will_grant_writ" formatted="false">"Güvenli Mod seçildi — Eşleştirildiğinde WRITE_SECURE_SETTINGS verilir ve port 5555 kapatılır."</string>
+    <string name="text_secure_mode_write_secure_settings_close" formatted="false">"Güvenli Mod — WRITE_SECURE_SETTINGS ve ADB Kapat (Önerilen)"</string>
+    <string name="text_secure_setup_adb" formatted="false">"Güvenli Kurulum (ADB)"</string>
+    <string name="text_security_note_keep_alive_is_enabled_by_d" formatted="false">"Güvenlik Notu: Keep Alive varsayılan olarak açıktır. Güvenli Mod'da tvOS Launcher, ADB'yi hiç kullanmadan (TV'de ADB açık olsa bile) Erişilebilirliği doğrudan WRITE_SECURE_SETTINGS ile onarır. Kalıcı ADB Modu'nda ise port 5555 üzerinden yerel ADB'yi de kullanabilir."</string>
+    <string name="text_select_a_folder_and_enable_or_disable_in" formatted="false">"Bir klasör seçin ve içindeki duvar kağıtlarını tek tek açıp kapatın"</string>
+    <string name="text_select_a_usage_mode_for_permissions_butt" formatted="false">"İzinler için bir kullanım modu seçin (Düğme Eşleyici Erişilebilirliği, İzlemeye Devam Et ve Wi-Fi). Aşağıdan BİR kullanım modu seçin:"</string>
+    <string name="text_select_all_none" formatted="false">"Tümünü Seç / Kaldır"</string>
+    <string name="text_select_all_select_none" formatted="false">"Tümünü Seç / Seçimi Kaldır"</string>
+    <string name="text_select_at_least_one_package_first" formatted="false">"Önce en az bir paket seçin."</string>
+    <string name="text_select_home_app" formatted="false">"Ana Ekran Uygulamasını Seçin"</string>
+    <string name="text_select_transparent_png_foreground" formatted="false">"Şeffaf PNG Ön Plan Seçin"</string>
+    <string name="text_select_tv_model_first" formatted="false">"Önce TV Modelini Seçin"</string>
+    <string name="text_select_wallpaper_folder_0c14ac" formatted="false">"Duvar Kağıdı Klasörü Seçin"</string>
+    <string name="text_select_wallpaper_folder_9bea6b" formatted="false">"Duvar kağıdı klasörü seçin…"</string>
+    <string name="text_select_wallpaper_image" formatted="false">"Duvar Kağıdı Görseli Seçin"</string>
+    <string name="text_selected" formatted="false">"Seçili"</string>
+    <string name="text_selected_press_ok_to_toggle" formatted="false">"Seçili — değiştirmek için OK'a basın"</string>
+    <string name="text_send_any_android_keyevent_keycode_withou" formatted="false">"Üçüncü parti uygulamaya gerek kalmadan istediğiniz tuş kodunu gönderin"</string>
+    <string name="text_send_key_code_566257" formatted="false">"Tuş Kodu Gönder…"</string>
+    <string name="text_send_key_code_fb16e1" formatted="false">"Tuş Kodu Gönder"</string>
+    <string name="text_send_key_code_remote_media_system" formatted="false">"Tuş Kodu Gönder (Kumanda / Medya / Sistem)…"</string>
+    <string name="text_send_to_this_tv_535246" formatted="false">"Bu TV'ye gönder"</string>
+    <string name="text_series" formatted="false">"Dizi"</string>
+    <string name="text_set_as_default" formatted="false">"Varsayılan yap…"</string>
+    <string name="text_set_default_home_launcher" formatted="false">"Varsayılan Ana Ekran Yap"</string>
+    <string name="text_set_default_via_local_adb_recommended" formatted="false">"Yerel ADB ile Varsayılan Yap (Önerilen)"</string>
+    <string name="text_set_manually" formatted="false">"Elle ayarlandı"</string>
+    <string name="text_set_png_cutout" formatted="false">"Ayarlandı (PNG kesim) ›"</string>
+    <string name="text_setting_default_launcher" formatted="false">"Varsayılan Başlatıcı Ayarlanıyor…"</string>
+    <string name="text_setting_role_home_and_default_home_activ" formatted="false">"Yerel ADB üzerinden ROLE_HOME ve varsayılan ana ekran etkinliği ayarlanıyor…"</string>
+    <string name="text_settings_602_scan_641" formatted="false">"Ayarlar (#602 · Scan 641)"</string>
+    <string name="text_settings" formatted="false">"Ayarlar"</string>
+    <string name="text_settings_backed_up" formatted="false">"Ayarlar Yedeklendi"</string>
+    <string name="text_settings_button" formatted="false">"Ayarlar Tuşu"</string>
+    <string name="text_settings_kept" formatted="false">"Ayarların saklandığı yer"</string>
+    <string name="text_settings_restored" formatted="false">"Ayarlar Geri Yüklendi"</string>
+    <string name="text_show_app_names" formatted="false">"Uygulama adlarını göster"</string>
+    <string name="text_show_changelog" formatted="false">"Değişiklik Günlüğü"</string>
+    <string name="text_show_clock_date_greeting_over_your_chose" formatted="false">"Seçilen duvar kağıdı üzerinde Saat, Tarih ve Karşılama göster (dönmek için herhangi bir tuşa basın)"</string>
+    <string name="text_show_continue_watching_on_home" formatted="false">"Ana ekranda İzlemeye Devam Et'i göster"</string>
+    <string name="text_show_inputs_app_on_dock" formatted="false">"Dock'ta Girişler uygulamasını göster"</string>
+    <string name="text_show_native_android_shutdown_reboot_and" formatted="false">"Yerel Android kapatma, yeniden başlatma ve bekleme menüsünü göster"</string>
+    <string name="text_show_on_home_screen" formatted="false">"Ana Ekranda Göster"</string>
+    <string name="text_show_the_wi_fi_name" formatted="false">"Wi-Fi Adını Göster"</string>
+    <string name="text_show_widgets_when_selected_app_has_no_co" formatted="false">"Seçili uygulamada İzlemeye Devam Et yoksa widget'ları göster"</string>
+    <string name="text_shuffle_folder_86fcb0" formatted="false">"KARIŞTIRMA KLASÖRÜ"</string>
+    <string name="text_shuffle_folder_dc8ec3" formatted="false">"Klasörü Karıştır"</string>
+    <string name="text_sign_out" formatted="false">"Çıkış yap"</string>
+    <string name="text_signed_in_sign_out" formatted="false">"Giriş yapıldı · Çıkış yap"</string>
+    <string name="text_similar_model_name" formatted="false">"Benzer model adı"</string>
+    <string name="text_single_multi_wallpapers" formatted="false">"Tekli / Çoklu Duvar Kağıdı"</string>
+    <string name="text_single_tap_1x" formatted="false">"Tek Basış (1x)"</string>
+    <string name="text_skip_now" formatted="false">"Şimdi geç ›"</string>
+    <string name="text_skip_restore_continue" formatted="false">"Atla ve Devam Et"</string>
+    <string name="text_skip_setup" formatted="false">"Kurulumu Atla"</string>
+    <string name="text_skip_setupwraith" formatted="false">"🛡️ setupwraith'i Atla"</string>
+    <string name="text_skip_this_step" formatted="false">"Bu Adımı Atla"</string>
+    <string name="text_skip_to_the_next_reddit_wallpaper" formatted="false">"Sonraki Reddit duvar kağıdına geç"</string>
+    <string name="text_sleep_standby_223" formatted="false">"Uyku / Bekleme (223)"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"Uyku Zamanlayıcısı"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"Uyku zamanlayıcısı"</string>
+    <string name="text_small_clock" formatted="false">"Küçük saat"</string>
+    <string name="text_smaller_more_compact_dock" formatted="false">"Daha küçük, kompakt dock"</string>
+    <string name="text_sound" formatted="false">"Ses"</string>
+    <string name="text_sources_input_602_scan_757" formatted="false">"Kaynaklar / Giriş (#602 · Scan 757)"</string>
+    <string name="text_space" formatted="false">"boşluk"</string>
+    <string name="text_standard_apple_tvos_dock_size" formatted="false">"Standart Apple tvOS dock boyutu"</string>
+    <string name="text_start" formatted="false">"Başlat ›"</string>
+    <string name="text_start_with_the_tv" formatted="false">"TV ile Başlat"</string>
+    <string name="text_startup_keep_alive" formatted="false">"BAŞLANGIÇ VE KEEP ALIVE"</string>
+    <string name="text_step_1_complete_default_home_launcher_se" formatted="false">"1. Adım tamamlandı: Varsayılan ana ekran ADB ile ayarlandı!"</string>
+    <string name="text_step_1_set_tvos_launcher_as_default_via" formatted="false">"1. Adım: Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"</string>
+    <string name="text_step_2_disable_system_launchers_google_t" formatted="false">"2. Adım: Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"</string>
+    <string name="text_step_3_fix_home_button_via_accessibility" formatted="false">"3. Adım: Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"</string>
+    <string name="text_step_4_open_android_system_home_settings" formatted="false">"4. Adım: Android Sistem Ana Ekran Ayarlarını Aç"</string>
+    <string name="text_stock_android_tv_home_sponsored_rows" formatted="false">"Stok Android TV Ana Ekranı ve sponsorlu satırlar"</string>
+    <string name="text_stock_google_tv_home_banner_ads" formatted="false">"Stok Google TV Ana Ekranı ve reklamlar"</string>
+    <string name="text_stop" formatted="false">"Durdur"</string>
+    <string name="text_storage" formatted="false">"Depolama"</string>
+    <string name="text_subreddits_select_single_or_multiple" formatted="false">"SUBREDDIT'LER (TEKLİ VEYA ÇOKLU SEÇİM)"</string>
+    <string name="text_subtitles_cc" formatted="false">"Altyazı Tuşu"</string>
+    <string name="text_suggested" formatted="false">"Önerilen"</string>
+    <string name="text_switch_between_secure_auto_setup_persist" formatted="false">"Güvenli Otomatik, Kalıcı ADB veya Manuel Kurulum arasında geçiş yapın"</string>
+    <string name="text_switch_profile" formatted="false">"Profil Değiştir"</string>
+    <string name="text_switch_tv_hdmi_inputs_on_screen_even_if" formatted="false">"Google TV Launcher devre dışı olsa bile ekran üstü panelden TV / HDMI girişlerini değiştirin"</string>
+    <string name="text_sync_with_weather" formatted="false">"Hava Durumu ile eşitle"</string>
+    <string name="text_sync_with_weather_location" formatted="false">"Hava Durumu konumu ile eşitle"</string>
+    <string name="text_system_home_launcher_detected_on_this_tv" formatted="false">"Bu TV'de tespit edilen sistem ana ekran başlatıcısı"</string>
+    <string name="text_system_launchers_d659b5" formatted="false">"Sistem Başlatıcıları"</string>
+    <string name="text_tall_glass" formatted="false">"Uzun Cam"</string>
+    <string name="text_tap_actions" formatted="false">"BASIŞ EYLEMLERİ"</string>
+    <string name="text_tap_check_for_updates" formatted="false">"Güncellemeleri kontrol et'e basın"</string>
+    <string name="text_tap_to_detect_select" formatted="false">"Algılamak / seçmek için dokunun…"</string>
+    <string name="text_tap_to_include" formatted="false">"Dahil etmek için dokunun"</string>
+    <string name="text_tap_to_set_as_active_wallpaper" formatted="false">"Etkin duvar kağıdı yapmak için dokunun"</string>
+    <string name="text_tap_to_toggle_in_scene_rotation_long_pre" formatted="false">"Sahne döngüsünde açıp kapatmak için dokunun"</string>
+    <string name="text_target_action_application" formatted="false">"HEDEF EYLEM / UYGULAMA"</string>
+    <string name="text_teal" formatted="false">"Turkuaz"</string>
+    <string name="text_temperature" formatted="false">"Sıcaklık birimi"</string>
+    <string name="text_the_home_button_on_the_remote_will_open" formatted="false">"Kumandadaki Ana Ekran düğmesi tvOS Launcher'ı açacaktır."</string>
+    <string name="text_the_home_button_opens_tvos_launcher" formatted="false">"Ana Ekran düğmesi tvOS Launcher'ı açar"</string>
+    <string name="text_this_resets_look_scenes_clock_and_langua" formatted="false">"Bu işlem görünüm, sahne, saat ve dil ayarlarını varsayılana sıfırlar."</string>
+    <string name="text_this_tv_does_not_have_a_built_in_accessi" formatted="false">"Bu TV'de yerleşik bir Erişilebilirlik Ayarları ekranı bulunmuyor. Düğme Eşleyici ve Denetim Paneli servisini Yerel ADB üzerinden otomatik olarak etkinleştirebilirsiniz."</string>
+    <string name="text_this_tv_s_settings_have_no_switch_for_th" formatted="false">"Bu TV'nin ayarlarında bu izin için bir seçenek yok. TV'yi kuran kişi aynı ağdaki bir bilgisayardan bir kez etkinleştirebilir:\n\n"</string>
+    <string name="text_this_will_disable_keep_alive_and_remove" formatted="false">"Bu işlem Keep Alive'ı kapatır ve Erişilebilirlik Servisi, Bildirim Erişimi, Varsayılan Ana Ekran ve tüm başlatıcı izinlerini (hem yerel olarak hem ADB üzerinden) kaldırır."</string>
+    <string name="text_tip_blur_can_t_be_shown_while_a_video_is" formatted="false">"İpucu: Video oynatılırken bulanıklık gösterilemez. Android canlı videoyu bulanıklaştıramaz (DRM'li videolar da yakalanamaz), bu yüzden video panelin arkasında hafif bir gölgeyle oynamaya devam eder."</string>
+    <string name="text_tip_hold_ok_on_any_app_on_the_home_scree" formatted="false">"İpucu: Ana ekran dock'undaki herhangi bir uygulamayı taşımak veya gizlemek için OK tuşuna basılı tutun."</string>
+    <string name="text_tip_press_and_hold_ok_on_any_widget_on_t" formatted="false">"İpucu: Ana ekrandaki herhangi bir widget'ın üzerinde OK tuşuna basılı tutarak taşıma (sırasını değiştirme) veya kapatma menüsünü açabilirsiniz."</string>
+    <string name="text_tmdb_connected" formatted="false">"TMDB bağlandı"</string>
+    <string name="text_today" formatted="false">"Bugün"</string>
+    <string name="text_tomorrow_short" formatted="false">"Yarın"</string>
+    <string name="text_top_movies_web_series" formatted="false">"En İyi Filmler ve Diziler"</string>
+    <string name="text_top_right_search_shortcut" formatted="false">"Sağ üst arama kısayolu"</string>
+    <string name="text_top_right_weather_shortcut" formatted="false">"Sağ üst hava durumu kısayolu"</string>
+    <string name="text_top_shelf_6_column_app_grid_and_custom_w" formatted="false">"Üst raf, 6 sütunlu uygulama ızgarası ve özel duvar kağıtları"</string>
+    <string name="text_top_shelf_content" formatted="false">"ÜST RAF İÇERİĞİ"</string>
+    <string name="text_trending" formatted="false">"Trendler"</string>
+    <string name="text_triple_tap_3x" formatted="false">"Üçlü Basış (3x)"</string>
+    <string name="text_turn_off_custom_image" formatted="false">"Özel görseli kapat"</string>
+    <string name="text_turn_off_custom_scene" formatted="false">"Özel sahneyi kapat"</string>
+    <string name="text_turn_off_folder_shuffle" formatted="false">"Klasör karıştırmayı kapat"</string>
+    <string name="text_turn_off_screen_put_tv_to_sleep" formatted="false">"Ekranı kapat / TV'yi uyku moduna al"</string>
+    <string name="text_turn_on_adb_debugging" formatted="false">"ADB Hata Ayıklamayı Açın"</string>
+    <string name="text_turn_on_custom_image" formatted="false">"Özel görseli aç"</string>
+    <string name="text_turn_on_custom_scene" formatted="false">"Özel sahneyi aç"</string>
+    <string name="text_turn_on_first" formatted="false">"Önce etkinleştirin"</string>
+    <string name="text_turn_on_folder_shuffle" formatted="false">"Klasör karıştırmayı aç"</string>
+    <string name="text_turn_on_off_adb" formatted="false">"ADB'yi Aç / Kapat"</string>
+    <string name="text_turn_on_presentation_mode_first" formatted="false">"Önce Sunum modunu açın"</string>
+    <string name="text_turn_the_tv_off_after" formatted="false">"TV'yi şu süreden sonra kapat:"</string>
+    <string name="text_turning_on_adb" formatted="false">"ADB Açılıyor…"</string>
+    <string name="text_turning_on_adb_debugging_for_this_troubl" formatted="false">"Bu sorun giderme adımı için ADB hata ayıklama açılıyor…"</string>
+    <string name="text_tv_input_source" formatted="false">"Giriş / Kaynak Tuşu"</string>
+    <string name="text_tv_model_matched" formatted="false">"TV Modeli Eşleşti"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"TV Ayarları"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"TV ayarları"</string>
+    <string name="text_tv_speakers" formatted="false">"TV Hoparlörü"</string>
+    <string name="text_tvos_launcher_will_launch_immediately_on" formatted="false">"tvOS Launcher sistem açılışında anında otomatik başlatılacak."</string>
+    <string name="text_tvos_launcher_works_best_as_the_home_scr" formatted="false">"tvOS Launcher en iyi ana ekran olarak çalışır. Bunlara bir kez izin verin; bu TV'nin desteklemediği özellikler atlanır."</string>
+    <string name="text_type_to_search_your_apps_settings_movies" formatted="false">"Uygulamalarınızı, ayarlarınızı, filmleri ve dizileri aramak için yazın"</string>
+    <string name="text_uninstall_3fd78c" formatted="false">"Kaldır"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"KALDIRMA"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"tvOS Launcher'ı Kaldır"</string>
+    <string name="text_universal_shortcut_actions" formatted="false">"EVRENSEL KISAYOL EYLEMLERİ"</string>
+    <string name="text_up_and_down_to_browse_ok_to_change_back" formatted="false">"Gezinmek için Yukarı ve Aşağı, değiştirmek için OK, kapatmak için Geri"</string>
+    <string name="text_up_and_down_to_move_ok_when_done" formatted="false">"Taşımak için Yukarı ve Aşağı, bitince OK"</string>
+    <string name="text_up" formatted="false">"Yukarı"</string>
+    <string name="text_up_next" formatted="false">"Sıradaki"</string>
+    <string name="text_update_available" formatted="false">"Güncelleme Mevcut"</string>
+    <string name="text_update_download_failed" formatted="false">"Güncelleme indirilemedi."</string>
+    <string name="text_update_every" formatted="false">"Güncelleme sıklığı"</string>
+    <string name="text_update_installed" formatted="false">"Güncelleme yüklendi!"</string>
+    <string name="text_update_signature_mismatch" formatted="false">"Güncelleme İmza Uyuşmazlığı"</string>
+    <string name="text_update_signature_mismatch_cannot_update" formatted="false">"Güncelleme imza uyuşmazlığı."</string>
+    <string name="text_updated" formatted="false">"Güncellendi "</string>
+    <string name="text_updates_22906d" formatted="false">"GÜNCELLEMELER"</string>
+    <string name="text_updates_3c957c" formatted="false">"Güncellemeler"</string>
+    <string name="text_use_automatic_location" formatted="false">"Otomatik konumu kullan"</string>
+    <string name="text_use_built_in_android_tv_shortcut" formatted="false">"Yerleşik Android TV kısayolunu kullan"</string>
+    <string name="text_use_custom_background" formatted="false">"Özel arka planı kullan"</string>
+    <string name="text_use_folder_shuffle_background" formatted="false">"Klasör karıştırma arka planını kullan"</string>
+    <string name="text_use_my_location" formatted="false">"Konumumu Kullan"</string>
+    <string name="text_use_presentation" formatted="false">"Sunumu Kullan"</string>
+    <string name="text_used_clean" formatted="false">"% kullanımda  ·  Temizle"</string>
+    <string name="text_used_for_the_weather_on_the_home_screen" formatted="false">"Ana ekrandaki hava durumu ve yerel haberler için kullanılır."</string>
+    <string name="text_used_recent_apps" formatted="false">"% kullanımda · Son Uygulamalar"</string>
+    <string name="text_uses_local_adb_to_grant_permissions_and" formatted="false">"İzinleri vermek için yerel ADB'yi kullanır ve ADB'yi açık tutar"</string>
+    <string name="text_version" formatted="false">"Sürüm"</string>
+    <string name="text_version_info" formatted="false">"SÜRÜM BİLGİSİ"</string>
+    <string name="text_view_or_filter_the_complete_list_of_supp" formatted="false">"Desteklenen tüm TV modellerinin tam listesini görüntüle veya filtrele"</string>
+    <string name="text_voice_input_isn_t_available_on_this_tv" formatted="false">"Bu TV'de sesli arama kullanılamıyor"</string>
+    <string name="text_voice_needs_the_internet" formatted="false">"Sesli arama için internet gerekli"</string>
+    <string name="text_volume_button_fix_mode_28c643" formatted="false">"Ses tuşu düzeltme modu"</string>
+    <string name="text_volume_button_fix_mode_87cb31" formatted="false">"Ses Tuşu Düzeltme Modu"</string>
+    <string name="text_volume_down_25" formatted="false">"Sesini Kıs (25)"</string>
+    <string name="text_volume_fix_mode_1_standard_selected" formatted="false">"Ses Tuşu Düzeltme Modu 1 (Standart) seçildi."</string>
+    <string name="text_volume_fix_mode_2_hy320_projector_select" formatted="false">"Ses Tuşu Düzeltme Modu 2 (HY320 / Projeksiyon) seçildi."</string>
+    <string name="text_volume_fix_mode_3_onn_tv_box_selected" formatted="false">"Ses Tuşu Düzeltme Modu 3 (Onn TV Box) seçildi."</string>
+    <string name="text_volume_up_24" formatted="false">"Sesini Aç (24)"</string>
+    <string name="text_waiting_for_approval" formatted="false">"Onay bekleniyor…"</string>
+    <string name="text_wallpapers_in_folder_tap_to_enable_disab" formatted="false">"KLASÖRDEKİ DUVAR KAĞITLARI (AÇMAK / KAPATMAK İÇİN DOKUNUN)"</string>
+    <string name="text_watching_now_ok_to_switch_or_rename" formatted="false">"Şu an izliyor · Değiştirmek veya yeniden adlandırmak için OK"</string>
+    <string name="text_weather" formatted="false">"Hava Durumu"</string>
+    <string name="text_weather_a5c8c4" formatted="false">"HAVA DURUMU"</string>
+    <string name="text_weather_and_location" formatted="false">"Hava durumu ve konum"</string>
+    <string name="text_weather_forecast_0d1601" formatted="false">"Hava Durumu Tahmini"</string>
+    <string name="text_weather_forecast_1f637b" formatted="false">"Hava Durumu"</string>
+    <string name="text_weather_from" formatted="false">"Hava durumu sağlayıcısı"</string>
+    <string name="text_weather_on_the_home_screen" formatted="false">"Ana ekranda hava durumu"</string>
+    <string name="text_weather_source" formatted="false">"Hava durumu kaynağı"</string>
+    <string name="text_weather_updating" formatted="false">"Güncelleniyor…"</string>
+    <string name="text_web_series" formatted="false">"Dizi"</string>
+    <string name="text_welcome" formatted="false">"Hoş Geldiniz"</string>
+    <string name="text_what_appears_at_the_top_of_home_behind_y" formatted="false">"Uygulamalarınızın arkasında, Ana Ekranın üst kısmında ne görüneceğini seçin."</string>
+    <string name="text_what_you_were_watching_mixed_into_the_ca" formatted="false">"İzlediğiniz içerikler ana ekranda gösterilir"</string>
+    <string name="text_white" formatted="false">"Beyaz"</string>
+    <string name="text_who_s_watching" formatted="false">"Kim İzliyor?"</string>
+    <string name="text_wi_fi_name_location" formatted="false">"Wi-Fi Adı (Konum)"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, görüntü, ses ve diğer TV ayarları"</string>
+    <string name="text_wi_fi_settings" formatted="false">"📶 Wi-Fi Ayarları…"</string>
+    <string name="text_widget_settings" formatted="false">"WIDGET AYARLARI"</string>
+    <string name="text_wind" formatted="false">"Rüzgar "</string>
+    <string name="text_yellow" formatted="false">"Sarı"</string>
+    <string name="text_yellow_button" formatted="false">"Sarı Tuş"</string>
+    <string name="text_yes_delete_unnecessary_files" formatted="false">"Evet, Gereksiz Dosyaları Sil"</string>
+    <string name="text_you_can_also_configure_buttons_later_in" formatted="false">"Düğmeleri daha sonra Ayarlar'dan da yapılandırabilirsiniz"</string>
+    <string name="text_you_need_the_adb_mode_enabled_for_this_t" formatted="false">"Bu sorun giderme adımı için ADB moduna ihtiyacınız vardır. ADB modunu daha sonra istediğiniz zaman Ayarlar'dan değiştirebilirsiniz.\n\nADB'yi şimdi etkinleştirmek mi yoksa bu adımı atlamak mı istersiniz?"</string>
+    <string name="text_you_re_all_set" formatted="false">"Her Şey Hazır"</string>
+    <string name="text_your_home_screen" formatted="false">"Ana Ekranınız"</string>
+    <string name="text_your_name" formatted="false">"Adınız"</string>
+    <string name="text_your_name_and_an_avatar_each_profile_kee" formatted="false">"Adınız ve bir avatar. Her profil kendi uygulamalarını, arka planını ve Ana Ekranını saklar. En fazla üç kişi kullanabilir."</string>
+    <string name="text_your_selected_tv_model_s_files_in_the_do" formatted="false">"Download klasöründeki seçili TV modelinizin dosyaları silinmiş.\n\nDevam etmek için CleanYourTV'yi tekrar indirmek ister misiniz?"</string>
+    <string name="text_your_wi_fi_network_is_currently_owned_by" formatted="false">"⚠️ Mevcut Wi-Fi ağınız setupwraith tarafından kaydedilmiş. setupwraith'i devre dışı bırakmadan önce Wi-Fi Ayarları'ndan ağınızı unutup yeniden bağlanın."</string>
+    <string name="text_youtube_music_optional" formatted="false">"YouTube Music (isteğe bağlı)"</string>
+    <string name="text_zoom" formatted="false">"Yakınlaştırma"</string>
+    <string name="text_zoom_in" formatted="false">"Yakınlaştır"</string>
+    <string name="text_zoom_out" formatted="false">"Uzaklaştır"</string>
+    <string name="weather_condition_sunny">"Güneşli"</string>
+    <string name="weather_condition_clear">"Açık"</string>
+    <string name="weather_condition_mostly_sunny">"Çoğunlukla Güneşli"</string>
+    <string name="weather_condition_mostly_clear">"Çoğunlukla Açık"</string>
+    <string name="weather_condition_partly_cloudy">"Parçalı Bulutlu"</string>
+    <string name="weather_condition_cloudy">"Bulutlu"</string>
+    <string name="weather_condition_foggy">"Sisli"</string>
+    <string name="weather_condition_drizzle">"Çiseleme"</string>
+    <string name="weather_condition_rain">"Yağmurlu"</string>
+    <string name="weather_condition_heavy_rain">"Şiddetli Yağmur"</string>
+    <string name="weather_condition_sleet">"Karla Karışık Yağmur"</string>
+    <string name="weather_condition_snow">"Karlı"</string>
+    <string name="weather_condition_thunderstorms">"Fırtına"</string>
+    <string name="message_downloaded_1_s_tv_models_ready" formatted="false">"İndirildi (%1$s TV modeli hazır)"</string>
+    <string name="message_selected_tv_files_missing_1_s_download_cleanyour" formatted="false">"⚠️ Seçili TV dosyaları eksik (%1$s) — CleanYourTV'yi tekrar indirin"</string>
+    <string name="message_selected_tv_model_1_s_would_you_like_to_delete_t" formatted="false">"Seçilen TV modeli:\n%1$s\n\nDepolama alanından yer açmak için diğer gereksiz CleanYourTV dosyalarını silmek ister misiniz?"</string>
+    <string name="message_deleting_unnecessary_model_files_1_s_2_s" formatted="false">"Gereksiz model dosyaları siliniyor… (%1$s / %2$s)"</string>
+    <string name="message_downloading_to_download_folder_1_s" formatted="false">"Download klasörüne indiriliyor… (%1$s)"</string>
+    <string name="message_unzipping_tv_models_in_download_folder_1_s_files" formatted="false">"Download klasöründe TV modelleri çıkartılıyor… (%1$s dosya)"</string>
+    <string name="message_could_not_download_cleanyourtv_from_github_1_s" formatted="false">"CleanYourTV GitHub üzerinden indirilemedi.\n\n%1$s"</string>
+    <string name="message_product_1_s" formatted="false">"Ürün kodu: %1$s"</string>
+    <string name="message_board_device_1_s" formatted="false">"Anakart/Cihaz: %1$s"</string>
+    <string name="message_oem_family_1_s" formatted="false">"Üretici ailesi: %1$s"</string>
+    <string name="message_exact_tv_model_found_and_selected_automatically" formatted="false">"Tam TV modeli bulundu ve otomatik olarak seçildi:\n\n• %1$s (%2$s)\n%3$s"</string>
+    <string name="message_choose_closest_tv_model_1_s" formatted="false">"En Yakın TV Modelini Seçin — %1$s"</string>
+    <string name="message_on_google_tv_sets_wi_fi_networks_saved_during_in" formatted="false">"Google TV cihazlarda ilk kurulum sırasında kaydedilen Wi-Fi ağı com.google.android.tungsten.setupwraith paketine aittir. Stok Google TV başlatıcısının kapanması için setupwraith devre dışı bırakıldığında bu Wi-Fi ağı silinir.\n\nDevam etmeden önce:\n1. Wi-Fi Ayarları'nı açın → Wi-Fi ağınızı seçip Ağı Unut deyin.\n2. Wi-Fi ağınıza yeniden bağlanın (artık com.android.tv.settings adına kaydedilir).\n3. Buraya dönüp \"Wi-Fi'yi Unutup Yeniden Ekledim — Devam Et\"e basın."</string>
+    <string name="message_no_disabled_app_list_has_been_saved_by_cleanyour" formatted="false">"CleanYourTV tarafından henüz kaydedilmiş devre dışı uygulama listesi yok.\n\nDebloat Başlat'ı çalıştırdığınızda devre dışı bırakılan her paket buraya kaydedilir; böylece uygulamaları tek tek veya topluca geri yükleyebilirsiniz."</string>
+    <string name="message_no_saved_disabled_app_backup_was_found_and_no_tv" formatted="false">"Kaydedilmiş devre dışı uygulama yedeği bulunamadı ve henüz bir TV modeli seçilmedi.\n\nHangi paketlerin yeniden etkinleştirileceğini belirlemek için lütfen önce TV modelinizi seçin."</string>
+    <string name="message_your_current_tvos_launcher_settings_have_been_sa" formatted="false">"Mevcut tvOS Launcher ayarlarınız şu konuma kaydedildi:\n\n%1$s"</string>
+    <string name="message_persistent_adb_mode_keep_port_1_s_open" formatted="false">"Kalıcı ADB Modu (Port %1$s açık kalır)"</string>
+    <string name="message_connected_paired_port_1_s_open" formatted="false">"Bağlı ve Eşleşti (Port %1$s Açık)"</string>
+    <string name="message_port_1_s_open_ready_to_pair" formatted="false">"Port %1$s Açık · Eşleşmeye Hazır"</string>
+    <string name="message_this_runs_settings_put_global_adb_enabled_0_over" formatted="false">"Bu işlem Yerel ADB üzerinden 'settings put global adb_enabled 0' komutunu çalıştırır ve ev ağınızda port 5555'in kapandığını doğrular.\n\nWRITE_SECURE_SETTINGS izni zaten verilmişse tvOS Launcher, ADB'ye ihtiyaç duymadan Erişilebilirliği doğrudan uygulama içinden onarmaya devam eder!\n\nİpucu: Maksimum güvenlik için Geliştirici Seçenekleri'nden 'USB hata ayıklama yetkilerini geri al' seçeneğine de tıklayabilirsiniz."</string>
+    <string name="message_keep_alive_monitors_the_accessibility_service_an" formatted="false">"Keep Alive, Erişilebilirlik Servisini izler ve TV'niz kapatırsa otomatik olarak yeniden açar.\n\n✓ Bu TV'de WRITE_SECURE_SETTINGS izni verildiği için Keep Alive, Ağ ADB'sinin (port 5555) açık kalmasına gerek duymadan Erişilebilirliği doğrudan uygulama içinden onarır."</string>
+    <string name="message_security_warning_keep_alive_monitors_and_restore" formatted="false">"⚠️ Güvenlik Uyarısı:\n\nKeep Alive, TV'niz arka planda izinleri kapatırsa otomatik olarak yeniden açar.\n\nWRITE_SECURE_SETTINGS izni olmadan Keep Alive'ın çalışması için Ağ Hata Ayıklamanın (port 5555) açık kalması gerekir. Daha yüksek güvenlik için önce Güvenli Mod'da ADB Eşleştir / Onar çalıştırarak WRITE_SECURE_SETTINGS iznini verin.\n\nKeep Alive yine de etkinleştirilsin mi?"</string>
+    <string name="message_warning_manual_debloat_lists_all_system_apps_ins" formatted="false">"UYARI: Manuel Debloat, TV'nizde yüklü olan TÜM sistem uygulamalarını listeler.\n\n• Yalnızca ne yaptığınızı tam olarak biliyorsanız paketleri devre dışı bırakın.\n• Temel Android sistem servislerini, TV giriş/tuner servislerini veya Ayarlar paketlerini devre dışı bırakmak HDMI girişlerini, Wi-Fi'yi, kumandayı bozabilir veya cihazın açılmamasına neden olabilir.\n\nSorumluluk size ait olmak üzere devam edilsin mi?"</string>
+    <string name="message_browse_search_all_1_s_tv_models" formatted="false">"📋 Tüm %1$s TV Modeline Göz At / Ara"</string>
+    <string name="message_scanning_installed_system_packages_over_adb_and" formatted="false">"ADB üzerinden yüklü sistem paketleri taranıyor ve %1$s TV modeliyle karşılaştırılıyor…"</string>
+    <string name="message_all_1_s_tv_models" formatted="false">"Tüm %1$s TV Modeli"</string>
+    <string name="message_write_secure_settings_and_all_launcher_permissio" formatted="false">"WRITE_SECURE_SETTINGS ve tüm başlatıcı izinleri artık etkinleştirildi ve güvenliğiniz için ADB (port 5555) kapatıldı.\n\nİpucu: Maksimum güvenlik için Geliştirici Seçenekleri'nden “USB hata ayıklama yetkilerini kaldır” seçeneğini de kullanabilirsiniz."</string>
+    <string name="control_item_memory" formatted="false">"Bellek / Son Uygulamalar"</string>
+    <string name="control_item_audio" formatted="false">"Ses Çıkışı"</string>
+    <string name="control_item_ambient" formatted="false">"Ortam Modu / Kilit Ekranı"</string>
+    <string name="control_item_power" formatted="false">"Kapat / Ekranı Kapat"</string>
+    <string name="control_item_inputs" formatted="false">"TV Girişleri Kısayolu"</string>
+    <string name="control_item_mapper" formatted="false">"Tuş Atayıcı Kısayolu"</string>
+    <string name="control_item_settings" formatted="false">"Ayarlar Kısayolu"</string>
+    <string name="control_item_search" formatted="false">"Arama / Asistan Kısayolu"</string>
+    <string name="control_item_weather_panel" formatted="false">"Hava Durumu Paneli (Şimdi ve Yarın)"</string>
+    <string name="cyt_all_count">Tümü (%1$s)</string>
+    <string name="cyt_page_range">SAYFA %1$s / %2$s (%3$s–%4$s / %5$s)</string>
+    <string name="cyt_models_count">MODELLER (%1$s)</string>
+    <string name="cyt_page_number">Sayfa %1$s / %2$s</string>
+    <string name="cyt_packages_on_tv">"BU TV'DEKİ PAKETLER (%1$s)"</string>
+    <string name="cyt_all_system_apps">TÜM SİSTEM UYGULAMALARI (%1$s — DEVRE DIŞI BIRAK / ETKİNLEŞTİR)</string>
+    <string name="football_favorite_team_added">Favori takım eklendi: %1$s</string>
+    <string name="wallpaper_grose_valley" formatted="false">"Grose Vadisi"</string>
+    <string name="wallpaper_albury_storm" formatted="false">"Albury Fırtınası"</string>
+    <string name="wallpaper_aresquiers_beach" formatted="false">"Aresquiers Plajı"</string>
+    <string name="wallpaper_vang_vieng_sunset" formatted="false">"Vang Vieng Gün Batımı"</string>
+    <string name="wallpaper_aurora" formatted="false">"Kuzey Işıkları"</string>
+    <string name="wallpaper_midnight" formatted="false">"Gece Yarısı"</string>
+    <string name="wallpaper_sunset" formatted="false">"Gün Batımı"</string>
+    <string name="wallpaper_ocean" formatted="false">"Okyanus"</string>
+    <string name="wallpaper_graphite" formatted="false">"Grafit"</string>
+    <string name="setup_adb_close_steps" formatted="false">"1. TV Ayarları → Sistem → Hakkında menüsüne gidin ve Geliştirici Seçeneklerini açmak için Yapı Numarası'na 7 kez basın.\n2. Ayarlar → Sistem → Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın.\n3. Buraya dönüp İzinleri Şimdi Ver'i seçin (Kurulumdan hemen sonra ADB port 5555 otomatik olarak kapatılacaktır)."</string>
+    <string name="setup_adb_keep_steps" formatted="false">"1. TV Ayarları → Sistem → Hakkında menüsüne gidin ve Geliştirici Seçeneklerini açmak için Yapı Numarası'na 7 kez basın.\n2. Ayarlar → Sistem → Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın.\n3. Buraya dönüp İzinleri Şimdi Ver'i seçin (CleanYourTV için ADB açık kalacaktır)."</string>
+    <string name="cyt_disable_selected_packages" formatted="false">"✅ Seçilen Paketleri Devre Dışı Bırak (%1$s)"</string>
+    <string name="cyt_restore_all_saved_packages" formatted="false">"Kaydedilen Tüm Paketleri Geri Yükle (%1$s)"</string>
+    <string name="cyt_all_tv_models" formatted="false">"Tüm TV Modelleri (%1$s)"</string>
+    <string name="cyt_disabled_apps" formatted="false">"Devre Dışı Uygulamalar (%1$s — Etkinleştirmek için dokunun)"</string>
+    <string name="cyt_restore_saved" formatted="false">"Kaydedilenleri Yükle (%1$s)"</string>
+    <string name="cyt_restore_model_list" formatted="false">"Model Listesini Yükle (%1$s)"</string>
+    <string name="unit_row_one" formatted="false">"satır"</string>
+    <string name="unit_row_other" formatted="false">"satır"</string>
+    <string name="unit_minute_one" formatted="false">"dakika"</string>
+    <string name="unit_minute_other" formatted="false">"dakika"</string>
+    <string name="unit_hour_one" formatted="false">"saat"</string>
+    <string name="unit_hour_other" formatted="false">"saat"</string>
+    <string name="scene_custom_lock_image" formatted="false">"Özel Kilit Görseli"</string>
+    <string name="scene_custom_number" formatted="false">"Özel %1$s"</string>
+    <string name="scene_custom_number_fallback" formatted="false">"Özel %1$s"</string>
+    <string name="scene_fog" formatted="false">"Sis"</string>
+    <string name="scene_folder_shuffle" formatted="false">"Klasör Karıştırma"</string>
+    <string name="scene_golden_hour" formatted="false">"Altın saat"</string>
+    <string name="scene_night" formatted="false">"Gece"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"Yağmur ormanı şafağı"</string>
+    <string name="scene_waterline" formatted="false">"Su çizgisi"</string>
+    <string name="scene_gradient_aurora" formatted="false">"Kuzey Işığı"</string>
+    <string name="scene_photo_tessellated" formatted="false">"Mozaik Kıyı"</string>
+    <string name="cyt_summary_done" formatted="false">"Tamamlandı (%1$s uygulama devre dışı)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"Yapılmadı (%1$s/%2$s devre dışı)"</string>
+    <string name="cyt_similar_apps_scanned" formatted="false">"Benzer Sistem Uygulamalarına Sahip Modeller (%1$s uygulama tarandı)"</string>
+    <string name="cyt_closest_matches_scanned" formatted="false">"EN YAKIN EŞLEŞMELER (%1$s UYGULAMA TARANDI)"</string>
+    <string name="cyt_restore_saved_disabled_apps" formatted="false">"Kaydedilen Devre Dışı Uygulamaları Geri Yükle (%1$s paket)"</string>
+    <string name="cyt_restore_package_count" formatted="false">"Geri Yükle (%1$s paket)"</string>
+    <string name="cyt_starting_disable" formatted="false">"%1$s paket için ADB debloat işlemi başlatılıyor…"</string>
+    <string name="cyt_starting_restore" formatted="false">"%1$s paket ADB üzerinden yeniden etkinleştiriliyor…"</string>
+    <string name="cyt_restore_success" formatted="false">"Bu TV'de %1$s paket yeniden etkinleştirildi ve durum diske yazıldı (sync)."</string>
+    <string name="folder_select_shuffle_count" formatted="false">"Bu klasörü seç ve karıştır (%1$s görsel)"</string>
+    <string name="folder_no_image_files" formatted="false">"Bu klasörde görsel dosyası (%1$s) bulunamadı"</string>
+    <string name="settings_restore_from_download" formatted="false">"Download/%1$s dosyasından geri yükle"</string>
+    <string name="settings_restore_from_folder" formatted="false">"Bu klasörden geri yükle (%1$s)"</string>
+    <string name="uninstall_restore_permissions_explanation" formatted="false">"tvOS Launcher'ı kaldırmadan önce:\n\n1. TV'nizde çalışan bir stok ana ekran kalması için debloat edilen uygulamaları ve devre dışı bırakılan sistem başlatıcılarını geri yükleyin.\n2. Kaldırma sırasında sorun yaşanmaması için tvOS Launcher'ın tüm özel izinlerini (Erişilebilirlik, Keep Alive, Varsayılan Ana Ekran) otomatik olarak geri alın.\n3. Android uygulama kaldırma ekranına yönlendirilin.\n\nNasıl devam etmekistersiniz?"</string>
+    <string name="dock_size_changed" formatted="false">"Dock boyutu %%%1$s olarak ayarlandı."</string>
+    <string name="cyt_restore_saved_confirmation" formatted="false">"Kaydedilmiş devre dışı uygulama verisi bulundu (%1$s paket).\n\nKaydedilen %1$s paketin tamamı ADB üzerinden yeniden etkinleştirilsin mi?"</string>
+    <string name="folder_shuffle_enabled" formatted="false">"Klasör karıştırma etkinleştirildi: %1$s"</string>
+    <string name="folder_shuffle_enabled_empty" formatted="false">"Klasör karıştırma etkinleştirildi: "</string>
+    <string name="lock_folder_shuffle_enabled" formatted="false">"Kilit Ekranı klasör karıştırma etkinleştirildi: %1$s"</string>
+    <string name="lock_folder_shuffle_enabled_empty" formatted="false">"Kilit Ekranı klasör karıştırma etkinleştirildi: "</string>
+    <string name="cyt_no_direct_model" formatted="false">"%1$s için doğrudan model adı eşleşmesi bulunamadı. En yakın TV profilini bulmak için yukarıdaki ADB ile Yüklü Sistem Uygulamalarını Tara seçeneğini kullanın."</string>
+    <string name="cyt_no_direct_model_empty" formatted="false">" için doğrudan model adı eşleşmesi bulunamadı. En yakın TV profilini bulmak için yukarıdaki ADB ile Yüklü Sistem Uygulamalarını Tara seçeneğini kullanın."</string>
+    <string name="cyt_selected_model" formatted="false">"Seçilen model: %1$s"</string>
+    <string name="cyt_selected_model_empty" formatted="false">"Seçilen model: "</string>
+    <string name="cyt_checking_model" formatted="false">"%1$s için ADB üzerinden yüklü paketler kontrol ediliyor…"</string>
+    <string name="cyt_checking_model_empty" formatted="false">" için ADB üzerinden yüklü paketler kontrol ediliyor…"</string>
+    <string name="cyt_checking_model_wifi" formatted="false">"%1$s için ADB üzerinden yüklü paketler ve Wi-Fi durumu kontrol ediliyor…"</string>
+    <string name="cyt_checking_model_wifi_empty" formatted="false">" için ADB üzerinden yüklü paketler ve Wi-Fi durumu kontrol ediliyor…"</string>
+    <string name="cyt_no_model_packages" formatted="false">"%1$s profilindeki paketlerin hiçbiri bu TV'de yüklü değil."</string>
+    <string name="cyt_no_model_packages_empty" formatted="false">" profilindeki paketlerin hiçbiri bu TV'de yüklü değil."</string>
+    <string name="cyt_restore_selected_model" formatted="false">"Seçili Model Profilini Geri Yükle (%1$s — %2$s paket)"</string>
+    <string name="cyt_restore_selected_model_empty" formatted="false">"Seçili Model Profilini Geri Yükle ( — %2$s paket)"</string>
+    <string name="cyt_reenable_model_packages" formatted="false">"%1$s profilindeki tüm paketleri yeniden etkinleştir"</string>
+    <string name="cyt_reenable_model_packages_empty" formatted="false">" profilindeki tüm paketleri yeniden etkinleştir"</string>
+    <string name="cyt_brand_oem" formatted="false">"Marka/Üretici: %1$s"</string>
+    <string name="cyt_model_search" formatted="false">"Arama: \"%1$s\" (%2$s)"</string>
+    <string name="cyt_disabling_progress" formatted="false">"Devre dışı bırakılıyor (%1$s/%2$s):\n%3$s"</string>
+    <string name="cyt_enabling_progress" formatted="false">"Etkinleştiriliyor (%1$s/%2$s):\n%3$s"</string>
+    <string name="settings_restored_from_path" formatted="false">"Ayarlar şu dosyadan başarıyla geri yüklendi:\n%1$s"</string>
+    <string name="settings_restore_failed_from_path" formatted="false">"Ayarlar şu dosyadan geri yüklenemedi:\n%1$s"</string>
+    <string name="settings_backup_write_failed" formatted="false">"Download/%2$s dosyasına yazılamadı%1$s\n\nLütfen depolama erişimine izin verip tekrar deneyin."</string>
+    <string name="cyt_one_model_kept" formatted="false">"1 model korundu (%1$s) · Tümünü indirmek için dokunun"</string>
+    <string name="cyt_oem_package_match" formatted="false">"%1$s/%2$s üretici paketi: %3$s"</string>
+    <string name="cyt_protected_package" formatted="false">"%1$s korunan bir temel sistem paketidir."</string>
+    <string name="cyt_select_apps_for_model" formatted="false">"Devre Dışı Bırakılacak Uygulamaları Seçin — %1$s (%2$s bulundu)"</string>
+    <string name="cyt_select_apps_for_model_empty" formatted="false">"Devre Dışı Bırakılacak Uygulamaları Seçin —  (%2$s bulundu)"</string>
+    <string name="cyt_disabled_for_model" formatted="false">"%2$s için %1$s paket başarıyla devre dışı bırakıldı.\n\n• Tek dokunuşla Geri Yükleme için devre dışı bırakılan uygulama listesi (%3$s uygulama) kaydedildi.\n• Paket durumu diske yazıldı (sync)."</string>
+    <string name="cyt_disabled_for_model_empty" formatted="false">" için %1$s paket başarıyla devre dışı bırakıldı.\n\n• Tek dokunuşla Geri Yükleme için devre dışı bırakılan uygulama listesi (%3$s uygulama) kaydedildi.\n• Paket durumu diske yazıldı (sync)."</string>
+    <string name="cyt_restore_model_confirmation" formatted="false">"Kaydedilmiş devre dışı uygulama listesi bulunamadı.\n\nGeri yükleme işlemi seçili TV modelinizi (%1$s) kullanacak ve %2$s paketi ADB üzerinden yeniden etkinleştirecek."</string>
+    <string name="cyt_restore_model_confirmation_empty" formatted="false">"Kaydedilmiş devre dışı uygulama listesi bulunamadı.\n\nGeri yükleme işlemi seçili TV modelinizi () kullanacak ve %2$s paketi ADB üzerinden yeniden etkinleştirecek."</string>
+    <string name="cyt_critical_service_warning" formatted="false">"%1$s (%2$s) TV kumandanız ve Bluetooth bağlantısı için gerekli kritik bir sistem servisidir.\n\nHiçbir koşulda devre dışı bırakılamaz."</string>
+    <string name="cyt_core_package_warning" formatted="false">"%1$s (%2$s) temel bir sistem paketidir.\n\nDevre dışı bırakmak sistem ayarlarını veya TV girişlerini bozabilir. Yine de devre dışı bırakılsın mı?"</string>
+    <string name="cyt_no_model_packages_scan" formatted="false">"%1$s (%2$s) listesindeki paketlerin hiçbiri bu TV'de yüklü değil.\n\nEn yakın TV modelini bulmak için ADB üzerinden yüklü uygulamaları taramak ister misiniz?"</string>
+    <string name="button_remap_removed" formatted="false">"%1$s eşlemesi kaldırıldı."</string>
+    <string name="button_remap_removed_empty" formatted="false">" eşlemesi kaldırıldı."</string>
+    <string name="dock_move_tooltip" formatted="false">"%1$s taşınıyor  ·  Sol/Sağ, bitince OK"</string>
+    <string name="dock_move_tooltip_empty" formatted="false">" taşınıyor  ·  Sol/Sağ, bitince OK"</string>
+    <string name="cyt_package_match_reason" formatted="false">"%1$s/%2$s uygulama (%3$s)"</string>
+    <string name="profile_switch_to" formatted="false">"%1$s profiline geç"</string>
+    <string name="profile_switch_to_empty" formatted="false">" profiline geç"</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"Manual Setup profiline geç"</string>
+    <string name="profile_name_default" formatted="false">"Varsayılan"</string>
+    <string name="profile_name_kids" formatted="false">"Çocuklar"</string>
+    <string name="profile_name_person" formatted="false">"Kişi %1$s"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"Daha az uygulama"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"Yoğun Karlı"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"İzlemeye devam et"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"Görünüm ve sahneler"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"Diğer uygulamalar"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"Sağanak"</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"Ana Ekran Ayarları"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"İzlemeye devam et"</string>
+    <string name="legacy_error_now_ed5eb9a37e" formatted="false">"Şimdi"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"Uyku Zamanlayıcısı"</string>
+    <string name="language_option_title" formatted="false">"Türkçe"</string>
+    <string name="language_option_description" formatted="false">"tvOS Launcher'ı Türkçe kullanın"</string>
+    <string name="search_keywords_input" formatted="false">"giriş kaynak"</string>
+    <string name="search_keywords_control_center" formatted="false">"denetim güç uyku"</string>
+    <string name="search_keywords_weather" formatted="false">"hava sıcaklık yağmur"</string>
+    <string name="search_keywords_profile" formatted="false">"profil kullanıcı kişi"</string>
+    <string name="search_keywords_home_settings" formatted="false">"ayarlar görünüm sahneler dil"</string>
+    <string name="search_keywords_refresh" formatted="false">"yenile haberler öneriler"</string>
+    <string name="search_keywords_wifi" formatted="false">"ağ"</string>
+    <string name="search_keywords_bluetooth" formatted="false">"kumanda kulaklık hoparlör"</string>
+    <string name="search_keywords_sound" formatted="false">"ses hoparlör"</string>
+    <string name="search_keywords_display" formatted="false">"ekran çözünürlük görüntü"</string>
+    <string name="search_keywords_screen_saver" formatted="false">"ekran koruyucu"</string>
+    <string name="search_keywords_date_time" formatted="false">"tarih saat"</string>
+    <string name="search_keywords_accessibility" formatted="false">"erişilebilirlik altyazı"</string>
+    <string name="search_keywords_apps" formatted="false">"uygulamalar kaldır depolama"</string>
+    <string name="search_keywords_storage" formatted="false">"depolama alan bellek"</string>
+    <string name="search_keywords_tv_settings" formatted="false">"ayarlar sistem cihaz"</string>
+    <string name="search_available_on">"%1$s üzerinde"</string>
 </resources>

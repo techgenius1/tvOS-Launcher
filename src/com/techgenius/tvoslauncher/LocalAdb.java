@@ -221,13 +221,9 @@ final class LocalAdb {
     static String getAdbModeLabel(Context c) {
         int p = getActiveAdbPort(c);
         if (getAdbMode(c) == ADB_MODE_PERSISTENT) {
-            return I18n.s(c,
-                    "Persistent ADB Mode (Keep port " + p + " open)",
-                    "Kalıcı ADB Modu (Port " + p + " açık kalır)");
+            return I18n.resourceString(c, R.string.message_persistent_adb_mode_keep_port_1_s_open, p);
         }
-        return I18n.s(c,
-                "Secure Mode — WRITE_SECURE_SETTINGS & Close ADB (Recommended)",
-                "Güvenli Mod — WRITE_SECURE_SETTINGS ve ADB Kapat (Önerilen)");
+        return I18n.resourceString(c, R.string.text_secure_mode_write_secure_settings_close);
     }
 
     static void setAdbMode(Context c, int mode) {
@@ -737,26 +733,26 @@ final class LocalAdb {
         boolean secureGranted = hasWriteSecureSettings(c);
         if (getAdbMode(c) == ADB_MODE_SECURE_CLOSE) {
             if (secureGranted) {
-                return I18n.s(c, "Secure Mode Active (ADB Not Used · Self-Repair Ready)", "Güvenli Mod Aktif (ADB Kullanılmıyor · Otomatik Onarım Hazır)");
+                return I18n.resourceString(c, R.string.text_secure_mode_active_adb_not_used_self_rep);
             }
-            return I18n.s(c, "Secure Mode (Needs One-Time Pair to Grant Permissions)", "Güvenli Mod (İzinler İçin Tek Seferlik Eşleştirme Gerekli)");
+            return I18n.resourceString(c, R.string.text_secure_mode_needs_one_time_pair_to_grant);
         }
         int p = getActiveAdbPort(c);
         boolean adbOn = isAdbSettingEnabled(c);
         boolean paired = isPaired(c);
         if (portReachable && paired) {
-            return I18n.s(c, "Connected & Paired (Port " + p + " Open)", "Bağlı ve Eşleşti (Port " + p + " Açık)");
+            return I18n.resourceString(c, R.string.message_connected_paired_port_1_s_open, p);
         }
         if (portReachable) {
-            return I18n.s(c, "Port " + p + " Open · Ready to Pair", "Port " + p + " Açık · Eşleşmeye Hazır");
+            return I18n.resourceString(c, R.string.message_port_1_s_open_ready_to_pair, p);
         }
         if (adbOn && paired) {
-            return I18n.s(c, "Paired · ADB Enabled", "Eşleşti · ADB Açık");
+            return I18n.resourceString(c, R.string.text_paired_adb_enabled);
         }
         if (adbOn) {
-            return I18n.s(c, "ADB Enabled · Not Paired", "ADB Açık · Eşleşmedi");
+            return I18n.resourceString(c, R.string.text_adb_enabled_not_paired);
         }
-        return I18n.s(c, "Disconnected (ADB Off)", "Bağlı Değil (ADB Kapalı)");
+        return I18n.resourceString(c, R.string.text_disconnected_adb_off);
     }
 
     static boolean isAdbSettingEnabled(Context c) {

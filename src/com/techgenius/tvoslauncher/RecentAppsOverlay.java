@@ -486,7 +486,7 @@ public final class RecentAppsOverlay {
 
         // 2. Top-Left Title: "Recent Apps"
         TextView title = new TextView(c);
-        title.setText(I18n.s(c, "Recent Apps", "Son Uygulamalar"));
+        title.setText(I18n.resourceString(c, R.string.text_recent_apps));
         title.setTextColor(0xE6FFFFFF);
         title.setTypeface(Ui.font(c, "semibold"));
         Ui.textSize(title, 20f);
@@ -525,7 +525,7 @@ public final class RecentAppsOverlay {
             card.addView(badge, blp);
 
             TextView heading = new TextView(c);
-            heading.setText(I18n.s(c, "Persistent ADB Mode Required", "Kalıcı ADB Modu Gerekli"));
+            heading.setText(I18n.resourceString(c, R.string.text_persistent_adb_mode_required));
             heading.setTextColor(Color.WHITE);
             heading.setTypeface(Ui.font(c, "semibold"));
             Ui.textSize(heading, 20f);
@@ -536,9 +536,7 @@ public final class RecentAppsOverlay {
             card.addView(heading, hdlp);
 
             TextView body = new TextView(c);
-            body.setText(I18n.s(c,
-                    "Recent Apps Manager cannot clear apps while Secure ADB Mode is active.\n\nEnable Persistent ADB Mode in Settings › Advanced › ADB operating mode to use the Recent Apps feature.",
-                    "Güvenli ADB Modu etkinken Son Uygulamalar Yöneticisi uygulamaları kapatamaz.\n\nSon Uygulamalar özelliğini kullanmak için Ayarlar › Gelişmiş › ADB çalışma modu bölümünden Kalıcı ADB Modunu etkinleştirin."));
+            body.setText(I18n.resourceString(c, R.string.text_recent_apps_manager_cannot_clear_apps_wh));
             body.setTextColor(0xCCFFFFFF);
             body.setTypeface(Ui.font(c, "regular"));
             Ui.textSize(body, 14f);
@@ -557,7 +555,7 @@ public final class RecentAppsOverlay {
 
             TextView openSettingsBtn = buildWarningButton(
                     c,
-                    I18n.s(c, "Open Settings", "Ayarları Aç"),
+                    I18n.resourceString(c, R.string.text_open_settings),
                     unit,
                     () -> {
                         dismiss();
@@ -573,7 +571,7 @@ public final class RecentAppsOverlay {
 
             TextView closeBtn = buildWarningButton(
                     c,
-                    I18n.s(c, "Close", "Kapat"),
+                    I18n.resourceString(c, R.string.text_close),
                     unit,
                     RecentAppsOverlay::dismiss);
             LinearLayout.LayoutParams cblp = new LinearLayout.LayoutParams(
@@ -643,7 +641,7 @@ public final class RecentAppsOverlay {
 
         // 4. Empty Text ("No recent apps yet")
         TextView emptyView = new TextView(c);
-        emptyView.setText(I18n.s(c, "No recent apps yet", "Henüz son kullanılan uygulama yok"));
+        emptyView.setText(I18n.resourceString(c, R.string.text_no_recent_apps_yet));
         emptyView.setTextColor(0xB3FFFFFF);
         emptyView.setTypeface(Ui.font(c, "medium"));
         Ui.textSize(emptyView, 16f);
@@ -681,7 +679,7 @@ public final class RecentAppsOverlay {
 
         // 6. Bottom Hint ("Press ▲ on an app to close it")
         TextView hintView = new TextView(c);
-        hintView.setText(I18n.s(c, "Press ▲ on an app to close it", "Kapatmak için uygulamanın üzerinde ▲ tuşuna basın"));
+        hintView.setText(I18n.resourceString(c, R.string.text_press_on_an_app_to_close_it));
         hintView.setTextColor(0x99FFFFFF);
         hintView.setTypeface(Ui.font(c, "medium"));
         Ui.textSize(hintView, 13f);
@@ -867,7 +865,7 @@ public final class RecentAppsOverlay {
         btn.addView(circle, new LinearLayout.LayoutParams(circleSize, circleSize));
 
         TextView label = new TextView(c);
-        label.setText(I18n.s(c, "Close All", "Tümünü Kapat"));
+        label.setText(I18n.resourceString(c, R.string.text_close_all));
         label.setTextColor(Color.WHITE);
         label.setTypeface(Ui.font(c, "semibold"));
         Ui.textSize(label, 14f);
@@ -1198,9 +1196,7 @@ public final class RecentAppsOverlay {
             double gb = 1073741824.0;
             String usedStr = String.format(Locale.US, "%.1f GB", usedBytes / gb);
             String totalStr = String.format(Locale.US, "%.1f GB", mi.totalMem / gb);
-            activeRamText.setText(I18n.s(c,
-                    "RAM %s used of %s",
-                    "RAM %s içinde %s kullanımda", usedStr, totalStr));
+            activeRamText.setText(I18n.resourceString(c, R.string.text_ram_s_used_of_s, usedStr, totalStr));
             activeRamTrack.post(() -> {
                 if (activeRamTrack == null || activeRamFill == null) return;
                 int w = activeRamTrack.getWidth();

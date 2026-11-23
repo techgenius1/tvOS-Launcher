@@ -191,7 +191,7 @@ public class SettingsActivity extends Activity {
         if (token != null && !token.trim().isEmpty()) {
             Suggestions.prefs(this).edit().putString(Suggestions.K_TOKEN, token.trim()).apply();
             Suggestions.changed(this);
-            Toast.makeText(this, tr("TMDB connected", "TMDB bağlandı"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, I18n.resourceString(SettingsActivity.this, R.string.text_tmdb_connected), Toast.LENGTH_SHORT).show();
         }
         String pg = getIntent().getStringExtra("page");
         if (pg != null && !pg.isEmpty()) {
@@ -240,32 +240,24 @@ public class SettingsActivity extends Activity {
         return I18n.isRtl(this) ? "\u2039" : "\u203a";
     }
 
-    private String tr(String en, String trStr) {
-        return I18n.s(this, en, trStr);
-    }
-
-    private String tr(String en, String trStr, Object... args) {
-        return I18n.s(this, en, trStr, args);
-    }
-
     private int u(float dp) {
         return Ui.px(this, dp);
     }
 
     private String sectionTitle(String sec) {
         switch (sec) {
-            case LOOK_SCENES: return tr("Appearance and scenes", "Görünüm ve sahneler");
+            case LOOK_SCENES: return I18n.resourceString(SettingsActivity.this, R.string.text_appearance_and_scenes);
             case LOCATION:
-            case WEATHER: return tr("Weather and location", "Hava durumu ve konum");
-            case APPS: return tr("Apps", "Uygulamalar");
-            case PROFILES: return tr("People", "Kişiler");
-            case CONTROL_PANEL: return tr("Control Panel", "Denetim Paneli");
-            case BUTTON_MAPPER: return tr("Button mapper", "Düğme eşleyici");
-            case QUICK: return tr("Quick settings", "Hızlı ayarlar");
-            case LANGUAGE: return tr("Language", "Dil");
-            case ADVANCED: return tr("Advanced", "Gelişmiş");
-            case UPDATES: return tr("Updates", "Güncellemeler");
-            case ABOUT: return tr("About", "Hakkında");
+            case WEATHER: return I18n.resourceString(SettingsActivity.this, R.string.text_weather_and_location);
+            case APPS: return I18n.resourceString(SettingsActivity.this, R.string.text_apps_825c0a);
+            case PROFILES: return I18n.resourceString(SettingsActivity.this, R.string.text_people_3a2eb8);
+            case CONTROL_PANEL: return I18n.resourceString(SettingsActivity.this, R.string.text_control_panel);
+            case BUTTON_MAPPER: return I18n.resourceString(SettingsActivity.this, R.string.text_button_mapper_bed8af);
+            case QUICK: return I18n.resourceString(SettingsActivity.this, R.string.text_quick_settings);
+            case LANGUAGE: return I18n.resourceString(SettingsActivity.this, R.string.text_language);
+            case ADVANCED: return I18n.resourceString(SettingsActivity.this, R.string.text_advanced_e7d42a);
+            case UPDATES: return I18n.resourceString(SettingsActivity.this, R.string.text_updates_3c957c);
+            case ABOUT: return I18n.resourceString(SettingsActivity.this, R.string.text_about);
             default: return sec;
         }
     }
@@ -301,7 +293,7 @@ public class SettingsActivity extends Activity {
         columns.addView(sideCol, sideLp);
 
         sideTitleView = new TextView(this);
-        sideTitleView.setText(tr("Home settings", "Ana ekran ayarları"));
+        sideTitleView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_home_settings_2f49b8));
         sideTitleView.setTextColor(Color.WHITE);
         sideTitleView.setTypeface(Ui.font(this, "display"));
         sideTitleView.setLetterSpacing(-0.022f);
@@ -492,7 +484,7 @@ public class SettingsActivity extends Activity {
                     }
                 }
                 for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
-                    String assetPath = "backgrounds/" + Scenes.CLASSIC_PHOTOS[i][0];
+                    String assetPath = "backgrounds/" + Scenes.CLASSIC_PHOTOS[i].id;
                     String tk = assetPath + ":" + reqW + "x" + reqH;
                     if (!SCENE_THUMB_CACHE.containsKey(tk)) {
                         Bitmap raw = Scenes.loadAssetBitmap(ctx, assetPath, reqW, reqH);
@@ -687,7 +679,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void updateSidebarTranslations() {
-        sideTitleView.setText(tr("Home settings", "Ana ekran ayarları"));
+        sideTitleView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_home_settings_2f49b8));
         for (String[] pair : SIDEBAR_SECTIONS) {
             String key = pair[0];
             TextView label = sideLabels.get(key);
@@ -737,20 +729,15 @@ public class SettingsActivity extends Activity {
     private void updateHintText(boolean movableRow) {
         if (hintView == null) return;
         if (liftedSceneId != null) {
-            hintView.setText(tr("Up and down to move, OK when done",
-                    "Taşımak için Yukarı ve Aşağı, bitince OK"));
+            hintView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_up_and_down_to_move_ok_when_done));
         } else if (!inRows) {
-            hintView.setText(tr("Up and down to browse, OK to change, Back to close",
-                    "Gezinmek için Yukarı ve Aşağı, değiştirmek için OK, kapatmak için Geri"));
+            hintView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_up_and_down_to_browse_ok_to_change_back));
         } else if (APPS.equals(currentSection) && showingHiddenApps) {
-            hintView.setText(tr("OK to open  ·  Hold OK to restore  ·  Back to go back",
-                    "Açmak için OK  ·  Geri yüklemek için OK'e basılı tutun  ·  Dönmek için Geri"));
+            hintView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_ok_to_open_hold_ok_to_restore_back_to_go));
         } else if (movableRow) {
-            hintView.setText(tr("OK to change, hold OK to move, Back to go back",
-                    "Değiştirmek için OK, taşımak için OK'e basılı tutun, dönmek için Geri"));
+            hintView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_ok_to_change_hold_ok_to_move_back_to_go));
         } else {
-            hintView.setText(tr("OK to change, Back to go back",
-                    "Değiştirmek için OK, dönmek için Geri"));
+            hintView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_ok_to_change_back_to_go_back));
         }
     }
 
@@ -898,14 +885,14 @@ public class SettingsActivity extends Activity {
 
     void pageLanguage() {
         String cur = I18n.getLang(this);
-        for (int i = 0; i < I18n.LANGUAGES.length; i++) {
+        I18n.LanguageOption[] languages = I18n.languageOptions(this);
+        for (int i = 0; i < languages.length; i++) {
             final int idx = i;
-            final String code = I18n.LANGUAGES[i][0];
-            final String title = I18n.LANGUAGES[i][1];
-            final String sub = I18n.LANGUAGES[i][2];
+            final I18n.LanguageOption language = languages[i];
+            final String code = language.code;
             choiceRow(
-                    title,
-                    sub,
+                    language.title,
+                    language.description,
                     code.equals(cur),
                     () -> {
                         boolean wasRtl = I18n.isRtl(this);
@@ -920,19 +907,18 @@ public class SettingsActivity extends Activity {
                         selectSection(LANGUAGE, true, idx);
                     });
         }
-        infoNote(tr("Changes the words on the home screen, date, weather and settings.",
-                "Ana ekrandaki, tarihteki, hava durumundaki ve ayarlardaki dili değiştirir."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_changes_the_words_on_the_home_screen_dat));
     }
 
     void pageWeather() {
-        section(tr("WEATHER", "HAVA DURUMU"));
-        row(tr("Weather on the home screen", "Ana ekranda hava durumu"),
-                () -> Weather.enabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_weather_a5c8c4));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_weather_on_the_home_screen),
+                () -> Weather.enabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     Weather.prefs(this).edit().putBoolean(Weather.K_ENABLED, !Weather.enabled(this)).apply();
                     Weather.changed(this);
                 });
-        row(tr("Temperature", "Sıcaklık birimi"), () -> {
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_temperature), () -> {
             String u = Weather.units(this);
             return u.equals("f") ? "°F (Fahrenheit)" : "°C (Celsius)";
         }, () -> {
@@ -942,33 +928,33 @@ public class SettingsActivity extends Activity {
             Weather.changed(this);
             Weather.refresh(this, true, null);
         });
-        row(tr("Update every", "Güncelleme sıklığı"),
-                () -> Weather.refreshMinutes(this) + tr(" minutes", " dakika"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_update_every),
+                () -> Weather.refreshMinutes(this) + I18n.resourceString(SettingsActivity.this, R.string.text_minutes),
                 () -> {
                     int cur = Weather.refreshMinutes(this);
                     int next = cur == 15 ? 30 : cur == 30 ? 60 : 15;
                     Weather.prefs(this).edit().putInt(Weather.K_REFRESH, next).apply();
                 });
-        row(tr("Weather source", "Hava durumu kaynağı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_weather_source),
                 () -> Weather.sourceName(Weather.source(this)),
                 () -> openSubMenu("weather_source"));
-        infoRow(tr("Weather from", "Hava durumu sağlayıcısı"),
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_weather_from),
                 "Open-Meteo",
-                tr("Free forecast service, no account needed", "Ücretsiz hava tahmini servisi, hesap gerekmez"));
+                I18n.resourceString(SettingsActivity.this, R.string.text_free_forecast_service_no_account_needed));
 
-        section(tr("LOCATION", "KONUM"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_location_873ca7));
         String city = Weather.place(this);
         boolean isManual = Weather.manual(this);
-        infoRow(tr("Current place", "Geçerli konum"),
-                city.isEmpty() ? tr("Automatic (from internet)", "Otomatik (internetten)") : city,
-                isManual ? tr("Set manually", "Elle ayarlandı") : tr("Detected automatically", "Otomatik algılandı"));
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_current_place),
+                city.isEmpty() ? I18n.resourceString(SettingsActivity.this, R.string.text_automatic_from_internet) : city,
+                isManual ? I18n.resourceString(SettingsActivity.this, R.string.text_set_manually) : I18n.resourceString(SettingsActivity.this, R.string.text_detected_automatically));
 
-        row(tr("Search for a city or town…", "Şehir veya ilçe ara…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_search_for_a_city_or_town),
                 () -> isManual ? city : chev(),
                 this::searchCity);
 
         if (isManual) {
-            row(tr("Use automatic location", "Otomatik konumu kullan"), () -> "", () -> {
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_use_automatic_location), () -> "", () -> {
                 Weather.setPlace(this, null);
                 Weather.refresh(this, true, this::rebuildMainRows);
                 rebuildMainRows();
@@ -976,8 +962,7 @@ public class SettingsActivity extends Activity {
             });
         }
 
-        infoNote(tr("Used for the weather on the home screen and local headlines.",
-                "Ana ekrandaki hava durumu ve yerel haberler için kullanılır."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_used_for_the_weather_on_the_home_screen));
     }
 
     /**
@@ -992,67 +977,67 @@ public class SettingsActivity extends Activity {
     void pageLookAndScenes() {
         boolean scenesLook = Scenes.isScenesLook(this);
 
-        section(tr("LOOK", "GÖRÜNÜM"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_look));
         choiceRow(
-                tr("Night scenes", "Gece sahneleri"),
-                tr("A big glass clock, scenes taking turns", "Büyük cam saat, sırayla değişen sahneler"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_night_scenes_6b95bc),
+                I18n.resourceString(SettingsActivity.this, R.string.text_a_big_glass_clock_scenes_taking_turns),
                 scenesLook,
                 () -> {
                     Scenes.setLook(this, Scenes.LOOK_SCENES);
                     selectSection(LOOK_SCENES, true, 0);
                 });
         choiceRow(
-                tr("Classic", "Klasik"),
-                tr("One photo and a grid of app banners", "Tek fotoğraf ve uygulama afişleri ızgarası"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_classic),
+                I18n.resourceString(SettingsActivity.this, R.string.text_one_photo_and_a_grid_of_app_banners),
                 !scenesLook,
                 () -> {
                     Scenes.setLook(this, Scenes.LOOK_CLASSIC);
                     selectSection(LOOK_SCENES, true, 1);
                 });
 
-        section(tr("HOME SCREEN WIDGETS", "ANA EKRAN WIDGET'LARI"));
-        row(tr("Home screen widget settings", "Ana ekran widget ayarları"),
-                () -> (HomeDashboard.isEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı")) + "  ›",
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen_widgets));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen_widget_settings),
+                () -> (HomeDashboard.isEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off)) + "  ›",
                 () -> openSubMenu("home_dashboard"));
 
-        section(tr("DOCK", "DOCK"));
-        row(tr("Dock size", "Dock boyutu"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_dock));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_dock_size),
                 () -> Scenes.dockScaleLabel(this),
                 () -> openSubMenu("dock_size"));
-        row(tr("Dock rows", "Dock satır sayısı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_dock_rows),
                 () -> Scenes.dockRowsLabel(this),
                 () -> {
                     Scenes.cycleDockRows(this);
                     refreshAll();
                 });
-        row(tr("Show app names", "Uygulama adlarını göster"),
-                () -> Scenes.isDockNamesShown(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_show_app_names),
+                () -> Scenes.isDockNamesShown(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     Scenes.setDockNamesShown(this, !Scenes.isDockNamesShown(this));
                     refreshAll();
                 });
 
         if (scenesLook) {
-            section(tr("NIGHT SCENES CLOCK", "GECE SAHNELERİ SAATİ"));
-            row(tr("Small clock", "Küçük saat"),
-                    () -> Scenes.isSmallClockEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_night_scenes_clock));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_small_clock),
+                    () -> Scenes.isSmallClockEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         Scenes.setSmallClockEnabled(this, !Scenes.isSmallClockEnabled(this));
                         refreshAll();
                     });
-            row(tr("Clock", "Saat"),
-                    () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_clock),
+                    () -> Scenes.isClock24h(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_24_hour) : I18n.resourceString(SettingsActivity.this, R.string.text_12_hour),
                     () -> {
                         Scenes.setClock24h(this, !Scenes.isClock24h(this));
                         refreshAll();
                     });
-            row(tr("Clock font", "Saat yazı tipi"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_clock_font),
                     () -> Scenes.clockStyleLabel(this),
                     () -> {
                         Scenes.cycleClockStyle(this);
                         refreshAll();
                     });
-            row(tr("Default wallpaper clock alignment", "Varsayılan duvar kağıdı saat hizalaması"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_default_wallpaper_clock_alignment),
                     () -> Scenes.defaultClockPosLabel(this),
                     () -> {
                         Scenes.cycleDefaultClockPos(this);
@@ -1060,35 +1045,35 @@ public class SettingsActivity extends Activity {
                     });
             boolean customSceneOn = CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE);
             if (customSceneOn || Scenes.isAnyCustomSceneEnabled(this)) {
-                row(tr("Custom wallpaper clock alignment", "Özel duvar kağıdı saat hizalaması"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_clock_alignment),
                         () -> Scenes.customClockPosLabel(this),
                         () -> {
                             Scenes.cycleCustomClockPos(this);
                             refreshAll();
                         });
             }
-            row(tr("Each scene stays", "Her sahne süresi"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_each_scene_stays),
                     () -> Scenes.getStayIntervalLabel(this),
                     () -> {
                         Scenes.cycleStaySeconds(this);
                         refreshAll();
                     });
 
-            section(tr("CUSTOM WALLPAPER", "ÖZEL DUVAR KAĞIDI"));
-            row(tr("Custom wallpaper mode", "Özel duvar kağıdı modu"),
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_208136));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_mode_f2890b),
                     () -> CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE)
-                            ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                            ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         boolean next = !CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE);
                         CustomMedia.setCustomWallpaperEnabled(this, CustomMedia.SCOPE_SCENE, next);
                         rebuildMainRows();
                     });
             if (customSceneOn) {
-                row(tr("Custom wallpaper settings…", "Özel duvar kağıdı ayarları…"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_settings),
                         () -> CustomMedia.getCustomWallpaperModeLabel(this, CustomMedia.SCOPE_SCENE),
                         () -> openSubMenu("custom_wall:" + CustomMedia.SCOPE_SCENE));
             } else {
-                section(tr("SCENES", "SAHNELER"));
+                section(I18n.resourceString(SettingsActivity.this, R.string.text_scenes));
                 List<String> order = Scenes.getSceneOrder(this);
                 for (int i = 0; i < order.size(); i++) {
                     String id = order.get(i);
@@ -1099,81 +1084,81 @@ public class SettingsActivity extends Activity {
                 }
             }
         } else {
-            section(tr("CLASSIC CLOCK & WEATHER", "KLASİK SAAT VE HAVA DURUMU"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_classic_clock_weather));
             boolean bigClock = Scenes.isClassicBigClockEnabled(this);
-            row(tr("Big Clock (Night Scene style)", "Büyük Saat (Gece Sahnesi stili)"),
-                    () -> bigClock ? tr("On", "Açık") : tr("Off", "Kapalı"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_big_clock_night_scene_style),
+                    () -> bigClock ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         Scenes.setClassicBigClockEnabled(this, !Scenes.isClassicBigClockEnabled(this));
                         rebuildMainRows();
                     });
             if (bigClock) {
-                row(tr("Clock alignment", "Saat hizalaması"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_clock_alignment),
                         () -> Scenes.classicClockPosLabel(this),
                         () -> {
                             Scenes.cycleClassicClockPos(this);
                             refreshAll();
                         });
-                row(tr("Clock", "Saat"),
-                        () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_clock),
+                        () -> Scenes.isClock24h(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_24_hour) : I18n.resourceString(SettingsActivity.this, R.string.text_12_hour),
                         () -> {
                             Scenes.setClock24h(this, !Scenes.isClock24h(this));
                             refreshAll();
                         });
-                row(tr("Clock font", "Saat yazı tipi"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_clock_font),
                         () -> Scenes.clockStyleLabel(this),
                         () -> {
                             Scenes.cycleClockStyle(this);
                             refreshAll();
                         });
-                row(tr("Top-right weather shortcut", "Sağ üst hava durumu kısayolu"),
-                        () -> SceneHome.isWeatherShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_top_right_weather_shortcut),
+                        () -> SceneHome.isWeatherShortcutEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                         () -> {
                             SceneHome.setWeatherShortcutEnabled(this, !SceneHome.isWeatherShortcutEnabled(this));
                             refreshAll();
                         });
-                row(tr("Top-right search shortcut", "Sağ üst arama kısayolu"),
-                        () -> SceneHome.isSearchShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_top_right_search_shortcut),
+                        () -> SceneHome.isSearchShortcutEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                         () -> {
                             SceneHome.setSearchShortcutEnabled(this, !SceneHome.isSearchShortcutEnabled(this));
                             refreshAll();
                         });
             } else {
-                row(tr("Clock", "Saat"),
-                        () -> Scenes.isClock24h(this) ? tr("24 hour", "24 saat") : tr("12 hour", "12 saat"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_clock),
+                        () -> Scenes.isClock24h(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_24_hour) : I18n.resourceString(SettingsActivity.this, R.string.text_12_hour),
                         () -> {
                             Scenes.setClock24h(this, !Scenes.isClock24h(this));
                             refreshAll();
                         });
             }
 
-            section(tr("CUSTOM WALLPAPER", "ÖZEL DUVAR KAĞIDI"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_208136));
             boolean customClassicOn = CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC);
-            row(tr("Custom wallpaper mode", "Özel duvar kağıdı modu"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_mode_f2890b),
                     () -> CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC)
-                            ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                            ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         boolean next = !CustomMedia.isCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC);
                         CustomMedia.setCustomWallpaperEnabled(this, CustomMedia.SCOPE_CLASSIC, next);
                         rebuildMainRows();
                     });
             if (customClassicOn) {
-                row(tr("Custom wallpaper settings…", "Özel duvar kağıdı ayarları…"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_settings),
                         () -> CustomMedia.getCustomWallpaperModeLabel(this, CustomMedia.SCOPE_CLASSIC),
                         () -> openSubMenu("custom_wall:" + CustomMedia.SCOPE_CLASSIC));
             } else {
-                section(tr("CLASSIC BACKGROUND", "KLASİK ARKA PLAN"));
+                section(I18n.resourceString(SettingsActivity.this, R.string.text_classic_background));
                 String curWall = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
                 for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
-                    final String photoFile = Scenes.CLASSIC_PHOTOS[i][0];
+                    final String photoFile = Scenes.CLASSIC_PHOTOS[i].id;
                     final String wallKey = "photo:" + photoFile;
-                    final String label = I18n.s(this, Scenes.CLASSIC_PHOTOS[i][1], Scenes.CLASSIC_PHOTOS[i][2]);
+                    final String label = Scenes.CLASSIC_PHOTOS[i].title(this);
                     classicPhotoRow(label, "backgrounds/" + photoFile, wallKey.equals(curWall), () -> {
                         Profiles.homePrefs(this).edit().putString("wallpaper", wallKey).apply();
                         rebuildMainRows();
                     });
                 }
-                row(tr("Ambient colour themes…", "Ortam renk temaları…"), () -> {
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_ambient_colour_themes_028289), () -> {
                     String k = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
                     int idx = Arrays.asList(MainActivity.WALL_KEYS).indexOf(k);
                     return MainActivity.wallName(this, Math.max(0, idx));
@@ -1187,7 +1172,7 @@ public class SettingsActivity extends Activity {
             pageHiddenApps();
             return;
         }
-        row(tr("Hidden apps", "Gizlenen uygulamalar"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_hidden_apps),
                 () -> {
                     Set<String> hidden = Profiles.homePrefs(this).getStringSet(MainActivity.PREF_HIDDEN, Collections.emptySet());
                     int count = hidden != null ? hidden.size() : 0;
@@ -1198,7 +1183,7 @@ public class SettingsActivity extends Activity {
                     rebuildMainRows();
                     focusFirstRow();
                 });
-        row(tr("Reset app order & unhide all", "Uygulama sırasını sıfırla ve gizlenenleri göster"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_reset_app_order_unhide_all),
                 () -> "",
                 () -> {
                     Profiles.homePrefs(this).edit()
@@ -1206,55 +1191,54 @@ public class SettingsActivity extends Activity {
                             .remove(MainActivity.PREF_OTHER)
                             .remove(MainActivity.PREF_HIDDEN)
                             .apply();
-                    showStatusMsg(tr("App layout reset to default.", "Uygulama düzeni varsayılana sıfırlandı."));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_app_layout_reset_to_default));
                 });
-        row(tr("Show Continue Watching on Home", "Ana ekranda İzlemeye Devam Et'i göster"),
-                () -> Profiles.homePrefs(this).getBoolean("cw_enabled", false) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_show_continue_watching_on_home),
+                () -> Profiles.homePrefs(this).getBoolean("cw_enabled", false) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean on = !Profiles.homePrefs(this).getBoolean("cw_enabled", false);
                     Profiles.homePrefs(this).edit().putBoolean("cw_enabled", on).apply();
                 });
-        row(tr("Home screen weather shortcut", "Ana ekranda hava durumu kısayolu"),
-                () -> SceneHome.isWeatherShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen_weather_shortcut),
+                () -> SceneHome.isWeatherShortcutEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !SceneHome.isWeatherShortcutEnabled(this);
                     SceneHome.setWeatherShortcutEnabled(this, next);
                     refreshAll();
                 });
-        row(tr("Home screen search shortcut", "Ana ekranda arama kısayolu"),
-                () -> SceneHome.isSearchShortcutEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen_search_shortcut),
+                () -> SceneHome.isSearchShortcutEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !SceneHome.isSearchShortcutEnabled(this);
                     SceneHome.setSearchShortcutEnabled(this, next);
                     refreshAll();
                 });
-        row(tr("Clear Continue Watching history", "İzlemeye Devam Et geçmişini temizle"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_clear_continue_watching_history),
                 () -> "",
                 () -> {
                     MediaWatchService.Store.clear(this);
-                    showStatusMsg(tr("Continue Watching cleared.", "İzlemeye Devam Et geçmişi temizlendi."));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_continue_watching_cleared));
                 });
-        row(tr("Manage system apps in TV settings…", "TV ayarlarında uygulamaları yönet…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_manage_system_apps_in_tv_settings),
                 () -> chev(),
                 () -> Suggestions.start(this, new Intent(Settings.ACTION_APPLICATION_SETTINGS)));
-        infoNote(tr("Tip: Hold OK on any app on the home screen dock to move or hide it.",
-                "İpucu: Ana ekran dock'undaki herhangi bir uygulamayı taşımak veya gizlemek için OK tuşuna basılı tutun."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_tip_hold_ok_on_any_app_on_the_home_scree));
 
         // One section per streaming app with a continue-watching popup on its dock tile.
         for (WatchCloud cloud : new WatchCloud[]{new NuvioCloud(this), new StremioCloud(this)}) {
             section(cloud.name().toUpperCase(java.util.Locale.ROOT));
-            row(tr("Continue Watching on dock", "Dock'ta İzlemeye Devam Et"),
-                    () -> cloud.popupEnabled() ? tr("On", "Açık") : tr("Off", "Kapalı"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_continue_watching_on_dock),
+                    () -> cloud.popupEnabled() ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         cloud.setPopupEnabled(!cloud.popupEnabled());
                         refreshAll();
                     });
-            row(tr("Account", "Hesap"),
-                    () -> cloud.isSignedIn() ? tr("Signed in · Sign out", "Giriş yapıldı · Çıkış yap")
-                            : tr("Not signed in", "Giriş yapılmadı"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_account),
+                    () -> cloud.isSignedIn() ? I18n.resourceString(SettingsActivity.this, R.string.text_signed_in_sign_out)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_not_signed_in),
                     () -> confirmWatchSignOut(cloud));
             if (cloud instanceof NuvioCloud) {
-                row(tr("Apps using Nuvio", "Nuvio kullanan uygulamalar"),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_apps_using_nuvio),
                         () -> {
                             int n = NuvioCloud.linkedApps(this).size();
                             return (n > 0 ? "+" + n + "  " : "") + "›";
@@ -1270,7 +1254,7 @@ public class SettingsActivity extends Activity {
      * but apps that look like Nuvio (name or nuvio:// links) are listed first as suggestions.
      */
     private void subMenuNuvioApps() {
-        mainHeadView.setText(tr("Apps using Nuvio", "Nuvio kullanan uygulamalar"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_apps_using_nuvio));
         backSubMenuRow();
         PackageManager pm = getPackageManager();
 
@@ -1302,15 +1286,15 @@ public class SettingsActivity extends Activity {
         } catch (Throwable ignored) {
         }
 
-        section(tr("Official app", "Resmi uygulama"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_official_app));
         boolean anyOfficial = false;
         for (Map.Entry<String, String> e : apps.entrySet()) {
             if (!NuvioCloud.isOfficial(e.getKey())) continue;
             anyOfficial = true;
-            choiceRow(e.getValue(), tr("Always on", "Her zaman açık") + " · " + e.getKey(), true, () -> { });
+            choiceRow(e.getValue(), I18n.resourceString(SettingsActivity.this, R.string.text_always_on) + " · " + e.getKey(), true, () -> { });
         }
         if (!anyOfficial) {
-            choiceRow("Nuvio", tr("Not installed", "Yüklü değil") + " · " + NuvioCloud.OFFICIAL_PKG, true, () -> { });
+            choiceRow("Nuvio", I18n.resourceString(SettingsActivity.this, R.string.text_not_installed) + " · " + NuvioCloud.OFFICIAL_PKG, true, () -> { });
         }
 
         // Linked apps that were uninstalled stay listed, so they can be unlinked.
@@ -1338,19 +1322,18 @@ public class SettingsActivity extends Activity {
             return cmp != 0 ? cmp : a[0].compareTo(b[0]);
         });
 
-        section(tr("Other apps", "Diğer uygulamalar"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_other_apps_5ccac2));
         for (String[] r : rows) {
             final String pkg = r[0];
             boolean on = linked.contains(pkg);
-            String sub = (!apps.containsKey(pkg) ? tr("Not installed", "Yüklü değil") + " · "
-                    : r[2].equals("1") ? tr("Suggested", "Önerilen") + " · " : "") + pkg;
+            String sub = (!apps.containsKey(pkg) ? I18n.resourceString(SettingsActivity.this, R.string.text_not_installed) + " · "
+                    : r[2].equals("1") ? I18n.resourceString(SettingsActivity.this, R.string.text_suggested) + " · " : "") + pkg;
             choiceRow(r[1], sub, on, () -> {
                 NuvioCloud.setLinked(this, pkg, !NuvioCloud.linkedApps(this).contains(pkg));
                 rebuildMainRows();
             });
         }
-        infoNote(tr("Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them.",
-                "Aynı Nuvio hesabıyla giriş yapan Nuvio sürümlerini (Nuvio Native Legacy gibi) bağlayın. Dock'taki kutucukları Nuvio'nun İzlemeye Devam Et listesini gösterir ve Arama içerikleri onlarda açar."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_link_nuvio_forks_like_nuvio_native_legac));
     }
 
     static final class HiddenAppItem {
@@ -1374,7 +1357,7 @@ public class SettingsActivity extends Activity {
                 HiddenAppItem it = new HiddenAppItem();
                 it.key = MainActivity.INPUTS_KEY;
                 it.pkg = getPackageName();
-                it.label = MainActivity.getCustomAppName(this, it.key, null, tr("Inputs", "Girişler"));
+                it.label = MainActivity.getCustomAppName(this, it.key, null, I18n.resourceString(SettingsActivity.this, R.string.text_inputs));
                 it.icon = new BitmapDrawable(getResources(), Glyphs.get("input", u(22), Color.WHITE));
                 out.add(it);
             }
@@ -1382,7 +1365,7 @@ public class SettingsActivity extends Activity {
                 HiddenAppItem it = new HiddenAppItem();
                 it.key = MainActivity.PRESENT_KEY;
                 it.pkg = getPackageName();
-                it.label = MainActivity.getCustomAppName(this, it.key, null, tr("Presentation", "Sunum"));
+                it.label = MainActivity.getCustomAppName(this, it.key, null, I18n.resourceString(SettingsActivity.this, R.string.text_presentation));
                 it.icon = new BitmapDrawable(getResources(), Glyphs.get("present", u(22), Color.WHITE));
                 it.launch = new Intent(this, com.techgenius.tvoslauncher.present.PresentationActivity.class)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1421,24 +1404,22 @@ public class SettingsActivity extends Activity {
     }
 
     private void pageHiddenApps() {
-        mainHeadView.setText(tr("Hidden apps", "Gizlenen uygulamalar"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_hidden_apps));
         List<HiddenAppItem> hiddenList = listHiddenAppItems();
         if (hiddenList.isEmpty()) {
-            row((I18n.isRtl(this) ? "\u2192  " : "\u2190  ") + tr("Back to Apps", "Uygulamalara d\u00f6n"), () -> "", () -> {
+            row((I18n.isRtl(this) ? "\u2192  " : "\u2190  ") + I18n.resourceString(SettingsActivity.this, R.string.text_back_to_apps), () -> "", () -> {
                 showingHiddenApps = false;
                 rebuildMainRows();
                 focusFirstRow();
             });
-            infoNote(tr("No hidden apps. Hold OK on any app on the home screen dock and choose Hide.",
-                    "Gizlenen uygulama yok. Ana ekran dock'undaki herhangi bir uygulamada OK tuşuna basılı tutup Gizle'yi seçin."));
+            infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_no_hidden_apps_hold_ok_on_any_app_on_the));
             return;
         }
         for (int i = 0; i < hiddenList.size(); i++) {
             final HiddenAppItem item = hiddenList.get(i);
             hiddenAppRow(item);
         }
-        infoNote(tr("OK to open  ·  Hold OK to restore",
-                "Açmak için OK  ·  Geri yüklemek için OK'e basılı tutun"));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_ok_to_open_hold_ok_to_restore));
     }
 
     private void hiddenAppRow(HiddenAppItem item) {
@@ -1481,7 +1462,7 @@ public class SettingsActivity extends Activity {
         r.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView v = new TextView(this);
-        v.setText(tr("Open", "Aç"));
+        v.setText(I18n.resourceString(SettingsActivity.this, R.string.text_open_4f0000));
         v.setTextColor(0x9EFFFFFF);
         v.setTypeface(Ui.font(this, "medium"));
         Ui.textSize(v, 13.5f);
@@ -1533,7 +1514,7 @@ public class SettingsActivity extends Activity {
                     .putStringSet(MainActivity.PREF_OTHER, other)
                     .apply();
             rebuildMainRows();
-            showStatusMsg(tr(item.label + " restored to Home Screen.", item.label + " Ana Ekran'a geri yüklendi."));
+            showStatusMsg(I18n.resourceString(this, R.string.message_app_restored_home, item.label));
             return true;
         });
 
@@ -1544,7 +1525,7 @@ public class SettingsActivity extends Activity {
     }
 
     void pageProfiles() {
-        section(tr("PEOPLE", "KİŞİLER"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_people_c31d4d));
         List<Profiles.Profile> ps = Profiles.list(this);
         String curId = Profiles.current(this).id;
         for (int i = 0; i < ps.size(); i++) {
@@ -1552,20 +1533,19 @@ public class SettingsActivity extends Activity {
             boolean isActive = p.id.equals(curId);
             choiceRow(
                     I18n.profileName(this, p.name),
-                    isActive ? tr("Watching now · OK to switch or rename", "Şu an izliyor · Değiştirmek veya yeniden adlandırmak için OK")
-                             : tr("OK to switch or edit", "Geçiş yapmak veya düzenlemek için OK"),
+                    isActive ? I18n.resourceString(SettingsActivity.this, R.string.text_watching_now_ok_to_switch_or_rename)
+                             : I18n.resourceString(SettingsActivity.this, R.string.text_ok_to_switch_or_edit),
                     isActive,
                     () -> openSubMenu("profile_actions:" + p.id));
         }
         if (Profiles.canAdd(this)) {
-            row(tr("Add a person\u2026", "Ki\u015fi ekle\u2026"), () -> chev(), this::promptAddPerson);
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_add_a_person_ef7edb), () -> chev(), this::promptAddPerson);
         }
-        section(tr("OPTIONS", "SEÇENEKLER"));
-        row(tr("Ask who is watching on wake", "TV açıldığında kimin izlediğini sor"),
-                () -> Profiles.askOnWake(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_options));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_ask_who_is_watching_on_wake),
+                () -> Profiles.askOnWake(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> Profiles.setAskOnWake(this, !Profiles.askOnWake(this)));
-        infoNote(tr("Each person keeps their own Keep Watching row and app order.",
-                "Her kişi kendi İzlemeye Devam Et satırını ve uygulama düzenini korur."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_each_person_keeps_their_own_keep_watchin));
     }
 
     private void promptRenamePerson(Profiles.Profile p, int rowIdx) {
@@ -1577,9 +1557,9 @@ public class SettingsActivity extends Activity {
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
-        AlertDialog dlg = dialog(tr("Rename person", "Kişiyi yeniden adlandır"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_rename_person))
                 .setView(box)
-                .setPositiveButton(tr("Save", "Kaydet"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_save), (d, w) -> {
                     String n = in.getText().toString().trim();
                     if (!n.isEmpty()) {
                         p.name = n;
@@ -1587,7 +1567,7 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
@@ -1596,67 +1576,66 @@ public class SettingsActivity extends Activity {
     private void promptAddPerson() {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
-        in.setHint(tr("Name", "Ad"));
+        in.setHint(I18n.resourceString(SettingsActivity.this, R.string.text_name));
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
-        AlertDialog dlg = dialog(tr("Add a person", "Kişi ekle"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_add_a_person_f14c89))
                 .setView(box)
-                .setPositiveButton(tr("Add", "Ekle"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_add), (d, w) -> {
                     String n = in.getText().toString().trim();
                     if (!n.isEmpty()) {
                         Profiles.add(this, n);
                         selectSection(PROFILES, true, Profiles.list(this).size() - 1);
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
     }
 
     void pageControlPanel() {
-        section(tr("BACKGROUND MODE", "ARKA PLAN MODU"));
-        row(I18n.t(this, "cp_bg_mode"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_background_mode));
+        row(I18n.resourceString(this, R.string.text_cp_bg_mode),
                 () -> ControlPanelOverlay.getBgModeLabel(this),
                 () -> {
                     ControlPanelOverlay.cycleBgMode(this);
                     refreshAll();
                 });
-        infoNote(tr("Tip: Blur can't be shown while a video is playing. Android can't blur live video (and DRM video can't be captured), so the video keeps playing behind the panel with a soft shade instead.",
-                "İpucu: Video oynatılırken bulanıklık gösterilemez. Android canlı videoyu bulanıklaştıramaz (DRM'li videolar da yakalanamaz), bu yüzden video panelin arkasında hafif bir gölgeyle oynamaya devam eder."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_tip_blur_can_t_be_shown_while_a_video_is));
 
-        section(tr("UNIVERSAL SHORTCUT ACTIONS", "EVRENSEL KISAYOL EYLEMLERİ"));
-        row(tr("Wi-Fi", "Wi-Fi"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_universal_shortcut_actions));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_wi_fi),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_WIFI),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_WIFI));
-        row(tr("Bluetooth", "Bluetooth"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_bluetooth),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_BLUETOOTH),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_BLUETOOTH));
-        row(tr("Sound", "Ses"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_sound),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_SOUND),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_SOUND));
-        row(tr("Inputs (Control Panel & Dock)", "Girişler (Denetim Paneli ve Dock)"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_inputs_control_panel_dock),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_INPUTS),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_INPUTS));
-        row(tr("Ambient Mode", "Ortam Modu"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_ambient_mode),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_AMBIENT),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_AMBIENT));
         if (ControlPanelOverlay.isAmbientLockScreenMode(this)) {
-            row(tr("Lock screen settings…", "Kilit ekranı ayarları…"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_lock_screen_settings_8b5317),
                     () -> Scenes.lockClockPosLabel(this) + " · " + Scenes.lockIdleLabel(this),
                     () -> openSubMenu("lock_screen_settings"));
         }
-        row(tr("Power Off", "Kapat"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_power_off),
                 () -> ControlPanelOverlay.getActionSummary(this, ControlPanelOverlay.ACTION_POWER),
                 () -> openSubMenu("cp_app:" + ControlPanelOverlay.ACTION_POWER));
 
-        section(tr("CONTROL PANEL ITEMS (SHOW / HIDE)", "DENETİM PANELİ ÖĞELERİ (GÖSTER / GİZLE)"));
-        for (final String[] itemRow : ControlPanelOverlay.ALL_CP_ITEMS) {
-            final String itemKey = itemRow[0];
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_control_panel_items_show_hide));
+        for (ControlPanelOverlay.ControlPanelItem item : ControlPanelOverlay.ALL_CP_ITEMS) {
+            final String itemKey = item.key;
             row(ControlPanelOverlay.getItemTitle(this, itemKey),
-                    () -> ControlPanelOverlay.isItemEnabled(this, itemKey) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> ControlPanelOverlay.isItemEnabled(this, itemKey) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         boolean next = !ControlPanelOverlay.isItemEnabled(this, itemKey);
                         ControlPanelOverlay.setItemEnabled(this, itemKey, next);
@@ -1664,229 +1643,213 @@ public class SettingsActivity extends Activity {
                     });
         }
 
-        section(tr("INPUTS APP ON DOCK", "DOCK ÜZERİNDEKİ GİRİŞLER UYGULAMASI"));
-        row(tr("Show Inputs app on Dock", "Dock'ta Girişler uygulamasını göster"),
-                () -> Inputs.showCard(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_inputs_app_on_dock));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_show_inputs_app_on_dock),
+                () -> Inputs.showCard(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !Inputs.showCard(this);
                     Inputs.prefs(this).edit().putBoolean(Inputs.K_CARD, next).apply();
                     refreshAll();
                 });
-        twoLineRow(tr("Inputs", "Girişler"),
-                () -> tr("Hide inputs or change name of HDMI & TV inputs ›", "Girişleri gizleyin veya HDMI ve TV girişlerinin adını değiştirin ›"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_inputs),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_hide_inputs_or_change_name_of_hdmi_tv_in),
                 () -> openSubMenu("cp_inputs_mgr"));
 
-        section(tr("RESET", "SIFIRLAMA"));
-        row(tr("Reset Control Panel actions to default", "Denetim Paneli eylemlerini varsayılana sıfırla"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_reset_043c3c));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_reset_control_panel_actions_to_default),
                 () -> "",
                 () -> {
                     ControlPanelOverlay.clearAllCustomActions(this);
-                    for (String[] itemRow : ControlPanelOverlay.ALL_CP_ITEMS) {
-                        ControlPanelOverlay.setItemEnabled(this, itemRow[0], true);
+                    for (ControlPanelOverlay.ControlPanelItem item : ControlPanelOverlay.ALL_CP_ITEMS) {
+                        ControlPanelOverlay.setItemEnabled(this, item.key, true);
                     }
                     rebuildMainRows();
-                    showStatusMsg(tr("Control Panel actions and items reset to default.",
-                            "Denetim Paneli eylemleri ve öğeleri varsayılana sıfırlandı."));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_control_panel_actions_and_items_reset_to));
                 });
 
-        infoNote(tr("Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, Inputs, and Ambient Mode. You can also choose Lock Screen for Ambient Mode (for TVs without built-in Ambient Mode) and toggle individual Control Panel items on or off.",
-                "Her TV markası Wi-Fi, Bluetooth, Ses, Girişler ve Ortam Modu için farklı paket ve etkinlik adları kullanır. Ayrıca Ortam Modu için Kilit Ekranı'nı seçebilir (yerleşik Ortam Modu olmayan TV'ler için) ve Denetim Paneli öğelerini tek tek açıp kapatabilirsiniz."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_each_tv_brand_uses_different_package_and));
     }
 
     void pageButtonMapper() {
-        section(tr("ACCESSIBILITY SERVICE", "ERİŞİLEBİLİRLİK SERVİSİ"));
-        row(tr("Button Mapper accessibility service", "Düğme Eşleyici erişilebilirlik servisi"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_accessibility_service_a268b7));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_button_mapper_accessibility_service),
                 () -> ButtonMapper.isServiceEnabled(this)
-                        ? tr("Active (works in all apps)", "Etkin (tüm uygulamalarda çalışır)")
-                        : tr("Enable in Accessibility…", "Erişilebilirlik'te etkinleştir…"),
+                        ? I18n.resourceString(SettingsActivity.this, R.string.text_active_works_in_all_apps)
+                        : I18n.resourceString(SettingsActivity.this, R.string.text_enable_in_accessibility),
                 () -> {
                     Intent acc = Perms.accessibilityScreen(this);
                     if (acc != null && Suggestions.start(this, acc)) {
                         return;
                     }
-                    dialog(tr("Accessibility Service", "Erişilebilirlik Servisi"))
-                            .setMessage(tr(
-                                    "This TV does not have a built-in Accessibility Settings screen. You can enable the Button Mapper & Control Panel service automatically via Local ADB.",
-                                    "Bu TV'de yerleşik bir Erişilebilirlik Ayarları ekranı bulunmuyor. Düğme Eşleyici ve Denetim Paneli servisini Yerel ADB üzerinden otomatik olarak etkinleştirebilirsiniz."))
-                            .setPositiveButton(tr("Enable via ADB", "ADB ile Etkinleştir"), (d, w) -> pairOrRepairAdb())
-                            .setNeutralButton(tr("TV Settings", "TV Ayarları"), (d, w) -> Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS)))
-                            .setNegativeButton(tr("Cancel", "İptal"), null)
+                    dialog(I18n.resourceString(SettingsActivity.this, R.string.text_accessibility_service_bb9182))
+                            .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_this_tv_does_not_have_a_built_in_accessi))
+                            .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_enable_via_adb), (d, w) -> pairOrRepairAdb())
+                            .setNeutralButton(I18n.resourceString(SettingsActivity.this, R.string.text_tv_settings_32ce87), (d, w) -> Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS)))
+                            .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                             .show();
                 });
-        row(tr("Fix Home button (Launch tvOS Launcher)", "Ana Ekran tuşu düzeltmesi (tvOS Launcher'ı aç)"),
-                () -> ButtonMapper.isHomeFixEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_fix_home_button_launch_tvos_launcher),
+                () -> ButtonMapper.isHomeFixEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !ButtonMapper.isHomeFixEnabled(this);
                     ButtonMapper.setHomeFixEnabled(this, next);
                     refreshAll();
                     if (next && !ButtonMapper.isServiceEnabled(this)) {
-                        showStatusMsg(tr("Home button fix enabled — please also enable Accessibility service above so Home key can be intercepted.",
-                                "Ana Ekran tuşu düzeltmesi açıldı — çalışması için yukarıdan Erişilebilirlik servisini de etkinleştirin."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_home_button_fix_enabled_please_also_enab));
                     } else {
                         showStatusMsg(next
-                                ? tr("Home button fix enabled — pressing Home will launch tvOS Launcher.",
-                                     "Ana Ekran tuşu düzeltmesi etkinleştirildi — Ana Ekran tuşu tvOS Launcher'ı açacak.")
-                                : tr("Home button fix disabled.",
-                                     "Ana Ekran tuşu düzeltmesi kapatıldı."));
+                                ? I18n.resourceString(SettingsActivity.this, R.string.text_home_button_fix_enabled_pressing_home_wi)
+                                : I18n.resourceString(SettingsActivity.this, R.string.text_home_button_fix_disabled));
                     }
                 });
-        row(tr("Long-press volume button fix", "Uzun basış ses tuşu düzeltmesi"),
-                () -> ButtonMapper.isVolumeHoldFixEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_long_press_volume_button_fix),
+                () -> ButtonMapper.isVolumeHoldFixEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !ButtonMapper.isVolumeHoldFixEnabled(this);
                     ButtonMapper.setVolumeHoldFixEnabled(this, next);
                     refreshAll();
                     showStatusMsg(next
-                            ? tr("Long-press volume fix enabled (for TVs where holding volume stops repeating).",
-                                 "Uzun basış ses tuşu düzeltmesi etkinleştirildi.")
-                            : tr("Long-press volume fix disabled (using native TV volume).",
-                                 "Uzun basış ses tuşu düzeltmesi kapatıldı (varsayılan TV sesi kullanılıyor)."));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_long_press_volume_fix_enabled_for_tvs_wh)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_long_press_volume_fix_disabled_using_nat));
                 });
-        row(tr("Volume button fix mode", "Ses tuşu düzeltme modu"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_volume_button_fix_mode_28c643),
                 () -> ButtonMapper.getVolumeHoldFixModeLabel(this),
                 this::showVolumeFixModeSelectorDialog);
 
-        section(tr("BUTTON REMAPPING", "DÜĞME YENİDEN EŞLEME"));
-        row(tr("Add new button to remap", "Yeniden eşlemek için yeni düğme ekle"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_button_remapping));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_add_new_button_to_remap_e322f7),
                 () -> "＋",
                 () -> ButtonMapper.showCaptureAndConfigureDialog(this, this::rebuildMainRows));
 
         List<Integer> mappedKeys = ButtonMapper.getMappedKeys(this);
         if (!mappedKeys.isEmpty()) {
-            section(tr("REMAPPED BUTTONS (1X / 2X / 3X TAP)", "EŞLENMİŞ DÜĞMELER (1X / 2X / 3X BASIŞ)"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_remapped_buttons_1x_2x_3x_tap));
             for (final int keyCode : mappedKeys) {
                 twoLineRow(ButtonMapper.keyLabel(this, keyCode),
                         () -> ButtonMapper.keySummaryLabel(this, keyCode),
                         () -> openButtonKeySubMenu(keyCode));
             }
-            row(tr("Clear all remapped buttons", "Tüm eşlenmiş düğmeleri temizle"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_clear_all_remapped_buttons),
                     () -> "",
                     () -> {
                         ButtonMapper.clearAll(this);
                         rebuildMainRows();
-                        showStatusMsg(tr("All button mappings cleared.", "Tüm düğme eşlemeleri temizlendi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_all_button_mappings_cleared));
                     });
         }
 
-        infoNote(tr("Assign Single Tap (1x), Double Tap (2x) and Triple Tap (3x) actions for each remote button — such as opening the Control Panel overlay, the Recent Apps Switcher overlay, or any installed app.",
-                "Her kumanda düğmesi için Tek Basış (1x), Çift Basış (2x) ve Üçlü Basış (3x) eylemleri atayın — örneğin Denetim Paneli katmanını, Son Uygulamalar Değiştiricisi katmanını veya yüklü herhangi bir uygulamayı açın."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_assign_single_tap_1x_double_tap_2x_and_t));
     }
 
     void pageQuickAndHome() {
-        section(tr("HOME & PERMISSIONS", "ANA EKRAN VE İZİNLER"));
-        row(tr("Default home screen", "Varsayılan ana ekran"),
-                () -> Perms.isDefaultHome(this) ? tr("Active", "Etkin") : tr("Set as default…", "Varsayılan yap…"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_home_permissions));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_default_home_screen_57e442),
+                () -> Perms.isDefaultHome(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_active_60b543) : I18n.resourceString(SettingsActivity.this, R.string.text_set_as_default),
                 () -> Perms.requestDefaultHome(this));
-        row(tr("Continue Watching & DND permission", "İzlemeye Devam Et ve Rahatsız Etmeyin izni"),
-                () -> Perms.hasListener(this) ? tr("Allowed", "İzin verildi")
-                        : Perms.listenerSupported(this) ? tr("Allow…", "İzin ver…") : tr("Not on this TV", "Bu TV'de yok"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_continue_watching_dnd_permission),
+                () -> Perms.hasListener(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_allowed)
+                        : Perms.listenerSupported(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_allow) : I18n.resourceString(SettingsActivity.this, R.string.text_not_on_this_tv),
                 () -> Perms.requestListener(this));
-        row(tr("Navigation click sounds", "Gezinme tıklama sesleri"),
-                () -> Clicks.enabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_navigation_click_sounds),
+                () -> Clicks.enabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> Clicks.setEnabled(this, !Clicks.enabled(this)));
 
-        section(tr("PRESENTATION & SYSTEM", "SUNUM VE SİSTEM"));
-        row(tr("Presentation mode", "Sunum modu"),
-                () -> com.techgenius.tvoslauncher.present.Presenter.enabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_presentation_system));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_presentation_mode),
+                () -> com.techgenius.tvoslauncher.present.Presenter.enabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean on = !com.techgenius.tvoslauncher.present.Presenter.enabled(this);
                     com.techgenius.tvoslauncher.present.Presenter.set(this, com.techgenius.tvoslauncher.present.Presenter.KEY_ENABLED, on);
                 });
-        row(tr("Presentation address & QR code", "Sunum adresi ve QR kodu"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_presentation_address_qr_code),
                 () -> com.techgenius.tvoslauncher.present.Presenter.enabled(this)
                         ? com.techgenius.tvoslauncher.present.Presenter.address().replace("http://", "")
-                        : tr("Turn on first", "Önce etkinleştirin"),
+                        : I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_first),
                 this::showPresentInfo);
-        row(tr("Run first-time setup again…", "İlk kurulumu tekrar çalıştır…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_run_first_time_setup_again),
                 () -> chev(),
                 () -> {
                     getSharedPreferences("setup", MODE_PRIVATE).edit().putInt("cur_step", 0).apply();
                     startActivity(new Intent(this, SetupActivity.class).putExtra("step", 0));
                 });
-        row(tr("Open Android TV Settings…", "Android TV Ayarlarını Aç…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_open_android_tv_settings),
                 () -> chev(),
                 () -> Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS)));
 
-        section(tr("BACKUP & RESTORE", "YEDEKLEME VE GERİ YÜKLEME"));
-        row(tr("Backup settings to Download", "Ayarları Download klasörüne yedekle"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_backup_restore));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_backup_settings_to_download),
                 () -> "Download/" + CustomMedia.SETTINGS_BACKUP_FILENAME,
                 () -> CustomMedia.backupSettingsToDownload(this, this::refreshAll));
-        row(tr("Restore settings from folder…", "Klasörden ayarları geri yükle…"),
-                () -> tr("Choose folder ›", "Klasör seç ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_restore_settings_from_folder),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_840d4f),
                 () -> CustomMedia.showRestoreSettingsPicker(this, this::refreshAll));
     }
 
     void pageAdvanced() {
-        section(tr("UNINSTALL", "KALDIRMA"));
-        twoLineRow(tr("Uninstall tvOS Launcher", "tvOS Launcher'ı Kaldır"),
-                () -> tr("Restore debloated apps & disabled launchers, revoke permissions, and uninstall ›",
-                         "Debloat edilen uygulamaları ve başlatıcıları geri yükle, izinleri kaldır ve sil ›"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_uninstall_f2f89e));
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_uninstall_tvos_launcher),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_restore_debloated_apps_disabled_launcher),
                 this::showUninstallLauncherFlow);
 
-        section(tr("ADB & SECURITY MODE", "ADB VE GÜVENLİK MODU"));
-        twoLineRow(tr("ADB operating mode", "ADB çalışma modu"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_adb_security_mode));
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_adb_operating_mode_01f44c),
                 () -> LocalAdb.getAdbModeLabel(this),
                 this::showAdbModeSelectorDialog);
-        row(tr("ADB connection status", "ADB bağlantı durumu"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_adb_connection_status),
                 () -> LocalAdb.getStatusLabel(this),
                 this::pairOrRepairAdb);
-        row(tr("Pair / Repair ADB connection", "ADB bağlantısını eşleştir / onar"),
-                () -> LocalAdb.isPaired(this) ? tr("Repair", "Onar") : tr("Pair now", "Şimdi eşleştir"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_pair_repair_adb_connection),
+                () -> LocalAdb.isPaired(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_repair) : I18n.resourceString(SettingsActivity.this, R.string.text_pair_now),
                 this::pairOrRepairAdb);
-        row(tr("Turn On / Off ADB", "ADB'yi Aç / Kapat"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_off_adb),
                 () -> (LocalAdb.isAdbSettingEnabled(this) || LocalAdb.portReachable)
-                        ? tr("On", "Açık")
-                        : tr("Off", "Kapalı"),
+                        ? I18n.resourceString(SettingsActivity.this, R.string.status_on)
+                        : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 this::toggleAdbPort);
-        row(tr("Check permissions", "İzinleri kontrol et"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_check_permissions),
                 () -> advPermSummary != null ? advPermSummary : "…",
                 () -> openSubMenu("check_permissions"));
-        row(tr("Remove / revoke all permissions", "Tüm izinleri kaldır / geri al"),
-                () -> tr("Revoke ›", "Kaldır ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_remove_revoke_all_permissions_c108cc),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_revoke),
                 this::confirmRevokeAllPermissions);
 
-        section(tr("STARTUP & KEEP ALIVE", "BAŞLANGIÇ VE KEEP ALIVE"));
-        row(tr("Launch automatically on system boot", "Sistem açılışında otomatik başlat"),
-                () -> com.techgenius.tvoslauncher.present.BootReceiver.isLaunchOnBootEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_startup_keep_alive));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_launch_automatically_on_system_boot),
+                () -> com.techgenius.tvoslauncher.present.BootReceiver.isLaunchOnBootEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !com.techgenius.tvoslauncher.present.BootReceiver.isLaunchOnBootEnabled(this);
                     com.techgenius.tvoslauncher.present.BootReceiver.setLaunchOnBootEnabled(this, next);
                     refreshAll();
                     showStatusMsg(next
-                            ? tr("tvOS Launcher will launch immediately on system boot.",
-                                 "tvOS Launcher sistem açılışında anında otomatik başlatılacak.")
-                            : tr("Automatic launch on boot disabled.",
-                                 "Sistem açılışında otomatik başlatma kapatıldı."));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_tvos_launcher_will_launch_immediately_on)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_automatic_launch_on_boot_disabled));
                 });
-        row(tr("Keep Alive (Auto-repair Accessibility)", "Keep Alive (Erişilebilirliği otomatik onar)"),
-                () -> LocalAdb.isKeepAliveEnabled(this) ? tr("On (Default)", "Açık (Varsayılan)") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_keep_alive_auto_repair_accessibility),
+                () -> LocalAdb.isKeepAliveEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_on_default) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 this::toggleKeepAliveWithWarning);
-        row(I18n.t(this, "caffeine_title"),
-                () -> PowerService.isCaffeineEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(this, R.string.text_caffeine_title),
+                () -> PowerService.isCaffeineEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !PowerService.isCaffeineEnabled(this);
                     PowerService.setCaffeineEnabled(this, next);
                     refreshAll();
                     showStatusMsg(next
-                            ? tr("Caffeine enabled — TV will stay awake and block automatic Ambient / sleep mode.",
-                                 "Caffeine etkinleştirildi — TV uyanık kalacak ve otomatik Ortam / uyku modunu engelleyecek.")
-                            : tr("Caffeine disabled.", "Caffeine devre dışı bırakıldı."));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_caffeine_enabled_tv_will_stay_awake_and)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_caffeine_disabled));
                 });
-        infoNote(I18n.t(this, "caffeine_desc"));
+        infoNote(I18n.resourceString(this, R.string.text_caffeine_desc));
 
-        infoNote(tr("Security Note: Keep Alive is enabled by default. In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly in-process without touching ADB (even if ADB is enabled on the TV). In Persistent ADB Mode, Keep Alive can also use Local ADB on port 5555.",
-                "Güvenlik Notu: Keep Alive varsayılan olarak açıktır. Güvenli Mod'da tvOS Launcher, ADB'yi hiç kullanmadan (TV'de ADB açık olsa bile) Erişilebilirliği doğrudan WRITE_SECURE_SETTINGS ile onarır. Kalıcı ADB Modu'nda ise port 5555 üzerinden yerel ADB'yi de kullanabilir."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_security_note_keep_alive_is_enabled_by_d));
 
-        section(tr("CLEANYOURTV (BETA)", "CLEANYOURTV (BETA)"));
-        twoLineRow(tr("Download CleanYourTV", "CleanYourTV'yi İndir"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_cleanyourtv_beta));
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_download_cleanyourtv),
                 () -> advCytDownloadSummary != null ? advCytDownloadSummary : "…",
                 () -> CleanYourTv.downloadAndExtractLatestRelease(this, () -> {
                     loadAdvancedSummariesAsync();
                     rebuildMainRows();
-                    showStatusMsg(tr("CleanYourTV downloaded to Download folder.",
-                            "CleanYourTV Download klasörüne indirildi."));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_cleanyourtv_downloaded_to_download_folde));
                 }));
-        twoLineRow(tr("Choose TV model", "TV modelini seçin"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_choose_tv_model_eb4b40),
                 () -> advCytModelSummary != null ? advCytModelSummary : "…",
                 () -> {
                     cytAutoContinueToDebloat = false;
@@ -1902,11 +1865,11 @@ public class SettingsActivity extends Activity {
                         openSubMenu("cyt_models");
                     }
                 });
-        row(tr("Debloat status", "Debloat durumu"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_debloat_status),
                 () -> advDebloatSummary != null ? advDebloatSummary : "…",
                 () -> openSubMenu("cyt_saved"));
-        row(tr("Debloat TV…", "TV Debloat Başlat…"),
-                () -> tr("Start ›", "Başlat ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_debloat_tv_3ec289),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_start),
                 () -> {
                     if (!CleanYourTv.hasCleanYourTvFiles(this)) {
                         boolean wasDeleted = !CleanYourTv.getSelectedModelSlug(this).isEmpty();
@@ -1937,24 +1900,23 @@ public class SettingsActivity extends Activity {
                         openSubMenu("cyt_debloat");
                     }
                 });
-        row(tr("Disable system launchers…", "Sistem başlatıcılarını devre dışı bırak…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_disable_system_launchers_e1810e),
                 () -> advLaunchersSummary != null ? advLaunchersSummary : "…",
                 () -> openSubMenu("cyt_launchers"));
-        row(tr("Manual debloat (All system apps)…", "Manuel debloat (Tüm sistem uygulamaları)…"),
-                () -> tr("Advanced ›", "Gelişmiş ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_manual_debloat_all_system_apps_99b35c),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_advanced_981d59),
                 this::promptManualDebloatWarning);
-        row(tr("Disabled apps backup", "Devre dışı bırakılan uygulamalar kaydı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_disabled_apps_backup),
                 () -> advSavedSummary != null ? advSavedSummary : "…",
                 () -> openSubMenu("cyt_saved"));
-        row(tr("Restore debloated apps…", "Debloat edilen uygulamaları geri yükle…"),
-                () -> tr("Restore ›", "Geri Yükle ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_restore_debloated_apps_3d05c1),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_restore),
                 () -> openSubMenu("cyt_restore"));
-        row(tr("Ad-blocking Private DNS (AdGuard)", "Reklam engelleyici Özel DNS (AdGuard)"),
-                () -> CleanYourTv.isAdguardDnsActive(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_ad_blocking_private_dns_adguard),
+                () -> CleanYourTv.isAdguardDnsActive(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> CleanYourTv.toggleAdguardDns(this, this::refreshAll));
 
-        infoNote(tr("CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), disable stock launchers or bloatware, and restore them anytime with one tap.",
-                "CleanYourTV (Beta), bilgisayara ihtiyaç duymadan CleanYourTV debloat profillerini Yerel ADB üzerinden doğrudan TV'nizde çalıştırır. TV modelinizi seçin (veya yüklü sistem uygulaması paketlerine göre tarayın), stok başlatıcıları veya gereksiz uygulamaları devre dışı bırakın ve istediğiniz zaman tek dokunuşla geri yükleyin."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_cleanyourtv_beta_runs_the_cleanyourtv_de));
 
         // Expensive PackageManager scans (launchers, debloat status) run off the UI thread so the
         // page's first frames aren't blocked; rows show "…" until the values arrive.
@@ -2021,40 +1983,39 @@ public class SettingsActivity extends Activity {
     private boolean checkingLatestRelease = false;
 
     void pageUpdates() {
-        section(tr("UPDATES", "GÜNCELLEMELER"));
-        row(tr("Automatic updates", "Otomatik güncellemeler"),
-                () -> AppUpdater.isAutoUpdateEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_updates_22906d));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_automatic_updates),
+                () -> AppUpdater.isAutoUpdateEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     boolean next = !AppUpdater.isAutoUpdateEnabled(this);
                     AppUpdater.setAutoUpdateEnabled(this, next);
                     refreshAll();
                     showStatusMsg(next
-                            ? tr("Automatic updates enabled.", "Otomatik güncellemeler etkinleştirildi.")
-                            : tr("Automatic updates disabled.", "Otomatik güncellemeler devre dışı bırakıldı."));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_automatic_updates_enabled)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_automatic_updates_disabled));
                     if (next) {
                         AppUpdater.checkAutoUpdateIfNeeded(this);
                     }
                 });
-        row(tr("Check for updates", "Güncellemeleri kontrol et"),
-                () -> tr("Check now ›", "Şimdi kontrol et ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_check_for_updates),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_check_now),
                 () -> AppUpdater.manualCheckAndPrompt(this, this::refreshAll));
 
-        section(tr("VERSION INFO", "SÜRÜM BİLGİSİ"));
-        infoRow(tr("Current version", "Mevcut sürüm"), "v" + AppUpdater.getCurrentVersion(this), null);
-        infoRowDynamic(tr("GitHub release latest version", "GitHub son sürüm"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_version_info));
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_current_version), "v" + AppUpdater.getCurrentVersion(this), null);
+        infoRowDynamic(I18n.resourceString(SettingsActivity.this, R.string.text_github_release_latest_version),
                 () -> {
                     String latest = AppUpdater.getCachedLatestVersion(this);
                     if (latest != null && !latest.isEmpty()) {
                         return "v" + latest;
                     }
                     return checkingLatestRelease
-                            ? tr("Checking…", "Kontrol ediliyor…")
-                            : tr("Tap Check for updates", "Güncellemeleri kontrol et'e basın");
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_checking)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_tap_check_for_updates);
                 },
                 null);
 
-        infoNote(tr("Checks GitHub Releases (techgenius1/tvOS-Launcher) for the latest APK and installs updates directly on your TV.",
-                "En güncel APK için GitHub Sürümlerini (techgenius1/tvOS-Launcher) kontrol eder ve güncellemeleri doğrudan TV'nize kurar."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_checks_github_releases_techgenius1_tvos));
 
         if (!checkingLatestRelease) {
             checkingLatestRelease = true;
@@ -2076,16 +2037,13 @@ public class SettingsActivity extends Activity {
         int curMode = ButtonMapper.getVolumeHoldFixMode(this);
         String[] opts = new String[]{
             (curMode == ButtonMapper.VOLUME_FIX_MODE_1 ? "✓ " : "   ")
-                    + tr("Mode 1 — Standard (Default, for most Android TVs & IR remotes)",
-                         "Mod 1 — Standart (Varsayılan, çoğu Android TV ve IR kumanda için)"),
+                    + I18n.resourceString(SettingsActivity.this, R.string.text_mode_1_standard_default_for_most_android),
             (curMode == ButtonMapper.VOLUME_FIX_MODE_2 ? "✓ " : "   ")
-                    + tr("Mode 2 — HY320 / Projector (AudioService & IR pulse-burst mode)",
-                         "Mod 2 — HY320 / Projeksiyon (AudioService ve IR darbe modu)"),
+                    + I18n.resourceString(SettingsActivity.this, R.string.text_mode_2_hy320_projector_audioservice_ir_p),
             (curMode == ButtonMapper.VOLUME_FIX_MODE_3 ? "✓ " : "   ")
-                    + tr("Mode 3 — Onn TV Box (Fast release stop, 0 extra steps on release, ADB & Secure mode)",
-                         "Mod 3 — Onn TV Box (Tuşu bırakınca anında durur, fazladan ses artışı yapmaz, ADB ve Güvenli mod)")
+                    + I18n.resourceString(SettingsActivity.this, R.string.text_mode_3_onn_tv_box_fast_release_stop_0_ex)
         };
-        dialog(tr("Volume Button Fix Mode", "Ses Tuşu Düzeltme Modu"))
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_volume_button_fix_mode_87cb31))
                 .setItems(opts, (d, which) -> {
                     int nextMode;
                     if (which == 2) {
@@ -2098,44 +2056,40 @@ public class SettingsActivity extends Activity {
                     ButtonMapper.setVolumeHoldFixMode(this, nextMode);
                     refreshAll();
                     if (nextMode == ButtonMapper.VOLUME_FIX_MODE_1) {
-                        showStatusMsg(tr("Volume Fix Mode 1 (Standard) selected.",
-                                "Ses Tuşu Düzeltme Modu 1 (Standart) seçildi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_volume_fix_mode_1_standard_selected));
                     } else if (nextMode == ButtonMapper.VOLUME_FIX_MODE_2) {
-                        showStatusMsg(tr("Volume Fix Mode 2 (HY320 / Projector) selected.",
-                                "Ses Tuşu Düzeltme Modu 2 (HY320 / Projeksiyon) seçildi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_volume_fix_mode_2_hy320_projector_select));
                     } else {
-                        showStatusMsg(tr("Volume Fix Mode 3 (Onn TV Box) selected.",
-                                "Ses Tuşu Düzeltme Modu 3 (Onn TV Box) seçildi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_volume_fix_mode_3_onn_tv_box_selected));
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
     void pageAbout() {
-        section(tr("APPLICATION", "UYGULAMA"));
-        infoRow(tr("Home screen", "Ana ekran"), "tvOS Launcher", null);
-        infoRow(tr("Developer", "Geliştirici"), "techgenius", null);
-        infoRow(tr("Version", "Sürüm"), version(), null);
-        infoRow(tr("Settings kept", "Ayarların saklandığı yer"), tr("On this TV", "Bu TV'de"), null);
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_application));
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen), "tvOS Launcher", null);
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_developer), "techgenius", null);
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_version), version(), null);
+        infoRow(I18n.resourceString(SettingsActivity.this, R.string.text_settings_kept), I18n.resourceString(SettingsActivity.this, R.string.text_on_this_tv), null);
 
-        section(tr("BACKUP & RESTORE", "YEDEKLEME VE GERİ YÜKLEME"));
-        row(tr("Backup settings to Download", "Ayarları Download klasörüne yedekle"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_backup_restore));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_backup_settings_to_download),
                 () -> "Download/" + CustomMedia.SETTINGS_BACKUP_FILENAME,
                 () -> CustomMedia.backupSettingsToDownload(this, this::refreshAll));
-        row(tr("Restore settings from folder…", "Klasörden ayarları geri yükle…"),
-                () -> tr("Choose folder ›", "Klasör seç ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_restore_settings_from_folder),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_840d4f),
                 () -> CustomMedia.showRestoreSettingsPicker(this, this::refreshAll));
 
-        section(tr("RESET", "SIFIRLAMA"));
-        row(tr("Reset settings to defaults", "Ayarları varsayılana sıfırla"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_reset_043c3c));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_reset_settings_to_defaults),
                 () -> "",
                 () -> new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                        .setTitle(tr("Reset settings?", "Ayarlar sıfırlansın mı?"))
-                        .setMessage(tr("This resets look, scenes, clock and language settings back to defaults.",
-                                "Bu işlem görünüm, sahne, saat ve dil ayarlarını varsayılana sıfırlar."))
-                        .setPositiveButton(tr("Reset", "Sıfırla"), (d, w) -> resetAllAppDataAndReturnToSetup())
-                        .setNegativeButton(tr("Cancel", "İptal"), null)
+                        .setTitle(I18n.resourceString(SettingsActivity.this, R.string.text_reset_settings))
+                        .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_this_resets_look_scenes_clock_and_langua))
+                        .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_reset_a1f27d), (d, w) -> resetAllAppDataAndReturnToSetup())
+                        .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                         .show());
     }
 
@@ -2145,25 +2099,21 @@ public class SettingsActivity extends Activity {
      */
     private void confirmWatchSignOut(WatchCloud cloud) {
         if (!cloud.isSignedIn()) {
-            showStatusMsg(tr("To sign in, focus the " + cloud.name() + " tile on the Home screen and scan the QR code.",
-                    "Giriş yapmak için Ana ekranda " + cloud.name() + " simgesine gel ve QR kodu tara."));
+            showStatusMsg(I18n.resourceString(this, R.string.message_cloud_sign_in_instructions, cloud.name()));
             return;
         }
         new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(tr("Sign out of " + cloud.name() + "?", cloud.name() + " hesabından çıkılsın mı?"))
-                .setMessage(tr("Continue watching on the dock will stop showing your " + cloud.name()
-                                + " titles. The " + cloud.name() + " app itself stays signed in.",
-                        "Dock'taki izlemeye devam et artık " + cloud.name() + " içeriklerini göstermeyecek. "
-                                + cloud.name() + " uygulamasının kendisinde oturum açık kalır."))
-                .setPositiveButton(tr("Sign out", "Çıkış yap"), (d, w) -> new Thread(() -> {
+                .setTitle(I18n.resourceString(this, R.string.message_cloud_sign_out_question, cloud.name()))
+                .setMessage(I18n.resourceString(this, R.string.message_cloud_sign_out_details, cloud.name()))
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_sign_out), (d, w) -> new Thread(() -> {
                     cloud.signOut();  // tells the server too, so it can take a moment
                     runOnUiThread(() -> {
                         if (isFinishing()) return;
                         refreshAll();
-                        showStatusMsg(tr("Signed out of " + cloud.name() + ".", cloud.name() + " hesabından çıkıldı."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.message_cloud_signed_out, cloud.name()));
                     });
                 }, "watch-sign-out").start())
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2216,32 +2166,27 @@ public class SettingsActivity extends Activity {
         if (ButtonMapper.isServiceEnabled(this)) granted++;
         if (Perms.hasListener(this)) granted++;
         if (Perms.hasLocation(this)) granted++;
-        return granted + " / " + total + " " + tr("active", "etkin");
+        return granted + " / " + total + " " + I18n.resourceString(SettingsActivity.this, R.string.text_active_42209d);
     }
 
     private void showAdbModeSelectorDialog() {
         int curMode = LocalAdb.getAdbMode(this);
         String[] opts = {
             (curMode == LocalAdb.ADB_MODE_SECURE_CLOSE ? "✓ " : "   ")
-                    + tr("Secure Mode — Grant WRITE_SECURE_SETTINGS & Close ADB (Recommended)",
-                         "Güvenli Mod — WRITE_SECURE_SETTINGS Ver ve ADB'yi Kapat (Önerilen)"),
+                    + I18n.resourceString(SettingsActivity.this, R.string.text_secure_mode_grant_write_secure_settings),
             (curMode == LocalAdb.ADB_MODE_PERSISTENT ? "✓ " : "   ")
-                    + tr("Persistent ADB Mode — Keep Network ADB Open (Optional)",
-                         "Kalıcı ADB Modu — Ağ ADB'sini Açık Tut (İsteğe Bağlı)")
+                    + I18n.resourceString(SettingsActivity.this, R.string.text_persistent_adb_mode_keep_network_adb_ope)
         };
-        dialog(tr("ADB Operating Mode", "ADB Çalışma Modu"))
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_adb_operating_mode_1c02d4))
                 .setItems(opts, (d, which) -> {
                     int nextMode = (which == 1) ? LocalAdb.ADB_MODE_PERSISTENT : LocalAdb.ADB_MODE_SECURE_CLOSE;
                     if (nextMode == LocalAdb.ADB_MODE_PERSISTENT
                             && !LocalAdb.isAdbSettingEnabled(this) && !LocalAdb.portReachable) {
-                        dialog(tr("Enable ADB for Persistent Mode?", "Kalıcı Mod İçin ADB Açılsın mı?"))
-                                .setMessage(tr(
-                                        "ADB debugging is currently turned off. Persistent ADB Mode requires ADB to be enabled.\n\nWould you like to enable ADB and switch to Persistent ADB Mode?",
-                                        "ADB hata ayıklama şu anda kapalı. Kalıcı ADB Modu için ADB'nin açık olması gerekir.\n\nADB'yi açıp Kalıcı ADB Moduna geçmek ister misiniz?"))
-                                .setPositiveButton(tr("Enable ADB & Switch", "ADB'yi Aç ve Geç"), (d2, w2) -> {
-                                    AlertDialog progress = dialog(tr("Turning On ADB…", "ADB Açılıyor…"))
-                                            .setMessage(tr("Enabling ADB debugging and switching to Persistent ADB Mode…",
-                                                    "ADB hata ayıklama açılıyor ve Kalıcı ADB Moduna geçiliyor…"))
+                        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_enable_adb_for_persistent_mode))
+                                .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_adb_debugging_is_currently_turned_off_pe))
+                                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_enable_adb_switch), (d2, w2) -> {
+                                    AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_turning_on_adb))
+                                            .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_enabling_adb_debugging_and_switching_to))
                                             .setCancelable(false)
                                             .create();
                                     progress.show();
@@ -2257,14 +2202,11 @@ public class SettingsActivity extends Activity {
                                             list.postDelayed(this::refreshAll, 500);
                                         }
                                         if (success) {
-                                            showStatusMsg(tr("ADB enabled and switched to Persistent ADB Mode.",
-                                                    "ADB açıldı ve Kalıcı ADB Moduna geçildi."));
+                                            showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_adb_enabled_and_switched_to_persistent_a));
                                         } else {
-                                            dialog(tr("Turn On ADB Debugging", "ADB Hata Ayıklamayı Açın"))
-                                                    .setMessage(tr(
-                                                            "Open Developer Options and turn on USB Debugging / Network Debugging to complete switching to Persistent ADB Mode.",
-                                                            "Kalıcı ADB Moduna geçişi tamamlamak için Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın."))
-                                                    .setPositiveButton(tr("Open Developer Options…", "Geliştirici Seçeneklerini Aç…"), (d3, w3) -> {
+                                            dialog(I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_adb_debugging))
+                                                    .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_open_developer_options_and_turn_on_usb_d_c22f55))
+                                                    .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_open_developer_options), (d3, w3) -> {
                                                         Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
                                                         if (!Suggestions.start(this, dev)) {
                                                             Intent about = new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS);
@@ -2273,26 +2215,24 @@ public class SettingsActivity extends Activity {
                                                             }
                                                         }
                                                     })
-                                                    .setNegativeButton(tr("Cancel", "İptal"), null)
+                                                    .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                                                     .show();
                                         }
                                     }));
                                 })
-                                .setNegativeButton(tr("Cancel", "İptal"), null)
+                                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                                 .show();
                         return;
                     }
                     LocalAdb.setAdbMode(this, nextMode);
                     refreshAll();
                     if (nextMode == LocalAdb.ADB_MODE_SECURE_CLOSE) {
-                        showStatusMsg(tr("Secure Mode selected — ADB will grant WRITE_SECURE_SETTINGS and close port 5555 when paired.",
-                                "Güvenli Mod seçildi — Eşleştirildiğinde WRITE_SECURE_SETTINGS verilir ve port 5555 kapatılır."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_secure_mode_selected_adb_will_grant_writ));
                     } else {
-                        showStatusMsg(tr("Persistent ADB Mode selected — Port 5555 stays open for CleanYourTV & ADB tools.",
-                                "Kalıcı ADB Modu seçildi — Port 5555 CleanYourTV ve ADB araçları için açık kalır."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_persistent_adb_mode_selected_port_5555_s));
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2301,8 +2241,8 @@ public class SettingsActivity extends Activity {
         if (adbOn) {
             confirmCloseAdbPort();
         } else {
-            AlertDialog progress = dialog(tr("Turning On ADB…", "ADB Açılıyor…"))
-                    .setMessage(tr("Enabling ADB debugging…", "ADB hata ayıklama etkinleştiriliyor…"))
+            AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_turning_on_adb))
+                    .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_enabling_adb_debugging))
                     .setCancelable(false)
                     .create();
             progress.show();
@@ -2317,13 +2257,11 @@ public class SettingsActivity extends Activity {
                     list.postDelayed(this::refreshAll, 500);
                 }
                 if (success) {
-                    showStatusMsg(tr("ADB debugging enabled.", "ADB hata ayıklama açıldı."));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_adb_debugging_enabled));
                 } else {
-                    dialog(tr("Turn On ADB Debugging", "ADB Hata Ayıklamayı Açın"))
-                            .setMessage(tr(
-                                    "Open Developer Options and turn on USB Debugging / Network Debugging.",
-                                    "Geliştirici Seçenekleri'ni açıp USB / Ağ Hata Ayıklamayı etkinleştirin."))
-                            .setPositiveButton(tr("Open Developer Options…", "Geliştirici Seçeneklerini Aç…"), (d, w) -> {
+                    dialog(I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_adb_debugging))
+                            .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_open_developer_options_and_turn_on_usb_d_9d4f5e))
+                            .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_open_developer_options), (d, w) -> {
                                 Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
                                 if (!Suggestions.start(this, dev)) {
                                     Intent about = new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS);
@@ -2332,7 +2270,7 @@ public class SettingsActivity extends Activity {
                                     }
                                 }
                             })
-                            .setNegativeButton(tr("Cancel", "İptal"), null)
+                            .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                             .show();
                 }
             }));
@@ -2340,21 +2278,14 @@ public class SettingsActivity extends Activity {
     }
 
     private void confirmCloseAdbPort() {
-        dialog(tr("Close ADB (Disable Port 5555)", "ADB'yi Kapat (Port 5555'i Kapat)"))
-                .setMessage(tr(
-                        "This runs 'settings put global adb_enabled 0' over Local ADB and verifies that port 5555 is closed on your home network.\n\n"
-                        + "If WRITE_SECURE_SETTINGS is already granted, tvOS Launcher will continue repairing Accessibility in-process without needing ADB!\n\n"
-                        + "Tip: For maximum security, you can also open Developer Options and click 'Revoke USB debugging authorizations'.",
-                        "Bu işlem Yerel ADB üzerinden 'settings put global adb_enabled 0' komutunu çalıştırır ve ev ağınızda port 5555'in kapandığını doğrular.\n\n"
-                        + "WRITE_SECURE_SETTINGS izni zaten verilmişse tvOS Launcher, ADB'ye ihtiyaç duymadan Erişilebilirliği doğrudan uygulama içinden onarmaya devam eder!\n\n"
-                        + "İpucu: Maksimum güvenlik için Geliştirici Seçenekleri'nden 'USB hata ayıklama yetkilerini geri al' seçeneğine de tıklayabilirsiniz."))
-                .setPositiveButton(tr("Close ADB Now", "ADB'yi Şimdi Kapat"), (d, w) -> {
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_close_adb_disable_port_5555))
+                .setMessage(I18n.resourceString(SettingsActivity.this, R.string.message_this_runs_settings_put_global_adb_enabled_0_over))
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_close_adb_now), (d, w) -> {
                     if (LocalAdb.getAdbMode(this) != LocalAdb.ADB_MODE_SECURE_CLOSE) {
                         LocalAdb.setAdbMode(this, LocalAdb.ADB_MODE_SECURE_CLOSE);
                     }
-                    AlertDialog progress = dialog(tr("Closing ADB…", "ADB Kapatılıyor…"))
-                            .setMessage(tr("Running settings put global adb_enabled 0 and verifying port 5555…",
-                                    "settings put global adb_enabled 0 çalıştırılıyor ve port 5555 kontrol ediliyor…"))
+                    AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_closing_adb))
+                            .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_running_settings_put_global_adb_enabled))
                             .setCancelable(false)
                             .create();
                     progress.show();
@@ -2368,13 +2299,13 @@ public class SettingsActivity extends Activity {
                         showStatusMsg(msg);
                     }));
                 })
-                .setNeutralButton(tr("Developer Options…", "Geliştirici Seçenekleri…"), (d, w) -> {
+                .setNeutralButton(I18n.resourceString(SettingsActivity.this, R.string.text_developer_options), (d, w) -> {
                     Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
                     if (!Suggestions.start(this, dev)) {
                         Suggestions.start(this, new Intent(Settings.ACTION_SETTINGS));
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2383,39 +2314,27 @@ public class SettingsActivity extends Activity {
         if (currentlyOn) {
             LocalAdb.setKeepAliveEnabled(this, false);
             refreshAll();
-            showStatusMsg(tr("Keep Alive disabled.", "Keep Alive devre dışı bırakıldı."));
+            showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_keep_alive_disabled));
             return;
         }
         boolean hasSecure = LocalAdb.hasWriteSecureSettings(this);
-        dialog(tr("Enable Keep Alive?", "Keep Alive Etkinleştirilsin mi?"))
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_enable_keep_alive_5ae818))
                 .setMessage(hasSecure
-                        ? tr("Keep Alive monitors the Accessibility Service and automatically restores it if your TV turns it off.\n\n"
-                             + "✓ Because WRITE_SECURE_SETTINGS is granted on this TV, Keep Alive repairs Accessibility directly in-process without needing Network ADB (port 5555) to stay open.",
-                             "Keep Alive, Erişilebilirlik Servisini izler ve TV'niz kapatırsa otomatik olarak yeniden açar.\n\n"
-                             + "✓ Bu TV'de WRITE_SECURE_SETTINGS izni verildiği için Keep Alive, Ağ ADB'sinin (port 5555) açık kalmasına gerek duymadan Erişilebilirliği doğrudan uygulama içinden onarır.")
-                        : tr("⚠️ Security Warning:\n\n"
-                             + "Keep Alive monitors and restores permissions if your TV turns them off in the background.\n\n"
-                             + "Without WRITE_SECURE_SETTINGS, Keep Alive requires Network Debugging (ADB on port 5555) to stay enabled on your home network. For better security, run Pair / Repair ADB in Secure Mode first so WRITE_SECURE_SETTINGS is granted and port 5555 can be closed.\n\n"
-                             + "Enable Keep Alive anyway?",
-                             "⚠️ Güvenlik Uyarısı:\n\n"
-                             + "Keep Alive, TV'niz arka planda izinleri kapatırsa otomatik olarak yeniden açar.\n\n"
-                             + "WRITE_SECURE_SETTINGS izni olmadan Keep Alive'ın çalışması için Ağ Hata Ayıklamanın (port 5555) açık kalması gerekir. Daha yüksek güvenlik için önce Güvenli Mod'da ADB Eşleştir / Onar çalıştırarak WRITE_SECURE_SETTINGS iznini verin.\n\n"
-                             + "Keep Alive yine de etkinleştirilsin mi?"))
-                .setPositiveButton(tr("Enable Keep Alive", "Keep Alive'ı Etkinleştir"), (d, w) -> {
+                        ? I18n.resourceString(SettingsActivity.this, R.string.message_keep_alive_monitors_the_accessibility_service_an)
+                        : I18n.resourceString(SettingsActivity.this, R.string.message_security_warning_keep_alive_monitors_and_restore))
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_enable_keep_alive_348093), (d, w) -> {
                     LocalAdb.setKeepAliveEnabled(this, true);
                     LocalAdb.checkAndRepairPermissionsIfNeeded(this, true);
                     refreshAll();
-                    showStatusMsg(tr("Keep Alive enabled.", "Keep Alive etkinleştirildi."));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_keep_alive_enabled));
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
     private void pairOrRepairAdb() {
-        AlertDialog progress = dialog(tr("Pair / Repair ADB", "ADB Eşleştir / Onar"))
-                .setMessage(tr(
-                        "Connecting to local ADB on port 5555 and granting permissions…\n\nIf an \u201cAllow USB debugging?\u201d prompt appears, check \u201cAlways allow\u201d and press Allow.",
-                        "Port 5555 üzerinden yerel ADB'ye bağlanılıyor ve izinler veriliyor…\n\nEkranda \u201cUSB hata ayıklamaya izin verilsin mi?\u201d penceresi çıkarsa \u201cHer zaman izin ver\u201di işaretleyip İzin Ver'e basın."))
+        AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_pair_repair_adb))
+                .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_connecting_to_local_adb_on_port_5555_and))
                 .setCancelable(false)
                 .create();
         progress.show();
@@ -2432,13 +2351,11 @@ public class SettingsActivity extends Activity {
                 list.postDelayed(this::refreshAll, 900);
             }
             if (success) {
-                showStatusMsg(tr("ADB paired and all permissions granted!", "ADB eşleşti ve tüm izinler verildi!"));
+                showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_adb_paired_and_all_permissions_granted));
             } else {
-                dialog(tr("ADB Debugging Needed", "ADB Hata Ayıklama Gerekli"))
-                        .setMessage(tr(
-                                "Could not connect to local ADB on port 5555.\n\n1. Open Settings \u2192 System \u2192 About and click Build 7 times.\n2. Open Developer Options and turn on USB Debugging / Network Debugging.\n3. Return here and tap Pair / Repair again.",
-                                "Port 5555 üzerinden yerel ADB'ye bağlanılamadı.\n\n1. Ayarlar \u2192 Sistem \u2192 Hakkında menüsünden Yapı Numarası'na 7 kez basın.\n2. Geliştirici Seçenekleri'nden USB / Ağ Hata Ayıklamayı açın.\n3. Buraya dönüp tekrar Eşleştir / Onar'a basın."))
-                        .setPositiveButton(tr("Open Developer Options…", "Geliştirici Seçeneklerini Aç…"), (d, w) -> {
+                dialog(I18n.resourceString(SettingsActivity.this, R.string.text_adb_debugging_needed))
+                        .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_could_not_connect_to_local_adb_on_port_5_2d1be7))
+                        .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_open_developer_options), (d, w) -> {
                             Intent dev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
                             if (!Suggestions.start(this, dev)) {
                                 Intent about = new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS);
@@ -2447,21 +2364,18 @@ public class SettingsActivity extends Activity {
                                 }
                             }
                         })
-                        .setNegativeButton(tr("Cancel", "İptal"), null)
+                        .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                         .show();
             }
         }));
     }
 
     private void confirmRevokeAllPermissions() {
-        dialog(tr("Remove / Revoke All Permissions", "Tüm İzinleri Kaldır / Geri Al"))
-                .setMessage(tr(
-                        "This will disable Keep Alive and remove Accessibility Service, Notification Access, Default Home Role, and launcher permissions (both locally and via ADB).",
-                        "Bu işlem Keep Alive'ı kapatır ve Erişilebilirlik Servisi, Bildirim Erişimi, Varsayılan Ana Ekran ve tüm başlatıcı izinlerini (hem yerel olarak hem ADB üzerinden) kaldırır."))
-                .setPositiveButton(tr("Revoke All Permissions", "Tüm İzinleri Kaldır"), (d, w) -> {
-                    AlertDialog progress = dialog(tr("Revoking Permissions…", "İzinler Kaldırılıyor…"))
-                            .setMessage(tr("Revoking all permissions…",
-                                    "Tüm izinler kaldırılıyor…"))
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_remove_revoke_all_permissions_0a9dac))
+                .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_this_will_disable_keep_alive_and_remove))
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_revoke_all_permissions), (d, w) -> {
+                    AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_revoking_permissions))
+                            .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_revoking_all_permissions))
                             .setCancelable(false)
                             .create();
                     progress.show();
@@ -2479,7 +2393,7 @@ public class SettingsActivity extends Activity {
                         showStatusMsg(msg);
                     }));
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2493,35 +2407,24 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        dialog(tr("Uninstall tvOS Launcher", "tvOS Launcher'ı Kaldır"))
-                .setMessage(tr(
-                        "Before uninstalling tvOS Launcher:\n\n"
-                        + "1. Reload / re-enable any debloated apps and disabled system launchers so your TV has a working stock home screen.\n"
-                        + "2. Automatically revoke all tvOS Launcher special permissions (Accessibility, Keep Alive, Default Home role) so Android can uninstall cleanly.\n"
-                        + "3. Open the Android app uninstall screen for tvOS Launcher.\n\n"
-                        + "How would you like to proceed?",
-                        "tvOS Launcher'ı kaldırmadan önce:\n\n"
-                        + "1. TV'nizde çalışan bir stok ana ekran kalması için debloat edilen uygulamaları ve devre dışı bırakılan sistem başlatıcılarını geri yükleyin.\n"
-                        + "2. Kaldırma sırasında sorun yaşanmaması için tvOS Launcher'ın tüm özel izinlerini (Erişilebilirlik, Keep Alive, Varsayılan Ana Ekran) otomatik olarak geri alın.\n"
-                        + "3. Android uygulama kaldırma ekranına yönlendirilin.\n\n"
-                        + "Nasıl devam etmek보통 istersiniz?".replace("보통 ", "")))
-                .setPositiveButton(tr("Restore Apps & Launchers First", "Önce Uygulamaları ve Başlatıcıları Yükle"), (d, w) -> {
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_uninstall_tvos_launcher))
+                .setMessage(I18n.resourceString(this, R.string.uninstall_restore_permissions_explanation))
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_restore_apps_launchers_first), (d, w) -> {
                     if (!toRestore.isEmpty()) {
                         CleanYourTv.enablePackagesList(this, toRestore, true, this::revokeAndRedirectToUninstall);
                     } else {
                         revokeAndRedirectToUninstall();
                     }
                 })
-                .setNeutralButton(tr("Skip Restore & Continue", "Atla ve Devam Et"), (d, w) -> revokeAndRedirectToUninstall())
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNeutralButton(I18n.resourceString(SettingsActivity.this, R.string.text_skip_restore_continue), (d, w) -> revokeAndRedirectToUninstall())
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
     private void revokeAndRedirectToUninstall() {
         LocalAdb.setKeepAliveEnabled(this, false);
-        AlertDialog progress = dialog(tr("Preparing Uninstall…", "Kaldırma Hazırlanıyor…"))
-                .setMessage(tr("Revoking all permissions and opening Android uninstall screen…",
-                        "Tüm izinler kaldırılıyor ve Android uygulama kaldırma ekranı açılıyor…"))
+        AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_preparing_uninstall))
+                .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_revoking_all_permissions_and_opening_and))
                 .setCancelable(false)
                 .create();
         progress.show();
@@ -2549,29 +2452,21 @@ public class SettingsActivity extends Activity {
     }
 
     private void promptManualDebloatWarning() {
-        dialog(tr("⚠️ Manual Debloat Warning", "⚠️ Manuel Debloat Uyarısı"))
-                .setMessage(tr(
-                        "WARNING: Manual Debloat lists ALL system apps installed on your TV.\n\n"
-                        + "• Only disable packages if you know exactly what you are doing.\n"
-                        + "• Disabling core Android system services, TV input/tuner services, or Settings packages can break HDMI inputs, Wi-Fi, remote control, or cause a bootloop.\n\n"
-                        + "Proceed at your own risk?",
-                        "UYARI: Manuel Debloat, TV'nizde yüklü olan TÜM sistem uygulamalarını listeler.\n\n"
-                        + "• Yalnızca ne yaptığınızı tam olarak biliyorsanız paketleri devre dışı bırakın.\n"
-                        + "• Temel Android sistem servislerini, TV giriş/tuner servislerini veya Ayarlar paketlerini devre dışı bırakmak HDMI girişlerini, Wi-Fi'yi, kumandayı bozabilir veya cihazın açılmamasına neden olabilir.\n\n"
-                        + "Sorumluluk size ait olmak üzere devam edilsin mi?"))
-                .setPositiveButton(tr("I Understand — Open Manual Debloat", "Anladım — Manuel Debloat'u Aç"), (d, w) -> {
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_manual_debloat_warning))
+                .setMessage(I18n.resourceString(SettingsActivity.this, R.string.message_warning_manual_debloat_lists_all_system_apps_ins))
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_i_understand_open_manual_debloat), (d, w) -> {
                     cytManualItems = null;
                     cytManualFilterQuery = "";
                     openSubMenu("cyt_manual");
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
     // ================================================================ Native Right-Side Sub-Menus
 
     private void backSubMenuRow() {
-        row((I18n.isRtl(this) ? "\u2192  " : "\u2190  ") + tr("Back", "Geri"), () -> "", this::closeSubMenu);
+        row((I18n.isRtl(this) ? "\u2192  " : "\u2190  ") + I18n.resourceString(SettingsActivity.this, R.string.text_back), () -> "", this::closeSubMenu);
     }
 
     private void renderSubMenu(String subId) {
@@ -2653,26 +2548,26 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuControlPanelInputs() {
-        mainHeadView.setText(tr("Inputs", "Girişler"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_inputs));
         backSubMenuRow();
         List<Inputs.Input> allInputs = Inputs.listAllForSettings(this);
         for (final Inputs.Input in : allInputs) {
             final String key = Inputs.getInputKey(in);
             final String origTitle = in.origLabel != null && !in.origLabel.isEmpty() ? in.origLabel : in.label;
             section(origTitle.toUpperCase(I18n.locale(this)));
-            row(tr("Hide input", "Girişi gizle"),
-                    () -> Inputs.isInputHidden(this, key) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_hide_input),
+                    () -> Inputs.isInputHidden(this, key) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         boolean next = !Inputs.isInputHidden(this, key);
                         Inputs.setInputHidden(this, key, next);
                         refreshAll();
                     });
-            twoLineRow(tr("Custom label", "Özel etiket"),
+            twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_custom_label),
                     () -> {
                         String custom = Inputs.getCustomInputLabel(this, key);
                         return custom.isEmpty()
-                                ? tr("Change name of input", "Girişin adını değiştirin")
-                                : custom + "  ·  " + tr("Change name of input", "Girişin adını değiştirin");
+                                ? I18n.resourceString(SettingsActivity.this, R.string.text_change_name_of_input)
+                                : custom + "  ·  " + I18n.resourceString(SettingsActivity.this, R.string.text_change_name_of_input);
                     },
                     () -> promptCustomInputLabelDialog(in));
         }
@@ -2691,26 +2586,26 @@ public class SettingsActivity extends Activity {
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(et);
-        AlertDialog dlg = dialog(origTitle + " — " + tr("Custom label", "Özel etiket"))
+        AlertDialog dlg = dialog(origTitle + " — " + I18n.resourceString(SettingsActivity.this, R.string.text_custom_label))
                 .setView(box)
-                .setPositiveButton(tr("Save", "Kaydet"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_save), (d, w) -> {
                     Inputs.setCustomInputLabel(this, key, et.getText().toString().trim());
                     rebuildMainRows();
                 })
-                .setNeutralButton(tr("Reset to default", "Varsayılana sıfırla"), (d, w) -> {
+                .setNeutralButton(I18n.resourceString(SettingsActivity.this, R.string.text_reset_to_default), (d, w) -> {
                     Inputs.setCustomInputLabel(this, key, "");
                     rebuildMainRows();
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(et, dlg);
         et.requestFocus();
     }
 
     private void subMenuDockSize() {
-        mainHeadView.setText(tr("Dock size", "Dock boyutu"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_dock_size));
         backSubMenuRow();
-        section(tr("DOCK SCALE (-50% TO +50%)", "DOCK BOYUTU (-%50 İLE +%50 ARASI)"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_dock_scale_50_to_50));
         int curPct = Scenes.getDockScalePercent(this);
         int[] steps = {50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150};
         for (int i = 0; i < steps.length; i++) {
@@ -2718,78 +2613,75 @@ public class SettingsActivity extends Activity {
             int diff = pct - 100;
             String label;
             if (diff == 0) {
-                label = "100% (" + tr("Default", "Varsayılan") + ")";
+                label = "100% (" + I18n.resourceString(SettingsActivity.this, R.string.text_default) + ")";
             } else if (diff > 0) {
                 label = pct + "% (+" + diff + "%)";
             } else {
                 label = pct + "% (" + diff + "%)";
             }
             String sub = diff > 0
-                    ? tr("Larger dock — extra apps automatically move to Other apps if needed",
-                         "Daha büyük dock — ekrana sığmayan fazla uygulamalar otomatik olarak Diğer uygulamalar'a taşınır")
-                    : (diff < 0 ? tr("Smaller, more compact dock", "Daha küçük, kompakt dock")
-                                : tr("Standard Apple tvOS dock size", "Standart Apple tvOS dock boyutu"));
+                    ? I18n.resourceString(SettingsActivity.this, R.string.text_larger_dock_extra_apps_automatically_mov)
+                    : (diff < 0 ? I18n.resourceString(SettingsActivity.this, R.string.text_smaller_more_compact_dock)
+                                : I18n.resourceString(SettingsActivity.this, R.string.text_standard_apple_tvos_dock_size));
             choiceRow(label, sub, curPct == pct, () -> {
                 Scenes.setDockScalePercent(this, pct);
                 rebuildMainRows();
-                showStatusMsg(tr("Dock size set to " + pct + "%.", "Dock boyutu %" + pct + " olarak ayarlandı."));
+                showStatusMsg(I18n.resourceString(this, R.string.dock_size_changed, pct));
             });
         }
     }
 
     private void subMenuHomeDashboard() {
-        mainHeadView.setText(tr("Home screen widget settings", "Ana ekran widget ayarları"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen_widget_settings));
         backSubMenuRow();
-        infoNote(tr("Tip: Press and hold OK on any widget on the Home screen to open its menu to move (reorder) or disable it.",
-                "İpucu: Ana ekrandaki herhangi bir widget'ın üzerinde OK tuşuna basılı tutarak taşıma (sırasını değiştirme) veya kapatma menüsünü açabilirsiniz."));
-        section(tr("HOME SCREEN WIDGETS", "ANA EKRAN WIDGET'LARI"));
-        row(tr("Enable Home Dashboard", "Ana Ekran Panelini Etkinleştir"),
-                () -> HomeDashboard.isEnabled(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_tip_press_and_hold_ok_on_any_widget_on_t));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_home_screen_widgets));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_enable_home_dashboard),
+                () -> HomeDashboard.isEnabled(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     HomeDashboard.setEnabled(this, !HomeDashboard.isEnabled(this));
                     rebuildMainRows();
                 });
-        row(tr("Show widgets when selected app has no Continue Watching", "Seçili uygulamada İzlemeye Devam Et yoksa widget'ları göster"),
-                () -> HomeDashboard.isShowWhenNoCw(this) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_show_widgets_when_selected_app_has_no_co),
+                () -> HomeDashboard.isShowWhenNoCw(this) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                 () -> {
                     HomeDashboard.setShowWhenNoCw(this, !HomeDashboard.isShowWhenNoCw(this));
                     refreshAll();
                 });
 
-        section(tr("DASHBOARD WIDGETS", "PANEL WIDGET'LARI"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_dashboard_widgets));
         List<String> order = HomeDashboard.getWidgetOrder(this);
         for (int i = 0; i < order.size(); i++) {
             final String wid = order.get(i);
             row(HomeDashboard.getWidgetEmojiById(wid) + HomeDashboard.getWidgetTitleById(this, wid),
-                    () -> HomeDashboard.isWidgetEnabledById(this, wid) ? tr("On", "Açık") : tr("Off", "Kapalı"),
+                    () -> HomeDashboard.isWidgetEnabledById(this, wid) ? I18n.resourceString(SettingsActivity.this, R.string.status_on) : I18n.resourceString(SettingsActivity.this, R.string.status_off),
                     () -> {
                         HomeDashboard.setWidgetEnabledById(this, wid, !HomeDashboard.isWidgetEnabledById(this, wid));
                         refreshAll();
                     });
         }
 
-        section(tr("WIDGET SETTINGS", "WIDGET AYARLARI"));
-        row("🌍  " + I18n.t(this, "releases_country_setting") + "…",
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_widget_settings));
+        row("🌍  " + I18n.resourceString(this, R.string.text_releases_country_setting) + "…",
                 () -> HomeDashboard.getReleasesCountriesSummary(this),
                 () -> openSubMenu("releases_countries"));
-        row("📰  " + I18n.t(this, "news_country_setting") + "…",
+        row("📰  " + I18n.resourceString(this, R.string.text_news_country_setting) + "…",
                 () -> HomeDashboard.getNewsCountrySummary(this),
                 () -> openSubMenu("news_country"));
-        row("🕌  " + tr("Prayer times location", "Namaz vakti konumu") + "…",
+        row("🕌  " + I18n.resourceString(SettingsActivity.this, R.string.text_prayer_times_location_3a3188) + "…",
                 () -> HomeDashboard.getPrayerLocationSummary(this),
                 () -> openSubMenu("prayer_location"));
-        row(tr("Prayer calculation method", "Namaz vakti hesaplama yöntemi"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_prayer_calculation_method_92d541),
                 () -> HomeDashboard.getPrayerMethodName(this),
                 this::promptPrayerMethodDialog);
-        row(tr("Add favorite football team…", "Favori futbol takımı ekle…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_add_favorite_football_team_0ba5b6),
                 () -> "＋",
                 this::promptAddFavoriteTeamDialog);
-        infoNote(tr("Displayed when no app is focused, when focus is on Settings / non-app elements, or when the focused app has no Continue Watching items.",
-                "Hiçbir uygulama seçili olmadığında, odak Ayarlar veya uygulama dışı öğelerde olduğunda ya da seçili uygulamanın İzlemeye Devam Et içeriği olmadığında görüntülenir."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_displayed_when_no_app_is_focused_when_fo));
     }
 
     private void subMenuReleasesCountries() {
-        mainHeadView.setText(I18n.t(this, "releases_country_setting"));
+        mainHeadView.setText(I18n.resourceString(this, R.string.text_releases_country_setting));
         backSubMenuRow();
 
         boolean autoMode = HomeDashboard.isReleasesCountryAuto(this);
@@ -2802,9 +2694,9 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        section(tr("REGION MODE", "BÖLGE MODU"));
-        choiceRow(I18n.t(this, "releases_country_auto"),
-                tr("Currently synced to: ", "Şu anda eşitlenen ülke: ") + autoCountryLabel,
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_region_mode));
+        choiceRow(I18n.resourceString(this, R.string.text_releases_country_auto),
+                I18n.resourceString(SettingsActivity.this, R.string.text_currently_synced_to_d6cd7b) + autoCountryLabel,
                 autoMode,
                 () -> {
                     HomeDashboard.setReleasesCountryAuto(this, !HomeDashboard.isReleasesCountryAuto(this));
@@ -2812,15 +2704,15 @@ public class SettingsActivity extends Activity {
                     rebuildMainRows();
                 });
 
-        section(tr("COUNTRIES (SELECT ONE OR MULTIPLE)", "ÜLKELER (BİR VEYA BİRDEN FAZLA SEÇİN)"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_countries_select_one_or_multiple));
         for (int i = 0; i < HomeDashboard.RELEASES_COUNTRIES.length; i++) {
             final String code = HomeDashboard.RELEASES_COUNTRIES[i][0];
             final String flag = HomeDashboard.RELEASES_COUNTRIES[i][1];
             final String name = HomeDashboard.RELEASES_COUNTRIES[i][2];
             boolean selected = HomeDashboard.isReleasesCountrySelected(this, code);
             choiceRow(flag + "  " + name + " (" + code + ")",
-                    selected ? tr("Selected — press OK to toggle", "Seçili — değiştirmek için OK'a basın")
-                             : tr("Press OK to include releases from this country", "Bu ülkenin içeriklerini dahil etmek için OK'a basın"),
+                    selected ? I18n.resourceString(SettingsActivity.this, R.string.text_selected_press_ok_to_toggle)
+                             : I18n.resourceString(SettingsActivity.this, R.string.text_press_ok_to_include_releases_from_this_c),
                     selected,
                     () -> {
                         HomeDashboard.toggleReleasesCountry(this, code);
@@ -2828,21 +2720,20 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     });
         }
-        infoNote(tr("By default, Most Watched automatically syncs with your selected UI language. Selecting any country above switches to custom multi-country mode.",
-                "Varsayılan olarak Çok İzlenenler widget'ı seçili arayüz diliyle otomatik eşitlenir. Yukarıdan ülke seçtiğinizde özel çoklu ülke moduna geçilir."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_by_default_most_watched_automatically_sy));
     }
 
     private void subMenuNewsCountry() {
-        mainHeadView.setText(I18n.t(this, "news_country_setting"));
+        mainHeadView.setText(I18n.resourceString(this, R.string.text_news_country_setting));
         backSubMenuRow();
 
         boolean autoMode = HomeDashboard.isNewsCountryAuto(this);
         String autoCode = HomeDashboard.defaultCountryForUiLang(this);
         String autoLabel = HomeDashboard.getNewsCountryDisplayName(autoCode) + " (" + autoCode + ")";
 
-        section(tr("REGION MODE", "BÖLGE MODU"));
-        choiceRow(I18n.t(this, "news_country_auto"),
-                tr("Currently synced to: ", "Şu anda eşitlenen ülke: ") + autoLabel,
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_region_mode));
+        choiceRow(I18n.resourceString(this, R.string.text_news_country_auto),
+                I18n.resourceString(SettingsActivity.this, R.string.text_currently_synced_to_d6cd7b) + autoLabel,
                 autoMode,
                 () -> {
                     HomeDashboard.setNewsCountry(this, null);
@@ -2850,15 +2741,15 @@ public class SettingsActivity extends Activity {
                     rebuildMainRows();
                 });
 
-        section(tr("COUNTRY", "ÜLKE"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_country));
         String activeCode = HomeDashboard.getEffectiveNewsCountry(this);
         for (int i = 0; i < HomeDashboard.NEWS_COUNTRIES.length; i++) {
             final String code = HomeDashboard.NEWS_COUNTRIES[i][0];
             final String name = HomeDashboard.NEWS_COUNTRIES[i][1];
             boolean selected = !autoMode && code.equalsIgnoreCase(activeCode);
             choiceRow(name + " (" + code + ")",
-                    selected ? tr("Selected", "Seçili")
-                             : tr("Press OK to select this country", "Bu ülkeyi seçmek için OK'a basın"),
+                    selected ? I18n.resourceString(SettingsActivity.this, R.string.text_selected)
+                             : I18n.resourceString(SettingsActivity.this, R.string.text_press_ok_to_select_this_country),
                     selected,
                     () -> {
                         HomeDashboard.setNewsCountry(this, code);
@@ -2866,33 +2757,32 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     });
         }
-        infoNote(tr("By default, Live News automatically syncs with your selected launcher language. Selecting a country above overrides it for the News widget.",
-                "Varsayılan olarak Canlı Haberler widget'ı seçili başlatıcı diliyle otomatik eşitlenir. Yukarıdan bir ülke seçtiğinizde Haberler widget'ı o ülkenin haberlerini gösterir."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_by_default_live_news_automatically_syncs));
     }
 
     private void subMenuPrayerLocation() {
-        mainHeadView.setText(tr("Prayer times location", "Namaz vakti konumu"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_prayer_times_location_3a3188));
         backSubMenuRow();
 
         boolean autoMode = HomeDashboard.isPrayerLocationAuto(this);
         String wxCity = Weather.place(this);
 
-        section(tr("LOCATION MODE", "KONUM MODU"));
-        choiceRow(tr("Sync with Weather location", "Hava Durumu konumu ile eşitle"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_location_mode));
+        choiceRow(I18n.resourceString(SettingsActivity.this, R.string.text_sync_with_weather_location),
                 (wxCity != null && !wxCity.isEmpty())
-                        ? tr("Currently synced to: ", "Şu anda eşitlenen konum: ") + wxCity
-                        : tr("Automatically follows your Weather location", "Hava Durumu konumunuzu otomatik olarak takip eder"),
+                        ? I18n.resourceString(SettingsActivity.this, R.string.text_currently_synced_to_e6a065) + wxCity
+                        : I18n.resourceString(SettingsActivity.this, R.string.text_automatically_follows_your_weather_locat),
                 autoMode,
                 () -> {
                     HomeDashboard.setPrayerLocationAuto(this);
                     HomeDashboard.fetchPrayerTimes(this, true, null);
                     rebuildMainRows();
                 });
-        row(tr("Search city or country…", "Şehir veya ülke ara…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_search_city_or_country_96234e),
                 () -> chev(),
                 this::promptPrayerCitySearchDialog);
 
-        section(tr("POPULAR CITIES", "POPÜLER ŞEHİRLER"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_popular_cities));
         String curCustom = HomeDashboard.getEffectivePrayerCity(this);
         for (int i = 0; i < HomeDashboard.PRAYER_POPULAR_CITIES.length; i++) {
             final String label = HomeDashboard.PRAYER_POPULAR_CITIES[i][0];
@@ -2900,8 +2790,8 @@ public class SettingsActivity extends Activity {
             final double lon = Double.parseDouble(HomeDashboard.PRAYER_POPULAR_CITIES[i][2]);
             boolean selected = !autoMode && label.equalsIgnoreCase(curCustom);
             choiceRow(label,
-                    selected ? tr("Selected", "Seçili")
-                             : tr("Press OK to select this city", "Bu şehri seçmek için OK'a basın"),
+                    selected ? I18n.resourceString(SettingsActivity.this, R.string.text_selected)
+                             : I18n.resourceString(SettingsActivity.this, R.string.text_press_ok_to_select_this_city),
                     selected,
                     () -> {
                         HomeDashboard.setPrayerLocation(this, label, lat, lon);
@@ -2909,25 +2799,24 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     });
         }
-        infoNote(tr("By default, Prayer Times syncs with the Weather location chosen during setup or in Weather settings. Search or pick any city above to set a separate location for Prayer Times.",
-                "Varsayılan olarak Namaz Vakitleri, ilk kurulumda veya Hava Durumu ayarlarında seçilen konumla eşitlenir. Namaz Vakitleri için ayrı bir konum belirlemek üzere yukarıdan şehir arayabilir veya seçebilirsiniz."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_by_default_prayer_times_syncs_with_the_w));
     }
 
     private void promptPrayerCitySearchDialog() {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
-        in.setHint(tr("City or country, e.g. Istanbul, London", "Şehir veya ülke, örn. İstanbul, Londra"));
+        in.setHint(I18n.resourceString(SettingsActivity.this, R.string.text_city_or_country_e_g_istanbul_london));
         in.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
-        AlertDialog dlg = dialog(tr("Search City or Country", "Şehir veya Ülke Ara"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_search_city_or_country_65bcc6))
                 .setView(box)
-                .setPositiveButton(tr("Search", "Ara"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_search_946f53), (d, w) -> {
                     String q = in.getText().toString().trim();
                     if (q.isEmpty()) return;
-                    showStatusMsg(tr("Searching…", "Aranıyor…"));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_searching));
                     new Thread(() -> {
                         List<Weather.Place> found;
                         try {
@@ -2939,7 +2828,7 @@ public class SettingsActivity extends Activity {
                         runOnUiThread(() -> showPrayerCityMatches(q, res));
                     }).start();
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
@@ -2949,11 +2838,11 @@ public class SettingsActivity extends Activity {
         if (isFinishing()) return;
         showStatusMsg(null);
         if (res == null) {
-            showStatusMsg(tr("Couldn't search. Check the internet connection.", "Arama yapılamadı. İnternet bağlantısını kontrol edin."));
+            showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_couldn_t_search_check_the_internet_conne));
             return;
         }
         if (res.isEmpty()) {
-            showStatusMsg(tr("No place found for \u201c" + q + "\u201d.", "\u201c" + q + "\u201d için konum bulunamadı."));
+            showStatusMsg(I18n.resourceString(this, R.string.message_no_place_found, q));
             return;
         }
         String[] names = new String[res.size()];
@@ -2961,7 +2850,7 @@ public class SettingsActivity extends Activity {
             Weather.Place pl = res.get(i);
             names[i] = pl.detail.isEmpty() ? pl.name : (pl.name + "  \u00b7  " + pl.detail);
         }
-        dialog(tr("Matching places", "Eşleşen konumlar"))
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_matching_places))
                 .setItems(names, (d, which) -> {
                     Weather.Place picked = res.get(which);
                     String label = picked.detail.isEmpty() ? picked.name : (picked.name + ", " + picked.detail);
@@ -2969,7 +2858,7 @@ public class SettingsActivity extends Activity {
                     HomeDashboard.fetchPrayerTimes(this, true, null);
                     rebuildMainRows();
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2980,14 +2869,14 @@ public class SettingsActivity extends Activity {
             opts[i] = (HomeDashboard.PRAYER_METHOD_IDS[i] == cur ? "✓ " : "   ")
                     + HomeDashboard.PRAYER_METHOD_NAMES[i];
         }
-        dialog(tr("Prayer Calculation Method", "Namaz Vakti Hesaplama Yöntemi"))
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_prayer_calculation_method_f4f921))
                 .setItems(opts, (d, which) -> {
                     if (which >= 0 && which < HomeDashboard.PRAYER_METHOD_IDS.length) {
                         HomeDashboard.setPrayerMethod(this, HomeDashboard.PRAYER_METHOD_IDS[which]);
                         refreshAll();
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
     }
 
@@ -2995,16 +2884,16 @@ public class SettingsActivity extends Activity {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
         in.setHint("e.g. Qarabağ, Galatasaray, Real Madrid");
-        AlertDialog dlg = dialog(tr("Add Favorite Football Team", "Favori Futbol Takımı Ekle"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_add_favorite_football_team_56b172))
                 .setView(in)
-                .setPositiveButton(tr("Add", "Ekle"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_add), (d, w) -> {
                     String name = in.getText().toString().trim();
                     if (!name.isEmpty()) {
                         HomeDashboard.addCustomFavoriteTeam(this, name);
-                        showStatusMsg(tr("Added favorite team: " + name, "Favori takım eklendi: " + name));
+                        showStatusMsg(I18n.resourceString(this, R.string.football_favorite_team_added, name));
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
@@ -3013,31 +2902,28 @@ public class SettingsActivity extends Activity {
     private void subMenuCustomWallpaper(final String scope) {
         boolean isScene = CustomMedia.SCOPE_SCENE.equals(scope);
         mainHeadView.setText(isScene
-                ? tr("Night Scenes Custom Wallpaper", "Gece Sahneleri Özel Duvar Kağıdı")
-                : tr("Classic Custom Wallpaper", "Klasik Özel Duvar Kağıdı"));
+                ? I18n.resourceString(SettingsActivity.this, R.string.text_night_scenes_custom_wallpaper)
+                : I18n.resourceString(SettingsActivity.this, R.string.text_classic_custom_wallpaper));
         backSubMenuRow();
 
         int subMode = CustomMedia.getCustomWallpaperSubMode(this, scope);
-        section(tr("CUSTOM WALLPAPER MODE", "ÖZEL DUVAR KAĞIDI MODU"));
-        choiceRow(tr("Single / Multi Wallpapers", "Tekli / Çoklu Duvar Kağıdı"),
-                tr("Add as many custom wallpapers as you want without any limit",
-                   "Herhangi bir sınır olmadan istediğiniz kadar özel duvar kağıdı ekleyin"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_mode_9acb13));
+        choiceRow(I18n.resourceString(SettingsActivity.this, R.string.text_single_multi_wallpapers),
+                I18n.resourceString(SettingsActivity.this, R.string.text_add_as_many_custom_wallpapers_as_you_wan),
                 subMode == CustomMedia.CUSTOM_MODE_SINGLE_MULTI,
                 () -> {
                     CustomMedia.setCustomWallpaperSubMode(this, scope, CustomMedia.CUSTOM_MODE_SINGLE_MULTI);
                     rebuildMainRows();
                 });
-        choiceRow(tr("Shuffle Folder", "Klasörü Karıştır"),
-                tr("Select a folder and enable or disable individual wallpapers inside it",
-                   "Bir klasör seçin ve içindeki duvar kağıtlarını tek tek açıp kapatın"),
+        choiceRow(I18n.resourceString(SettingsActivity.this, R.string.text_shuffle_folder_dc8ec3),
+                I18n.resourceString(SettingsActivity.this, R.string.text_select_a_folder_and_enable_or_disable_in),
                 subMode == CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE,
                 () -> {
                     CustomMedia.setCustomWallpaperSubMode(this, scope, CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE);
                     rebuildMainRows();
                 });
-        choiceRow(tr("Reddit Wallpapers", "Reddit Duvar Kağıtları"),
-                tr("Auto-changing 1080p/4K wallpapers from your selected subreddits",
-                   "Seçtiğiniz subreddit'lerden otomatik değişen 1080p/4K duvar kağıtları"),
+        choiceRow(I18n.resourceString(SettingsActivity.this, R.string.text_reddit_wallpapers),
+                I18n.resourceString(SettingsActivity.this, R.string.text_auto_changing_1080p_4k_wallpapers_from_y),
                 subMode == CustomMedia.CUSTOM_MODE_REDDIT,
                 () -> {
                     CustomMedia.setCustomWallpaperSubMode(this, scope, CustomMedia.CUSTOM_MODE_REDDIT);
@@ -3046,18 +2932,18 @@ public class SettingsActivity extends Activity {
                 });
 
         if (subMode == CustomMedia.CUSTOM_MODE_SINGLE_MULTI) {
-            section(tr("CUSTOM WALLPAPERS (UNLIMITED)", "ÖZEL DUVAR KAĞITLARI (SINIRSIZ)"));
-            row(tr("Auto-change interval", "Otomatik değişim süresi"),
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpapers_unlimited));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_auto_change_interval),
                     () -> Scenes.getStayIntervalLabel(this),
                     () -> {
                         Scenes.cycleStaySeconds(this);
                         refreshAll();
                     });
-            row("＋  " + tr("Add new wallpaper…", "Yeni duvar kağıdı ekle…"),
-                    () -> tr("Choose image ›", "Görsel seç ›"),
+            row("＋  " + I18n.resourceString(SettingsActivity.this, R.string.text_add_new_wallpaper),
+                    () -> I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_d3f17f),
                     () -> CustomMedia.showImageFilePicker(
                             this,
-                            tr("Select Wallpaper Image", "Duvar Kağıdı Görseli Seçin"),
+                            I18n.resourceString(SettingsActivity.this, R.string.text_select_wallpaper_image),
                             false,
                             1920,
                             1080,
@@ -3069,8 +2955,7 @@ public class SettingsActivity extends Activity {
                                     Scenes.enableCustomScene(this, slot, true);
                                 }
                                 rebuildMainRows();
-                                showStatusMsg(tr("Added custom wallpaper #%s.",
-                                        "Özel duvar kağıdı #%s eklendi.", slot));
+                                showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_added_custom_wallpaper_s, slot));
                             }));
 
             int totalSlots = CustomMedia.getCustomSlotCount(this, scope);
@@ -3081,16 +2966,14 @@ public class SettingsActivity extends Activity {
                         ? CustomMedia.hasCustomSceneWallpaper(this, slot)
                         : CustomMedia.hasCustomClassicWallpaper(this, slot);
                 if (!exists) continue;
-                final String slotTitle = tr("Custom Wallpaper #", "Özel Duvar Kağıdı #") + slot;
+                final String slotTitle = I18n.resourceString(SettingsActivity.this, R.string.text_custom_wallpaper_1e4315) + slot;
                 boolean isSelected = isScene
                         ? Scenes.isSceneEnabled(this, Scenes.customSlotToId(slot))
                         : (activeSlot == slot);
                 choiceRow(slotTitle,
                         isScene
-                                ? tr("Tap to toggle in scene rotation · Long-press or use actions below",
-                                     "Sahne döngüsünde açıp kapatmak için dokunun")
-                                : tr("Tap to set as active wallpaper",
-                                     "Etkin duvar kağıdı yapmak için dokunun"),
+                                ? I18n.resourceString(SettingsActivity.this, R.string.text_tap_to_toggle_in_scene_rotation_long_pre)
+                                : I18n.resourceString(SettingsActivity.this, R.string.text_tap_to_set_as_active_wallpaper),
                         isSelected,
                         () -> {
                             CustomMedia.setActiveCustomSlot(this, scope, slot);
@@ -3100,15 +2983,15 @@ public class SettingsActivity extends Activity {
                             }
                             rebuildMainRows();
                         });
-                row("   ↻  " + tr("Replace Wallpaper #", "Duvar Kağıdını Değiştir #") + slot,
-                        () -> tr("Choose image ›", "Görsel seç ›"),
+                row("   ↻  " + I18n.resourceString(SettingsActivity.this, R.string.text_replace_wallpaper) + slot,
+                        () -> I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_d3f17f),
                         () -> CustomMedia.showImageFilePicker(
                                 this,
                                 slotTitle,
                                 false,
                                 1920,
                                 1080,
-                                tr("Remove this wallpaper", "Bu duvar kağıdını kaldır"),
+                                I18n.resourceString(SettingsActivity.this, R.string.text_remove_this_wallpaper),
                                 () -> {
                                     CustomMedia.removeCustomWallpaperSlot(this, scope, slot);
                                     rebuildMainRows();
@@ -3124,28 +3007,28 @@ public class SettingsActivity extends Activity {
                                 }));
                 if (isScene) {
                     final boolean hasFg = CustomMedia.hasCustomSceneForeground(this, slot);
-                    row("   ✦  " + tr("Depth Effect Foreground (PNG) #", "Derinlik Efekti Ön Planı (PNG) #") + slot,
-                            () -> hasFg ? tr("Set (PNG cutout) ›", "Ayarlandı (PNG kesim) ›") : tr("None — Choose PNG ›", "Yok — PNG seç ›"),
+                    row("   ✦  " + I18n.resourceString(SettingsActivity.this, R.string.text_depth_effect_foreground_png) + slot,
+                            () -> hasFg ? I18n.resourceString(SettingsActivity.this, R.string.text_set_png_cutout) : I18n.resourceString(SettingsActivity.this, R.string.text_none_choose_png),
                             () -> CustomMedia.showImageFilePicker(
                                     this,
-                                    tr("Select Transparent PNG Foreground", "Şeffaf PNG Ön Plan Seçin") + " (#" + slot + ")",
+                                    I18n.resourceString(SettingsActivity.this, R.string.text_select_transparent_png_foreground) + " (#" + slot + ")",
                                     false,
                                     1920,
                                     1080,
-                                    hasFg ? tr("Remove foreground cutout", "Ön plan kesimini kaldır") : null,
+                                    hasFg ? I18n.resourceString(SettingsActivity.this, R.string.text_remove_foreground_cutout) : null,
                                     hasFg ? () -> {
                                         CustomMedia.clearCustomSceneForeground(this, slot);
                                         rebuildMainRows();
-                                        showStatusMsg(tr("Depth effect foreground removed.", "Derinlik efekti ön planı kaldırıldı."));
+                                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_depth_effect_foreground_removed));
                                     } : null,
                                     bmp -> {
                                         CustomMedia.setCustomSceneForeground(this, slot, bmp);
                                         CustomMedia.setActiveCustomSlot(this, scope, slot);
                                         rebuildMainRows();
-                                        showStatusMsg(tr("Depth effect foreground updated.", "Derinlik efekti ön planı güncellendi."));
+                                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_depth_effect_foreground_updated));
                                     }));
                 }
-                row("   🗑  " + tr("Remove Wallpaper #", "Duvar Kağıdını Kaldır #") + slot,
+                row("   🗑  " + I18n.resourceString(SettingsActivity.this, R.string.text_remove_wallpaper) + slot,
                         () -> "",
                         () -> {
                             CustomMedia.removeCustomWallpaperSlot(this, scope, slot);
@@ -3153,19 +3036,19 @@ public class SettingsActivity extends Activity {
                         });
             }
         } else if (subMode == CustomMedia.CUSTOM_MODE_FOLDER_SHUFFLE) {
-            section(tr("SHUFFLE FOLDER", "KARIŞTIRMA KLASÖRÜ"));
-            row(tr("Auto-change interval", "Otomatik değişim süresi"),
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_shuffle_folder_86fcb0));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_auto_change_interval),
                     () -> Scenes.getStayIntervalLabel(this),
                     () -> {
                         Scenes.cycleStaySeconds(this);
                         refreshAll();
                     });
-            row("📁  " + tr("Select wallpaper folder…", "Duvar kağıdı klasörü seçin…"),
+            row("📁  " + I18n.resourceString(SettingsActivity.this, R.string.text_select_wallpaper_folder_9bea6b),
                     () -> CustomMedia.getWallpaperShuffleFolderSummary(this, scope),
                     () -> CustomMedia.showFolderPicker(
                             this,
                             scope,
-                            tr("Select Wallpaper Folder", "Duvar Kağıdı Klasörü Seçin"),
+                            I18n.resourceString(SettingsActivity.this, R.string.text_select_wallpaper_folder_0c14ac),
                             folder -> rebuildMainRows()));
 
             String folderPath = CustomMedia.getWallpaperShuffleFolder(this, scope);
@@ -3173,13 +3056,13 @@ public class SettingsActivity extends Activity {
                 java.io.File dir = new java.io.File(folderPath);
                 List<java.io.File> files = CustomMedia.listFolderImages(dir);
                 if (!files.isEmpty()) {
-                    section(tr("WALLPAPERS IN FOLDER (TAP TO ENABLE / DISABLE)", "KLASÖRDEKİ DUVAR KAĞITLARI (AÇMAK / KAPATMAK İÇİN DOKUNUN)"));
+                    section(I18n.resourceString(SettingsActivity.this, R.string.text_wallpapers_in_folder_tap_to_enable_disab));
                     for (final java.io.File imgFile : files) {
                         final String abs = imgFile.getAbsolutePath();
                         boolean enabled = !CustomMedia.isFolderImageDisabled(this, scope, abs);
                         choiceRow("🖼️  " + imgFile.getName(),
-                                enabled ? tr("Enabled in shuffle", "Karıştırmada etkin")
-                                        : tr("Disabled", "Devre dışı"),
+                                enabled ? I18n.resourceString(SettingsActivity.this, R.string.text_enabled_in_shuffle)
+                                        : I18n.resourceString(SettingsActivity.this, R.string.text_disabled_ae652f),
                                 enabled,
                                 () -> {
                                     boolean nowDisabled = !CustomMedia.isFolderImageDisabled(this, scope, abs);
@@ -3190,25 +3073,25 @@ public class SettingsActivity extends Activity {
                 }
             }
         } else if (subMode == CustomMedia.CUSTOM_MODE_REDDIT) {
-            section(tr("REDDIT WALLPAPER OPTIONS", "REDDIT DUVAR KAĞIDI SEÇENEKLERİ"));
-            row(tr("Auto-change interval", "Otomatik değişim süresi"),
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_reddit_wallpaper_options));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_auto_change_interval),
                     () -> CustomMedia.getRedditIntervalLabel(this, scope),
                     () -> {
                         CustomMedia.cycleRedditIntervalMinutes(this, scope);
                         refreshAll();
                     });
-            row("⏭  " + I18n.t(this, "next_wallpaper"),
-                    () -> tr("Skip now ›", "Şimdi geç ›"),
+            row("⏭  " + I18n.resourceString(this, R.string.text_next_wallpaper_f38b4f),
+                    () -> I18n.resourceString(SettingsActivity.this, R.string.text_skip_now),
                     () -> {
-                        showStatusMsg(tr("Fetching next Reddit wallpaper…", "Sonraki Reddit duvar kağıdı indiriliyor…"));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_fetching_next_reddit_wallpaper));
                         CustomMedia.fetchNextRedditWallpaperAsync(this, scope, () ->
-                                showStatusMsg(tr("Reddit wallpaper updated.", "Reddit duvar kağıdı güncellendi.")));
+                                showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_reddit_wallpaper_updated)));
                     });
-            row("＋  " + tr("Add custom subreddit…", "Özel subreddit ekle…"),
+            row("＋  " + I18n.resourceString(SettingsActivity.this, R.string.text_add_custom_subreddit),
                     () -> "r/…",
                     () -> promptAddCustomSubredditDialog(scope));
 
-            section(tr("SUBREDDITS (SELECT SINGLE OR MULTIPLE)", "SUBREDDIT'LER (TEKLİ VEYA ÇOKLU SEÇİM)"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_subreddits_select_single_or_multiple));
             java.util.Set<String> activeSubs = CustomMedia.getRedditSubreddits(this, scope);
             List<String> allSubs = CustomMedia.getAllKnownRedditSubreddits(this, scope);
             for (final String sub : allSubs) {
@@ -3220,7 +3103,7 @@ public class SettingsActivity extends Activity {
                     }
                 }
                 choiceRow("r/" + sub,
-                        on ? tr("Selected", "Seçili") : tr("Tap to include", "Dahil etmek için dokunun"),
+                        on ? I18n.resourceString(SettingsActivity.this, R.string.text_selected) : I18n.resourceString(SettingsActivity.this, R.string.text_tap_to_include),
                         on,
                         () -> {
                             CustomMedia.toggleRedditSubreddit(this, scope, sub);
@@ -3235,9 +3118,9 @@ public class SettingsActivity extends Activity {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
         in.setHint("e.g. WallpaperDump, ImaginaryLandscapes");
-        AlertDialog dlg = dialog(tr("Add Subreddit", "Subreddit Ekle"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_add_subreddit))
                 .setView(in)
-                .setPositiveButton(tr("Add", "Ekle"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_add), (d, w) -> {
                     String sub = in.getText().toString().trim();
                     if (!sub.isEmpty()) {
                         CustomMedia.addCustomRedditSubreddit(this, scope, sub);
@@ -3245,16 +3128,16 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     }
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
     }
 
     private void subMenuAmbientThemes() {
-        mainHeadView.setText(tr("Ambient colour themes", "Ortam renk temaları"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_ambient_colour_themes_930057));
         backSubMenuRow();
-        section(tr("AMBIENT THEMES", "ORTAM TEMALARI"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_ambient_themes));
         String cur = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
         for (int i = 0; i < MainActivity.WALL_KEYS.length; i++) {
             final String key = MainActivity.WALL_KEYS[i];
@@ -3267,12 +3150,12 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuWeatherSource() {
-        mainHeadView.setText(tr("Weather source", "Hava durumu kaynağı"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_weather_source));
         backSubMenuRow();
-        section(tr("FORECAST PROVIDER", "HAVA TAHMİNİ SAĞLAYICISI"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_forecast_provider));
         String cur = Weather.source(this);
         String[] keys = Weather.SOURCES;
-        String[] names = {"Open-Meteo", "MET Norway (Yr)", "wttr.in  (" + tr("3 days", "3 g\u00fcn") + ")"};
+        String[] names = {"Open-Meteo", "MET Norway (Yr)", "wttr.in  (" + I18n.resourceString(SettingsActivity.this, R.string.text_3_days) + ")"};
         for (int i = 0; i < keys.length; i++) {
             final String k = keys[i];
             final String n = names[i];
@@ -3285,15 +3168,15 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuTopShelf() {
-        mainHeadView.setText(tr("Classic Top Shelf", "Klasik Üst Raf"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_classic_top_shelf));
         backSubMenuRow();
-        section(tr("TOP SHELF CONTENT", "ÜST RAF İÇERİĞİ"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_top_shelf_content));
         String cur = Suggestions.shelf(this);
         String[][] opts = {
-            {Suggestions.SHELF_BOTH, tr("Recommendations & News", "Öneriler ve Haberler")},
-            {Suggestions.SHELF_RECS, tr("Recommendations", "Öneriler")},
-            {Suggestions.SHELF_NEWS, tr("News", "Haberler")},
-            {Suggestions.SHELF_NONE, tr("Off", "Kapalı")}
+            {Suggestions.SHELF_BOTH, I18n.resourceString(SettingsActivity.this, R.string.text_recommendations_news)},
+            {Suggestions.SHELF_RECS, I18n.resourceString(SettingsActivity.this, R.string.text_recommendations)},
+            {Suggestions.SHELF_NEWS, I18n.resourceString(SettingsActivity.this, R.string.text_news)},
+            {Suggestions.SHELF_NONE, I18n.resourceString(SettingsActivity.this, R.string.status_off)}
         };
         for (String[] pair : opts) {
             final String k = pair[0];
@@ -3326,17 +3209,17 @@ public class SettingsActivity extends Activity {
         mainHeadView.setText(dispName);
         backSubMenuRow();
         section(dispName);
-        row(tr("Switch to " + dispName, dispName + " profiline geç"),
-                () -> Profiles.current(this).id.equals(p.id) ? tr("Active", "Etkin") : chev(),
+        row(Profiles.switchLabel(this, dispName),
+                () -> Profiles.current(this).id.equals(p.id) ? I18n.resourceString(SettingsActivity.this, R.string.text_active_60b543) : chev(),
                 () -> {
                     Profiles.setCurrent(this, p.id);
                     closeSubMenu();
                 });
-        row(tr("Rename…", "Yeniden adlandır…"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_rename_e8372b),
                 () -> chev(),
                 () -> promptRenamePerson(p, rowIdx));
         if (all.size() > 1) {
-            row(tr("Remove person", "Kişiyi kaldır"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_remove_person),
                     () -> "",
                     () -> {
                         Profiles.delete(this, p.id);
@@ -3346,20 +3229,20 @@ public class SettingsActivity extends Activity {
     }
 
     private String controlPanelActionTitle(String actionKey) {
-        if (ControlPanelOverlay.ACTION_WIFI.equals(actionKey)) return tr("Wi-Fi", "Wi-Fi");
-        if (ControlPanelOverlay.ACTION_BLUETOOTH.equals(actionKey)) return tr("Bluetooth", "Bluetooth");
-        if (ControlPanelOverlay.ACTION_SOUND.equals(actionKey)) return tr("Sound", "Ses");
-        if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) return tr("Inputs", "Girişler");
-        if (ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey)) return tr("Ambient Mode", "Ortam Modu");
-        if (ControlPanelOverlay.ACTION_POWER.equals(actionKey)) return tr("Power Off", "Kapat");
+        if (ControlPanelOverlay.ACTION_WIFI.equals(actionKey)) return I18n.resourceString(SettingsActivity.this, R.string.text_wi_fi);
+        if (ControlPanelOverlay.ACTION_BLUETOOTH.equals(actionKey)) return I18n.resourceString(SettingsActivity.this, R.string.text_bluetooth);
+        if (ControlPanelOverlay.ACTION_SOUND.equals(actionKey)) return I18n.resourceString(SettingsActivity.this, R.string.text_sound);
+        if (ControlPanelOverlay.ACTION_INPUTS.equals(actionKey)) return I18n.resourceString(SettingsActivity.this, R.string.text_inputs);
+        if (ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey)) return I18n.resourceString(SettingsActivity.this, R.string.text_ambient_mode);
+        if (ControlPanelOverlay.ACTION_POWER.equals(actionKey)) return I18n.resourceString(SettingsActivity.this, R.string.text_power_off);
         return actionKey;
     }
 
     private void subMenuControlPanelApps(String actionKey) {
         String actionTitle = controlPanelActionTitle(actionKey);
-        mainHeadView.setText(actionTitle + " — " + tr("Choose Action", "Eylem Seçin"));
+        mainHeadView.setText(actionTitle + " — " + I18n.resourceString(SettingsActivity.this, R.string.text_choose_action));
         backSubMenuRow();
-        section(tr("TARGET ACTION / APPLICATION", "HEDEF EYLEM / UYGULAMA"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_target_action_application));
 
         String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
         boolean isAmbient = ControlPanelOverlay.ACTION_AMBIENT.equals(actionKey);
@@ -3368,16 +3251,15 @@ public class SettingsActivity extends Activity {
         boolean isPowerNative = isPower && ControlPanelOverlay.isPowerNativeMenuMode(this);
 
         String defaultTitle = isAmbient
-                ? tr("Default (Ambient Mode)", "Varsayılan (Ortam Modu)")
+                ? I18n.resourceString(SettingsActivity.this, R.string.text_default_ambient_mode)
                 : (isPower
-                        ? tr("Default (Screen Off)", "Varsayılan (Ekranı Kapat)")
-                        : tr("Default (Automatic)", "Varsayılan (Otomatik)"));
+                        ? I18n.resourceString(SettingsActivity.this, R.string.text_default_screen_off)
+                        : I18n.resourceString(SettingsActivity.this, R.string.text_default_automatic));
         String defaultSubtitle = isAmbient
-                ? tr("Open TV Ambient Mode / Screensaver (or built-in fallback)",
-                        "TV Ortam Modunu / Ekran Koruyucuyu aç (veya yerleşik görünüm)")
+                ? I18n.resourceString(SettingsActivity.this, R.string.text_open_tv_ambient_mode_screensaver_or_buil)
                 : (isPower
-                        ? tr("Turn off screen / put TV to sleep", "Ekranı kapat / TV'yi uyku moduna al")
-                        : tr("Use built-in Android TV shortcut", "Yerleşik Android TV kısayolunu kullan"));
+                        ? I18n.resourceString(SettingsActivity.this, R.string.text_turn_off_screen_put_tv_to_sleep)
+                        : I18n.resourceString(SettingsActivity.this, R.string.text_use_built_in_android_tv_shortcut));
 
         choiceRow("↺  " + defaultTitle,
                 defaultSubtitle,
@@ -3386,32 +3268,29 @@ public class SettingsActivity extends Activity {
                     ControlPanelOverlay.clearCustomAction(this, actionKey);
                     closeSubMenu();
                     showStatusMsg(actionTitle + ": " + (isPower
-                            ? tr("Default (Screen Off)", "Varsayılan (Ekranı Kapat)")
-                            : tr("Default (Automatic)", "Varsayılan (Otomatik)")));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_default_screen_off)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_default_automatic)));
                 });
 
         if (isAmbient) {
-            choiceRow("🔒  " + tr("Lock Screen", "Kilit Ekranı"),
-                    tr("Show Clock, Date & Greeting over your chosen wallpaper (press any key to return)",
-                       "Seçilen duvar kağıdı üzerinde Saat, Tarih ve Karşılama göster (dönmek için herhangi bir tuşa basın)"),
+            choiceRow("🔒  " + I18n.resourceString(SettingsActivity.this, R.string.text_lock_screen),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_show_clock_date_greeting_over_your_chose),
                     isLockMode,
                     () -> {
                         ControlPanelOverlay.setAmbientLockScreenMode(this, true);
                         closeSubMenu();
-                        showStatusMsg(actionTitle + ": " + tr("Lock Screen", "Kilit Ekranı"));
+                        showStatusMsg(actionTitle + ": " + I18n.resourceString(SettingsActivity.this, R.string.text_lock_screen));
                     });
         }
 
         if (isPower) {
-            choiceRow("⏻  " + tr("Android Power Menu (Shutdown / Reboot / Standby)",
-                            "Android Güç Menüsü (Kapat / Yeniden Başlat / Bekleme)"),
-                    tr("Show native Android shutdown, reboot, and standby menu",
-                       "Yerel Android kapatma, yeniden başlatma ve bekleme menüsünü göster"),
+            choiceRow("⏻  " + I18n.resourceString(SettingsActivity.this, R.string.text_android_power_menu_shutdown_reboot_stand),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_show_native_android_shutdown_reboot_and),
                     isPowerNative,
                     () -> {
                         ControlPanelOverlay.setPowerNativeMenuMode(this, true);
                         closeSubMenu();
-                        showStatusMsg(actionTitle + ": " + tr("Android Power Menu", "Android Güç Menüsü"));
+                        showStatusMsg(actionTitle + ": " + I18n.resourceString(SettingsActivity.this, R.string.text_android_power_menu));
                     });
         }
 
@@ -3455,9 +3334,9 @@ public class SettingsActivity extends Activity {
     private void subMenuControlPanelActivities(String actionKey, String pkg) {
         String actionTitle = controlPanelActionTitle(actionKey);
         String appLabel = CleanYourTv.resolvePackageLabel(this, pkg);
-        mainHeadView.setText(appLabel + " — " + tr("Choose Activity", "Etkinlik Seçin"));
+        mainHeadView.setText(appLabel + " — " + I18n.resourceString(SettingsActivity.this, R.string.text_choose_activity));
         backSubMenuRow();
-        section(tr("ACTIVITIES IN ", "ETKİNLİKLER: ") + appLabel);
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_activities_in) + appLabel);
 
         PackageManager pm = getPackageManager();
         List<ActivityInfo> actList = new ArrayList<>();
@@ -3487,7 +3366,7 @@ public class SettingsActivity extends Activity {
         String curPkg = ControlPanelOverlay.getCustomPkg(this, actionKey);
         String curCls = ControlPanelOverlay.getCustomCls(this, actionKey);
 
-        choiceRow("★  " + tr("Default App Launch (Main Activity)", "Uygulamayı Normal Başlat (Ana Etkinlik)"),
+        choiceRow("★  " + I18n.resourceString(SettingsActivity.this, R.string.text_default_app_launch_main_activity),
                 pkg,
                 pkg.equals(curPkg) && curCls.isEmpty(),
                 () -> {
@@ -3524,7 +3403,7 @@ public class SettingsActivity extends Activity {
         String keyName = ButtonMapper.keyLabel(this, keyCode);
         mainHeadView.setText(keyName);
         backSubMenuRow();
-        section(keyName + " — " + tr("TAP ACTIONS", "BASIŞ EYLEMLERİ"));
+        section(keyName + " — " + I18n.resourceString(SettingsActivity.this, R.string.text_tap_actions));
 
         int[] taps = {ButtonMapper.TAP_SINGLE, ButtonMapper.TAP_DOUBLE, ButtonMapper.TAP_TRIPLE};
         for (int tap : taps) {
@@ -3535,13 +3414,13 @@ public class SettingsActivity extends Activity {
         }
 
         if (ButtonMapper.hasAnyMapping(this, keyCode)) {
-            section(tr("REMOVE", "KALDIR"));
-            row("🗑  " + tr("Remove button remap", "Düğme eşlemesini kaldır"),
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_remove_7e2800));
+            row("🗑  " + I18n.resourceString(SettingsActivity.this, R.string.text_remove_button_remap),
                     () -> "",
                     () -> {
                         ButtonMapper.removeMapping(this, keyCode);
                         closeSubMenu();
-                        showStatusMsg(tr("Removed remap for " + keyName + ".", keyName + " eşlemesi kaldırıldı."));
+                        showStatusMsg(ButtonMapper.removedMappingMessage(this, keyName));
                     });
         }
     }
@@ -3553,63 +3432,62 @@ public class SettingsActivity extends Activity {
         mainHeadView.setText(keyName + " · " + tapName);
         backSubMenuRow();
 
-        section(tr("BUILT-IN ACTIONS", "YERLEŞİK EYLEMLER"));
-        choiceRow("🚫  " + tr("None (No action)", "Yok (Eylem yok)"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_built_in_actions));
+        choiceRow("🚫  " + I18n.resourceString(SettingsActivity.this, R.string.text_none_no_action),
                 null,
                 current.isEmpty(),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, "");
                     closeSubMenu();
                 });
-        choiceRow("🎛  " + tr("Control Panel (Overlay)", "Denetim Paneli (Ekran Üstü)"),
+        choiceRow("🎛  " + I18n.resourceString(SettingsActivity.this, R.string.text_control_panel_overlay),
                 null,
                 ButtonMapper.TARGET_CONTROL_PANEL.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_CONTROL_PANEL);
                     closeSubMenu();
                 });
-        choiceRow("🗂  " + tr("Recent Apps Switcher (Overlay)", "Son Uygulamalar Değiştiricisi (Ekran Üstü)"),
+        choiceRow("🗂  " + I18n.resourceString(SettingsActivity.this, R.string.text_recent_apps_switcher_overlay),
                 null,
                 ButtonMapper.TARGET_RECENT_APPS.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_RECENT_APPS);
                     closeSubMenu();
                 });
-        choiceRow("📺  " + I18n.t(this, "bm_inputs_overlay"),
-                tr("Switch TV / HDMI inputs on screen even if Google TV Launcher is disabled",
-                   "Google TV Launcher devre dışı olsa bile ekran üstü panelden TV / HDMI girişlerini değiştirin"),
+        choiceRow("📺  " + I18n.resourceString(this, R.string.text_bm_inputs_overlay),
+                I18n.resourceString(SettingsActivity.this, R.string.text_switch_tv_hdmi_inputs_on_screen_even_if),
                 ButtonMapper.TARGET_INPUTS_OVERLAY.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_INPUTS_OVERLAY);
                     closeSubMenu();
                 });
-        choiceRow("🌙  " + tr("Ambient Mode / StandBy", "Ortam Modu / StandBy"),
+        choiceRow("🌙  " + I18n.resourceString(SettingsActivity.this, R.string.text_ambient_mode_standby),
                 null,
                 ButtonMapper.TARGET_AMBIENT.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_AMBIENT);
                     closeSubMenu();
                 });
-        choiceRow("🔒  " + tr("Lock Screen", "Kilit Ekranı"),
+        choiceRow("🔒  " + I18n.resourceString(SettingsActivity.this, R.string.text_lock_screen),
                 null,
                 ButtonMapper.TARGET_LOCK_SCREEN.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_LOCK_SCREEN);
                     closeSubMenu();
                 });
-        choiceRow("⏻  " + tr("Power Off (Screen Off)", "Kapat (Ekranı Kapat)"),
+        choiceRow("⏻  " + I18n.resourceString(SettingsActivity.this, R.string.text_power_off_screen_off),
                 null,
                 ButtonMapper.TARGET_POWER_OFF.equals(current),
                 () -> {
                     ButtonMapper.setTarget(this, keyCode, tapCount, ButtonMapper.TARGET_POWER_OFF);
                     closeSubMenu();
                 });
-        choiceRow("⌨  " + tr("Send Key Code (Remote / Media / System)…", "Tuş Kodu Gönder (Kumanda / Medya / Sistem)…"),
-                current.startsWith(ButtonMapper.TARGET_KEYCODE_PREFIX) ? ButtonMapper.targetLabel(this, current) : tr("Send any Android KeyEvent keycode without 3rd-party apps", "Üçüncü parti uygulamaya gerek kalmadan istediğiniz tuş kodunu gönderin"),
+        choiceRow("⌨  " + I18n.resourceString(SettingsActivity.this, R.string.text_send_key_code_remote_media_system),
+                current.startsWith(ButtonMapper.TARGET_KEYCODE_PREFIX) ? ButtonMapper.targetLabel(this, current) : I18n.resourceString(SettingsActivity.this, R.string.text_send_any_android_keyevent_keycode_withou),
                 current.startsWith(ButtonMapper.TARGET_KEYCODE_PREFIX),
                 () -> ButtonMapper.showSendKeyCodePickerDialog(this, keyCode, tapCount, this::closeSubMenu));
 
-        section(tr("INSTALLED APPS", "YÜKLÜ UYGULAMALAR"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_installed_apps));
         PackageManager pm = getPackageManager();
         Set<String> seenPkgs = new HashSet<>();
         List<String[]> appPairs = new ArrayList<>();
@@ -3638,16 +3516,15 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuDefaultHome() {
-        mainHeadView.setText(tr("Default home screen", "Varsayılan ana ekran"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_default_home_screen_57e442));
         backSubMenuRow();
-        section(tr("DEFAULT LAUNCHER SETUP (TCL / PHILIPS / GOOGLE TV)", "VARSAYILAN BAŞLATICI KURULUMU (TCL / PHILIPS / GOOGLE TV)"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_default_launcher_setup_tcl_philips_googl));
 
-        twoLineRow(tr("1. Set tvOS Launcher as Default via Local ADB", "1. Yerel ADB ile tvOS Launcher'ı Varsayılan Yap"),
-                () -> Perms.isDefaultHome(this) ? tr("Active", "Etkin") : tr("Run ROLE_HOME & set-home-activity ›", "ROLE_HOME ve set-home-activity çalıştır ›"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_1_set_tvos_launcher_as_default_via_local),
+                () -> Perms.isDefaultHome(this) ? I18n.resourceString(SettingsActivity.this, R.string.text_active_60b543) : I18n.resourceString(SettingsActivity.this, R.string.text_run_role_home_set_home_activity),
                 () -> {
-                    AlertDialog progress = dialog(tr("Setting Default Launcher…", "Varsayılan Başlatıcı Ayarlanıyor…"))
-                            .setMessage(tr("Setting ROLE_HOME and default home activity over Local ADB…",
-                                    "Yerel ADB üzerinden ROLE_HOME ve varsayılan ana ekran etkinliği ayarlanıyor…"))
+                    AlertDialog progress = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_setting_default_launcher))
+                            .setMessage(I18n.resourceString(SettingsActivity.this, R.string.text_setting_role_home_and_default_home_activ))
                             .setCancelable(false)
                             .create();
                     progress.show();
@@ -3662,46 +3539,45 @@ public class SettingsActivity extends Activity {
                     }));
                 });
 
-        twoLineRow(tr("2. Disable System Launchers (Google TV / Android TV / OEM)", "2. Sistem Başlatıcılarını Devre Dışı Bırak (Google TV / Android TV / OEM)"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_2_disable_system_launchers_google_tv_and),
                 () -> CleanYourTv.getSystemLaunchersSummary(this),
                 () -> openSubMenu("cyt_launchers"));
 
-        twoLineRow(tr("3. Fix Home Button via Accessibility (Button Mapper)", "3. Erişilebilirlik ile Ana Ekran Tuşu Düzeltmesi"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_3_fix_home_button_via_accessibility_butt),
                 () -> ButtonMapper.isHomeFixEnabled(this)
-                        ? tr("On — Pressing Home launches tvOS Launcher", "Açık — Ana Ekran tuşu tvOS Launcher'ı açar")
-                        : tr("Off — Tap to enable Home button remap", "Kapalı — Ana Ekran tuşu yönlendirmesini açmak için dokunun"),
+                        ? I18n.resourceString(SettingsActivity.this, R.string.text_on_pressing_home_launches_tvos_launcher)
+                        : I18n.resourceString(SettingsActivity.this, R.string.text_off_tap_to_enable_home_button_remap),
                 () -> {
                     boolean next = !ButtonMapper.isHomeFixEnabled(this);
                     ButtonMapper.setHomeFixEnabled(this, next);
                     rebuildMainRows();
                     showStatusMsg(next
-                            ? tr("Home button fix enabled.", "Ana Ekran tuşu düzeltmesi etkinleştirildi.")
-                            : tr("Home button fix disabled.", "Ana Ekran tuşu düzeltmesi kapatıldı."));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_home_button_fix_enabled_5232e5)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_home_button_fix_disabled));
                 });
 
-        twoLineRow(tr("4. Open Android System Home Settings", "4. Android Sistem Ana Ekran Ayarlarını Aç"),
-                () -> tr("Open system selector (if supported by TV) ›", "Sistem seçicisini aç (TV destekliyorsa) ›"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_4_open_android_system_home_settings),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_open_system_selector_if_supported_by_tv),
                 () -> Perms.openSystemHomeSettingsUi(this));
 
-        infoNote(tr("On TCL and Philips Android 11/12 TVs, the OEM firmware often hides the Android Default Home UI and forces the stock launcher when pressing Home. Disabling the stock launcher (Option 2) or enabling the Home Button Fix (Option 3) guarantees pressing Home always opens tvOS Launcher.",
-                "TCL ve Philips Android 11/12 TV'lerde üretici yazılımı genellikle Android Varsayılan Ana Ekran seçicisini gizler ve Home tuşuna basıldığında stok başlatıcıyı zorlar. Stok başlatıcıyı devre dışı bırakmak (2. Seçenek) veya Ana Ekran Tuşu Düzeltmesini açmak (3. Seçenek) Home tuşunun her zaman tvOS Launcher'ı açmasını sağlar."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_on_tcl_and_philips_android_11_12_tvs_the));
     }
 
     private void subMenuCheckPermissions() {
-        mainHeadView.setText(tr("Check permissions", "İzinleri kontrol et"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_check_permissions));
         backSubMenuRow();
-        section(tr("PERMISSION STATUS", "İZİN DURUMU"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_permission_status));
 
-        row(tr("Grant All Permissions via Local ADB", "Tüm İzinleri Yerel ADB ile Ver"),
-                () -> tr("Grant All ›", "Tümünü Ver ›"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_grant_all_permissions_via_local_adb),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_grant_all),
                 this::pairOrRepairAdb);
 
-        row(tr("Default Home Screen", "Varsayılan Ana Ekran"),
-                () -> Perms.isDefaultHome(this) ? "✓  " + tr("Active", "Etkin") : "✗  " + tr("Not set", "Ayarlanmadı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_default_home_screen_3e8523),
+                () -> Perms.isDefaultHome(this) ? "✓  " + I18n.resourceString(SettingsActivity.this, R.string.text_active_60b543) : "✗  " + I18n.resourceString(SettingsActivity.this, R.string.text_not_set),
                 () -> openSubMenu("default_home"));
 
-        row(tr("Button Mapper & Control Panel (Accessibility)", "Düğme Eşleyici ve Denetim Paneli (Erişilebilirlik)"),
-                () -> ButtonMapper.isServiceEnabled(this) ? "✓  " + tr("Active", "Etkin") : "✗  " + tr("Disabled", "Kapalı"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_button_mapper_control_panel_accessibilit),
+                () -> ButtonMapper.isServiceEnabled(this) ? "✓  " + I18n.resourceString(SettingsActivity.this, R.string.text_active_60b543) : "✗  " + I18n.resourceString(SettingsActivity.this, R.string.text_disabled_62ff42),
                 () -> {
                     Intent acc = Perms.accessibilityScreen(this);
                     if (acc == null || !Suggestions.start(this, acc)) {
@@ -3709,12 +3585,12 @@ public class SettingsActivity extends Activity {
                     }
                 });
 
-        row(tr("Continue Watching & DND (Notification Access)", "İzlemeye Devam Et ve Rahatsız Etmeyin"),
-                () -> Perms.hasListener(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_continue_watching_dnd_notification_acces),
+                () -> Perms.hasListener(this) ? "✓  " + I18n.resourceString(SettingsActivity.this, R.string.text_allowed) : "✗  " + I18n.resourceString(SettingsActivity.this, R.string.text_not_allowed),
                 () -> Perms.requestListener(this));
 
-        row(tr("Wi-Fi Name (Location)", "Wi-Fi Adı (Konum)"),
-                () -> Perms.hasLocation(this) ? "✓  " + tr("Allowed", "İzin verildi") : "✗  " + tr("Not allowed", "İzin verilmedi"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_wi_fi_name_location),
+                () -> Perms.hasLocation(this) ? "✓  " + I18n.resourceString(SettingsActivity.this, R.string.text_allowed) : "✗  " + I18n.resourceString(SettingsActivity.this, R.string.text_not_allowed),
                 () -> Perms.requestLocation(this));
     }
 
@@ -3723,31 +3599,28 @@ public class SettingsActivity extends Activity {
     private void subMenuCytModels() {
         int modelCount = CleanYourTv.loadIndex(this).size();
         CleanYourTv.HardwareMatchResult hw = CleanYourTv.findHardwareMatches(this);
-        mainHeadView.setText(tr("Choose TV model", "TV modelini seçin"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_choose_tv_model_eb4b40));
         backSubMenuRow();
 
-        section(tr("ACTIONS", "İŞLEMLER"));
-        twoLineRow(tr("🔍 Scan Installed System Apps via ADB", "🔍 ADB ile Yüklü Sistem Uygulamalarını Tara"),
-                () -> tr("Pull full app list from ADB and match models by OEM/system packages",
-                         "ADB'den tam uygulama listesini çek ve sistem/üretici paketlerine göre eşleştir"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_actions));
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_scan_installed_system_apps_via_adb),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_pull_full_app_list_from_adb_and_match_mo_795599),
                 () -> {
                     cytScannedMatches = null;
                     openSubMenu("cyt_models_scan");
                 });
-        twoLineRow(tr("📋 Browse / Search All " + modelCount + " TV Models",
-                      "📋 Tüm " + modelCount + " TV Modeline Göz At / Ara"),
-                () -> tr("View or filter the complete list of supported TV models",
-                         "Desteklenen tüm TV modellerinin tam listesini görüntüle veya filtrele"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.message_browse_search_all_1_s_tv_models, modelCount),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_view_or_filter_the_complete_list_of_supp),
                 () -> {
                     cytModelFilterQuery = "";
                     openSubMenu("cyt_models_all");
                 });
 
         String currentSlug = CleanYourTv.getSelectedModelSlug(this);
-        section(tr("MATCHING MODELS FOR ", "EŞLEŞEN MODELLER: ") + hw.deviceDescription);
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_matching_models_for) + hw.deviceDescription);
         if (hw.candidates.isEmpty()) {
-            infoNote(tr("No direct model name match for " + hw.deviceDescription + ". Use Scan Installed System Apps via ADB above to find the closest TV profile.",
-                    hw.deviceDescription + " için doğrudan model adı eşleşmesi bulunamadı. En yakın TV profilini bulmak için yukarıdaki ADB ile Yüklü Sistem Uygulamalarını Tara seçeneğini kullanın."));
+            infoNote(I18n.resourceString(this, hw.deviceDescription.isEmpty()
+                    ? R.string.cyt_no_direct_model_empty : R.string.cyt_no_direct_model, hw.deviceDescription));
         } else {
             for (CleanYourTv.ModelMatch m : hw.candidates) {
                 final CleanYourTv.ModelEntry entry = m.entry;
@@ -3782,14 +3655,15 @@ public class SettingsActivity extends Activity {
                 activeSubMenu = null;
                 rebuildMainRows();
                 focusFirstRow();
-                showStatusMsg(tr("Selected model: " + entry.title, "Seçilen model: " + entry.title));
+                showStatusMsg(I18n.resourceString(this, entry.title.isEmpty()
+                        ? R.string.cyt_selected_model_empty : R.string.cyt_selected_model, entry.title));
             }
         });
     }
 
     private void subMenuCytScannedModels() {
         int modelCount = CleanYourTv.loadIndex(this).size();
-        mainHeadView.setText(tr("Models by System App Similarity", "Sistem Uygulaması Benzerliğine Göre Modeller"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_models_by_system_app_similarity));
         backSubMenuRow();
 
         if (cytScannedMatches == null) {
@@ -3808,13 +3682,11 @@ public class SettingsActivity extends Activity {
                     });
                 }, "cyt-submenu-scan").start();
             }
-            infoNote(tr("Scanning installed system packages over ADB and comparing across " + modelCount + " TV models…",
-                    "ADB üzerinden yüklü sistem paketleri taranıyor ve " + modelCount + " TV modeliyle karşılaştırılıyor…"));
+            infoNote(I18n.resourceString(SettingsActivity.this, R.string.message_scanning_installed_system_packages_over_adb_and, modelCount));
             return;
         }
 
-        section(tr("CLOSEST MATCHES (" + cytScannedCount + " APPS SCANNED)",
-                "EN YAKIN EŞLEŞMELER (" + cytScannedCount + " UYGULAMA TARANDI)"));
+        section(I18n.resourceString(this, R.string.cyt_closest_matches_scanned, cytScannedCount));
         String currentSlug = CleanYourTv.getSelectedModelSlug(this);
         for (CleanYourTv.ModelMatch m : cytScannedMatches) {
             final CleanYourTv.ModelEntry entry = m.entry;
@@ -3828,14 +3700,16 @@ public class SettingsActivity extends Activity {
 
     private void subMenuCytAllModels() {
         int modelCount = CleanYourTv.loadIndex(this).size();
-        mainHeadView.setText(tr("All " + modelCount + " TV Models", "Tüm " + modelCount + " TV Modeli"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.message_all_1_s_tv_models, modelCount));
         backSubMenuRow();
 
-        row(tr("🔍 Search / Filter by brand or model…", "🔍 Marka veya modele göre ara / filtrele…"),
-                () -> cytModelFilterQuery.isEmpty() ? tr("All (" + modelCount + ")", "Tümü (" + modelCount + ")") : "\"" + cytModelFilterQuery + "\"",
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_search_filter_by_brand_or_model),
+                () -> cytModelFilterQuery.isEmpty()
+                        ? I18n.resourceString(this, R.string.cyt_all_count, modelCount)
+                        : "\"" + cytModelFilterQuery + "\"",
                 this::promptCytModelFilter);
         if (!cytModelFilterQuery.isEmpty()) {
-            row(tr("Clear filter (Show all)", "Filtreyi temizle (Tümünü göster)"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_clear_filter_show_all),
                     () -> "",
                     () -> {
                         cytModelFilterQuery = "";
@@ -3843,7 +3717,7 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     });
         } else {
-            section(tr("QUICK BRAND FILTERS", "HIZLI MARKA FİLTRELERİ"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_quick_brand_filters));
             String[][] brands = {
                 {"TCL / FFALCON / Thomson", "tcl"},
                 {"Philips / TPVision", "philips"},
@@ -3855,7 +3729,7 @@ public class SettingsActivity extends Activity {
             for (String[] b : brands) {
                 final String bLabel = b[0];
                 final String bQuery = b[1];
-                row("🏷  " + bLabel, () -> tr("Filter ›", "Filtrele ›"), () -> {
+                row("🏷  " + bLabel, () -> I18n.resourceString(SettingsActivity.this, R.string.text_filter_bf262c), () -> {
                     cytModelFilterQuery = bQuery;
                     cytAllModelsPage = 0;
                     rebuildMainRows();
@@ -3884,10 +3758,10 @@ public class SettingsActivity extends Activity {
         int end = Math.min(total, start + CYT_PAGE_SIZE);
 
         if (totalPages > 1) {
-            section(tr("PAGE " + (cytAllModelsPage + 1) + " OF " + totalPages + " (" + (start + 1) + "–" + end + " OF " + total + ")",
-                    "SAYFA " + (cytAllModelsPage + 1) + " / " + totalPages + " (" + (start + 1) + "–" + end + " / " + total + ")"));
+            section(I18n.resourceString(this, R.string.cyt_page_range,
+                    cytAllModelsPage + 1, totalPages, start + 1, end, total));
             if (cytAllModelsPage > 0) {
-                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
+                row("⬅  " + I18n.resourceString(SettingsActivity.this, R.string.text_previous_page),
                         () -> (cytAllModelsPage) + " / " + totalPages,
                         () -> {
                             cytAllModelsPage--;
@@ -3896,7 +3770,7 @@ public class SettingsActivity extends Activity {
                         });
             }
             if (cytAllModelsPage + 1 < totalPages) {
-                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_next_page) + "  ➡",
                         () -> (cytAllModelsPage + 2) + " / " + totalPages,
                         () -> {
                             cytAllModelsPage++;
@@ -3907,22 +3781,21 @@ public class SettingsActivity extends Activity {
         }
 
         String currentSlug = CleanYourTv.getSelectedModelSlug(this);
-        section(tr("MODELS (" + total + ")", "MODELLER (" + total + ")"));
+        section(I18n.resourceString(this, R.string.cyt_models_count, total));
         for (int i = start; i < end; i++) {
             final CleanYourTv.ModelEntry entry = filtered.get(i);
             boolean isCurrent = entry.slug.equalsIgnoreCase(currentSlug);
             choiceRow(entry.title,
-                    "[" + entry.slug + "]  •  " + entry.packages.size() + " " + tr("packages", "paket"),
+                    "[" + entry.slug + "]  •  " + entry.packages.size() + " " + I18n.resourceString(SettingsActivity.this, R.string.text_packages),
                     isCurrent,
                     () -> selectCytModelAndProceed(entry));
         }
 
         if (totalPages > 1) {
-            section(tr("PAGE NAVIGATION", "SAYFA GEÇİŞİ"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_page_navigation));
             if (cytAllModelsPage + 1 < totalPages) {
-                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
-                        () -> tr("Page " + (cytAllModelsPage + 2) + " of " + totalPages,
-                                "Sayfa " + (cytAllModelsPage + 2) + " / " + totalPages),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_next_page) + "  ➡",
+                        () -> I18n.resourceString(this, R.string.cyt_page_number, cytAllModelsPage + 2, totalPages),
                         () -> {
                             cytAllModelsPage++;
                             rebuildMainRows();
@@ -3930,9 +3803,8 @@ public class SettingsActivity extends Activity {
                         });
             }
             if (cytAllModelsPage > 0) {
-                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
-                        () -> tr("Page " + cytAllModelsPage + " of " + totalPages,
-                                "Sayfa " + cytAllModelsPage + " / " + totalPages),
+                row("⬅  " + I18n.resourceString(SettingsActivity.this, R.string.text_previous_page),
+                        () -> I18n.resourceString(this, R.string.cyt_page_number, cytAllModelsPage, totalPages),
                         () -> {
                             cytAllModelsPage--;
                             rebuildMainRows();
@@ -3945,21 +3817,21 @@ public class SettingsActivity extends Activity {
     private void promptCytModelFilter() {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
-        in.setHint(tr("e.g. tcl, philips, sony, hisense, xiaomi…", "örn. tcl, philips, sony, hisense, xiaomi…"));
+        in.setHint(I18n.resourceString(SettingsActivity.this, R.string.text_e_g_tcl_philips_sony_hisense_xiaomi));
         in.setText(cytModelFilterQuery);
         in.setSelection(in.getText().length());
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
-        AlertDialog dlg = dialog(tr("Filter TV Models", "TV Modellerini Filtrele"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_filter_tv_models))
                 .setView(box)
-                .setPositiveButton(tr("Filter", "Filtrele"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_filter_b3bfd1), (d, w) -> {
                     cytModelFilterQuery = in.getText().toString().trim();
                     cytAllModelsPage = 0;
                     rebuildMainRows();
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
@@ -3975,7 +3847,7 @@ public class SettingsActivity extends Activity {
             return;
         }
 
-        mainHeadView.setText(tr("Debloat TV — ", "TV Debloat — ") + model.title);
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_debloat_tv_af7d50) + model.title);
         backSubMenuRow();
 
         if (cytChecklistItems == null || !slug.equals(cytChecklistSlug)) {
@@ -4013,15 +3885,15 @@ public class SettingsActivity extends Activity {
                     });
                 }, "cyt-submenu-debloat").start();
             }
-            infoNote(tr("Checking installed packages over ADB for " + model.title + "…",
-                    model.title + " için ADB üzerinden yüklü paketler kontrol ediliyor…"));
+            infoNote(I18n.resourceString(this, model.title.isEmpty()
+                    ? R.string.cyt_checking_model_empty : R.string.cyt_checking_model, model.title));
             return;
         }
 
         if (cytChecklistItems.isEmpty()) {
-            infoNote(tr("None of the packages listed in " + model.title + " are installed on this TV.",
-                    model.title + " profilindeki paketlerin hiçbiri bu TV'de yüklü değil."));
-            row(tr("🔍 Scan Installed System Apps to Find Matching Model", "🔍 Eşleşen Modeli Bulmak İçin Yüklü Uygulamaları Tara"),
+            infoNote(I18n.resourceString(this, model.title.isEmpty()
+                    ? R.string.cyt_no_model_packages_empty : R.string.cyt_no_model_packages, model.title));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_scan_installed_system_apps_to_find_match),
                     () -> chev(),
                     () -> {
                         cytScannedMatches = null;
@@ -4031,13 +3903,11 @@ public class SettingsActivity extends Activity {
         }
 
         if (cytChecklistIsGoogleTv) {
-            section(tr("GOOGLE TV WI-FI NOTICE", "GOOGLE TV WI-FI UYARISI"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_google_tv_wi_fi_notice));
             infoNote(cytChecklistWifiOwnedBySetupwraith
-                    ? tr("⚠️ Your Wi-Fi network is currently owned by setupwraith. Before disabling setupwraith, open Wi-Fi Settings, Forget your Wi-Fi network, and re-connect so Wi-Fi stays saved.",
-                         "⚠️ Mevcut Wi-Fi ağınız setupwraith tarafından kaydedilmiş. setupwraith'i devre dışı bırakmadan önce Wi-Fi Ayarları'ndan ağınızı unutup yeniden bağlanın.")
-                    : tr("On Google TV, if you disable setupwraith, make sure your Wi-Fi network was re-added in Wi-Fi Settings.",
-                         "Google TV'de setupwraith'i devre dışı bırakacaksanız Wi-Fi ağınızı Wi-Fi Ayarları'ndan yeniden eklediğinizden emin olun."));
-            row(tr("📶 Open Wi-Fi Settings…", "📶 Wi-Fi Ayarlarını Aç…"),
+                    ? I18n.resourceString(SettingsActivity.this, R.string.text_your_wi_fi_network_is_currently_owned_by)
+                    : I18n.resourceString(SettingsActivity.this, R.string.text_on_google_tv_if_you_disable_setupwraith));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_open_wi_fi_settings),
                     () -> chev(),
                     () -> {
                         Intent wifi = new Intent(Settings.ACTION_WIFI_SETTINGS);
@@ -4053,16 +3923,16 @@ public class SettingsActivity extends Activity {
         }
         final int finalSelectedCount = selectedCount;
 
-        section(tr("ACTIONS", "İŞLEMLER"));
-        row(tr("✅ Disable Selected Packages (" + finalSelectedCount + ")", "✅ Seçilen Paketleri Devre Dışı Bırak (" + finalSelectedCount + ")"),
-                () -> tr("Run via ADB ›", "ADB ile Çalıştır ›"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_actions));
+        row(I18n.resourceString(this, R.string.cyt_disable_selected_packages, finalSelectedCount),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_run_via_adb),
                 () -> {
                     List<String> toDisable = new ArrayList<>();
                     for (CleanYourTv.DebloatItem it : cytChecklistItems) {
                         if (it.checked) toDisable.add(it.pkg);
                     }
                     if (toDisable.isEmpty()) {
-                        showStatusMsg(tr("Select at least one package first.", "Önce en az bir paket seçin."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_select_at_least_one_package_first));
                         return;
                     }
                     CleanYourTv.executeDebloatPackages(this, model.title, toDisable, () -> {
@@ -4070,7 +3940,7 @@ public class SettingsActivity extends Activity {
                         rebuildMainRows();
                     });
                 });
-        row(tr("Select All / Select None", "Tümünü Seç / Seçimi Kaldır"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_select_all_select_none),
                 () -> finalSelectedCount + " / " + cytChecklistItems.size(),
                 () -> {
                     boolean anyUnchecked = false;
@@ -4086,13 +3956,13 @@ public class SettingsActivity extends Activity {
                     rebuildMainRows();
                 });
 
-        section(tr("PACKAGES ON THIS TV (" + cytChecklistItems.size() + ")", "BU TV'DEKİ PAKETLER (" + cytChecklistItems.size() + ")"));
+        section(I18n.resourceString(this, R.string.cyt_packages_on_tv, cytChecklistItems.size()));
         for (CleanYourTv.DebloatItem it : cytChecklistItems) {
             final CleanYourTv.DebloatItem item = it;
             boolean alreadyDisabled = !cytCachedEnabledPkgs.isEmpty() && !cytCachedEnabledPkgs.contains(item.pkg);
             String tag = alreadyDisabled
-                    ? tr(" [Already disabled]", " [Zaten devre dışı]")
-                    : (item.optionalChoice ? tr(" [Optional]", " [İsteğe bağlı]") : "");
+                    ? I18n.resourceString(SettingsActivity.this, R.string.text_already_disabled)
+                    : (item.optionalChoice ? I18n.resourceString(SettingsActivity.this, R.string.text_optional) : "");
             String sub = item.pkg + (item.description.isEmpty() ? "" : "  •  " + item.description);
             choiceRow(item.appLabel + tag, sub, item.checked, () -> {
                 item.checked = !item.checked;
@@ -4102,7 +3972,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuCytSystemLaunchers() {
-        mainHeadView.setText(tr("Disable system launchers", "Sistem başlatıcılarını devre dışı bırak"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_disable_system_launchers_13dcb9));
         backSubMenuRow();
 
         if (!cytLaunchersSyncedAdb) {
@@ -4126,26 +3996,25 @@ public class SettingsActivity extends Activity {
                 cytCachedInstalledPkgs.isEmpty() ? null : cytCachedInstalledPkgs,
                 cytCachedEnabledPkgs.isEmpty() ? null : cytCachedEnabledPkgs);
         if (launchers.isEmpty()) {
-            infoNote(tr("No stock Android TV / Google TV / OEM launcher packages were detected on this TV.",
-                    "Bu TV'de stok Android TV / Google TV / üretici başlatıcı paketi tespit edilmedi."));
+            infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_no_stock_android_tv_google_tv_oem_launch));
             return;
         }
 
-        section(tr("ONE-TAP ACTIONS", "TEK DOKUNUŞ İŞLEMLERİ"));
-        twoLineRow(tr("Disable All Stock Launchers & Set tvOS Launcher as Home", "Tüm Stok Başlatıcıları Devre Dışı Bırak ve tvOS'u Ana Ekran Yap"),
-                () -> tr("Disable all ›", "Tümünü kapat ›"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_one_tap_actions));
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_disable_all_stock_launchers_set_tvos_lau),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_disable_all),
                 () -> {
                     List<String> toDisable = new ArrayList<>();
                     for (CleanYourTv.DebloatItem it : launchers) {
                         toDisable.add(it.pkg);
                     }
-                    CleanYourTv.executeDebloatPackages(this, tr("System Launchers", "Sistem Başlatıcıları"), toDisable, () -> {
+                    CleanYourTv.executeDebloatPackages(this, I18n.resourceString(SettingsActivity.this, R.string.text_system_launchers_d659b5), toDisable, () -> {
                         cytLaunchersSyncedAdb = false;
                         rebuildMainRows();
                     });
                 });
-        twoLineRow(tr("Re-enable All Stock Launchers", "Tüm Stok Başlatıcıları Yeniden Etkinleştir"),
-                () -> tr("Enable all ›", "Tümünü aç ›"),
+        twoLineRow(I18n.resourceString(SettingsActivity.this, R.string.text_re_enable_all_stock_launchers),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_enable_all),
                 () -> {
                     List<String> toEnable = new ArrayList<>();
                     for (CleanYourTv.DebloatItem it : launchers) {
@@ -4157,14 +4026,13 @@ public class SettingsActivity extends Activity {
                     });
                 });
 
-        section(tr("INSTALLED SYSTEM LAUNCHERS ON THIS TV (%s)",
-                "BU TV'DE YÜKLÜ SİSTEM BAŞLATICILARI (%s)", launchers.size()));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_installed_system_launchers_on_this_tv_s, launchers.size()));
         for (CleanYourTv.DebloatItem it : launchers) {
             final CleanYourTv.DebloatItem item = it;
             boolean isEnabled = item.checked;
             String badge = isEnabled
-                    ? tr(" [Enabled — Tap to Disable]", " [Etkin — Devre Dışı Bırakmak İçin OK]")
-                    : tr(" [Disabled — Tap to Enable]", " [Devre Dışı — Etkinleştirmek İçin OK]");
+                    ? I18n.resourceString(SettingsActivity.this, R.string.text_enabled_tap_to_disable_fff589)
+                    : I18n.resourceString(SettingsActivity.this, R.string.text_disabled_tap_to_enable_85233e);
             choiceRow(item.appLabel + badge,
                     item.pkg + "  •  " + item.description,
                     !isEnabled,
@@ -4174,12 +4042,11 @@ public class SettingsActivity extends Activity {
                     }));
         }
 
-        infoNote(tr("Checked items are currently DISABLED. Disabling the stock system launcher (e.g. Google TV Home / LauncherX + setupwraith, Android TV Home, or TCL/Philips OEM Home) forces Android to use tvOS Launcher when pressing the Home key.",
-                "İşaretli öğeler şu anda DEVRE DIŞI bırakılmıştır. Stok sistem başlatıcısını devre dışı bırakmak, Home tuşuna basıldığında Android'in her zaman tvOS Launcher'ı kullanmasını sağlar."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_checked_items_are_currently_disabled_dis));
     }
 
     private void subMenuCytManualDebloat() {
-        mainHeadView.setText(tr("Manual debloat (All system apps)", "Manuel debloat (Tüm sistem uygulamaları)"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_manual_debloat_all_system_apps_22aced));
         backSubMenuRow();
 
         // Populate immediately from PackageManager (instant with QUERY_ALL_PACKAGES + cached labels)
@@ -4208,11 +4075,11 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        row(tr("🔍 Filter system apps…", "🔍 Sistem uygulamalarını filtrele…"),
-                () -> cytManualFilterQuery.isEmpty() ? tr("All (%s)", "Tümü (%s)", cytManualItems.size()) : "\"" + cytManualFilterQuery + "\"",
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_filter_system_apps_b26cf2),
+                () -> cytManualFilterQuery.isEmpty() ? I18n.resourceString(SettingsActivity.this, R.string.text_all_s, cytManualItems.size()) : "\"" + cytManualFilterQuery + "\"",
                 this::promptCytManualFilter);
         if (!cytManualFilterQuery.isEmpty()) {
-            row(tr("Clear filter", "Filtreyi temizle"),
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_clear_filter),
                     () -> "",
                     () -> {
                         cytManualFilterQuery = "";
@@ -4221,7 +4088,7 @@ public class SettingsActivity extends Activity {
                     });
         }
 
-        row(tr("↻ Refresh system app list", "↻ Sistem uygulama listesini yenile"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_refresh_system_app_list),
                 () -> "",
                 () -> {
                     cytManualItems = null;
@@ -4247,10 +4114,10 @@ public class SettingsActivity extends Activity {
         int end = Math.min(total, start + CYT_PAGE_SIZE);
 
         if (totalPages > 1) {
-            section(tr("PAGE " + (cytManualPage + 1) + " OF " + totalPages + " (" + (start + 1) + "–" + end + " OF " + total + ")",
-                    "SAYFA " + (cytManualPage + 1) + " / " + totalPages + " (" + (start + 1) + "–" + end + " / " + total + ")"));
+            section(I18n.resourceString(this, R.string.cyt_page_range,
+                    cytManualPage + 1, totalPages, start + 1, end, total));
             if (cytManualPage > 0) {
-                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
+                row("⬅  " + I18n.resourceString(SettingsActivity.this, R.string.text_previous_page),
                         () -> (cytManualPage) + " / " + totalPages,
                         () -> {
                             cytManualPage--;
@@ -4259,7 +4126,7 @@ public class SettingsActivity extends Activity {
                         });
             }
             if (cytManualPage + 1 < totalPages) {
-                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_next_page) + "  ➡",
                         () -> (cytManualPage + 2) + " / " + totalPages,
                         () -> {
                             cytManualPage++;
@@ -4269,38 +4136,36 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        section(tr("ALL SYSTEM APPS (" + total + " — TAP TO DISABLE / ENABLE)", "TÜM SİSTEM UYGULAMALARI (" + total + " — DEVRE DIŞI BIRAK / ETKİNLEŞTİR)"));
+        section(I18n.resourceString(this, R.string.cyt_all_system_apps, total));
         for (int i = start; i < end; i++) {
             final CleanYourTv.DebloatItem item = filtered.get(i);
             final boolean isCurrentlyEnabled = item.checked;
             final boolean isCritical = CleanYourTv.isCriticalProtectedService(item.pkg, item.appLabel);
             String statusTag = isCritical && isCurrentlyEnabled
-                    ? tr(" [Critical System Service — Protected]", " [Kritik Sistem Servisi — Korumalı]")
+                    ? I18n.resourceString(SettingsActivity.this, R.string.text_critical_system_service_protected)
                     : (isCurrentlyEnabled
-                            ? tr(" [Enabled]", " [Etkin]")
-                            : tr(" [Disabled]", " [Devre Dışı]"));
+                            ? I18n.resourceString(SettingsActivity.this, R.string.text_enabled)
+                            : I18n.resourceString(SettingsActivity.this, R.string.text_disabled_31f3e7));
             String sub = item.pkg + "  •  " + item.description;
             choiceRow(item.appLabel + statusTag, sub, !isCurrentlyEnabled, () -> {
                 if (isCurrentlyEnabled && isCritical) {
-                    dialog(tr("🛑 Critical System Service", "🛑 Kritik Sistem Servisi"))
-                            .setMessage(tr(
-                                    item.appLabel + " (" + item.pkg + ") is a critical system service required for your TV remote and Bluetooth connectivity.\n\nIt cannot be disabled under any circumstances.",
-                                    item.appLabel + " (" + item.pkg + ") TV kumandanız ve Bluetooth bağlantısı için gerekli kritik bir sistem servisidir.\n\nHiçbir koşulda devre dışı bırakılamaz."))
-                            .setPositiveButton(tr("OK", "Tamam"), null)
+                    dialog(I18n.resourceString(SettingsActivity.this, R.string.text_critical_system_service))
+                            .setMessage(CleanYourTv.labelAndPackageMessage(this, R.string.cyt_critical_service_warning,
+                                    R.string.cyt_critical_service_warning_hebrew_fallback, item.appLabel, item.pkg))
+                            .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_ok), null)
                             .show();
                 } else if (isCurrentlyEnabled && item.optionalChoice) {
-                    dialog(tr("⚠️ Core System Package", "⚠️ Temel Sistem Paketi"))
-                            .setMessage(tr(
-                                    item.appLabel + " (" + item.pkg + ") is a core system package.\n\nDisabling it may break system settings, TV inputs, or cause instability. Disable anyway?",
-                                    item.appLabel + " (" + item.pkg + ") temel bir sistem paketidir.\n\nDevre dışı bırakmak sistem ayarlarını veya TV girişlerini bozabilir. Yine de devre dışı bırakılsın mı?"))
-                            .setPositiveButton(tr("Disable Anyway", "Yine de Devre Dışı Bırak"), (d, w) -> {
+                    dialog(I18n.resourceString(SettingsActivity.this, R.string.text_core_system_package))
+                            .setMessage(CleanYourTv.labelAndPackageMessage(this, R.string.cyt_core_package_warning,
+                                    R.string.cyt_core_package_warning_hebrew_fallback, item.appLabel, item.pkg))
+                            .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_disable_anyway), (d, w) -> {
                                 CleanYourTv.toggleSinglePackage(this, item.pkg, true, true, () -> {
                                     item.checked = false;
                                     cytCachedEnabledPkgs.remove(item.pkg);
                                     rebuildMainRows();
                                 });
                             })
-                            .setNegativeButton(tr("Cancel", "İptal"), null)
+                            .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                             .show();
                 } else {
                     CleanYourTv.toggleSinglePackage(this, item.pkg, isCurrentlyEnabled, true, () -> {
@@ -4317,11 +4182,10 @@ public class SettingsActivity extends Activity {
         }
 
         if (totalPages > 1) {
-            section(tr("PAGE NAVIGATION", "SAYFA GEÇİŞİ"));
+            section(I18n.resourceString(SettingsActivity.this, R.string.text_page_navigation));
             if (cytManualPage + 1 < totalPages) {
-                row(tr("Next Page", "Sonraki Sayfa") + "  ➡",
-                        () -> tr("Page " + (cytManualPage + 2) + " of " + totalPages,
-                                "Sayfa " + (cytManualPage + 2) + " / " + totalPages),
+                row(I18n.resourceString(SettingsActivity.this, R.string.text_next_page) + "  ➡",
+                        () -> I18n.resourceString(this, R.string.cyt_page_number, cytManualPage + 2, totalPages),
                         () -> {
                             cytManualPage++;
                             rebuildMainRows();
@@ -4329,9 +4193,8 @@ public class SettingsActivity extends Activity {
                         });
             }
             if (cytManualPage > 0) {
-                row("⬅  " + tr("Previous Page", "Önceki Sayfa"),
-                        () -> tr("Page " + cytManualPage + " of " + totalPages,
-                                "Sayfa " + cytManualPage + " / " + totalPages),
+                row("⬅  " + I18n.resourceString(SettingsActivity.this, R.string.text_previous_page),
+                        () -> I18n.resourceString(this, R.string.cyt_page_number, cytManualPage, totalPages),
                         () -> {
                             cytManualPage--;
                             rebuildMainRows();
@@ -4344,43 +4207,42 @@ public class SettingsActivity extends Activity {
     private void promptCytManualFilter() {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
-        in.setHint(tr("App name or package name…", "Uygulama adı veya paket adı…"));
+        in.setHint(I18n.resourceString(SettingsActivity.this, R.string.text_app_name_or_package_name));
         in.setText(cytManualFilterQuery);
         in.setSelection(in.getText().length());
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
-        AlertDialog dlg = dialog(tr("Filter System Apps", "Sistem Uygulamalarını Filtrele"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_filter_system_apps_f2c530))
                 .setView(box)
-                .setPositiveButton(tr("Filter", "Filtrele"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_filter_b3bfd1), (d, w) -> {
                     cytManualFilterQuery = in.getText().toString().trim();
                     cytManualPage = 0;
                     rebuildMainRows();
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
     }
 
     private void subMenuCytSavedDisabled() {
-        mainHeadView.setText(tr("Disabled apps backup", "Devre dışı bırakılan uygulamalar kaydı"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_disabled_apps_backup));
         backSubMenuRow();
 
         List<String> saved = CleanYourTv.getSavedDisabledPackages(this);
         if (saved.isEmpty()) {
-            infoNote(tr("No disabled packages have been recorded by CleanYourTV yet.",
-                    "CleanYourTV tarafından henüz kaydedilmiş devre dışı paket yok."));
+            infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_no_disabled_packages_have_been_recorded));
             return;
         }
 
-        section(tr("ACTIONS", "İŞLEMLER"));
-        row(tr("Restore All Saved Packages (" + saved.size() + ")", "Kaydedilen Tüm Paketleri Geri Yükle (" + saved.size() + ")"),
-                () -> tr("Restore all ›", "Tümünü yükle ›"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_actions));
+        row(I18n.resourceString(this, R.string.cyt_restore_all_saved_packages, saved.size()),
+                () -> I18n.resourceString(SettingsActivity.this, R.string.text_restore_all_0aeae4),
                 () -> CleanYourTv.enablePackagesList(this, saved, true, this::rebuildMainRows));
 
-        section(tr("SAVED DISABLED PACKAGES (TAP TO RE-ENABLE)", "KAYITLI DEVRE DIŞI PAKETLER (ETKİNLEŞTİRMEK İÇİN OK)"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_saved_disabled_packages_tap_to_re_enable));
         PackageManager pm = getPackageManager();
         for (String pkg : saved) {
             final String p = pkg;
@@ -4391,7 +4253,7 @@ public class SettingsActivity extends Activity {
                 enabledNow = (ai != null && ai.enabled);
             } catch (Throwable ignored) {
             }
-            String st = enabledNow ? tr(" [Enabled]", " [Etkin]") : tr(" [Disabled — Tap to Enable]", " [Devre Dışı — Etkinleştir]");
+            String st = enabledNow ? I18n.resourceString(SettingsActivity.this, R.string.text_enabled) : I18n.resourceString(SettingsActivity.this, R.string.text_disabled_tap_to_enable_ad587c);
             choiceRow(label + st, p, !enabledNow, () -> {
                 CleanYourTv.enablePackagesList(this, Collections.singletonList(p), false, this::rebuildMainRows);
             });
@@ -4399,32 +4261,30 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuCytRestore() {
-        mainHeadView.setText(tr("Restore debloated apps", "Debloat edilen uygulamaları geri yükle"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_restore_debloated_apps_2f2301));
         backSubMenuRow();
 
         List<String> saved = CleanYourTv.getSavedDisabledPackages(this);
         String slug = CleanYourTv.getSelectedModelSlug(this);
         CleanYourTv.ModelEntry model = CleanYourTv.findModelBySlug(this, slug);
 
-        section(tr("RESTORE OPTIONS", "GERİ YÜKLEME SEÇENEKLERİ"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_restore_options));
         if (!saved.isEmpty()) {
-            twoLineRow(tr("Restore Saved Disabled Apps (" + saved.size() + " packages)",
-                          "Kaydedilen Devre Dışı Uygulamaları Geri Yükle (" + saved.size() + " paket)"),
-                    () -> tr("Re-enable all packages disabled by CleanYourTV over ADB",
-                             "CleanYourTV ile devre dışı bırakılan tüm paketleri ADB üzerinden yeniden etkinleştir"),
+            twoLineRow(I18n.resourceString(this, R.string.cyt_restore_saved_disabled_apps, saved.size()),
+                    () -> I18n.resourceString(SettingsActivity.this, R.string.text_re_enable_all_packages_disabled_by_clean),
                     () -> CleanYourTv.enablePackagesList(this, saved, true, this::rebuildMainRows));
         }
         if (model != null && !model.packages.isEmpty()) {
-            twoLineRow(tr("Restore Selected Model Profile (" + model.title + " — " + model.packages.size() + " packages)",
-                          "Seçili Model Profilini Geri Yükle (" + model.title + " — " + model.packages.size() + " paket)"),
-                    () -> tr("Re-enable all packages in " + model.slug,
-                             model.slug + " profilindeki tüm paketleri yeniden etkinleştir"),
+            twoLineRow(I18n.resourceString(this, model.title.isEmpty()
+                            ? R.string.cyt_restore_selected_model_empty : R.string.cyt_restore_selected_model,
+                            model.title, model.packages.size()),
+                    () -> I18n.resourceString(this, model.slug.isEmpty()
+                            ? R.string.cyt_reenable_model_packages_empty : R.string.cyt_reenable_model_packages, model.slug),
                     () -> CleanYourTv.enablePackagesList(this, model.packages, true, this::rebuildMainRows));
         }
         if (saved.isEmpty() && model == null) {
-            infoNote(tr("No saved disabled-app backup was found, and no TV model is selected yet. Choose a TV model first if you want to restore by model profile.",
-                    "Kaydedilmiş devre dışı uygulama yedeği bulunamadı ve henüz bir TV modeli seçilmedi."));
-            row(tr("Choose TV model…", "TV modelini seçin…"),
+            infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_no_saved_disabled_app_backup_was_found_a));
+            row(I18n.resourceString(SettingsActivity.this, R.string.text_choose_tv_model_6fead7),
                     () -> chev(),
                     () -> {
                         cytAutoContinueToDebloat = false;
@@ -4674,7 +4534,7 @@ public class SettingsActivity extends Activity {
                 return;
             }
             if (!Scenes.toggleScene(this, spec.id)) {
-                showStatusMsg(tr("One scene has to stay on.", "En az bir sahne açık kalmalıdır."));
+                showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_one_scene_has_to_stay_on));
             } else {
                 showStatusMsg(null);
             }
@@ -4726,14 +4586,14 @@ public class SettingsActivity extends Activity {
     }
 
     private String customSceneTitle(int slot) {
-        if (slot <= 1) return tr("Custom", "Özel");
-        return tr("Custom " + slot, "Özel " + slot);
+        if (slot <= 1) return I18n.resourceString(SettingsActivity.this, R.string.text_custom);
+        return Scenes.byId(Scenes.customId(slot)).title(this);
     }
 
     private void pickCustomSceneWallpaper(int slot) {
         CustomMedia.showImageFilePicker(
                 this,
-                tr("Choose custom scene image", "Özel sahne görseli seçin") + (slot > 1 ? " (" + slot + ")" : ""),
+                I18n.resourceString(SettingsActivity.this, R.string.text_choose_custom_scene_image) + (slot > 1 ? " (" + slot + ")" : ""),
                 false,
                 1920,
                 1080,
@@ -4745,11 +4605,11 @@ public class SettingsActivity extends Activity {
                         sCachedBackdropKey = null;
                         Scenes.enableCustomScene(this, slot, true);
                         rebuildMainRows();
-                        showStatusMsg(tr("Custom scene wallpaper updated.", "Özel sahne duvar kağıdı güncellendi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_custom_scene_wallpaper_updated));
                     } else {
                         Toast.makeText(
                                 this,
-                                tr("Could not load selected image.", "Seçilen görsel yüklenemedi."),
+                                I18n.resourceString(SettingsActivity.this, R.string.text_could_not_load_selected_image),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -4835,8 +4695,8 @@ public class SettingsActivity extends Activity {
             boolean enabled = Scenes.isSceneEnabled(this, cid);
             if (!enabled) {
                 String[] opts = {
-                    tr("Turn on Custom scene", "Özel sahneyi aç"),
-                    tr("Choose image…", "Görsel seç…")
+                    I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_custom_scene),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_44c803)
                 };
                 dialog(labelText)
                         .setItems(opts, (d, which) -> {
@@ -4850,8 +4710,8 @@ public class SettingsActivity extends Activity {
                         .show();
             } else {
                 String[] opts = {
-                    tr("Choose image…", "Görsel seç…"),
-                    tr("Turn off Custom scene", "Özel sahneyi kapat")
+                    I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_44c803),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_turn_off_custom_scene)
                 };
                 dialog(labelText)
                         .setItems(opts, (d, which) -> {
@@ -4859,7 +4719,7 @@ public class SettingsActivity extends Activity {
                                 pickCustomSceneWallpaper(slot);
                             } else {
                                 if (!Scenes.toggleScene(this, cid)) {
-                                    showStatusMsg(tr("One scene has to stay on.", "En az bir sahne açık kalmalıdır."));
+                                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_one_scene_has_to_stay_on));
                                 } else {
                                     rebuildMainRows();
                                 }
@@ -4883,7 +4743,7 @@ public class SettingsActivity extends Activity {
     private void pickCustomClassicWallpaper() {
         CustomMedia.showImageFilePicker(
                 this,
-                tr("Choose custom background image", "Özel arka plan görseli seçin"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_choose_custom_background_image),
                 false,
                 1920,
                 1080,
@@ -4894,11 +4754,11 @@ public class SettingsActivity extends Activity {
                         SCENE_THUMB_CACHE.remove("custom_classic");
                         Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.CUSTOM_WALL_KEY).apply();
                         rebuildMainRows();
-                        showStatusMsg(tr("Custom background updated.", "Özel arka plan güncellendi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_custom_background_updated));
                     } else {
                         Toast.makeText(
                                 this,
-                                tr("Could not load selected image.", "Seçilen görsel yüklenemedi."),
+                                I18n.resourceString(SettingsActivity.this, R.string.text_could_not_load_selected_image),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -4945,7 +4805,7 @@ public class SettingsActivity extends Activity {
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
-        l.setText(tr("Custom", "Özel"));
+        l.setText(I18n.resourceString(SettingsActivity.this, R.string.text_custom));
         l.setTextColor(0xEBF4F4F6);
         l.setTypeface(Ui.font(this, "semibold"));
         Ui.textSize(l, 14.5f);
@@ -4979,10 +4839,10 @@ public class SettingsActivity extends Activity {
             }
             if (!checked) {
                 String[] opts = {
-                    tr("Use custom background", "Özel arka planı kullan"),
-                    tr("Choose image…", "Görsel seç…")
+                    I18n.resourceString(SettingsActivity.this, R.string.text_use_custom_background),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_44c803)
                 };
-                dialog(tr("Custom", "Özel"))
+                dialog(I18n.resourceString(SettingsActivity.this, R.string.text_custom))
                         .setItems(opts, (d, which) -> {
                             if (which == 0) {
                                 Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.CUSTOM_WALL_KEY).apply();
@@ -5012,20 +4872,21 @@ public class SettingsActivity extends Activity {
         CustomMedia.showFolderPicker(
                 this,
                 CustomMedia.SCOPE_SCENE,
-                tr("Choose wallpaper folder to shuffle", "Karıştırılacak duvar kağıdı klasörünü seçin"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_choose_wallpaper_folder_to_shuffle),
                 dir -> {
                     SCENE_THUMB_CACHE.remove("folder_scene");
                     Scenes.enableFolderShuffleScene(this, true);
                     rebuildMainRows();
-                    showStatusMsg(tr("Folder shuffle enabled: " + dir.getName(),
-                            "Klasör karıştırma etkinleştirildi: " + dir.getName()));
+                    String name = dir.getName();
+                    showStatusMsg(I18n.resourceString(this, name.isEmpty()
+                            ? R.string.folder_shuffle_enabled_empty : R.string.folder_shuffle_enabled, name));
                 });
     }
 
     private void folderShuffleSceneRow() {
         final String fid = Scenes.FOLDER_SHUFFLE_ID;
         boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_SCENE);
-        final String baseTitle = tr("Folder shuffle", "Klasör karıştırma");
+        final String baseTitle = I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle);
 
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -5114,10 +4975,10 @@ public class SettingsActivity extends Activity {
             boolean enabled = Scenes.isSceneEnabled(this, fid);
             if (!enabled) {
                 String[] opts = {
-                    tr("Turn on Folder shuffle", "Klasör karıştırmayı aç"),
-                    tr("Choose folder…", "Klasör seç…")
+                    I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_folder_shuffle),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_768e16)
                 };
-                dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                dialog(I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle))
                         .setItems(opts, (d, which) -> {
                             if (which == 0) {
                                 Scenes.enableFolderShuffleScene(this, true);
@@ -5129,16 +4990,16 @@ public class SettingsActivity extends Activity {
                         .show();
             } else {
                 String[] opts = {
-                    tr("Choose folder…", "Klasör seç…"),
-                    tr("Turn off Folder shuffle", "Klasör karıştırmayı kapat")
+                    I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_768e16),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_turn_off_folder_shuffle)
                 };
-                dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                dialog(I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle))
                         .setItems(opts, (d, which) -> {
                             if (which == 0) {
                                 pickFolderForSceneShuffle();
                             } else {
                                 if (!Scenes.toggleScene(this, fid)) {
-                                    showStatusMsg(tr("One scene has to stay on.", "En az bir sahne açık kalmalıdır."));
+                                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_one_scene_has_to_stay_on));
                                 } else {
                                     rebuildMainRows();
                                 }
@@ -5163,19 +5024,20 @@ public class SettingsActivity extends Activity {
         CustomMedia.showFolderPicker(
                 this,
                 CustomMedia.SCOPE_CLASSIC,
-                tr("Choose background folder to shuffle", "Karıştırılacak arka plan klasörünü seçin"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_choose_background_folder_to_shuffle),
                 dir -> {
                     SCENE_THUMB_CACHE.remove("folder_classic");
                     Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.FOLDER_SHUFFLE_WALL_KEY).apply();
                     rebuildMainRows();
-                    showStatusMsg(tr("Folder shuffle enabled: " + dir.getName(),
-                            "Klasör karıştırma etkinleştirildi: " + dir.getName()));
+                    String name = dir.getName();
+                    showStatusMsg(I18n.resourceString(this, name.isEmpty()
+                            ? R.string.folder_shuffle_enabled_empty : R.string.folder_shuffle_enabled, name));
                 });
     }
 
     private void folderShuffleClassicRow(boolean checked) {
         boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_CLASSIC);
-        final String baseTitle = tr("Folder shuffle", "Klasör karıştırma");
+        final String baseTitle = I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle);
 
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -5257,10 +5119,10 @@ public class SettingsActivity extends Activity {
             }
             if (!checked) {
                 String[] opts = {
-                    tr("Use folder shuffle background", "Klasör karıştırma arka planını kullan"),
-                    tr("Choose folder…", "Klasör seç…")
+                    I18n.resourceString(SettingsActivity.this, R.string.text_use_folder_shuffle_background),
+                    I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_768e16)
                 };
-                dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                dialog(I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle))
                         .setItems(opts, (d, which) -> {
                             if (which == 0) {
                                 Profiles.homePrefs(this).edit().putString("wallpaper", MainActivity.FOLDER_SHUFFLE_WALL_KEY).apply();
@@ -5287,42 +5149,42 @@ public class SettingsActivity extends Activity {
     }
 
     private void subMenuLockScreenSettings() {
-        mainHeadView.setText(tr("Lock screen settings", "Kilit ekranı ayarları"));
+        mainHeadView.setText(I18n.resourceString(SettingsActivity.this, R.string.text_lock_screen_settings_d4db1f));
         backSubMenuRow();
 
-        section(tr("LOCK SCREEN OPTIONS", "KİLİT EKRANI SEÇENEKLERİ"));
-        row(tr("Clock position", "Saat konumu"),
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_lock_screen_options));
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_clock_position),
                 () -> Scenes.lockClockPosLabel(this),
                 () -> {
                     Scenes.cycleLockClockPos(this);
                     refreshAll();
                 });
-        row(tr("Auto-launch Lock Screen when idle", "Boşta kaldığında Kilit Ekranını otomatik başlat"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_auto_launch_lock_screen_when_idle),
                 () -> Scenes.lockIdleLabel(this),
                 () -> {
                     Scenes.cycleLockIdleMinutes(this);
                     refreshAll();
                 });
-        row(tr("Each wallpaper stays", "Her duvar kağıdı süresi"),
-                () -> Scenes.getStaySeconds(this) + tr(" seconds", " saniye"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_each_wallpaper_stays),
+                () -> Scenes.getStaySeconds(this) + I18n.resourceString(SettingsActivity.this, R.string.text_seconds_ee379b),
                 () -> {
                     Scenes.cycleStaySeconds(this);
                     refreshAll();
                 });
-        row(tr("Preview Lock Screen now", "Kilit Ekranını şimdi önizle"),
+        row(I18n.resourceString(SettingsActivity.this, R.string.text_preview_lock_screen_now),
                 () -> chev(),
                 () -> MainActivity.triggerLockScreen(this));
 
-        section(tr("NIGHT SCENES", "GECE SAHNELERİ"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_night_scenes_b6104d));
         for (Scenes.Spec spec : Scenes.ALL) {
             lockSceneCheckRow(spec.id, spec.title(this), spec.bgAsset);
         }
 
-        section(tr("CLASSIC WALLPAPERS", "KLASİK DUVAR KAĞITLARI"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_classic_wallpapers));
         for (int i = 0; i < Scenes.CLASSIC_PHOTOS.length; i++) {
-            String photoFile = Scenes.CLASSIC_PHOTOS[i][0];
+            String photoFile = Scenes.CLASSIC_PHOTOS[i].id;
             String id = "photo:" + photoFile;
-            String label = I18n.s(this, Scenes.CLASSIC_PHOTOS[i][1], Scenes.CLASSIC_PHOTOS[i][2]);
+            String label = Scenes.CLASSIC_PHOTOS[i].title(this);
             lockSceneCheckRow(id, label, "backgrounds/" + photoFile);
         }
         String[] gradIds = {"aurora", "midnight", "sunset", "ocean", "graphite"};
@@ -5331,12 +5193,11 @@ public class SettingsActivity extends Activity {
             lockSceneCheckRow(gid, gspec.title(this), null);
         }
 
-        section(tr("CUSTOM & FOLDER SHUFFLE", "ÖZEL GÖRSEL VE KLASÖR KARIŞTIRMA"));
+        section(I18n.resourceString(SettingsActivity.this, R.string.text_custom_folder_shuffle));
         lockCustomImageRow();
         lockFolderShuffleRow();
 
-        infoNote(tr("On the Lock Screen, only Clock, Date, and Greeting are shown above your selected backgrounds. Pressing any remote button returns to where you were before.",
-                "Kilit Ekranında yalnızca seçilen arka planların üzerinde Saat, Tarih ve Karşılama gösterilir. Kumandadaki herhangi bir tuşa basmak kaldığınız yere geri döner."));
+        infoNote(I18n.resourceString(SettingsActivity.this, R.string.text_on_the_lock_screen_only_clock_date_and_g));
     }
 
     private void lockSceneCheckRow(String id, String titleText, String assetPath) {
@@ -5408,7 +5269,7 @@ public class SettingsActivity extends Activity {
 
         r.setOnClickListener(view -> {
             if (!Scenes.toggleLockScene(this, id)) {
-                showStatusMsg(tr("One wallpaper has to stay on.", "En az bir duvar kağıdı açık kalmalıdır."));
+                showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_one_wallpaper_has_to_stay_on));
             } else {
                 showStatusMsg(null);
             }
@@ -5424,7 +5285,7 @@ public class SettingsActivity extends Activity {
     private void pickCustomLockWallpaper() {
         CustomMedia.showImageFilePicker(
                 this,
-                tr("Choose Lock Screen image", "Kilit Ekranı görseli seçin"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_choose_lock_screen_image),
                 false,
                 1920,
                 1080,
@@ -5435,7 +5296,7 @@ public class SettingsActivity extends Activity {
                         SCENE_THUMB_CACHE.remove("custom_lock");
                         Scenes.enableLockScene(this, Scenes.LOCK_CUSTOM_ID, true);
                         rebuildMainRows();
-                        showStatusMsg(tr("Custom Lock Screen image updated.", "Özel Kilit Ekranı görseli güncellendi."));
+                        showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_custom_lock_screen_image_updated));
                     }
                 });
     }
@@ -5478,7 +5339,7 @@ public class SettingsActivity extends Activity {
         r.addView(thumb, thlp);
 
         TextView l = new TextView(this);
-        l.setText(tr("Custom image", "Özel görsel"));
+        l.setText(I18n.resourceString(SettingsActivity.this, R.string.text_custom_image));
         l.setTextColor(0xEBF4F4F6);
         l.setTypeface(Ui.font(this, "semibold"));
         Ui.textSize(l, 14.5f);
@@ -5517,9 +5378,9 @@ public class SettingsActivity extends Activity {
             }
             boolean enabled = Scenes.isLockSceneEnabled(this, cid);
             String[] opts = enabled
-                    ? new String[]{tr("Choose image…", "Görsel seç…"), tr("Turn off Custom image", "Özel görseli kapat")}
-                    : new String[]{tr("Turn on Custom image", "Özel görseli aç"), tr("Choose image…", "Görsel seç…")};
-            dialog(tr("Custom image", "Özel görsel"))
+                    ? new String[]{I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_44c803), I18n.resourceString(SettingsActivity.this, R.string.text_turn_off_custom_image)}
+                    : new String[]{I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_custom_image), I18n.resourceString(SettingsActivity.this, R.string.text_choose_image_44c803)};
+            dialog(I18n.resourceString(SettingsActivity.this, R.string.text_custom_image))
                     .setItems(opts, (d, which) -> {
                         if (enabled) {
                             if (which == 0) pickCustomLockWallpaper();
@@ -5553,20 +5414,21 @@ public class SettingsActivity extends Activity {
         CustomMedia.showFolderPicker(
                 this,
                 CustomMedia.SCOPE_LOCK,
-                tr("Choose Lock Screen folder to shuffle", "Karıştırılacak Kilit Ekranı klasörünü seçin"),
+                I18n.resourceString(SettingsActivity.this, R.string.text_choose_lock_screen_folder_to_shuffle),
                 dir -> {
                     SCENE_THUMB_CACHE.remove("folder_lock");
                     Scenes.enableLockScene(this, Scenes.LOCK_FOLDER_SHUFFLE_ID, true);
                     rebuildMainRows();
-                    showStatusMsg(tr("Lock Screen folder shuffle enabled: " + dir.getName(),
-                            "Kilit Ekranı klasör karıştırma etkinleştirildi: " + dir.getName()));
+                    String name = dir.getName();
+                    showStatusMsg(I18n.resourceString(this, name.isEmpty()
+                            ? R.string.lock_folder_shuffle_enabled_empty : R.string.lock_folder_shuffle_enabled, name));
                 });
     }
 
     private void lockFolderShuffleRow() {
         final String fid = Scenes.LOCK_FOLDER_SHUFFLE_ID;
         boolean hasFolder = CustomMedia.hasWallpaperShuffleFolder(this, CustomMedia.SCOPE_LOCK);
-        final String baseTitle = tr("Folder shuffle", "Klasör karıştırma");
+        final String baseTitle = I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle);
 
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
@@ -5653,9 +5515,9 @@ public class SettingsActivity extends Activity {
             }
             boolean enabled = Scenes.isLockSceneEnabled(this, fid);
             String[] opts = enabled
-                    ? new String[]{tr("Choose folder…", "Klasör seç…"), tr("Turn off Folder shuffle", "Klasör karıştırmayı kapat")}
-                    : new String[]{tr("Turn on Folder shuffle", "Klasör karıştırmayı aç"), tr("Choose folder…", "Klasör seç…")};
-            dialog(tr("Folder shuffle", "Klasör karıştırma"))
+                    ? new String[]{I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_768e16), I18n.resourceString(SettingsActivity.this, R.string.text_turn_off_folder_shuffle)}
+                    : new String[]{I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_folder_shuffle), I18n.resourceString(SettingsActivity.this, R.string.text_choose_folder_768e16)};
+            dialog(I18n.resourceString(SettingsActivity.this, R.string.text_folder_shuffle))
                     .setItems(opts, (d, which) -> {
                         if (enabled) {
                             if (which == 0) pickLockFolderShuffle();
@@ -6197,18 +6059,18 @@ public class SettingsActivity extends Activity {
     void searchCity() {
         android.widget.EditText in = new android.widget.EditText(this);
         in.setSingleLine(true);
-        in.setHint(tr("City name, e.g. Istanbul", "Şehir adı, örn. İstanbul"));
+        in.setHint(I18n.resourceString(SettingsActivity.this, R.string.text_city_name_e_g_istanbul));
         in.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         int pad = u(14);
         FrameLayout box = new FrameLayout(this);
         box.setPaddingRelative(pad, pad / 2, pad, 0);
         box.addView(in);
-        AlertDialog dlg = dialog(tr("Choose City", "Şehir Seçin"))
+        AlertDialog dlg = dialog(I18n.resourceString(SettingsActivity.this, R.string.text_choose_city))
                 .setView(box)
-                .setPositiveButton(tr("Search", "Ara"), (d, w) -> {
+                .setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_search_946f53), (d, w) -> {
                     String q = in.getText().toString().trim();
                     if (q.isEmpty()) return;
-                    showStatusMsg(tr("Searching…", "Aranıyor…"));
+                    showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_searching));
                     new Thread(() -> {
                         List<Weather.Place> found;
                         try {
@@ -6220,7 +6082,7 @@ public class SettingsActivity extends Activity {
                         runOnUiThread(() -> showCities(q, res));
                     }).start();
                 })
-                .setNegativeButton(tr("Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null)
                 .show();
         Ui.setupDialogEditText(in, dlg);
         in.requestFocus();
@@ -6230,11 +6092,11 @@ public class SettingsActivity extends Activity {
         if (isFinishing()) return;
         showStatusMsg(null);
         if (res == null) {
-            showStatusMsg(tr("Couldn't search. Check the internet connection.", "Arama yapılamadı. İnternet bağlantısını kontrol edin."));
+            showStatusMsg(I18n.resourceString(SettingsActivity.this, R.string.text_couldn_t_search_check_the_internet_conne));
             return;
         }
         if (res.isEmpty()) {
-            showStatusMsg(tr("No place found for \u201c" + q + "\u201d.", "\u201c" + q + "\u201d için konum bulunamadı."));
+            showStatusMsg(I18n.resourceString(this, R.string.message_no_place_found, q));
             return;
         }
         String[] names = new String[res.size()];
@@ -6242,18 +6104,18 @@ public class SettingsActivity extends Activity {
             Weather.Place pl = res.get(i);
             names[i] = pl.detail.isEmpty() ? pl.name : pl.name + "  ·  " + pl.detail;
         }
-        dialog(tr("Matching places", "Eşleşen konumlar")).setItems(names, (d, w) -> {
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_matching_places)).setItems(names, (d, w) -> {
             Weather.Place picked = res.get(w);
             Weather.setPlace(this, picked);
             rebuildMainRows();
             focusFirstRow();
-            showStatusMsg(tr("Location set to " + picked.name + ".", "Konum " + picked.name + " olarak ayarlandı."));
-        }).setNegativeButton(tr("Cancel", "İptal"), null).show();
+            showStatusMsg(I18n.resourceString(this, R.string.message_location_set, picked.name));
+        }).setNegativeButton(I18n.resourceString(SettingsActivity.this, R.string.text_cancel), null).show();
     }
 
     void showPresentInfo() {
         if (!com.techgenius.tvoslauncher.present.Presenter.enabled(this)) {
-            Toast.makeText(this, tr("Turn on Presentation mode first", "Önce Sunum modunu açın"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, I18n.resourceString(SettingsActivity.this, R.string.text_turn_on_presentation_mode_first), Toast.LENGTH_SHORT).show();
             return;
         }
         com.techgenius.tvoslauncher.present.Presenter.ensureRunning(this);
@@ -6269,15 +6131,15 @@ public class SettingsActivity extends Activity {
         box.addView(qr, new LinearLayout.LayoutParams(u(122), u(122)));
         TextView info = new TextView(this);
         String pin = com.techgenius.tvoslauncher.present.Presenter.pin(this);
-        info.setText(tr("Open on a phone or computer on the same Wi-Fi:\n\n", "Aynı Wi-Fi ağındaki telefon veya bilgisayarda açın:\n\n")
+        info.setText(I18n.resourceString(SettingsActivity.this, R.string.text_open_on_a_phone_or_computer_on_the_same)
                 + com.techgenius.tvoslauncher.present.Presenter.address() + "\n\n"
-                + tr("Pairing code\n", "Eşleştirme kodu\n")
+                + I18n.resourceString(SettingsActivity.this, R.string.text_pairing_code_146fc7)
                 + pin.substring(0, 3) + " " + pin.substring(3));
         info.setTextColor(Color.WHITE);
         info.setTypeface(Ui.font(this, "medium"));
         Ui.textSize(info, 14);
         info.setPaddingRelative(u(18), 0, 0, 0);
         box.addView(info);
-        dialog(tr("Send to this TV", "Bu TV'ye gönder")).setView(box).setPositiveButton(tr("Done", "Tamam"), null).show();
+        dialog(I18n.resourceString(SettingsActivity.this, R.string.text_send_to_this_tv_535246)).setView(box).setPositiveButton(I18n.resourceString(SettingsActivity.this, R.string.text_done), null).show();
     }
 }
