@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_12_hour" formatted="false">"12 saat"</string>
+    <string name="text_24_hour" formatted="false">"24 saat"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"Böyük şüşə saat, növbə ilə dəyişən səhnələr"</string>
+    <string name="text_about" formatted="false">"Haqqında"</string>
+    <string name="text_active_60b543" formatted="false">"Aktiv"</string>
+    <string name="text_add" formatted="false">"Əlavə et"</string>
+    <string name="text_add_custom_subreddit" formatted="false">"Xüsusi subreddit əlavə et…"</string>
+    <string name="text_add_new_wallpaper" formatted="false">"Yeni divar kağızı əlavə et…"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"Təkmil"</string>
+    <string name="text_align_center" formatted="false">"Mərkəz"</string>
+    <string name="text_align_dynamic" formatted="false">"Dinamik"</string>
+    <string name="text_align_left" formatted="false">"Sol"</string>
+    <string name="text_align_right" formatted="false">"Sağ"</string>
+    <string name="text_always_on" formatted="false">"Həmişə aktiv"</string>
+    <string name="text_ambient_mode" formatted="false">"Mühit Rejimi"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"Görünüş və səhnələr"</string>
+    <string name="text_applications" formatted="false">"Tətbiqlər"</string>
+    <string name="text_apps_825c0a" formatted="false">"Tətbiqlər"</string>
+    <string name="text_apps_using_nuvio" formatted="false">"Nuvio istifadə edən tətbiqlər"</string>
+    <string name="text_audio" formatted="false">"Səs"</string>
+    <string name="text_auto_change_interval" formatted="false">"Avtomatik dəyişmə müddəti"</string>
+    <string name="text_automatic_updates" formatted="false">"Avtomatik yeniləmələr"</string>
+    <string name="text_back" formatted="false">"Geri"</string>
+    <string name="text_big_clock_night_scene_style" formatted="false">"Böyük Saat (Gecə Səhnəsi üslubu)"</string>
+    <string name="text_bm_inputs_overlay" formatted="false">"TV Girişləri Paneli (Ekran Üstü)"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"Düymə Təyinatçısı"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"Düymə təyinatçısı"</string>
+    <string name="text_caffeine_desc" formatted="false">"Caffeine Android-in boşda qalma (idle) rejimini rədd edir və Android TV-nin avtomatik Mühit Rejiminin açılmasının qarşısını alaraq TV-ni oyaq saxlayır və yuxu rejiminə keçməsinə mane olur."</string>
+    <string name="text_caffeine_title" formatted="false">"Caffeine (Yuxu və Mühit Rejimini Əngəllə)"</string>
+    <string name="text_cancel" formatted="false">"Ləğv et"</string>
+    <string name="text_center" formatted="false">"Mərkəz"</string>
+    <string name="text_change_name_of_input" formatted="false">"Girişin adını dəyiş"</string>
+    <string name="text_check_for_updates" formatted="false">"Yeniləmələri yoxla"</string>
+    <string name="text_classic" formatted="false">"Klassik"</string>
+    <string name="text_classic_clock_weather" formatted="false">"KLASSİK SAAT VƏ HAVA PROQNOZU"</string>
+    <string name="text_clear_aeec76" formatted="false">"Açıq"</string>
+    <string name="text_clock_alignment" formatted="false">"Saat düzləndirilməsi"</string>
+    <string name="text_clock" formatted="false">"Saat"</string>
+    <string name="text_clock_font" formatted="false">"Saat şrifti"</string>
+    <string name="text_connected" formatted="false">"Qoşulub"</string>
+    <string name="text_continue" formatted="false">"Davam et"</string>
+    <string name="text_continue_watching" formatted="false">"İzləməyə Davam Et"</string>
+    <string name="text_control_panel" formatted="false">"İdarəetmə Paneli"</string>
+    <string name="text_control_panel_overlay" formatted="false">"İdarəetmə Paneli (Ekran Üstü)"</string>
+    <string name="text_cp_bg_blurry" formatted="false">"Bulanıq (Cari məzmun bulanıqlığı)"</string>
+    <string name="text_cp_bg_mode" formatted="false">"İdarəetmə Paneli fonu"</string>
+    <string name="text_cp_bg_transparent" formatted="false">"Şəffaf"</string>
+    <string name="text_current_version" formatted="false">"Cari versiya"</string>
+    <string name="text_custom" formatted="false">"Xüsusi"</string>
+    <string name="text_custom_label" formatted="false">"Xüsusi ad"</string>
+    <string name="text_custom_wallpaper_208136" formatted="false">"XÜSUSİ DİVAR KAĞIZI"</string>
+    <string name="text_custom_wallpaper_clock_alignment" formatted="false">"Xüsusi divar kağızı saat düzləndirilməsi"</string>
+    <string name="text_custom_wallpaper_mode_f2890b" formatted="false">"Xüsusi divar kağızı rejimi"</string>
+    <string name="text_custom_wallpaper_settings" formatted="false">"Xüsusi divar kağızı tənzimləmələri…"</string>
+    <string name="text_dash_football" formatted="false">"Futbol Oyunları"</string>
+    <string name="text_dash_latest_releases" formatted="false">"Çox İzlənənlər"</string>
+    <string name="text_dash_news" formatted="false">"Canlı Xəbərlər"</string>
+    <string name="text_dash_prayer_times" formatted="false">"Namaz Vaxtları"</string>
+    <string name="text_dash_top_media" formatted="false">"Ən Yaxşı Film və Seriallar"</string>
+    <string name="text_default" formatted="false">"Varsayılan"</string>
+    <string name="text_default_wallpaper_clock_alignment" formatted="false">"Varsayılan divar kağızı saat düzləndirilməsi"</string>
+    <string name="text_disable" formatted="false">"Deaktiv et"</string>
+    <string name="text_do_not_disturb" formatted="false">"Narahat Etməyin"</string>
+    <string name="text_dock_rows" formatted="false">"Dock sətirləri"</string>
+    <string name="text_dock_size" formatted="false">"Dock ölçüsü"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"CleanYourTV yüklə"</string>
+    <string name="text_each_scene_stays" formatted="false">"Hər səhnənin müddəti"</string>
+    <string name="text_enable_home_dashboard" formatted="false">"Ana Ekran Panelini Aktivləşdir"</string>
+    <string name="text_football_fav_teams" formatted="false">"Sevimli Komandalar"</string>
+    <string name="text_football_loading" formatted="false">"Oyunlar yüklənir…"</string>
+    <string name="text_football_no_matches" formatted="false">"Hazırda planlaşdırılmış oyun yoxdur"</string>
+    <string name="text_github_release_latest_version" formatted="false">"GitHub son versiyası"</string>
+    <string name="text_good_afternoon" formatted="false">"Hər vaxtınız xeyir"</string>
+    <string name="text_good_evening" formatted="false">"Axşamınız xeyir"</string>
+    <string name="text_good_morning" formatted="false">"Sabahınız xeyir"</string>
+    <string name="text_good_night" formatted="false">"Gecəniz xeyrə qalsın"</string>
+    <string name="text_hide_input" formatted="false">"Girişi gizlət"</string>
+    <string name="text_home_screen_widget_settings" formatted="false">"Ana ekran vidcet tənzimləmələri"</string>
+    <string name="text_home_screen_widgets" formatted="false">"ANA EKRAN VİDCETLƏRİ"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"Ana ekran tənzimləmələri"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"Ana Ekran Tənzimləmələri"</string>
+    <string name="text_inputs" formatted="false">"Girişlər"</string>
+    <string name="text_language" formatted="false">"Dil"</string>
+    <string name="text_left" formatted="false">"Sol"</string>
+    <string name="text_link_nuvio_forks_like_nuvio_native_legac" formatted="false">"Eyni Nuvio hesabı ilə daxil olan Nuvio versiyalarını (Nuvio Native Legacy kimi) əlaqələndirin. Onda onların dock plitəsi Nuvio-nun İzləməyə davam et siyahısını göstərəcək, Axtarış isə başlıqları onlarda açacaq."</string>
+    <string name="text_live_cricket_scores" formatted="false">"Canlı Kriket Xalları"</string>
+    <string name="text_location_eeea97" formatted="false">"Məkan"</string>
+    <string name="text_lock_screen" formatted="false">"Kilid Ekranı"</string>
+    <string name="text_look" formatted="false">"GÖRÜNÜŞ"</string>
+    <string name="text_memory" formatted="false">"Yaddaş"</string>
+    <string name="text_min_left" formatted="false">" min"</string>
+    <string name="text_minutes" formatted="false">" dəqiqə"</string>
+    <string name="text_next_9f81b4" formatted="false">"Növbəti"</string>
+    <string name="text_next_wallpaper_f38b4f" formatted="false">"Növbəti Divar Kağızı"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"Gecə səhnələri"</string>
+    <string name="text_night_scenes_clock" formatted="false">"GECƏ SƏHNƏLƏRİ SAATI"</string>
+    <string name="text_not_connected_85d0dd" formatted="false">"Qoşulmayıb"</string>
+    <string name="text_not_installed" formatted="false">"Quraşdırılmayıb"</string>
+    <string name="status_off" formatted="false">"Bağlı"</string>
+    <string name="text_official_app" formatted="false">"Rəsmi tətbiq"</string>
+    <string name="status_on" formatted="false">"Açıq"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"Tək şəkil və tətbiq afişaları şəbəkəsi"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"Digər tətbiqlər"</string>
+    <string name="text_people_3a2eb8" formatted="false">"Profillər"</string>
+    <string name="text_power_off" formatted="false">"Söndür"</string>
+    <string name="text_prayer_asr" formatted="false">"Əsr"</string>
+    <string name="text_prayer_dhuhr" formatted="false">"Zöhr"</string>
+    <string name="text_prayer_fajr" formatted="false">"Sübh"</string>
+    <string name="text_prayer_isha" formatted="false">"İşa"</string>
+    <string name="text_prayer_maghrib" formatted="false">"Məğrib"</string>
+    <string name="text_prayer_method_label" formatted="false">"Hesablama Metodu"</string>
+    <string name="text_prayer_remaining" formatted="false">"qaldı"</string>
+    <string name="text_prayer_sunrise" formatted="false">"Günəş"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"Son Tətbiqlər (Ekran Üstü)"</string>
+    <string name="text_reddit_wallpapers" formatted="false">"Reddit Divar Kağızları"</string>
+    <string name="text_refresh" formatted="false">"Yenilə"</string>
+    <string name="text_releases_country_auto" formatted="false">"Avtomatik (İnterfeys dili ilə eyniləşdir)"</string>
+    <string name="text_releases_country_setting" formatted="false">"Çox İzlənənlər ölkələri"</string>
+    <string name="text_releases_loading" formatted="false">"Məzmunlar yüklənir…"</string>
+    <string name="text_reset_a1f27d" formatted="false">"Sıfırla"</string>
+    <string name="text_reset_to_default" formatted="false">"Varsayılana sıfırla"</string>
+    <string name="text_right" formatted="false">"Sağ"</string>
+    <string name="text_save" formatted="false">"Yadda saxla"</string>
+    <string name="text_scenes" formatted="false">"SƏHNƏLƏR"</string>
+    <string name="text_scroll_for_more" formatted="false">"Daha çox üçün sürüşdürün ›"</string>
+    <string name="text_search_946f53" formatted="false">"Axtar"</string>
+    <string name="text_seconds_ee379b" formatted="false">" saniyə"</string>
+    <string name="text_select_wallpaper_folder_9bea6b" formatted="false">"Divar kağızı qovluğunu seç…"</string>
+    <string name="text_settings" formatted="false">"Tənzimləmələr"</string>
+    <string name="text_show_app_names" formatted="false">"Tətbiq adlarını göstər"</string>
+    <string name="text_show_on_home_screen" formatted="false">"Ana ekranda göstər"</string>
+    <string name="text_show_widgets_when_selected_app_has_no_co" formatted="false">"Seçilmiş tətbiqdə İzləməyə Davam Et yoxdursa vidcetləri göstər"</string>
+    <string name="text_shuffle_folder_dc8ec3" formatted="false">"Qovluğu Qarışdır"</string>
+    <string name="text_single_multi_wallpapers" formatted="false">"Təkli / Çoxlu Divar Kağızı"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"Yuxu Taymeri"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"Yuxu taymeri"</string>
+    <string name="text_small_clock" formatted="false">"Kiçik saat"</string>
+    <string name="text_sound" formatted="false">"Səs"</string>
+    <string name="text_suggested" formatted="false">"Tövsiyə olunur"</string>
+    <string name="text_tomorrow_short" formatted="false">"Sabah"</string>
+    <string name="text_top_right_weather_shortcut" formatted="false">"Sağ üst hava proqnozu qısayolu"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"TV Tənzimləmələri"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"TV tənzimləmələri"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"SİL"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"tvOS Launcher-i sil"</string>
+    <string name="text_updates_22906d" formatted="false">"YENİLƏMƏLƏR"</string>
+    <string name="text_updates_3c957c" formatted="false">"Yeniləmələr"</string>
+    <string name="text_used_recent_apps" formatted="false">"% · Recent Apps"</string>
+    <string name="text_weather" formatted="false">"Hava Proqnozu"</string>
+    <string name="text_weather_and_location" formatted="false">"Hava və məkan"</string>
+    <string name="text_weather_updating" formatted="false">"Yenilənir…"</string>
+    <string name="weather_condition_sunny">"Günəşli"</string>
+    <string name="weather_condition_clear">"Açıq"</string>
+    <string name="weather_condition_mostly_sunny">"Əsasən Günəşli"</string>
+    <string name="weather_condition_mostly_clear">"Əsasən Açıq"</string>
+    <string name="weather_condition_partly_cloudy">"Qismən Buludlu"</string>
+    <string name="weather_condition_cloudy">"Buludlu"</string>
+    <string name="weather_condition_foggy">"Dumanlı"</string>
+    <string name="weather_condition_drizzle">"Çiskin"</string>
+    <string name="weather_condition_rain">"Yağışlı"</string>
+    <string name="weather_condition_heavy_rain">"Güclü Yağış"</string>
+    <string name="weather_condition_sleet">"Sulopa"</string>
+    <string name="weather_condition_snow">"Qarlı"</string>
+    <string name="weather_condition_thunderstorms">"Şimşəkli Fırtına"</string>
+
+    <string name="remaining_minutes" formatted="false">"%1$s min"</string>
+    <string name="remaining_hours_minutes" formatted="false">"%1$s h %2$s min"</string>
+    <string name="unit_minute_one" formatted="false">"dəqiqə"</string>
+    <string name="unit_minute_other" formatted="false">"dəqiqə"</string>
+    <string name="scene_fog" formatted="false">"Duman"</string>
+    <string name="scene_golden_hour" formatted="false">"Qızıl saat"</string>
+    <string name="scene_night" formatted="false">"Gecə"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"Tropik meşə şəfəqi"</string>
+    <string name="scene_waterline" formatted="false">"Su xətti"</string>
+    <string name="cyt_summary_done" formatted="false">"Done (%1$s apps)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"Not done (%1$s/%2$s)"</string>
+    <string name="profile_switch_to" formatted="false">"Switch: %1$s"</string>
+    <string name="profile_switch_to_empty" formatted="false">"Switch: "</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"Switch: Manual Setup"</string>
+    <string name="profile_name_default" formatted="false">"Varsayılan"</string>
+    <string name="profile_name_kids" formatted="false">"Uşaqlar"</string>
+    <string name="profile_name_person" formatted="false">"Şəxs %1$s"</string>
+    <string name="legacy_error_minute_e00000d893" formatted="false">" dəqiqə"</string>
+    <string name="legacy_error_dynamic_b6ee7b3e8d" formatted="false">"Dinamik"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"Daha az tətbiq"</string>
+    <string name="legacy_error_home_dashboard_5531ff6113" formatted="false">"ANA EKRAN PANELİ"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"Güclü Qar"</string>
+    <string name="legacy_error_home_system_7ed5ca2145" formatted="false">"Ana Ekran və Sistem"</string>
+    <string name="legacy_error_home_dashboard_d1e758408c" formatted="false">"Ana Ekran Paneli"</string>
+    <string name="legacy_error_home_dashboard_widgets_1149c5b41e" formatted="false">"Ana Ekran Paneli vidcetləri…"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"İzləməyə davam et"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"Görünüş və səhnələr"</string>
+    <string name="legacy_error_more_apps_2216905b85" formatted="false">"Digər Tətbiqlər"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"Digər tətbiqlər"</string>
+    <string name="legacy_error_most_watched_68c54c41e7" formatted="false">"Çox İzlənənlər"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"CleanYourTV yenidən yüklə"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"Leysan"</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"Ana Ekran Tənzimləmələri"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"İzləməyə davam et"</string>
+    <string name="legacy_error_now_ed5eb9a37e" formatted="false">"İndi"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"Yuxu Taymeri"</string>
+    <string name="language_option_title" formatted="false">"Azərbaycan dili"</string>
+    <string name="language_option_description" formatted="false">"tvOS Launcher-i Azərbaycan dilində istifadə edin"</string>
+    <string name="search_available_on">"%1$s vasitəsilə"</string>
+</resources>

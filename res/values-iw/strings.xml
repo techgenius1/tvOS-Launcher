@@ -1,0 +1,1523 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="message_no_place_found">"לא נמצא מקום בשם \"%1$s\"."</string>
+    <string name="message_location_set">"המיקום הוגדר: %1$s."</string>
+    <string name="message_update_current">"הגרסה המותקנת היא העדכנית ביותר (v%1$s)"</string>
+    <string name="message_update_changelog">"רשימת שינויים — v%1$s"</string>
+    <string name="message_update_downloading">"מתבצעת הורדה של עדכון v%1$s…"</string>
+    <string name="message_update_installing_adb">"מתבצעת התקנה אוטומטית של עדכון v%1$s באמצעות ADB…"</string>
+    <string name="message_update_available_details">"גרסה חדשה של tvOS Launcher זמינה ב-GitHub.\nהגרסה הנוכחית: v%1$s  ←  הגרסה החדשה: v%2$s\n\n%3$s"</string>
+    <string name="message_cloud_sign_in">"התחברות ל-%1$s"</string>
+    <string name="message_cloud_unreachable">"אין תקשורת עם %1$s"</string>
+    <string name="message_cloud_unreachable_retry">"אין תקשורת עם %1$s. כדי לנסות שוב, יש לסמן את האריח מחדש."</string>
+    <string name="message_cloud_sign_in_instructions">"כדי להתחבר, יש לסמן במסך הבית את האריח של %1$s ולסרוק את קוד ה-QR."</string>
+    <string name="message_cloud_sign_out_question">"להתנתק מ-%1$s?"</string>
+    <string name="message_cloud_sign_out_details">"שורת \"המשך צפייה\" ב-Dock תפסיק להציג תכנים מ-%1$s. האפליקציה %1$s עצמה תישאר מחוברת."</string>
+    <string name="message_cloud_signed_out">"בוצעה התנתקות מ-%1$s."</string>
+    <string name="message_app_not_installed">"%1$s אינה מותקנת בטלוויזיה זו"</string>
+    <string name="message_sleep_off_in_minutes">"כיבוי בעוד %1$s דק׳"</string>
+    <string name="message_cannot_open_app">"לא ניתן לפתוח את %1$s"</string>
+    <string name="message_cannot_switch_input">"לא ניתן לעבור אל %1$s"</string>
+    <string name="message_app_moved_to_other_apps">"%1$s הועברה לאפליקציות נוספות"</string>
+    <string name="message_app_hidden">"%1$s הוסתרה (הגדרות &gt; אפליקציות &gt; אפליקציות מוסתרות)"</string>
+    <string name="message_app_back_home">"%1$s חזרה למסך הבית"</string>
+    <string name="message_app_restored_home">"%1$s הוחזרה למסך הבית."</string>
+    <string name="message_delete_profile">"למחוק את \"%1$s\"?"</string>
+    <string name="search_open_in">"▶  פתיחה ב-%1$s"</string>
+    <string name="search_get_app">"התקנת %1$s"</string>
+    <string name="message_removed">"הוסר: %1$s"</string>
+    <string name="message_refreshing">"מתבצע רענון"</string>
+    <string name="message_not_available_on_tv">"לא זמין בטלוויזיה זו"</string>
+    <string name="message_use_arrows_to_move">"הזזה בעזרת החצים · OK לסיום"</string>
+    <string name="news_age_now">"עכשיו"</string>
+    <string name="news_age_yesterday">"אתמול"</string>
+    <string name="news_age_minutes">"לפני %1$s דק׳"</string>
+    <string name="news_age_hours">"לפני %1$s שע׳"</string>
+    <plurals name="news_age_days">
+        <item quantity="other">"לפני %1$s ימים"</item>
+    </plurals>
+    <plurals name="message_closed_apps">
+        <item quantity="one">"נסגרה אפליקציה אחת"</item>
+        <item quantity="other">"נסגרו %1$s אפליקציות"</item>
+    </plurals>
+    <plurals name="message_closed_apps_freed">
+        <item quantity="one">"נסגרה אפליקציה אחת · שוחררו %2$s MB"</item>
+        <item quantity="other">"נסגרו %1$s אפליקציות · שוחררו %2$s MB"</item>
+    </plurals>
+    <string name="text_12_hour" formatted="false">"12 שעות"</string>
+    <string name="text_1_set_tvos_launcher_as_default_via_local" formatted="false">"1. הגדרת tvOS Launcher כברירת מחדל דרך ADB מקומי"</string>
+    <string name="text_24_hour" formatted="false">"24 שעות"</string>
+    <string name="text_2_disable_system_launchers_google_tv_and" formatted="false">"2. השבתת מסכי הבית של המערכת (Google TV / Android TV / OEM)"</string>
+    <string name="text_3_days" formatted="false">"3 ימים"</string>
+    <string name="text_3_fix_home_button_via_accessibility_butt" formatted="false">"3. תיקון לחצן הבית באמצעות נגישות (מיפוי לחצנים)"</string>
+    <string name="text_4_open_android_system_home_settings" formatted="false">"4. פתיחת הגדרות מסך הבית של מערכת Android"</string>
+    <string name="text_5_day_forecast" formatted="false">"תחזית ל-5 ימים"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"שעון זכוכית גדול וסצנות מתחלפות"</string>
+    <string name="text_about" formatted="false">"מידע כללי"</string>
+    <string name="text_accessibility" formatted="false">"נגישות"</string>
+    <string name="text_accessibility_service_a268b7" formatted="false">"שירות נגישות"</string>
+    <string name="text_accessibility_service_bb9182" formatted="false">"שירות נגישות"</string>
+    <string name="text_account" formatted="false">"חשבון"</string>
+    <string name="text_actions" formatted="false">"פעולות"</string>
+    <string name="text_active_42209d" formatted="false">"פעילות"</string>
+    <string name="text_active_60b543" formatted="false">"פעיל"</string>
+    <string name="text_active_in_accessibility" formatted="false">"פעיל בהגדרות הנגישות"</string>
+    <string name="text_active_set_as_default_home_launcher" formatted="false">"פעיל — מוגדר כמסך הבית המוגדר כברירת מחדל"</string>
+    <string name="text_active_works_in_all_apps" formatted="false">"פעיל (עובד בכל האפליקציות)"</string>
+    <string name="text_activities_in" formatted="false">"פעילויות (Activities) באפליקציה "</string>
+    <string name="text_ad_blocking_private_dns_adguard" formatted="false">"DNS פרטי לחסימת פרסומות (AdGuard)"</string>
+    <string name="text_adb_connection_required" formatted="false">"נדרש חיבור ADB"</string>
+    <string name="text_adb_connection_status" formatted="false">"סטטוס החיבור ל-ADB"</string>
+    <string name="text_adb_debugging_enabled" formatted="false">"ניפוי הבאגים ב-ADB הופעל."</string>
+    <string name="text_adb_debugging_is_currently_turned_off_pe" formatted="false">"ניפוי הבאגים ב-ADB כבוי כרגע. מצב ADB קבוע מחייב ש-ADB יהיה מופעל.\n\nלהפעיל את ADB ולעבור למצב ADB קבוע?"</string>
+    <string name="text_adb_debugging_needed" formatted="false">"נדרש ניפוי באגים ב-ADB"</string>
+    <string name="text_adb_enabled_and_switched_to_persistent_a" formatted="false">"ADB הופעל והמעבר למצב ADB קבוע הושלם."</string>
+    <string name="text_adb_enabled_not_paired" formatted="false">"ADB מופעל · לא מצומד"</string>
+    <string name="text_adb_install_failed_opening_package_insta" formatted="false">"ההתקנה דרך ADB נכשלה. מתקין החבילות נפתח…"</string>
+    <string name="text_adb_is_active_selecting_install_will_dow" formatted="false">"ADB פעיל — בחירה ב\"התקנה\" תוריד ותתקין את העדכון באופן אוטומטי."</string>
+    <string name="text_adb_is_turned_off_secure_mode_selecting" formatted="false">"ADB כבוי (מצב מאובטח) — בחירה ב\"התקנה\" תוריד את העדכון ותפתח את מתקין החבילות של המערכת."</string>
+    <string name="text_adb_mode_required" formatted="false">"נדרש מצב ADB"</string>
+    <string name="text_adb_operating_mode_01f44c" formatted="false">"מצב הפעולה של ADB"</string>
+    <string name="text_adb_operating_mode_1c02d4" formatted="false">"מצב הפעולה של ADB"</string>
+    <string name="text_adb_paired_and_all_permissions_granted" formatted="false">"ה-ADB צומד וכל ההרשאות הוענקו!"</string>
+    <string name="text_adb_security_mode" formatted="false">"ADB ומצב אבטחה"</string>
+    <string name="text_add_a_person_ef7edb" formatted="false">"הוספת אדם…"</string>
+    <string name="text_add_a_person_f14c89" formatted="false">"הוספת אדם"</string>
+    <string name="text_add_as_many_custom_wallpapers_as_you_wan" formatted="false">"אפשר להוסיף תמונות רקע מותאמות אישית ללא הגבלה"</string>
+    <string name="text_add" formatted="false">"הוספה"</string>
+    <string name="text_add_custom_subreddit" formatted="false">"הוספת subreddit מותאם אישית…"</string>
+    <string name="text_add_favorite_football_team_0ba5b6" formatted="false">"הוספת קבוצת כדורגל מועדפת…"</string>
+    <string name="text_add_favorite_football_team_56b172" formatted="false">"הוספת קבוצת כדורגל מועדפת"</string>
+    <string name="text_add_images_videos_or_webpages_from_a_pho" formatted="false">"אפשר להוסיף תמונות, סרטונים או דפי אינטרנט מטלפון או ממחשב שמחוברים לאותה רשת Wi-Fi."</string>
+    <string name="text_add_new_button_to_remap_7d8e68" formatted="false">"+ הוספת לחצן חדש למיפוי…"</string>
+    <string name="text_add_new_button_to_remap_e322f7" formatted="false">"הוספת לחצן חדש למיפוי"</string>
+    <string name="text_add_new_wallpaper" formatted="false">"הוספת תמונת רקע חדשה…"</string>
+    <string name="text_add_subreddit" formatted="false">"הוספת subreddit"</string>
+    <string name="text_add_user" formatted="false">"הוספת משתמש"</string>
+    <string name="text_adds_a_presentation_card_to_home" formatted="false">"הוספת כרטיס מצגת למסך הבית"</string>
+    <string name="text_advanced_981d59" formatted="false">"מתקדם ‹"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"מתקדם"</string>
+    <string name="text_align_center" formatted="false">"מרכז"</string>
+    <string name="text_align_dynamic" formatted="false">"דינמי"</string>
+    <string name="text_align_left" formatted="false">"שמאלה"</string>
+    <string name="text_align_right" formatted="false">"ימינה"</string>
+    <string name="text_all_341_models" formatted="false">"כל 341 הדגמים"</string>
+    <string name="text_all_button_mappings_cleared" formatted="false">"כל מיפויי הלחצנים נוקו."</string>
+    <string name="text_all_permissions_granted_automatically" formatted="false">"כל ההרשאות ניתנו באופן אוטומטי!"</string>
+    <string name="text_allow" formatted="false">"מתן הרשאה…"</string>
+    <string name="text_allowed" formatted="false">"מותרת"</string>
+    <string name="text_already_disabled" formatted="false">" [כבר מושבת]"</string>
+    <string name="text_ambient_colour_themes_028289" formatted="false">"ערכות צבעים לאווירה…"</string>
+    <string name="text_ambient_colour_themes_930057" formatted="false">"ערכות צבעי אווירה"</string>
+    <string name="text_ambient_mode" formatted="false">"מצב אווירה"</string>
+    <string name="text_ambient_mode_standby" formatted="false">"מצב אווירה / המתנה"</string>
+    <string name="text_ambient_themes" formatted="false">"ערכות אווירה"</string>
+    <string name="text_and_enter" formatted="false">" ולהזין:"</string>
+    <string name="text_android_accessibility_suite_talkback_opt" formatted="false">"Android Accessibility Suite / TalkBack (אופציונלי)"</string>
+    <string name="text_android_tv_remote_service_optional_keep" formatted="false">"Android TV Remote Service (אופציונלי — מומלץ להשאיר אם משתמשים בשלט של Google TV בטלפון)"</string>
+    <string name="text_app_icon_editor" formatted="false">"עורך סמלי אפליקציות"</string>
+    <string name="text_app_icon_reset_to_default" formatted="false">"סמל האפליקציה אופס לברירת המחדל"</string>
+    <string name="text_app_icon_updated" formatted="false">"סמל האפליקציה עודכן"</string>
+    <string name="text_app_info_3cd62b" formatted="false">"פרטי האפליקציה"</string>
+    <string name="text_app_info_c575c9" formatted="false">"פרטי האפליקציה"</string>
+    <string name="text_app_layout_reset_to_default" formatted="false">"פריסת האפליקציות אופסה לברירת המחדל."</string>
+    <string name="text_app_name_or_package_name" formatted="false">"שם האפליקציה או שם החבילה…"</string>
+    <string name="text_app_switch_recents_187" formatted="false">"מעבר בין אפליקציות / אחרונות (187)"</string>
+    <string name="text_appearance" formatted="false">"מראה"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"מראה וסצנות"</string>
+    <string name="text_application" formatted="false">"אפליקציה"</string>
+    <string name="text_applications" formatted="false">"יישומים"</string>
+    <string name="text_apply" formatted="false">"החלה"</string>
+    <string name="text_apps_825c0a" formatted="false">"אפליקציות"</string>
+    <string name="text_apps_ebb18e" formatted="false">"אפליקציות"</string>
+    <string name="text_apps_settings" formatted="false">"אפליקציות והגדרות"</string>
+    <string name="text_ask_who_is_watching_on_wake" formatted="false">"הצגת \"מי צופה?\" ביציאה ממצב שינה"</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_and_t" formatted="false">"אפשר להקצות פעולות ללחיצה אחת (1x), ללחיצה כפולה (2x) וללחיצה משולשת (3x) לכל לחצן בשלט — למשל פתיחת שכבת לוח הבקרה, פתיחת שכבת המעבר בין אפליקציות אחרונות או פתיחת כל אפליקציה מותקנת."</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_tripl" formatted="false">"הקצאת פעולות ללחיצה אחת (1x), לחיצה כפולה (2x) ולחיצה משולשת (3x)"</string>
+    <string name="text_audio" formatted="false">"שמע"</string>
+    <string name="text_audio_track_222" formatted="false">"רצועת שמע (222)"</string>
+    <string name="text_auto" formatted="false">"אוטומטי"</string>
+    <string name="text_auto_change_interval" formatted="false">"מרווח ההחלפה האוטומטית"</string>
+    <string name="text_auto_changing_1080p_4k_wallpapers_from_y" formatted="false">"תמונות רקע ברזולוציית 1080p/4K שמתחלפות אוטומטית מתוך ה-subreddits שנבחרו"</string>
+    <string name="text_auto_launch_lock_screen_when_idle" formatted="false">"הפעלה אוטומטית של מסך הנעילה בזמן חוסר פעילות"</string>
+    <string name="text_automatic_from_internet" formatted="false">"אוטומטי (לפי האינטרנט)"</string>
+    <string name="text_automatic_launch_on_boot_disabled" formatted="false">"ההפעלה האוטומטית עם הדלקת המערכת הושבתה."</string>
+    <string name="text_automatic_updates" formatted="false">"עדכונים אוטומטיים"</string>
+    <string name="text_automatic_updates_disabled" formatted="false">"העדכונים האוטומטיים הושבתו."</string>
+    <string name="text_automatic_updates_enabled" formatted="false">"העדכונים האוטומטיים הופעלו."</string>
+    <string name="text_back_4" formatted="false">"חזרה (4)"</string>
+    <string name="text_back" formatted="false">"חזרה"</string>
+    <string name="text_back_to_apps" formatted="false">"חזרה לאפליקציות"</string>
+    <string name="text_back_to_folders" formatted="false">"חזרה לתיקיות"</string>
+    <string name="text_back_to_parent_folder" formatted="false">"חזרה לתיקיית האב"</string>
+    <string name="text_back_to_return_hold_ok_for_options" formatted="false">"חזרה למסך הקודם   ·   החזקת OK לאפשרויות"</string>
+    <string name="text_back_to_usage_mode_selection" formatted="false">"חזרה לבחירת מצב השימוש"</string>
+    <string name="text_background_color" formatted="false">"צבע רקע"</string>
+    <string name="text_background_mode" formatted="false">"מצב הרקע"</string>
+    <string name="text_backup_failed" formatted="false">"הגיבוי נכשל"</string>
+    <string name="text_backup_restore" formatted="false">"גיבוי ושחזור"</string>
+    <string name="text_backup_settings_to_download" formatted="false">"גיבוי ההגדרות לתיקיית Download"</string>
+    <string name="text_big_clock_night_scene_style" formatted="false">"שעון גדול (בסגנון סצנות הלילה)"</string>
+    <string name="text_black" formatted="false">"שחור"</string>
+    <string name="text_bloatware_background_service" formatted="false">"אפליקציה מיותרת / שירות רקע"</string>
+    <string name="text_blue" formatted="false">"כחול"</string>
+    <string name="text_blue_button" formatted="false">"לחצן כחול"</string>
+    <string name="text_bm_inputs_overlay" formatted="false">"לוח מקורות הקלט (שכבת-על)"</string>
+    <string name="text_bookmark_favorite" formatted="false">"סימנייה / מועדפים"</string>
+    <string name="text_browse_all_341_tv_models" formatted="false">"📋 עיון בכל 341 דגמי הטלוויזיה"</string>
+    <string name="text_built_in_actions" formatted="false">"פעולות מובנות"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"מיפוי לחצנים"</string>
+    <string name="text_button_mapper_accessibility_service" formatted="false">"שירות הנגישות של מיפוי הלחצנים"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"מיפוי לחצנים"</string>
+    <string name="text_button_mapper_control_panel" formatted="false">"מיפוי לחצנים ולוח הבקרה"</string>
+    <string name="text_button_mapper_control_panel_accessibilit" formatted="false">"מיפוי לחצנים ולוח הבקרה (נגישות)"</string>
+    <string name="text_button_remapping" formatted="false">"מיפוי לחצנים מחדש"</string>
+    <string name="text_by_default_most_watched_automatically_sy" formatted="false">"כברירת מחדל, רשימת הנצפים ביותר מסונכרנת אוטומטית עם שפת הממשק שנבחרה. בחירת מדינה כלשהי למעלה מעבירה למצב מותאם אישית עם כמה מדינות."</string>
+    <string name="text_caffeine_desc" formatted="false">"Caffeine חוסם את מצב ההמתנה (idle) של Android ומונע את ההפעלה האוטומטית של מצב האווירה ב-Android TV, כך שהטלוויזיה נשארת ערה ואינה עוברת למצב שינה."</string>
+    <string name="text_caffeine_disabled" formatted="false">"Caffeine כובה."</string>
+    <string name="text_caffeine_enabled_tv_will_stay_awake_and" formatted="false">"Caffeine הופעל — הטלוויזיה תישאר ערה, ומצב האווירה או השינה האוטומטי ייחסם."</string>
+    <string name="text_caffeine_title" formatted="false">"Caffeine (מניעת שינה ומצב אווירה)"</string>
+    <string name="text_can_t_reach_the_internet" formatted="false">"אין חיבור לאינטרנט"</string>
+    <string name="text_cancel" formatted="false">"ביטול"</string>
+    <string name="text_center" formatted="false">"מרכז"</string>
+    <string name="text_change_any_of_this_later_in_settings_fro" formatted="false">"אפשר לשנות כל אחת מההגדרות האלה מאוחר יותר בהגדרות, דרך גלגל השיניים בלוח הבקרה."</string>
+    <string name="text_change_app_icon" formatted="false">"שינוי סמל האפליקציה"</string>
+    <string name="text_change_colour" formatted="false">"שינוי צבע"</string>
+    <string name="text_change_emoji" formatted="false">"שינוי אמוג׳י"</string>
+    <string name="text_change_model" formatted="false">"החלפת דגם…"</string>
+    <string name="text_change_name_of_input" formatted="false">"שנה שם כניסה"</string>
+    <string name="text_changes_the_words_on_the_home_screen_dat" formatted="false">"קובעת את שפת הטקסטים במסך הבית, בתאריך, במזג האוויר ובהגדרות."</string>
+    <string name="text_channel_down" formatted="false">"ערוץ למטה"</string>
+    <string name="text_channel_up" formatted="false">"ערוץ למעלה"</string>
+    <string name="text_channels" formatted="false">"ערוצים"</string>
+    <string name="text_check_for_updates" formatted="false">"בדיקת עדכונים"</string>
+    <string name="text_check_now" formatted="false">"בדיקה עכשיו ‹"</string>
+    <string name="text_check_permissions" formatted="false">"בדיקת הרשאות"</string>
+    <string name="text_checked_items_are_currently_disabled_dis" formatted="false">"הפריטים המסומנים מושבתים כעת. השבתת מסך הבית המקורי של המערכת (למשל Google TV Home / LauncherX + setupwraith, ‏Android TV Home או מסך הבית של TCL/Philips) מאלצת את Android להשתמש ב-tvOS Launcher בלחיצה על לחצן הבית."</string>
+    <string name="text_checking" formatted="false">"מתבצעת בדיקה…"</string>
+    <string name="text_checks_github_releases_techgenius1_tvos" formatted="false">"בדיקה ב-GitHub Releases (techgenius1/tvOS-Launcher) אם יש APK חדש יותר, והתקנת העדכונים ישירות בטלוויזיה."</string>
+    <string name="text_choose_a_background" formatted="false">"בחירת רקע"</string>
+    <string name="text_choose_a_city" formatted="false">"בחירת עיר…"</string>
+    <string name="text_choose_a_photo_or_ambient_colour_theme_b" formatted="false">"אפשר לבחור תמונה או ערכת צבעי אווירה שתוצג מאחורי האפליקציות."</string>
+    <string name="text_choose_action" formatted="false">"בחירת פעולה"</string>
+    <string name="text_choose_activity" formatted="false">"בחירת פעילות (Activity)"</string>
+    <string name="text_choose_background_folder_to_shuffle" formatted="false">"בחירת תיקיית רקעים להצגה אקראית"</string>
+    <string name="text_choose_city" formatted="false">"בחירת עיר"</string>
+    <string name="text_choose_custom_background_image" formatted="false">"בחירת תמונת רקע מותאמת אישית"</string>
+    <string name="text_choose_custom_scene_image" formatted="false">"בחירת תמונה לסצנה המותאמת אישית"</string>
+    <string name="text_choose_folder_768e16" formatted="false">"בחירת תיקייה…"</string>
+    <string name="text_choose_folder_840d4f" formatted="false">"בחירת תיקייה ‹"</string>
+    <string name="text_choose_folder_to_restore_settings" formatted="false">"בחירת תיקייה לשחזור ההגדרות"</string>
+    <string name="text_choose_how_you_want_your_home_screen_to" formatted="false">"אפשר לבחור את המראה של מסך הבית."</string>
+    <string name="text_choose_image_44c803" formatted="false">"בחירת תמונה…"</string>
+    <string name="text_choose_image_d3f17f" formatted="false">"בחירת תמונה ‹"</string>
+    <string name="text_choose_lock_screen_folder_to_shuffle" formatted="false">"בחירת תיקייה להצגה אקראית במסך הנעילה"</string>
+    <string name="text_choose_lock_screen_image" formatted="false">"בחירת תמונה למסך הנעילה"</string>
+    <string name="text_choose_tv_model_6fead7" formatted="false">"בחירת דגם טלוויזיה…"</string>
+    <string name="text_choose_tv_model_eb4b40" formatted="false">"בחירת דגם הטלוויזיה"</string>
+    <string name="text_choose_tv_model_fcb2e7" formatted="false">"בחירת דגם טלוויזיה…"</string>
+    <string name="text_choose_tvos_launcher_when_asked" formatted="false">"יש לבחור ב-tvOS Launcher כשתופיע השאלה"</string>
+    <string name="text_choose_wallpaper_folder_to_shuffle" formatted="false">"בחירת תיקיית תמונות רקע להצגה אקראית"</string>
+    <string name="text_choose_which_scenes_take_turns_behind_th" formatted="false">"אפשר לבחור אילו סצנות יתחלפו מאחורי שעון הזכוכית."</string>
+    <string name="text_choose_your_scenes" formatted="false">"בחירת סצנות"</string>
+    <string name="text_chromecast_built_in_google_cast_receiver" formatted="false">"Chromecast built-in / מקלט Google Cast (אופציונלי — מומלץ להשאיר אם מבצעים Cast מהטלפון)"</string>
+    <string name="text_city_name_e_g_istanbul" formatted="false">"שם העיר, לדוגמה: תל אביב"</string>
+    <string name="text_classic" formatted="false">"קלאסי"</string>
+    <string name="text_classic_background" formatted="false">"רקע קלאסי"</string>
+    <string name="text_classic_clock_weather" formatted="false">"השעון ומזג האוויר בתצוגה הקלאסית"</string>
+    <string name="text_classic_custom_wallpaper" formatted="false">"תמונת רקע מותאמת אישית לתצוגה הקלאסית"</string>
+    <string name="text_classic_look" formatted="false">"מראה קלאסי"</string>
+    <string name="text_classic_photo" formatted="false">"תמונה קלאסית"</string>
+    <string name="text_classic_top_shelf" formatted="false">"המדף העליון הקלאסי"</string>
+    <string name="text_classic_wallpapers" formatted="false">"תמונות רקע קלאסיות"</string>
+    <string name="text_cleanyourtv_beta" formatted="false">"CleanYourTV (בטא)"</string>
+    <string name="text_cleanyourtv_beta_runs_the_cleanyourtv_de" formatted="false">"CleanYourTV (בטא) מריץ את פרופילי הסרת האפליקציות המיותרות של CleanYourTV ישירות בטלוויזיה באמצעות ADB מקומי, ללא צורך במחשב. אפשר לבחור את דגם הטלוויזיה (או לסרוק לפי חבילות אפליקציות המערכת המותקנות), להשבית את מסכי הבית המקוריים של היצרן או אפליקציות מיותרות, ולשחזר אותם בכל עת בלחיצה אחת."</string>
+    <string name="text_clear_aeec76" formatted="false">"ניקוי"</string>
+    <string name="text_clear_all_remapped_buttons" formatted="false">"ניקוי כל הלחצנים הממופים"</string>
+    <string name="text_clear_continue_watching_history" formatted="false">"ניקוי היסטוריית המשך הצפייה"</string>
+    <string name="text_clear_d47414" formatted="false">"ניקוי"</string>
+    <string name="text_clear_filter" formatted="false">"ניקוי הסינון"</string>
+    <string name="text_clear_filter_show_all" formatted="false">"ניקוי הסינון (הצגת הכול)"</string>
+    <string name="text_clock_alignment" formatted="false">"יישור השעון"</string>
+    <string name="text_clock" formatted="false">"שעון"</string>
+    <string name="text_clock_font" formatted="false">"גופן השעון"</string>
+    <string name="text_clock_position" formatted="false">"מיקום השעון"</string>
+    <string name="text_close_adb_disable_port_5555" formatted="false">"סגירת ADB (השבתת פורט 5555)"</string>
+    <string name="text_close_adb_now" formatted="false">"סגירת ADB עכשיו"</string>
+    <string name="text_close_all" formatted="false">"סגירת הכול"</string>
+    <string name="text_close" formatted="false">"סגירה"</string>
+    <string name="text_closing_adb" formatted="false">"סגירת ADB…"</string>
+    <string name="text_colour" formatted="false">"צבע"</string>
+    <string name="text_connected" formatted="false">"מחובר"</string>
+    <string name="text_connecting_to_local_adb_on_port_5555_and" formatted="false">"מתחבר ל-ADB המקומי בפורט 5555 ומעניק הרשאות…\n\nאם תופיע הבקשה \"לאפשר ניפוי באגים ב-USB?\", יש לסמן \"לאפשר תמיד\" וללחוץ על \"אישור\"."</string>
+    <string name="text_continue" formatted="false">"המשך"</string>
+    <string name="text_continue_watching" formatted="false">"המשך צפייה"</string>
+    <string name="text_continue_watching_5df929" formatted="false">"המשך צפייה"</string>
+    <string name="text_continue_watching_cleared" formatted="false">"היסטוריית המשך הצפייה נוקתה."</string>
+    <string name="text_continue_watching_dnd_notification_acces" formatted="false">"המשך צפייה ונא לא להפריע (גישה להתראות)"</string>
+    <string name="text_continue_watching_dnd_permission" formatted="false">"הרשאה להמשך צפייה ולמצב נא לא להפריע"</string>
+    <string name="text_continue_watching_do_not_disturb" formatted="false">"המשך צפייה ונא לא להפריע"</string>
+    <string name="text_continue_watching_isn_t_available_on_thi" formatted="false">"\"המשך צפייה\" אינו זמין בטלוויזיה זו (מערכת Android מגבילה אותו בטלוויזיות עם זיכרון נמוך)."</string>
+    <string name="text_continue_watching_on_dock" formatted="false">"המשך צפייה ב-Dock"</string>
+    <string name="text_control_center" formatted="false">"לוח הבקרה"</string>
+    <string name="text_control_panel" formatted="false">"לוח הבקרה"</string>
+    <string name="text_control_panel_actions_and_items_reset_to" formatted="false">"הפעולות והפריטים של לוח הבקרה אופסו לברירת המחדל."</string>
+    <string name="text_control_panel_items_show_hide" formatted="false">"פריטי לוח הבקרה (הצגה / הסתרה)"</string>
+    <string name="text_control_panel_overlay" formatted="false">"לוח הבקרה (שכבת-על)"</string>
+    <string name="text_core_system_package" formatted="false">"⚠️ חבילת ליבה של המערכת"</string>
+    <string name="text_core_system_package_disabling_may_affect" formatted="false">"⚠️ חבילת ליבה של המערכת — השבתה עלולה לפגוע ביציבות המערכת"</string>
+    <string name="text_could_not_check_for_updates" formatted="false">"לא ניתן היה לבדוק אם יש עדכונים."</string>
+    <string name="text_could_not_connect_to_adb_enable_usb_netw" formatted="false">"לא ניתן להתחבר ל-ADB — יש להפעיל ניפוי באגים ב-USB / ברשת, או להשתמש בשלב 3 / שלב 4."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_1f7e75" formatted="false">"לא ניתן להתחבר ל-ADB המקומי בפורט 5555.\n\nיש לוודא שניפוי באגים ב-USB / ניפוי באגים ברשת מופעל באפשרויות למפתחים ולנסות שוב — או לבחור בהגדרה ידנית."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_2d1be7" formatted="false">"לא ניתן להתחבר ל-ADB המקומי בפורט 5555.\n\n1. יש לפתוח את הגדרות ← מערכת ← מידע כללי וללחוץ 7 פעמים על \"מספר Build\".\n2. יש לפתוח את \"אפשרויות למפתחים\" ולהפעיל ניפוי באגים ב-USB / ניפוי באגים ברשת.\n3. יש לחזור לכאן וללחוץ שוב על \"צימוד / תיקון\"."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_4d4bb1" formatted="false">"לא ניתן היה להתחבר ל-ADB המקומי בפורט 5555.\nיש להפעיל ניפוי באגים ב-USB / ברשת באפשרויות למפתחים, ולאחר מכן ללחוץ על \"צימוד / תיקון ADB\"."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_58099e" formatted="false">"לא ניתן היה להתחבר ל-ADB המקומי בפורט 5555.\nיש לוודא שניפוי באגים ב-USB / ברשת מופעל באפשרויות למפתחים, ולאחר מכן ללחוץ על \"צימוד / תיקון ADB\"."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_ac5816" formatted="false">"לא ניתן היה להתחבר ל-ADB המקומי בפורט 5555."</string>
+    <string name="text_could_not_decode_image_file" formatted="false">"לא ניתן היה לפענח את קובץ התמונה."</string>
+    <string name="text_could_not_load_selected_image" formatted="false">"לא ניתן היה לטעון את התמונה שנבחרה."</string>
+    <string name="text_could_not_start_installer" formatted="false">"לא ניתן היה להפעיל את המתקין."</string>
+    <string name="text_couldn_t_search_check_the_internet_conne" formatted="false">"לא ניתן לבצע חיפוש. יש לבדוק את החיבור לאינטרנט."</string>
+    <string name="text_countries_select_one_or_multiple" formatted="false">"מדינות (אפשר לבחור אחת או יותר)"</string>
+    <string name="text_cp_bg_blurry" formatted="false">"מטושטש (טשטוש התוכן המוצג)"</string>
+    <string name="text_cp_bg_mode" formatted="false">"הרקע של לוח הבקרה"</string>
+    <string name="text_cp_bg_transparent" formatted="false">"שקוף"</string>
+    <string name="text_create_your_profile" formatted="false">"יצירת פרופיל"</string>
+    <string name="text_critical_system_service" formatted="false">"🛑 שירות מערכת קריטי"</string>
+    <string name="text_critical_system_service_protected_cannot" formatted="false">"🛑 שירות מערכת קריטי — מוגן (לא ניתן להשבית)"</string>
+    <string name="text_critical_system_service_protected" formatted="false">" [שירות מערכת קריטי — מוגן]"</string>
+    <string name="text_current_place" formatted="false">"המיקום הנוכחי"</string>
+    <string name="text_current_version" formatted="false">"הגרסה הנוכחית"</string>
+    <string name="text_currently_synced_to_d6cd7b" formatted="false">"מסונכרן כעת ל: "</string>
+    <string name="text_currently_synced_to_e6a065" formatted="false">"מסונכרן כעת ל: "</string>
+    <string name="text_custom" formatted="false">"מותאם אישית"</string>
+    <string name="text_custom_background_updated" formatted="false">"הרקע המותאם אישית עודכן."</string>
+    <string name="text_custom_folder_shuffle" formatted="false">"מותאם אישית והצגה אקראית מתיקייה"</string>
+    <string name="text_custom_image" formatted="false">"תמונה מותאמת אישית"</string>
+    <string name="text_custom_key_code_enter_number" formatted="false">"קוד מקש מותאם אישית (הזנת מספר…)"</string>
+    <string name="text_custom_label" formatted="false">"שם מותאם אישית"</string>
+    <string name="text_custom_lock_screen_image_updated" formatted="false">"התמונה המותאמת אישית של מסך הנעילה עודכנה."</string>
+    <string name="text_custom_scene_wallpaper_updated" formatted="false">"תמונת הרקע של הסצנה המותאמת אישית עודכנה."</string>
+    <string name="text_custom_wallpaper_1e4315" formatted="false">"תמונת רקע מותאמת אישית מס' "</string>
+    <string name="text_custom_wallpaper_208136" formatted="false">"תמונת רקע מותאמת אישית"</string>
+    <string name="text_custom_wallpaper_clock_alignment" formatted="false">"יישור השעון בתמונת רקע מותאמת אישית"</string>
+    <string name="text_custom_wallpaper_mode_9acb13" formatted="false">"מצב תמונת הרקע המותאמת אישית"</string>
+    <string name="text_custom_wallpaper_mode_f2890b" formatted="false">"מצב תמונת הרקע המותאמת אישית"</string>
+    <string name="text_custom_wallpaper_settings" formatted="false">"הגדרות תמונת הרקע המותאמת אישית…"</string>
+    <string name="text_custom_wallpapers_unlimited" formatted="false">"תמונות רקע מותאמות אישית (ללא הגבלה)"</string>
+    <string name="text_dark" formatted="false">"כהה"</string>
+    <string name="text_dash_football" formatted="false">"משחקי כדורגל"</string>
+    <string name="text_dash_latest_releases" formatted="false">"הנצפים ביותר"</string>
+    <string name="text_dash_news" formatted="false">"חדשות בשידור חי"</string>
+    <string name="text_dash_prayer_times" formatted="false">"זמני תפילה"</string>
+    <string name="text_dash_top_media" formatted="false">"סרטים וסדרות מובילים"</string>
+    <string name="text_date_time" formatted="false">"תאריך ושעה"</string>
+    <string name="text_debloat_complete" formatted="false">"הסרת האפליקציות המיותרות הושלמה"</string>
+    <string name="text_debloat_status" formatted="false">"סטטוס הסרת האפליקציות המיותרות"</string>
+    <string name="text_debloat_tv_3ec289" formatted="false">"הסרת אפליקציות מיותרות מהטלוויזיה…"</string>
+    <string name="text_debloat_tv_af7d50" formatted="false">"הסרת אפליקציות מיותרות — "</string>
+    <string name="text_debloating_tv" formatted="false">"מתבצעת הסרה של אפליקציות מיותרות מהטלוויזיה…"</string>
+    <string name="text_default" formatted="false">"ברירת מחדל"</string>
+    <string name="text_default_ambient_mode" formatted="false">"ברירת מחדל (מצב אווירה)"</string>
+    <string name="text_default_app_launch_main_activity" formatted="false">"הפעלת האפליקציה כברירת מחדל (Main Activity)"</string>
+    <string name="text_default_automatic" formatted="false">"ברירת מחדל (אוטומטי)"</string>
+    <string name="text_default_home_launcher_set_via_adb" formatted="false">"מסך הבית הוגדר כברירת מחדל דרך ADB!"</string>
+    <string name="text_default_home_screen_3e8523" formatted="false">"מסך הבית המוגדר כברירת מחדל"</string>
+    <string name="text_default_home_screen_57e442" formatted="false">"מסך הבית המוגדר כברירת מחדל"</string>
+    <string name="text_default_launcher_setup_tcl_philips_googl" formatted="false">"הגדרת מסך הבית כברירת מחדל (TCL / PHILIPS / GOOGLE TV)"</string>
+    <string name="text_default_playlist_cannot_be_deleted" formatted="false">"אי אפשר למחוק את פלייליסט ברירת המחדל"</string>
+    <string name="text_default_wallpaper_clock_alignment" formatted="false">"יישור השעון בתמונת הרקע המובנית"</string>
+    <string name="text_delete" formatted="false">"מחיקה"</string>
+    <string name="text_detected_automatically" formatted="false">"זוהה אוטומטית"</string>
+    <string name="text_detected_your_current_wi_fi_network_is_o" formatted="false">"⚠️ זוהה: רשת ה-Wi-Fi הנוכחית שלך שייכת ל-setupwraith (cname=com.google.android.tungsten.setupwraith).\n\n"</string>
+    <string name="text_developer" formatted="false">"מפתח"</string>
+    <string name="text_developer_options" formatted="false">"אפשרויות למפתחים…"</string>
+    <string name="text_didn_t_catch_that_press_the_mic_to_try_a" formatted="false">"הדיבור לא זוהה — יש ללחוץ על המיקרופון כדי לנסות שוב"</string>
+    <string name="text_disable_all" formatted="false">"השבתת הכול ‹"</string>
+    <string name="text_disable_all_stock_launchers" formatted="false">"השבתת כל מסכי הבית המקוריים"</string>
+    <string name="text_disable_all_stock_launchers_set_tvos_lau" formatted="false">"השבתת כל מסכי הבית המקוריים והגדרת tvOS Launcher כמסך הבית"</string>
+    <string name="text_disable_anyway" formatted="false">"השבתה בכל זאת"</string>
+    <string name="text_disable" formatted="false">"השבת"</string>
+    <string name="text_disable_selected" formatted="false">"השבתת הפריטים שנבחרו"</string>
+    <string name="text_disable_stock_tv_launchers_tcl_philips_g" formatted="false">"השבתת מסכי הבית המקוריים של הטלוויזיה (TCL / Philips / Google TV)"</string>
+    <string name="text_disable_system_launchers_072c87" formatted="false">"השבתת מסכי הבית של המערכת"</string>
+    <string name="text_disable_system_launchers_13dcb9" formatted="false">"השבתת מסכי הבית של המערכת"</string>
+    <string name="text_disable_system_launchers_e1810e" formatted="false">"השבתת מסכי הבית של המערכת…"</string>
+    <string name="text_disabled_31f3e7" formatted="false">" [מושבת]"</string>
+    <string name="text_disabled_62ff42" formatted="false">"מושבת"</string>
+    <string name="text_disabled_a89c2a" formatted="false">" [מושבת]"</string>
+    <string name="text_disabled_ae652f" formatted="false">"מושבת"</string>
+    <string name="text_disabled_apps_backup" formatted="false">"גיבוי האפליקציות שהושבתו"</string>
+    <string name="text_disabled_apps_record" formatted="false">"רשומת האפליקציות שהושבתו"</string>
+    <string name="text_disabled_tap_to_enable_85233e" formatted="false">" [מושבת — לחיצה להפעלה]"</string>
+    <string name="text_disabled_tap_to_enable_ad587c" formatted="false">" [מושבת — לחיצה להפעלה]"</string>
+    <string name="text_disabling_package" formatted="false">"מתבצעת השבתה של החבילה…"</string>
+    <string name="text_disconnected_adb_off" formatted="false">"מנותק (ADB כבוי)"</string>
+    <string name="text_display" formatted="false">"תצוגה"</string>
+    <string name="text_displayed_when_no_app_is_focused_when_fo" formatted="false">"מוצג כשאף אפליקציה אינה מסומנת, כשהסימון נמצא על ההגדרות או על רכיב שאינו אפליקציה, או כשלאפליקציה המסומנת אין פריטים ב\"המשך צפייה\"."</string>
+    <string name="text_do_not_disturb" formatted="false">"נא לא להפריע"</string>
+    <string name="text_dock" formatted="false">"Dock"</string>
+    <string name="text_dock_rows" formatted="false">"שורות בדוק"</string>
+    <string name="text_dock_scale_50_to_50" formatted="false">"גודל ה-Dock (הקטנה או הגדלה של עד 50%)"</string>
+    <string name="text_dock_size" formatted="false">"גודל ה-Dock"</string>
+    <string name="text_don_t_show_weather" formatted="false">"ללא הצגת מזג אוויר"</string>
+    <string name="text_done" formatted="false">"סיום"</string>
+    <string name="text_double_tap_2x" formatted="false">"לחיצה כפולה (2x)"</string>
+    <string name="text_down" formatted="false">"למטה"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"הורד CleanYourTV"</string>
+    <string name="text_download" formatted="false">"הורדות"</string>
+    <string name="text_e_g_85_play_pause_164_mute_178_tv_input" formatted="false">"לדוגמה: 85 (הפעלה/השהיה), 164 (השתקה), 178 (מקור קלט)"</string>
+    <string name="text_e_g_tcl_philips_sony_hisense_xiaomi" formatted="false">"לדוגמה: tcl, philips, sony, hisense, xiaomi…"</string>
+    <string name="text_e_g_tcl_sony_hisense_xiaomi_philips_skyw" formatted="false">"לדוגמה: tcl, sony, hisense, xiaomi, philips, skyworth…"</string>
+    <string name="text_each_person_keeps_their_own_keep_watchin" formatted="false">"לכל אדם יש שורת המשך צפייה וסדר אפליקציות משלו."</string>
+    <string name="text_each_scene_stays" formatted="false">"משך הצגת כל סצנה"</string>
+    <string name="text_each_tv_brand_uses_different_package_and" formatted="false">"כל יצרן טלוויזיות משתמש בשמות חבילות ופעילויות שונים עבור Wi-Fi, Bluetooth, שמע, מקורות קלט ומצב אווירה. אפשר גם לבחור במסך הנעילה במקום מצב אווירה (לטלוויזיות ללא מצב אווירה מובנה), ולהפעיל או לכבות כל פריט בלוח הבקרה בנפרד."</string>
+    <string name="text_each_wallpaper_stays" formatted="false">"משך הצגת כל תמונת רקע"</string>
+    <string name="text_emoji" formatted="false">"אמוג׳י"</string>
+    <string name="text_enable_adb_debugging" formatted="false">"הפעלת ניפוי באגים ב-ADB"</string>
+    <string name="text_enable_adb_for_persistent_mode" formatted="false">"להפעיל ADB עבור המצב הקבוע?"</string>
+    <string name="text_enable_adb_now" formatted="false">"הפעלת ADB עכשיו"</string>
+    <string name="text_enable_adb_switch" formatted="false">"הפעלת ADB ומעבר"</string>
+    <string name="text_enable_all" formatted="false">"הפעלת הכול ‹"</string>
+    <string name="text_enable_button_mapper_in_accessibility" formatted="false">"הפעלת מיפוי לחצנים בהגדרות הנגישות…"</string>
+    <string name="text_enable_home_button_fix_accessibility_rem" formatted="false">"הפעלת תיקון לחצן הבית (מיפוי דרך שירות הנגישות)"</string>
+    <string name="text_enable_home_dashboard" formatted="false">"הפעלת לוח המידע במסך הבית"</string>
+    <string name="text_enable_in_accessibility" formatted="false">"הפעלה בהגדרות הנגישות…"</string>
+    <string name="text_enable_in_accessibility_so_remapped_butt" formatted="false">"יש להפעיל בהגדרות הנגישות כדי שהלחצנים הממופים יפעלו בכל האפליקציות"</string>
+    <string name="text_enable_keep_alive_348093" formatted="false">"הפעלת שמירה על פעילות"</string>
+    <string name="text_enable_keep_alive_5ae818" formatted="false">"להפעיל שמירה על פעילות?"</string>
+    <string name="text_enable_usb_network_debugging_in_develope" formatted="false">"יש להפעיל ניפוי באגים ב-USB / ברשת באפשרויות למפתחים"</string>
+    <string name="text_enable_via_adb" formatted="false">"הפעלה באמצעות ADB"</string>
+    <string name="text_enabled" formatted="false">" [מופעל]"</string>
+    <string name="text_enabled_in_shuffle" formatted="false">"מופעלת בהצגה האקראית"</string>
+    <string name="text_enabled_tap_to_disable_046b6f" formatted="false">" [מופעל — לחיצה להשבתה]"</string>
+    <string name="text_enabled_tap_to_disable_fff589" formatted="false">" [מופעל — לחיצה להשבתה]"</string>
+    <string name="text_enabling_adb" formatted="false">"הפעלת ADB…"</string>
+    <string name="text_enabling_adb_debugging" formatted="false">"מתבצעת הפעלה של ניפוי באגים ב-ADB…"</string>
+    <string name="text_enabling_adb_debugging_and_switching_to" formatted="false">"מתבצעת הפעלה של ניפוי באגים ב-ADB ומעבר למצב ADB קבוע…"</string>
+    <string name="text_enabling_package" formatted="false">"מתבצעת הפעלה של החבילה…"</string>
+    <string name="text_endpoint_not_found" formatted="false">"נקודת הקצה לא נמצאה"</string>
+    <string name="text_enter_android_key_code" formatted="false">"הזנת קוד מקש של Android"</string>
+    <string name="text_exact_model_code_match" formatted="false">"התאמה מדויקת לקוד הדגם"</string>
+    <string name="text_exact_model_match" formatted="false">"התאמה מדויקת לדגם"</string>
+    <string name="text_fast_forward" formatted="false">"הרצה קדימה"</string>
+    <string name="text_fetching_next_reddit_wallpaper" formatted="false">"הורדת תמונת הרקע הבאה מ-Reddit…"</string>
+    <string name="text_filter_b3bfd1" formatted="false">"סינון"</string>
+    <string name="text_filter_bf262c" formatted="false">"סינון ‹"</string>
+    <string name="text_filter_system_apps_b26cf2" formatted="false">"🔍 סינון אפליקציות מערכת…"</string>
+    <string name="text_filter_system_apps_f2c530" formatted="false">"סינון אפליקציות מערכת"</string>
+    <string name="text_filter_tv_models" formatted="false">"סינון דגמי טלוויזיה"</string>
+    <string name="text_finish_setting_up" formatted="false">"השלמת ההגדרה"</string>
+    <string name="text_fix_home_button_launch_tvos_launcher" formatted="false">"תיקון לחצן הבית (פתיחת tvOS Launcher)"</string>
+    <string name="text_folder_shuffle" formatted="false">"הצגה אקראית מתיקייה"</string>
+    <string name="text_football_fav_teams" formatted="false">"קבוצות מועדפות"</string>
+    <string name="text_football_loading" formatted="false">"טעינת המשחקים…"</string>
+    <string name="text_football_no_matches" formatted="false">"אין כרגע משחקים מתוכננים"</string>
+    <string name="text_forecast_provider" formatted="false">"ספק התחזית"</string>
+    <string name="text_found_from_your_internet_connection" formatted="false">"מזוהה לפי חיבור האינטרנט"</string>
+    <string name="text_free_forecast_service_no_account_needed" formatted="false">"שירות תחזית חינמי, ללא צורך בחשבון"</string>
+    <string name="text_generic_android_tv_google_tv_profile" formatted="false">"פרופיל כללי ל-Android TV / Google TV"</string>
+    <string name="text_get" formatted="false">"התקנה"</string>
+    <string name="text_get_started" formatted="false">"התחלה"</string>
+    <string name="text_getting_the_weather" formatted="false">"טעינת נתוני מזג האוויר…"</string>
+    <string name="text_github_release_latest_version" formatted="false">"הגרסה האחרונה ב-GitHub"</string>
+    <string name="text_go_to_home_screen" formatted="false">"מעבר למסך הבית"</string>
+    <string name="text_good_afternoon" formatted="false">"צהריים טובים"</string>
+    <string name="text_good_evening" formatted="false">"ערב טוב"</string>
+    <string name="text_good_morning" formatted="false">"בוקר טוב"</string>
+    <string name="text_good_night" formatted="false">"לילה טוב"</string>
+    <string name="text_google_assistant_voice_search_optional" formatted="false">"Google Assistant / חיפוש קולי (אופציונלי)"</string>
+    <string name="text_google_play_games_optional" formatted="false">"Google Play Games (אופציונלי)"</string>
+    <string name="text_google_telemetry_diagnostics" formatted="false">"טלמטריה ואבחון של Google"</string>
+    <string name="text_google_tv_notice_setupwraith_wi_fi_check" formatted="false">"ℹ️ הודעת Google TV (בדיקת Wi-Fi של setupwraith):\n\n"</string>
+    <string name="text_google_tv_setup_wizard_launcher_watchdog" formatted="false">"אשף ההגדרה של Google TV ורכיב הניטור של מסך הבית"</string>
+    <string name="text_google_tv_store_movies_tv" formatted="false">"חנות Google TV / סרטים ותוכניות טלוויזיה"</string>
+    <string name="text_google_tv_wi_fi_notice" formatted="false">"הודעה בנושא Wi-Fi ב-Google TV"</string>
+    <string name="text_google_tv_wi_fi_warning" formatted="false">"אזהרת Wi-Fi של Google TV"</string>
+    <string name="text_grant_all" formatted="false">"הענקת הכול ‹"</string>
+    <string name="text_grant_all_files_access" formatted="false">"מתן גישה לכל הקבצים…"</string>
+    <string name="text_grant_all_permissions_via_local_adb" formatted="false">"הענקת כל ההרשאות דרך ADB מקומי"</string>
+    <string name="text_grant_permissions_close_adb_now" formatted="false">"מתן הרשאות וסגירת ADB עכשיו"</string>
+    <string name="text_grant_permissions_now_keep_adb_open" formatted="false">"מתן הרשאות עכשיו (ADB נשאר פתוח)"</string>
+    <string name="text_grant_permissions_one_by_one_manually_th" formatted="false">"מתן הרשאות אחת-אחת באופן ידני דרך הגדרות Android TV"</string>
+    <string name="text_grant_storage_access" formatted="false">"מתן גישה לאחסון…"</string>
+    <string name="text_granting_permissions_via_local_adb_if_an" formatted="false">"מעניק הרשאות דרך ADB מקומי…\n\nאם מופיעה על המסך השאלה \"לאשר ניפוי באגים ב-USB?\", יש לסמן \"אפשר תמיד\" וללחוץ על \"אישור\"."</string>
+    <string name="text_grants_write_secure_settings_closes_port" formatted="false">"מעניק את WRITE_SECURE_SETTINGS וסוגר את פורט 5555 בסיום"</string>
+    <string name="text_grants_write_secure_settings_once_to_sel" formatted="false">"מעניק פעם אחת את ההרשאה WRITE_SECURE_SETTINGS לתיקון עצמי של הנגישות, ואז סוגר את פורט 5555"</string>
+    <string name="text_gray" formatted="false">"אפור"</string>
+    <string name="text_green_button" formatted="false">"לחצן ירוק"</string>
+    <string name="text_green" formatted="false">"ירוק"</string>
+    <string name="text_guide_button" formatted="false">"לחצן מדריך שידורים"</string>
+    <string name="text_h" formatted="false">"מקס׳:"</string>
+    <string name="text_headlines_from_your_city_and_the_world" formatted="false">"כותרות מהעיר שלך ומהעולם"</string>
+    <string name="text_hidden_apps" formatted="false">"אפליקציות מוסתרות"</string>
+    <string name="text_hide" formatted="false">"הסתרה"</string>
+    <string name="text_hide_input" formatted="false">"הסתר כניסה"</string>
+    <string name="text_home_3" formatted="false">"מסך הבית (3)"</string>
+    <string name="text_home_button_fix_accessibility_enabled" formatted="false">"תיקון לחצן הבית ושירות הנגישות הופעלו!"</string>
+    <string name="text_home_button_fix_disabled" formatted="false">"תיקון לחצן הבית הושבת."</string>
+    <string name="text_home_button_fix_enabled_5232e5" formatted="false">"תיקון לחצן הבית הופעל."</string>
+    <string name="text_home_button_fix_enabled_d7a9be" formatted="false">"תיקון לחצן הבית הופעל!"</string>
+    <string name="text_home_button_fix_enabled_please_also_enab" formatted="false">"תיקון לחצן הבית הופעל — יש להפעיל גם את שירות הנגישות שלמעלה כדי שניתן יהיה ליירט את מקש הבית."</string>
+    <string name="text_home_button_fix_enabled_pressing_home_wi" formatted="false">"תיקון לחצן הבית הופעל — לחיצה על לחצן הבית תפתח את tvOS Launcher."</string>
+    <string name="text_home_permissions" formatted="false">"מסך הבית והרשאות"</string>
+    <string name="text_home_screen" formatted="false">"מסך הבית"</string>
+    <string name="text_home_screen_weather_shortcut" formatted="false">"קיצור דרך למזג האוויר במסך הבית"</string>
+    <string name="text_home_screen_widget_settings" formatted="false">"הגדרות הווידג'טים במסך הבית"</string>
+    <string name="text_home_screen_widgets" formatted="false">"ווידג'טים במסך הבית"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"הגדרות מסך הבית"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"הגדרות מסך הבית"</string>
+    <string name="text_hourly_forecast" formatted="false">"תחזית שעתית"</string>
+    <string name="text_how_to_watch" formatted="false">"איפה לצפות"</string>
+    <string name="text_humidity" formatted="false">"לחות "</string>
+    <string name="text_i_understand_open_manual_debloat" formatted="false">"הבנתי — פתיחת ההסרה הידנית"</string>
+    <string name="text_images" formatted="false">"תמונות"</string>
+    <string name="text_images_videos_and_webpages_sent_from_any" formatted="false">"תמונות, סרטונים ודפי אינטרנט שנשלחים מכל טלפון או מחשב באותה רשת Wi-Fi. לכל מי שמשתמש בטלוויזיה הזו."</string>
+    <string name="text_in_control_center_needs_location_access" formatted="false">"בלוח הבקרה (נדרשת גישה למיקום)"</string>
+    <string name="text_included_in_rotation" formatted="false">"כלולה בסבב"</string>
+    <string name="text_indigo" formatted="false">"אינדיגו"</string>
+    <string name="text_info_button" formatted="false">"לחצן מידע"</string>
+    <string name="text_input" formatted="false">"מקור קלט"</string>
+    <string name="text_inputs_app_on_dock" formatted="false">"אפליקציית מקורות הקלט ב-Dock"</string>
+    <string name="text_inputs" formatted="false">"מקורות קלט"</string>
+    <string name="text_inputs_control_panel_dock" formatted="false">"מקורות קלט (לוח הבקרה ו-Dock)"</string>
+    <string name="text_install" formatted="false">"התקנה"</string>
+    <string name="text_installed_apps" formatted="false">"אפליקציות מותקנות"</string>
+    <string name="text_internal_storage" formatted="false">"אחסון פנימי"</string>
+    <string name="text_iphone_duo" formatted="false">"iPhone כפול"</string>
+    <string name="text_iphone_rounded" formatted="false">"iPhone מעוגל"</string>
+    <string name="text_its_layout_and_continue_watching_list_wi" formatted="false">"הפריסה ורשימת \"המשך צפייה\" של הפרופיל יוסרו."</string>
+    <string name="text_just_your_background_for_now" formatted="false">"בינתיים רק תמונת הרקע"</string>
+    <string name="text_keep_alive_auto_repair_accessibility" formatted="false">"שמירה על פעילות (תיקון אוטומטי של הנגישות)"</string>
+    <string name="text_keep_alive_disabled" formatted="false">"השמירה על פעילות כבויה."</string>
+    <string name="text_keep_alive_enabled" formatted="false">"השמירה על פעילות הופעלה."</string>
+    <string name="text_keep_screen_awake" formatted="false">"מסך פעיל ללא כיבוי"</string>
+    <string name="text_keep_typing_to_search_movies_and_shows" formatted="false">"אפשר להמשיך להקליד כדי לחפש סרטים וסדרות"</string>
+    <string name="text_keeps_network_adb_enabled_for_cleanyourt" formatted="false">"משאיר את ADB ברשת פעיל לצורך הסרת אפליקציות מיותרות ב-CleanYourTV (לתשומת לבך: פורט 5555 נשארת פתוחה ברשת המקומית)"</string>
+    <string name="text_key" formatted="false">"מקש: "</string>
+    <string name="text_l" formatted="false">"מינ׳:"</string>
+    <string name="text_language" formatted="false">"שפה"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"שפה, מזג אוויר, סצנות, אפליקציות ואנשים"</string>
+    <string name="text_larger_dock_extra_apps_automatically_mov" formatted="false">"Dock גדול יותר — אפליקציות עודפות יועברו אוטומטית לאפליקציות נוספות במקרה הצורך"</string>
+    <string name="text_last_channel" formatted="false">"הערוץ הקודם"</string>
+    <string name="text_launch_automatically_on_system_boot" formatted="false">"הפעלה אוטומטית עם הדלקת המערכת"</string>
+    <string name="text_left" formatted="false">"שמאלה"</string>
+    <string name="text_let_s_set_up_tvos_launcher" formatted="false">"נתחיל בהגדרת tvOS Launcher."</string>
+    <string name="text_listening" formatted="false">"האזנה…"</string>
+    <string name="text_live_cricket_scores" formatted="false">"תוצאות קריקט בשידור חי"</string>
+    <string name="text_loading_next_reddit_wallpaper" formatted="false">"טעינת תמונת הרקע הבאה מ-Reddit…"</string>
+    <string name="text_location_873ca7" formatted="false">"מיקום"</string>
+    <string name="text_location_eeea97" formatted="false">"מיקום"</string>
+    <string name="text_lock_now" formatted="false">"נעילה עכשיו"</string>
+    <string name="text_lock_screen" formatted="false">"מסך נעילה"</string>
+    <string name="text_lock_screen_options" formatted="false">"אפשרויות מסך הנעילה"</string>
+    <string name="text_lock_screen_settings_8b5317" formatted="false">"הגדרות מסך הנעילה…"</string>
+    <string name="text_lock_screen_settings_d4db1f" formatted="false">"הגדרות מסך הנעילה"</string>
+    <string name="text_long_press_volume_button_fix" formatted="false">"תיקון לחיצה ארוכה על לחצני עוצמת הקול"</string>
+    <string name="text_long_press_volume_fix_disabled_using_nat" formatted="false">"תיקון הלחיצה הארוכה על עוצמת הקול הושבת (נעשה שימוש בעוצמת הקול המקורית של הטלוויזיה)."</string>
+    <string name="text_long_press_volume_fix_enabled_for_tvs_wh" formatted="false">"תיקון הלחיצה הארוכה על עוצמת הקול הופעל (לטלוויזיות שבהן החזקת לחצן עוצמת הקול מפסיקה לחזור)."</string>
+    <string name="text_look" formatted="false">"מראה"</string>
+    <string name="text_looks_like" formatted="false">"ככל הנראה: "</string>
+    <string name="text_m" formatted="false">" דק׳"</string>
+    <string name="text_make_home_screen" formatted="false">"הגדרה כמסך הבית"</string>
+    <string name="text_make_tvos_launcher_default_home" formatted="false">"הגדרת tvOS Launcher כמסך הבית המוגדר כברירת מחדל"</string>
+    <string name="text_make_tvos_launcher_the_home_screen" formatted="false">"הגדרת tvOS Launcher כמסך הבית"</string>
+    <string name="text_make_tvos_launcher_your_home_screen" formatted="false">"להגדיר את tvOS Launcher כמסך הבית?"</string>
+    <string name="text_manage_system_apps_in_tv_settings" formatted="false">"ניהול אפליקציות מערכת בהגדרות הטלוויזיה…"</string>
+    <string name="text_manual_debloat_all_system_apps_22aced" formatted="false">"הסרה ידנית של אפליקציות מיותרות (כל אפליקציות המערכת)"</string>
+    <string name="text_manual_debloat_all_system_apps_99b35c" formatted="false">"הסרה ידנית של אפליקציות מיותרות (כל אפליקציות המערכת)…"</string>
+    <string name="text_manual_debloat_warning" formatted="false">"⚠️ אזהרה: הסרה ידנית של אפליקציות מיותרות"</string>
+    <string name="text_manual_setup" formatted="false">"הגדרה ידנית"</string>
+    <string name="text_map_any_button_on_your_remote_with_singl" formatted="false">"מיפוי כל לחצן בשלט לפעולות של לחיצה אחת (1x), לחיצה כפולה (2x) ולחיצה משולשת (3x) — פתיחת לוח הבקרה, מעבר בין אפליקציות אחרונות או כל אפליקציה אחרת."</string>
+    <string name="text_matching_models_for" formatted="false">"דגמים תואמים עבור "</string>
+    <string name="text_matching_places" formatted="false">"מקומות תואמים"</string>
+    <string name="text_media_file_is_missing_for_slide" formatted="false">"קובץ המדיה של השקופית חסר"</string>
+    <string name="text_media_item_not_found" formatted="false">"פריט המדיה לא נמצא"</string>
+    <string name="text_memory" formatted="false">"זיכרון"</string>
+    <string name="text_menu_button" formatted="false">"לחצן תפריט"</string>
+    <string name="text_min_0240eb" formatted="false">" דק׳"</string>
+    <string name="text_min_938b57" formatted="false">"דק׳"</string>
+    <string name="text_min_left" formatted="false">" דק׳ נותרו"</string>
+    <string name="text_minutes" formatted="false">" דקות"</string>
+    <string name="text_mode_1_standard_default" formatted="false">"מצב 1 (רגיל · ברירת מחדל)"</string>
+    <string name="text_mode_1_standard_default_for_most_android" formatted="false">"מצב 1 — רגיל (ברירת מחדל, לרוב טלוויזיות Android TV ושלטי IR)"</string>
+    <string name="text_mode_2_hy320_projector" formatted="false">"מצב 2 (HY320 / מקרן)"</string>
+    <string name="text_mode_2_hy320_projector_audioservice_ir_p" formatted="false">"מצב 2 — HY320 / מקרן (מצב AudioService ופרצי פולסים של IR)"</string>
+    <string name="text_mode_3_onn_tv_box_fast_release_stop_0_ex" formatted="false">"מצב 3 — Onn TV Box (עצירה מהירה בשחרור, ללא צעדים נוספים בשחרור, מצב ADB ומצב מאובטח)"</string>
+    <string name="text_mode_manual_setup_without_adb" formatted="false">"מצב: הגדרה ידנית (ללא ADB)"</string>
+    <string name="text_mode_persistent_adb_setup_keep_adb_open" formatted="false">"מצב: הגדרת ADB קבוע (ADB נשאר פתוח)"</string>
+    <string name="text_mode_secure_auto_setup_close_adb_recomme" formatted="false">"מצב: הגדרה אוטומטית מאובטחת וסגירת ADB (מומלץ)"</string>
+    <string name="text_models_by_system_app_similarity" formatted="false">"דגמים לפי דמיון באפליקציות המערכת"</string>
+    <string name="text_move" formatted="false">"הזזה"</string>
+    <string name="text_move_icon" formatted="false">"הזזת הסמל"</string>
+    <string name="text_move_to_other_apps" formatted="false">"העברה לאפליקציות נוספות"</string>
+    <string name="text_movie" formatted="false">"סרט"</string>
+    <string name="text_movies_tv" formatted="false">"סרטים וטלוויזיה"</string>
+    <string name="text_mute_unmute_164" formatted="false">"השתקה / ביטול השתקה (164)"</string>
+    <string name="text_my_location" formatted="false">"המיקום שלי"</string>
+    <string name="text_name" formatted="false">"שם"</string>
+    <string name="text_navigation_click_sounds" formatted="false">"צלילי לחיצה בניווט"</string>
+    <string name="text_new_profile" formatted="false">"פרופיל חדש"</string>
+    <string name="text_news" formatted="false">"חדשות"</string>
+    <string name="text_news_country_auto" formatted="false">"אוטומטי (סנכרון עם שפת הממשק)"</string>
+    <string name="text_news_country_setting" formatted="false">"מדינת חדשות בשידור חי"</string>
+    <string name="text_next_9f81b4" formatted="false">"הבא"</string>
+    <string name="text_next_page" formatted="false">"הדף הבא"</string>
+    <string name="text_next_track" formatted="false">"הרצועה הבאה"</string>
+    <string name="text_next_wallpaper_b7a1c2" formatted="false">"תמונת הרקע הבאה"</string>
+    <string name="text_next_wallpaper_f38b4f" formatted="false">"תמונת הרקע הבאה"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"סצנות לילה"</string>
+    <string name="text_night_scenes_b6104d" formatted="false">"סצנות לילה"</string>
+    <string name="text_night_scenes_clock" formatted="false">"השעון בסצנות הלילה"</string>
+    <string name="text_night_scenes_custom_wallpaper" formatted="false">"תמונת רקע מותאמת אישית לסצנות הלילה"</string>
+    <string name="text_no_apps_to_close" formatted="false">"אין אפליקציות לסגירה"</string>
+    <string name="text_no_changelog_text_provided_for_this_rele" formatted="false">"לא צורפה רשימת שינויים לגרסה זו."</string>
+    <string name="text_no_disabled_packages_have_been_recorded" formatted="false">"עדיין לא נרשמו ב-CleanYourTV חבילות מושבתות."</string>
+    <string name="text_no_enabled_slides_in_the_active_playlist" formatted="false">"אין שקופיות מופעלות בפלייליסט הפעיל"</string>
+    <string name="text_no_hidden_apps_hold_ok_on_any_app_on_the" formatted="false">"אין אפליקציות מוסתרות. אפשר להחזיק OK על אפליקציה כלשהי ב-Dock במסך הבית ולבחור \"הסתרה\"."</string>
+    <string name="text_no_images_in_this_folder_open_a_subfolde" formatted="false">"אין תמונות בתיקייה זו (אפשר לפתוח תיקיית משנה למטה)"</string>
+    <string name="text_no_matching_apps_found" formatted="false">"לא נמצאו אפליקציות תואמות"</string>
+    <string name="text_no_movies_or_shows_found" formatted="false">"לא נמצאו סרטים או סדרות"</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"אין עדיין אפליקציות אחרונות"</string>
+    <string name="text_no_results" formatted="false">"אין תוצאות"</string>
+    <string name="text_no_saved_disabled_app_backup_was_found_a" formatted="false">"לא נמצא גיבוי שמור של אפליקציות מושבתות, ועדיין לא נבחר דגם טלוויזיה. לשחזור לפי פרופיל הדגם, יש לבחור קודם דגם טלוויזיה."</string>
+    <string name="text_no_screensaver_or_sleep_while_presenting" formatted="false">"ללא שומר מסך או שינה בזמן הצגה"</string>
+    <string name="text_no_settings_backup_json_found_in_this_fo" formatted="false">"לא נמצא בתיקייה זו גיבוי הגדרות (קובץ json.)"</string>
+    <string name="text_no_stock_android_tv_google_tv_launcher_p" formatted="false">"לא זוהו בטלוויזיה זו חבילות של מסך הבית המקורי של Android TV / Google TV."</string>
+    <string name="text_no_stock_android_tv_google_tv_oem_launch" formatted="false">"לא זוהו בטלוויזיה הזו חבילות של מסך בית מקורי (Android TV / Google TV / יצרן)."</string>
+    <string name="text_no_system_file_picker_available_on_this" formatted="false">"אין בטלוויזיה זו בוחר קבצים של המערכת."</string>
+    <string name="text_none" formatted="false">"ללא"</string>
+    <string name="text_none_clear_action" formatted="false">"ללא (ניקוי הפעולה)"</string>
+    <string name="text_none_found" formatted="false">"לא נמצא"</string>
+    <string name="text_none_no_action" formatted="false">"ללא (אין פעולה)"</string>
+    <string name="text_none_saved" formatted="false">"לא נשמר דבר"</string>
+    <string name="text_not_allowed" formatted="false">"לא מורשה"</string>
+    <string name="text_not_connected_85d0dd" formatted="false">"לא מחובר"</string>
+    <string name="text_not_connected_ebd8d2" formatted="false">"לא מחובר"</string>
+    <string name="text_not_done" formatted="false">"לא בוצע"</string>
+    <string name="text_not_done_select_tv_model_first" formatted="false">"לא בוצע (יש לבחור תחילה דגם טלוויזיה)"</string>
+    <string name="text_not_installed" formatted="false">"לא מותקנת"</string>
+    <string name="text_not_now" formatted="false">"לא עכשיו"</string>
+    <string name="text_not_on_this_tv" formatted="false">"לא זמין בטלוויזיה זו"</string>
+    <string name="text_not_selected" formatted="false">"לא נבחר"</string>
+    <string name="text_not_set" formatted="false">"לא מוגדר"</string>
+    <string name="text_not_signed_in" formatted="false">"לא מחובר"</string>
+    <string name="text_not_streaming_right_now" formatted="false">"לא זמין כרגע בסטרימינג."</string>
+    <string name="text_nothing_to_continue_yet" formatted="false">"אין עדיין מה להמשיך"</string>
+    <string name="text_nothing_to_present_yet" formatted="false">"אין עדיין תוכן להצגה"</string>
+    <string name="text_notifications_83" formatted="false">"התראות (83)"</string>
+    <string name="text_now" formatted="false">"עכשיו"</string>
+    <string name="status_off" formatted="false">"כבוי"</string>
+    <string name="text_off_tap_to_enable_home_button_remap" formatted="false">"כבוי — לחיצה תפעיל את המיפוי מחדש של לחצן הבית"</string>
+    <string name="text_ok" formatted="false">"אישור"</string>
+    <string name="text_ok_to_change_back_to_go_back" formatted="false">"OK לשינוי, חזרה למסך הקודם"</string>
+    <string name="text_ok_to_change_hold_ok_to_move_back_to_go" formatted="false">"OK לשינוי, החזקת OK להזזה, חזרה למסך הקודם"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore" formatted="false">"OK לפתיחה  ·  החזקת OK לשחזור"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore_back_to_go" formatted="false">"OK לפתיחה  ·  החזקת OK לשחזור  ·  חזרה למסך הקודם"</string>
+    <string name="text_ok_to_switch_or_edit" formatted="false">"OK להחלפה או לעריכה"</string>
+    <string name="legacy_he_on_prefix" formatted="false">"ב-"</string>
+    <string name="text_on_default" formatted="false">"מופעל (ברירת מחדל)"</string>
+    <string name="status_on" formatted="false">"מופעל"</string>
+    <string name="text_on_google_tv_if_you_disable_setupwraith" formatted="false">"ב-Google TV, אם setupwraith מושבת, יש לוודא שרשת ה-Wi-Fi נוספה מחדש בהגדרות ה-Wi-Fi."</string>
+    <string name="text_on_pressing_home_launches_tvos_launcher" formatted="false">"מופעל — לחיצה על לחצן הבית פותחת את tvOS Launcher"</string>
+    <string name="text_on_tcl_and_philips_android_11_12_tvs_the" formatted="false">"בטלוויזיות TCL ו-Philips עם Android 11/12, הקושחה של היצרן מסתירה לעיתים קרובות את ממשק בחירת מסך הבית של Android, ולחיצה על לחצן הבית פותחת את מסך הבית המקורי של היצרן. השבתת מסך הבית המקורי (אפשרות 2) או הפעלת תיקון לחצן הבית (אפשרות 3) מבטיחות שלחיצה על לחצן הבית תפתח תמיד את tvOS Launcher."</string>
+    <string name="text_on_tcl_philips_and_google_tvs_oem_firmwa" formatted="false">"בטלוויזיות של TCL, ‏Philips ו-Google TV, הקושחה של היצרן מחזירה פעמים רבות את מסך הבית המקורי בלחיצה על לחצן הבית. יש לבצע את השלבים הבאים כדי שלחיצה על לחצן הבית תפתח תמיד את tvOS Launcher, ולאחר מכן ללחוץ על \"המשך\"."</string>
+    <string name="text_on_the_lock_screen_only_clock_date_and_g" formatted="false">"במסך הנעילה מוצגים רק השעון, התאריך והברכה מעל הרקעים שנבחרו. לחיצה על לחצן כלשהו בשלט מחזירה למסך הקודם."</string>
+    <string name="text_on_this_tv" formatted="false">"בטלוויזיה זו"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"תמונה אחת ורשת של באנרים של אפליקציות"</string>
+    <string name="text_one_scene_has_to_stay_on" formatted="false">"סצנה אחת לפחות חייבת להישאר מופעלת."</string>
+    <string name="text_one_tap_actions" formatted="false">"פעולות בלחיצה אחת"</string>
+    <string name="text_one_wallpaper_has_to_stay_on" formatted="false">"תמונת רקע אחת לפחות חייבת להישאר מופעלת."</string>
+    <string name="text_open_4f0000" formatted="false">"פתיחה"</string>
+    <string name="text_open_55abf9" formatted="false">"פתיחה"</string>
+    <string name="text_open_android_default_home_settings" formatted="false">"פתיחת הגדרות מסך הבית של Android"</string>
+    <string name="text_open_android_tv_settings" formatted="false">"פתיחת הגדרות Android TV…"</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_9d4f5e" formatted="false">"יש לפתוח את \"אפשרויות למפתחים\" ולהפעיל את \"ניפוי באגים ב-USB\" / \"ניפוי באגים ברשת\"."</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_c22f55" formatted="false">"יש לפתוח את \"אפשרויות למפתחים\" ולהפעיל את \"ניפוי באגים ב-USB\" / \"ניפוי באגים ברשת\" כדי להשלים את המעבר למצב ADB קבוע."</string>
+    <string name="text_open_developer_options" formatted="false">"פתיחת אפשרויות למפתחים…"</string>
+    <string name="text_open_developer_options_tv_settings" formatted="false">"פתיחת אפשרויות למפתחים / הגדרות הטלוויזיה…"</string>
+    <string name="text_open_on_a_phone_or_computer_on_the_same" formatted="false">"יש לפתוח בטלפון או במחשב שמחוברים לאותה רשת Wi-Fi:\n\n"</string>
+    <string name="text_open_system_file_picker" formatted="false">"פתיחת בוחר הקבצים של המערכת…"</string>
+    <string name="text_open_system_selector_if_supported_by_tv" formatted="false">"פתיחת הבורר של המערכת (אם הטלוויזיה תומכת) ‹"</string>
+    <string name="text_open_tv_ambient_mode_screensaver_or_buil" formatted="false">"פתיחת מצב האווירה / שומר המסך של הטלוויזיה (או החלופה המובנית)"</string>
+    <string name="text_open_wi_fi_settings" formatted="false">"📶 פתיחת הגדרות ה-Wi-Fi…"</string>
+    <string name="text_optional" formatted="false">" [אופציונלי]"</string>
+    <string name="text_options" formatted="false">"אפשרויות"</string>
+    <string name="text_or_open" formatted="false">"או לפתוח את "</string>
+    <string name="text_orange" formatted="false">"כתום"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"אפליקציות נוספות"</string>
+    <string name="text_other_apps_bdcc9c" formatted="false">"אפליקציות נוספות"</string>
+    <string name="text_packages" formatted="false">"חבילות"</string>
+    <string name="text_page_navigation" formatted="false">"ניווט בין דפים"</string>
+    <string name="text_pair_now" formatted="false">"צימוד עכשיו"</string>
+    <string name="text_pair_repair_adb_connection" formatted="false">"צימוד / תיקון של חיבור ה-ADB"</string>
+    <string name="text_pair_repair_adb" formatted="false">"צימוד / תיקון ADB"</string>
+    <string name="text_pair_with_the_tv_pin_first" formatted="false">"יש לבצע תחילה צימוד עם קוד ה-PIN שמוצג בטלוויזיה"</string>
+    <string name="text_paired" formatted="false">" מצומדים"</string>
+    <string name="text_paired_adb_enabled" formatted="false">"מצומד · ADB מופעל"</string>
+    <string name="text_pairing_code_146fc7" formatted="false">"קוד צימוד\n"</string>
+    <string name="text_pairing_code_216a41" formatted="false">"קוד צימוד"</string>
+    <string name="text_pause" formatted="false">"השהיה"</string>
+    <string name="text_paused" formatted="false">"מושהה"</string>
+    <string name="text_people_3a2eb8" formatted="false">"אנשים"</string>
+    <string name="text_people_c31d4d" formatted="false">"אנשים"</string>
+    <string name="text_permission_status" formatted="false">"מצב ההרשאות"</string>
+    <string name="text_permissions_granted_adb_closed" formatted="false">"ההרשאות ניתנו ו-ADB נסגר"</string>
+    <string name="text_persistent_adb_mode_keep_network_adb_ope" formatted="false">"מצב ADB קבוע — השארת ADB ברשת פתוח (אופציונלי)"</string>
+    <string name="text_persistent_adb_mode_selected_port_5555_s" formatted="false">"נבחר מצב ADB קבוע — פורט 5555 יישאר פתוח עבור CleanYourTV וכלי ADB."</string>
+    <string name="text_persistent_adb_setup" formatted="false">"הגדרת ADB קבוע"</string>
+    <string name="text_pictures" formatted="false">"תמונות"</string>
+    <string name="text_pink" formatted="false">"ורוד"</string>
+    <string name="text_play_as_soon_as_the_tv_turns_on_signage" formatted="false">"הצגה מיד עם הדלקת הטלוויזיה (שילוט דיגיטלי)"</string>
+    <string name="text_play" formatted="false">"הפעלה"</string>
+    <string name="text_play_pause" formatted="false">"הפעלה / השהיה"</string>
+    <string name="text_playing" formatted="false">"מוצג"</string>
+    <string name="text_please_allow_install_unknown_apps_for_tv" formatted="false">"יש לאשר את ההרשאה \"התקנת אפליקציות לא מוכרות\" עבור tvOS Launcher."</string>
+    <string name="text_please_enable_usb_debugging_network_debu" formatted="false">"יש להפעיל ניפוי באגים ב-USB / ניפוי באגים ברשת באפשרויות למפתחים, ואז לחזור לכאן כדי להריץ את השלב הזה."</string>
+    <string name="text_popular_movies_and_series_on_your_stream" formatted="false">"סרטים וסדרות פופולריים בשירותי הסטרימינג שלך"</string>
+    <string name="text_power_off" formatted="false">"כיבוי"</string>
+    <string name="text_power_off_screen_off" formatted="false">"כיבוי (כיבוי המסך)"</string>
+    <string name="text_prayer_asr" formatted="false">"עצר"</string>
+    <string name="text_prayer_calculation_method_92d541" formatted="false">"שיטת החישוב של זמני התפילה"</string>
+    <string name="text_prayer_calculation_method_f4f921" formatted="false">"שיטת החישוב של זמני התפילה"</string>
+    <string name="text_prayer_dhuhr" formatted="false">"ט'והר"</string>
+    <string name="text_prayer_fajr" formatted="false">"פג'ר"</string>
+    <string name="text_prayer_isha" formatted="false">"עשאא"</string>
+    <string name="text_prayer_maghrib" formatted="false">"מע'רב"</string>
+    <string name="text_prayer_method_label" formatted="false">"שיטת חישוב"</string>
+    <string name="text_prayer_remaining" formatted="false">"נותרו"</string>
+    <string name="text_prayer_sunrise" formatted="false">"זריחה"</string>
+    <string name="text_preparing_cleanyourtv" formatted="false">"מתבצעת הכנה של CleanYourTV…"</string>
+    <string name="text_preparing_qr_code" formatted="false">"קוד ה-QR בהכנה…"</string>
+    <string name="text_presentation" formatted="false">"מצגת"</string>
+    <string name="text_presentation_address_qr_code" formatted="false">"כתובת המצגת וקוד QR"</string>
+    <string name="text_presentation_isn_t_on_screen" formatted="false">"המצגת אינה מוצגת על המסך"</string>
+    <string name="text_presentation_isn_t_on_screen_start_it_fr" formatted="false">"המצגת אינה מוצגת על המסך. יש להפעיל אותה מהטלוויזיה או להפעיל את האפשרות \"הפעלה עם הדלקת המכשיר\"."</string>
+    <string name="text_presentation_mode" formatted="false">"מצב מצגת"</string>
+    <string name="text_presentation_system" formatted="false">"הצגה ומערכת"</string>
+    <string name="text_press_back_again_to_exit" formatted="false">"יש ללחוץ שוב על \"חזרה\" כדי לצאת"</string>
+    <string name="text_press_ok_to_include_releases_from_this_c" formatted="false">"לחיצה על OK תוסיף תכנים ממדינה זו"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"לסגירת אפליקציה יש ללחוץ על ▲"</string>
+    <string name="text_press_the_button_on_your_remote_that_you" formatted="false">"יש ללחוץ בשלט על הלחצן שברצונך למפות מחדש…\n\n(לחצני הניווט, OK וחזרה נשמרים לניווט רגיל.)"</string>
+    <string name="text_preview" formatted="false">"תצוגה מקדימה"</string>
+    <string name="text_preview_lock_screen_now" formatted="false">"תצוגה מקדימה של מסך הנעילה"</string>
+    <string name="text_previous_page" formatted="false">"הדף הקודם"</string>
+    <string name="text_previous_track" formatted="false">"הרצועה הקודמת"</string>
+    <string name="text_proceed_to_the_next_setup_step_when_you" formatted="false">"מעבר לשלב ההגדרה הבא בסיום הפעולות כאן"</string>
+    <string name="text_profile" formatted="false">"פרופיל "</string>
+    <string name="text_protected_core_package" formatted="false">"חבילת ליבה מוגנת"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_17de20" formatted="false">"שליפת רשימת האפליקציות המלאה דרך ADB והתאמת דגמים לפי שמות חבילות המערכת/OEM"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_795599" formatted="false">"שליפת רשימת האפליקציות המלאה דרך ADB והתאמת דגמים לפי חבילות היצרן/המערכת"</string>
+    <string name="text_pulling_full_package_list_from_adb_and_c" formatted="false">"מתבצעת שליפה של רשימת החבילות המלאה דרך ADB והשוואה של שמות חבילות המערכת/OEM מול 341 דגמי טלוויזיה…"</string>
+    <string name="text_purple" formatted="false">"סגול"</string>
+    <string name="text_quick_brand_filters" formatted="false">"סינון מהיר לפי יצרן"</string>
+    <string name="text_quick_settings" formatted="false">"הגדרות מהירות"</string>
+    <string name="text_ram_s_used_of_s" formatted="false">"RAM: %s בשימוש מתוך %s"</string>
+    <string name="text_re_added_wi_fi_continue" formatted="false">"✅ רשת ה-Wi-Fi נוספה מחדש (המשך)"</string>
+    <string name="text_re_enable_all_packages_disabled_by_clean" formatted="false">"הפעלה מחדש דרך ADB של כל החבילות שהושבתו על ידי CleanYourTV"</string>
+    <string name="text_re_enable_all_stock_launchers" formatted="false">"הפעלה מחדש של כל מסכי הבית המקוריים"</string>
+    <string name="text_recent_apps" formatted="false">"אפליקציות אחרונות"</string>
+    <string name="text_recent_apps_switcher" formatted="false">"מעבר בין אפליקציות אחרונות"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"מעבר בין אפליקציות אחרונות (שכבת-על)"</string>
+    <string name="text_recent_searches" formatted="false">"חיפושים אחרונים"</string>
+    <string name="text_recommendations" formatted="false">"המלצות"</string>
+    <string name="text_recommendations_news" formatted="false">"המלצות וחדשות"</string>
+    <string name="text_record_button" formatted="false">"לחצן הקלטה"</string>
+    <string name="text_red" formatted="false">"אדום"</string>
+    <string name="text_red_button" formatted="false">"לחצן אדום"</string>
+    <string name="text_reddit_wallpaper_options" formatted="false">"אפשרויות תמונות הרקע מ-Reddit"</string>
+    <string name="text_reddit_wallpaper_updated" formatted="false">"תמונת הרקע מ-Reddit עודכנה."</string>
+    <string name="text_reddit_wallpapers" formatted="false">"תמונות רקע מ-Reddit"</string>
+    <string name="text_refresh" formatted="false">"רענון"</string>
+    <string name="text_refresh_carousel" formatted="false">"רענון הקרוסלה"</string>
+    <string name="text_refresh_system_app_list" formatted="false">"↻ רענון רשימת אפליקציות המערכת"</string>
+    <string name="text_region_mode" formatted="false">"מצב אזור"</string>
+    <string name="text_releases_country_auto" formatted="false">"אוטומטי (לפי שפת הממשק)"</string>
+    <string name="text_releases_country_setting" formatted="false">"מדינות לרשימת הנצפים ביותר"</string>
+    <string name="text_releases_loading" formatted="false">"טעינת התכנים…"</string>
+    <string name="text_remapped_buttons_1x_2x_3x_tap" formatted="false">"לחצנים ממופים (לחיצה 1X / 2X / 3X)"</string>
+    <string name="text_remember_what_you_play_in_each_app" formatted="false">"שמירת מה שהופעל בכל אפליקציה"</string>
+    <string name="text_remove_7e2800" formatted="false">"הסרה"</string>
+    <string name="text_remove_8d75c6" formatted="false">"הסרה"</string>
+    <string name="text_remove_button_remap" formatted="false">"הסרת מיפוי לחצן"</string>
+    <string name="text_remove_from_continue_watching" formatted="false">"הסרה מ\"המשך צפייה\""</string>
+    <string name="text_remove_from_keep_watching" formatted="false">"הסרה מ\"המשך צפייה\""</string>
+    <string name="text_remove_person" formatted="false">"הסרה"</string>
+    <string name="text_remove_revoke_all_permissions_0a9dac" formatted="false">"הסרה / ביטול של כל ההרשאות"</string>
+    <string name="text_remove_revoke_all_permissions_c108cc" formatted="false">"הסרה / ביטול של כל ההרשאות"</string>
+    <string name="text_remove_this_wallpaper" formatted="false">"הסרת תמונת רקע זו"</string>
+    <string name="text_remove_wallpaper" formatted="false">"הסרת תמונת רקע מס' "</string>
+    <string name="text_rename_app" formatted="false">"שינוי שם האפליקציה"</string>
+    <string name="text_rename_e8372b" formatted="false">"שינוי שם…"</string>
+    <string name="text_rename_f9a6a6" formatted="false">"שינוי שם"</string>
+    <string name="text_rename_person" formatted="false">"שינוי שם"</string>
+    <string name="text_rename_profile" formatted="false">"שינוי שם הפרופיל"</string>
+    <string name="text_repair" formatted="false">"תיקון"</string>
+    <string name="text_replace_wallpaper" formatted="false">"החלפת תמונת רקע מס' "</string>
+    <string name="text_required_so_mapped_buttons_work_over_eve" formatted="false">"נדרש כדי שהלחצנים הממופים יפעלו מעל כל אפליקציה"</string>
+    <string name="text_reset_043c3c" formatted="false">"איפוס"</string>
+    <string name="text_reset_a1f27d" formatted="false">"איפוס"</string>
+    <string name="text_reset_app_order_unhide_all" formatted="false">"איפוס סדר האפליקציות והצגת כל המוסתרות"</string>
+    <string name="text_reset_control_panel_actions_to_default" formatted="false">"איפוס פעולות לוח הבקרה לברירת המחדל"</string>
+    <string name="text_reset_layout" formatted="false">"איפוס הפריסה"</string>
+    <string name="text_reset_settings" formatted="false">"לאפס את ההגדרות?"</string>
+    <string name="text_reset_settings_to_defaults" formatted="false">"איפוס ההגדרות לברירות המחדל"</string>
+    <string name="text_reset_to_default" formatted="false">"אפס לברירת מחדל"</string>
+    <string name="text_reset_to_default_icon" formatted="false">"איפוס לסמל ברירת המחדל"</string>
+    <string name="text_restore" formatted="false">"שחזור ‹"</string>
+    <string name="text_restore_all_0aeae4" formatted="false">"שחזור הכול ‹"</string>
+    <string name="text_restore_all_9e718c" formatted="false">"שחזור הכול"</string>
+    <string name="text_restore_by_selected_tv_model" formatted="false">"שחזור לפי דגם הטלוויזיה שנבחר"</string>
+    <string name="text_restore_complete" formatted="false">"השחזור הושלם"</string>
+    <string name="text_restore_debloated_apps_2f2301" formatted="false">"שחזור אפליקציות שהושבתו"</string>
+    <string name="text_restore_debloated_apps_3d05c1" formatted="false">"שחזור אפליקציות שהושבתו…"</string>
+    <string name="text_restore_debloated_apps_43153c" formatted="false">"שחזור האפליקציות שהושבתו"</string>
+    <string name="text_restore_failed" formatted="false">"השחזור נכשל"</string>
+    <string name="text_restore_options" formatted="false">"אפשרויות שחזור"</string>
+    <string name="text_restore_settings_from_folder" formatted="false">"שחזור הגדרות מתיקייה…"</string>
+    <string name="text_restoring_apps" formatted="false">"מתבצע שחזור של האפליקציות…"</string>
+    <string name="text_resume_06852b" formatted="false">"המשך"</string>
+    <string name="text_resume_45e750" formatted="false">"המשך"</string>
+    <string name="text_resume_playback" formatted="false">"המשך הפעלה"</string>
+    <string name="text_revoke_all_permissions" formatted="false">"ביטול כל ההרשאות"</string>
+    <string name="text_revoke" formatted="false">"ביטול ‹"</string>
+    <string name="text_revoking_all_permissions" formatted="false">"מתבצע ביטול של כל ההרשאות…"</string>
+    <string name="text_revoking_permissions" formatted="false">"ביטול הרשאות…"</string>
+    <string name="text_rewind" formatted="false">"הרצה אחורה"</string>
+    <string name="text_right" formatted="false">"ימינה"</string>
+    <string name="text_rotating_nature_scenes_with_a_glass_cloc" formatted="false">"סצנות טבע מתחלפות עם שעון זכוכית ו-Dock בתחתית המסך"</string>
+    <string name="text_run_first_time_setup_again" formatted="false">"הפעלה מחדש של ההגדרה הראשונית…"</string>
+    <string name="text_run_role_home_set_home_activity" formatted="false">"הרצת ROLE_HOME ו-set-home-activity ‹"</string>
+    <string name="text_run_role_home_set_home_activity_over_loc" formatted="false">"הרצת ROLE_HOME ו-set-home-activity דרך ADB מקומי ‹"</string>
+    <string name="text_run_via_adb" formatted="false">"הרצה דרך ADB ‹"</string>
+    <string name="text_running_settings_put_global_adb_enabled" formatted="false">"מתבצעת הרצה של הפקודה settings put global adb_enabled 0 ובדיקה שפורט 5555 סגור…"</string>
+    <string name="text_save" formatted="false">"שמירה"</string>
+    <string name="text_saved_disabled_packages_tap_to_re_enable" formatted="false">"חבילות מושבתות שמורות (לחיצה תפעיל מחדש)"</string>
+    <string name="text_say_a_movie_show_or_app" formatted="false">"אפשר לומר שם של סרט, סדרה או אפליקציה"</string>
+    <string name="text_scan_apps_adb" formatted="false">"סריקת אפליקציות (ADB)"</string>
+    <string name="text_scan_installed_apps" formatted="false">"סריקת האפליקציות המותקנות"</string>
+    <string name="text_scan_installed_system_apps_to_find_match" formatted="false">"🔍 סריקת אפליקציות המערכת המותקנות לאיתור דגם תואם"</string>
+    <string name="text_scan_installed_system_apps_via_adb" formatted="false">"🔍 סריקת אפליקציות המערכת המותקנות דרך ADB"</string>
+    <string name="text_scan_the_code_or_open_this_address_on_a" formatted="false">"יש לסרוק את הקוד או לפתוח את הכתובת הזו בטלפון או במחשב שמחוברים לאותה רשת Wi-Fi."</string>
+    <string name="text_scan_with_your_phone_and_approve" formatted="false">"יש לסרוק בטלפון ולאשר."</string>
+    <string name="text_scanning_tv_system_apps" formatted="false">"מתבצעת סריקה של אפליקציות המערכת בטלוויזיה…"</string>
+    <string name="text_scenes" formatted="false">"סצנות"</string>
+    <string name="text_screen_off" formatted="false">"כיבוי המסך"</string>
+    <string name="text_screen_saver" formatted="false">"שומר מסך"</string>
+    <string name="text_screensaver" formatted="false">"שומר מסך"</string>
+    <string name="text_search_946f53" formatted="false">"חיפוש"</string>
+    <string name="text_search_apps_movies_and_shows" formatted="false">"חיפוש אפליקציות, סרטים וסדרות"</string>
+    <string name="text_search_button" formatted="false">"לחצן חיפוש"</string>
+    <string name="text_search_by_name" formatted="false">"חיפוש לפי שם"</string>
+    <string name="text_search_def46e" formatted="false">"🔍 חיפוש…"</string>
+    <string name="text_search_filter_by_brand_or_model" formatted="false">"🔍 חיפוש / סינון לפי יצרן או דגם…"</string>
+    <string name="text_search_for_a_city_or_town" formatted="false">"חיפוש עיר או יישוב…"</string>
+    <string name="text_search_tv_model_or_brand" formatted="false">"חיפוש דגם טלוויזיה או יצרן"</string>
+    <string name="text_searching" formatted="false">"מתבצע חיפוש…"</string>
+    <string name="text_seconds_ee379b" formatted="false">" שניות"</string>
+    <string name="text_secure_mode_active_adb_not_used_self_rep" formatted="false">"מצב מאובטח פעיל (ללא שימוש ב-ADB · תיקון עצמי זמין)"</string>
+    <string name="text_secure_mode_grant_write_secure_settings" formatted="false">"מצב מאובטח — מתן WRITE_SECURE_SETTINGS וסגירת ADB (מומלץ)"</string>
+    <string name="text_secure_mode_needs_one_time_pair_to_grant" formatted="false">"מצב מאובטח (נדרש צימוד חד-פעמי למתן הרשאות)"</string>
+    <string name="text_secure_mode_selected_adb_will_grant_writ" formatted="false">"נבחר מצב מאובטח — לאחר הצימוד, ADB יעניק את ההרשאה WRITE_SECURE_SETTINGS ויסגור את פורט 5555."</string>
+    <string name="text_secure_mode_write_secure_settings_close" formatted="false">"מצב מאובטח — WRITE_SECURE_SETTINGS וסגירת ADB (מומלץ)"</string>
+    <string name="text_secure_setup_adb" formatted="false">"הגדרה מאובטחת (ADB)"</string>
+    <string name="text_security_note_keep_alive_is_enabled_by_d" formatted="false">"הערת אבטחה: השמירה על פעילות מופעלת כברירת מחדל. במצב מאובטח, tvOS Launcher משתמש בהרשאה WRITE_SECURE_SETTINGS כדי לשחזר את שירות הנגישות ישירות מתוך האפליקציה, בלי לגעת ב-ADB (גם אם ADB מופעל בטלוויזיה). במצב ADB קבוע, השמירה על פעילות יכולה להשתמש גם ב-ADB מקומי בפורט 5555."</string>
+    <string name="text_select_a_folder_and_enable_or_disable_in" formatted="false">"בחירת תיקייה והפעלה או כיבוי של כל תמונת רקע בתוכה בנפרד"</string>
+    <string name="text_select_a_usage_mode_for_permissions_butt" formatted="false">"יש לבחור מצב שימוש להרשאות (שירות הנגישות של מיפוי הלחצנים, המשך צפייה ו-Wi-Fi). יש לבחור מצב שימוש אחד מהאפשרויות הבאות:"</string>
+    <string name="text_select_all_none" formatted="false">"בחירת הכול / ביטול הבחירה"</string>
+    <string name="text_select_all_select_none" formatted="false">"בחירת הכול / ביטול הבחירה"</string>
+    <string name="text_select_at_least_one_package_first" formatted="false">"יש לבחור קודם חבילה אחת לפחות."</string>
+    <string name="text_select_home_app" formatted="false">"בחירת אפליקציית מסך הבית"</string>
+    <string name="text_select_tv_model_first" formatted="false">"יש לבחור תחילה דגם טלוויזיה"</string>
+    <string name="text_select_wallpaper_folder_0c14ac" formatted="false">"בחירת תיקיית תמונות רקע"</string>
+    <string name="text_select_wallpaper_folder_9bea6b" formatted="false">"בחירת תיקיית תמונות רקע…"</string>
+    <string name="text_select_wallpaper_image" formatted="false">"בחירת תמונת רקע"</string>
+    <string name="text_selected" formatted="false">"נבחר"</string>
+    <string name="text_selected_press_ok_to_toggle" formatted="false">"נבחרה — לחיצה על OK תבטל את הבחירה"</string>
+    <string name="text_send_any_android_keyevent_keycode_withou" formatted="false">"שליחת כל קוד מקש KeyEvent של Android ללא אפליקציות צד שלישי"</string>
+    <string name="text_send_key_code_566257" formatted="false">"שליחת קוד מקש…"</string>
+    <string name="text_send_key_code_fb16e1" formatted="false">"שליחת קוד מקש"</string>
+    <string name="text_send_key_code_remote_media_system" formatted="false">"שליחת קוד מקש (שלט / מדיה / מערכת)…"</string>
+    <string name="text_send_to_this_tv_535246" formatted="false">"שליחה לטלוויזיה הזו"</string>
+    <string name="text_send_to_this_tv_f2720f" formatted="false">"שליחה לטלוויזיה הזו"</string>
+    <string name="text_series" formatted="false">"סדרה"</string>
+    <string name="text_set_as_default" formatted="false">"הגדרה כברירת מחדל…"</string>
+    <string name="text_set_default_home_launcher" formatted="false">"הגדרת מסך הבית כברירת מחדל"</string>
+    <string name="text_set_default_via_local_adb_recommended" formatted="false">"הגדרה כברירת מחדל דרך ADB מקומי (מומלץ)"</string>
+    <string name="text_set_manually" formatted="false">"הוגדר ידנית"</string>
+    <string name="text_setting_default_launcher" formatted="false">"הגדרת מסך הבית כברירת מחדל…"</string>
+    <string name="text_setting_role_home_and_default_home_activ" formatted="false">"מתבצעת הגדרה של ROLE_HOME ושל פעילות מסך הבית המוגדרת כברירת מחדל דרך ADB מקומי…"</string>
+    <string name="text_settings" formatted="false">"הגדרות"</string>
+    <string name="text_settings_backed_up" formatted="false">"ההגדרות גובו"</string>
+    <string name="text_settings_button" formatted="false">"לחצן הגדרות"</string>
+    <string name="text_settings_kept" formatted="false">"מיקום שמירת ההגדרות"</string>
+    <string name="text_settings_restored" formatted="false">"ההגדרות שוחזרו"</string>
+    <string name="text_show_app_names" formatted="false">"הצגת שמות האפליקציות"</string>
+    <string name="text_show_changelog" formatted="false">"הצגת רשימת השינויים"</string>
+    <string name="text_show_clock_date_greeting_over_your_chose" formatted="false">"הצגת השעון, התאריך והברכה מעל תמונת הרקע שנבחרה (לחיצה על מקש כלשהו תחזיר אחורה)"</string>
+    <string name="text_show_continue_watching_on_home" formatted="false">"הצגת המשך צפייה במסך הבית"</string>
+    <string name="text_show_inputs_app_on_dock" formatted="false">"הצגת אפליקציית מקורות הקלט ב-Dock"</string>
+    <string name="text_show_on_home_screen" formatted="false">"הצג במסך הבית"</string>
+    <string name="text_show_the_wi_fi_name" formatted="false">"הצגת שם רשת ה-Wi-Fi"</string>
+    <string name="text_show_widgets_when_selected_app_has_no_co" formatted="false">"הצגת ווידג'טים כשאין לאפליקציה שנבחרה פריטים ב\"המשך צפייה\""</string>
+    <string name="text_shows_and_movies_you_play_will_appear_he" formatted="false">"סדרות וסרטים שמופעלים יופיעו כאן."</string>
+    <string name="text_shuffle_folder_86fcb0" formatted="false">"הצגה אקראית מתיקייה"</string>
+    <string name="text_shuffle_folder_dc8ec3" formatted="false">"הצגה אקראית מתיקייה"</string>
+    <string name="text_sign_out" formatted="false">"התנתקות"</string>
+    <string name="text_signed_in_sign_out" formatted="false">"מחובר · התנתקות"</string>
+    <string name="text_similar_model_name" formatted="false">"שם דגם דומה"</string>
+    <string name="text_single_multi_wallpapers" formatted="false">"תמונת רקע אחת / כמה תמונות רקע"</string>
+    <string name="text_single_tap_1x" formatted="false">"לחיצה אחת (1x)"</string>
+    <string name="text_skip_now" formatted="false">"דילוג עכשיו ‹"</string>
+    <string name="text_skip_setup" formatted="false">"דילוג על ההגדרה"</string>
+    <string name="text_skip_setupwraith" formatted="false">"🛡️ דילוג על setupwraith"</string>
+    <string name="text_skip_this_step" formatted="false">"דילוג על השלב הזה"</string>
+    <string name="text_skip_to_the_next_reddit_wallpaper" formatted="false">"מעבר לתמונת הרקע הבאה מ-Reddit"</string>
+    <string name="text_skipping_this_slide" formatted="false">"דילוג על השקופית הזו"</string>
+    <string name="text_sleep_standby_223" formatted="false">"שינה / המתנה (223)"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"טיימר שינה"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"טיימר שינה"</string>
+    <string name="text_small_clock" formatted="false">"שעון קטן"</string>
+    <string name="text_smaller_more_compact_dock" formatted="false">"Dock קטן וקומפקטי יותר"</string>
+    <string name="text_sound" formatted="false">"שמע"</string>
+    <string name="text_space" formatted="false">"רווח"</string>
+    <string name="text_standard_apple_tvos_dock_size" formatted="false">"גודל Dock סטנדרטי כמו ב-Apple tvOS"</string>
+    <string name="text_start" formatted="false">"התחלה ‹"</string>
+    <string name="text_start_with_the_tv" formatted="false">"הפעלה יחד עם הטלוויזיה"</string>
+    <string name="text_startup_keep_alive" formatted="false">"הפעלה ושמירה על פעילות"</string>
+    <string name="text_step_1_complete_default_home_launcher_se" formatted="false">"שלב 1 הושלם: מסך הבית המוגדר כברירת מחדל נקבע דרך ADB!"</string>
+    <string name="text_step_1_set_tvos_launcher_as_default_via" formatted="false">"שלב 1: הגדרת tvOS Launcher כברירת מחדל דרך ADB מקומי"</string>
+    <string name="text_step_2_disable_system_launchers_google_t" formatted="false">"שלב 2: השבתת מסכי הבית של המערכת (Google TV / Android TV / יצרן)"</string>
+    <string name="text_step_3_fix_home_button_via_accessibility" formatted="false">"שלב 3: תיקון לחצן הבית דרך הנגישות (מיפוי לחצנים)"</string>
+    <string name="text_step_4_open_android_system_home_settings" formatted="false">"שלב 4: פתיחת הגדרות מסך הבית של מערכת Android"</string>
+    <string name="text_stock_android_tv_home_sponsored_rows" formatted="false">"מסך הבית המקורי של Android TV ושורות ממומנות"</string>
+    <string name="text_stock_google_tv_home_banner_ads" formatted="false">"מסך הבית המקורי של Google TV ופרסומות באנרים"</string>
+    <string name="text_stop" formatted="false">"עצירה"</string>
+    <string name="text_storage" formatted="false">"אחסון"</string>
+    <string name="text_subreddits_select_single_or_multiple" formatted="false">"SUBREDDITS (אפשר לבחור אחד או יותר)"</string>
+    <string name="text_subtitles_cc" formatted="false">"כתוביות / CC"</string>
+    <string name="text_suggestions" formatted="false">"הצעות"</string>
+    <string name="text_switch_between_secure_auto_setup_persist" formatted="false">"מעבר בין הגדרה אוטומטית מאובטחת, ADB קבוע או הגדרה ידנית"</string>
+    <string name="text_switch_profile" formatted="false">"החלפת פרופיל"</string>
+    <string name="text_switch_tv_hdmi_inputs_on_screen_even_if" formatted="false">"החלפת מקור קלט (טלוויזיה / HDMI) על המסך גם כשמסך הבית של Google TV מושבת"</string>
+    <string name="text_system_home_launcher_detected_on_this_tv" formatted="false">"זוהה בטלוויזיה זו מסך בית של המערכת"</string>
+    <string name="text_system_launchers_83a49b" formatted="false">"מסכי בית של המערכת"</string>
+    <string name="text_system_launchers_d659b5" formatted="false">"מסכי בית של המערכת"</string>
+    <string name="text_tall_glass" formatted="false">"זכוכית גבוהה"</string>
+    <string name="text_tap_actions" formatted="false">"פעולות לחיצה"</string>
+    <string name="text_tap_check_for_updates" formatted="false">"יש לבחור \"בדיקת עדכונים\""</string>
+    <string name="text_tap_to_detect_select" formatted="false">"לחיצה לזיהוי / בחירה…"</string>
+    <string name="text_tap_to_include" formatted="false">"לחיצה תוסיף לרשימה"</string>
+    <string name="text_tap_to_set_as_active_wallpaper" formatted="false">"לחיצה תגדיר כתמונת הרקע הפעילה"</string>
+    <string name="text_tap_to_toggle_in_scene_rotation_long_pre" formatted="false">"לחיצה תוסיף או תסיר מהחלפת הסצנות · לחיצה ארוכה או הפעולות שלמטה לאפשרויות נוספות"</string>
+    <string name="text_target_action_application" formatted="false">"פעולה / אפליקציה לביצוע"</string>
+    <string name="text_teal" formatted="false">"טורקיז"</string>
+    <string name="text_temperature" formatted="false">"טמפרטורה"</string>
+    <string name="text_that_pin_doesn_t_match_the_one_on_the_tv" formatted="false">"קוד ה-PIN אינו תואם לקוד שמוצג בטלוויזיה."</string>
+    <string name="text_the_home_button_on_the_remote_will_open" formatted="false">"לחצן הבית בשלט יפתח את tvOS Launcher."</string>
+    <string name="text_the_home_button_opens_tvos_launcher" formatted="false">"לחצן הבית פותח את tvOS Launcher"</string>
+    <string name="text_this_resets_look_scenes_clock_and_langua" formatted="false">"פעולה זו מאפסת את הגדרות המראה, הסצנות, השעון והשפה לברירות המחדל."</string>
+    <string name="text_this_tv_does_not_have_a_built_in_accessi" formatted="false">"בטלוויזיה זו אין מסך מובנה של הגדרות נגישות. אפשר להפעיל את השירות של מיפוי הלחצנים ולוח הבקרה באופן אוטומטי באמצעות ADB מקומי."</string>
+    <string name="text_this_tv_s_settings_have_no_switch_for_th" formatted="false">"בהגדרות של טלוויזיה זו אין מתג להרשאה הזו. מי שהגדיר את הטלוויזיה יכול להפעיל אותה פעם אחת ממחשב באותה רשת:\n\n"</string>
+    <string name="text_this_will_disable_keep_alive_and_remove" formatted="false">"פעולה זו תכבה את השמירה על פעילות ותסיר את שירות הנגישות, את הגישה להתראות, את תפקיד מסך הבית המוגדר כברירת מחדל ואת הרשאות מסך הבית (גם באופן מקומי וגם דרך ADB)."</string>
+    <string name="text_tip_blur_can_t_be_shown_while_a_video_is" formatted="false">"טיפ: לא ניתן להציג טשטוש בזמן הפעלת וידאו. מערכת Android אינה יכולה לטשטש וידאו בזמן אמת (ואי אפשר לצלם וידאו המוגן ב-DRM), ולכן הווידאו ממשיך לפעול מאחורי הלוח עם הצללה עדינה במקום טשטוש."</string>
+    <string name="text_tip_hold_ok_on_any_app_on_the_home_scree" formatted="false">"טיפ: החזקת OK על אפליקציה כלשהי ב-Dock במסך הבית מאפשרת להזיז אותה או להסתיר אותה."</string>
+    <string name="text_tmdb_connected" formatted="false">"TMDB מחובר"</string>
+    <string name="text_to_see_what_you_watch_here_allow_it_in_s" formatted="false">"כדי להציג כאן את מה שצופים בו, יש לאשר זאת בהגדרות ← הרשאות."</string>
+    <string name="text_today" formatted="false">"היום"</string>
+    <string name="text_tomorrow_short" formatted="false">"מחר"</string>
+    <string name="text_top_right_weather_shortcut" formatted="false">"קיצור דרך למזג האוויר בפינה הימנית העליונה"</string>
+    <string name="text_top_shelf_6_column_app_grid_and_custom_w" formatted="false">"מדף עליון, רשת אפליקציות בת 6 עמודות ותמונות רקע מותאמות אישית"</string>
+    <string name="text_top_shelf_content" formatted="false">"תוכן המדף העליון"</string>
+    <string name="text_trending" formatted="false">"פופולרי עכשיו"</string>
+    <string name="text_triple_tap_3x" formatted="false">"לחיצה משולשת (3x)"</string>
+    <string name="text_turn_off_custom_image" formatted="false">"כיבוי התמונה המותאמת אישית"</string>
+    <string name="text_turn_off_custom_scene" formatted="false">"כיבוי הסצנה המותאמת אישית"</string>
+    <string name="text_turn_off_folder_shuffle" formatted="false">"כיבוי הצגה אקראית מתיקייה"</string>
+    <string name="text_turn_on_adb_debugging" formatted="false">"הפעלת ניפוי באגים ב-ADB"</string>
+    <string name="text_turn_on_custom_image" formatted="false">"הפעלת התמונה המותאמת אישית"</string>
+    <string name="text_turn_on_custom_scene" formatted="false">"הפעלת הסצנה המותאמת אישית"</string>
+    <string name="text_turn_on_first" formatted="false">"יש להפעיל קודם"</string>
+    <string name="text_turn_on_folder_shuffle" formatted="false">"הפעלת הצגה אקראית מתיקייה"</string>
+    <string name="text_turn_on_off_adb" formatted="false">"הפעלה / כיבוי של ADB"</string>
+    <string name="text_turn_on_presentation_mode_first" formatted="false">"יש להפעיל קודם את מצב המצגת"</string>
+    <string name="text_turn_the_tv_off_after" formatted="false">"כיבוי הטלוויזיה בעוד"</string>
+    <string name="text_turning_on_adb" formatted="false">"הפעלת ADB…"</string>
+    <string name="text_turning_on_adb_debugging_for_this_troubl" formatted="false">"מתבצעת הפעלה של ניפוי באגים ב-ADB עבור שלב פתרון הבעיות הזה…"</string>
+    <string name="text_tv_input_source" formatted="false">"מקור קלט / Source"</string>
+    <string name="text_tv_model_matched" formatted="false">"נמצאה התאמה לדגם הטלוויזיה"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"הגדרות הטלוויזיה"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"הגדרות הטלוויזיה"</string>
+    <string name="text_tv_speakers" formatted="false">"רמקולי הטלוויזיה"</string>
+    <string name="text_tvos_launcher_will_launch_immediately_on" formatted="false">"tvOS Launcher ייפתח מיד עם הדלקת המערכת."</string>
+    <string name="text_tvos_launcher_works_best_as_the_home_scr" formatted="false">"האפליקציה tvOS Launcher פועלת בצורה הטובה ביותר כמסך הבית. יש לאשר את ההרשאות האלה פעם אחת; כל מה שהטלוויזיה הזו לא תומכת בו ידולג."</string>
+    <string name="text_type_to_search_your_apps_settings_movies" formatted="false">"אפשר להקליד כדי לחפש אפליקציות, הגדרות, סרטים וסדרות"</string>
+    <string name="text_unexpected_server_error" formatted="false">"אירעה שגיאה לא צפויה בשרת"</string>
+    <string name="text_uninstall_3fd78c" formatted="false">"הסרת התקנה"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"הסרת התקנה"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"הסר התקנת tvOS Launcher"</string>
+    <string name="text_universal_shortcut_actions" formatted="false">"פעולות קיצור דרך אוניברסליות"</string>
+    <string name="text_unsupported_playback_command" formatted="false">"פקודת הפעלה לא נתמכת"</string>
+    <string name="text_up_and_down_to_browse_ok_to_change_back" formatted="false">"למעלה ולמטה לדפדוף, OK לשינוי, חזרה לסגירה"</string>
+    <string name="text_up_and_down_to_move_ok_when_done" formatted="false">"למעלה ולמטה להזזה, OK לסיום"</string>
+    <string name="text_up" formatted="false">"למעלה"</string>
+    <string name="text_up_next" formatted="false">"הפרק הבא"</string>
+    <string name="text_update_available" formatted="false">"יש עדכון זמין"</string>
+    <string name="text_update_download_failed" formatted="false">"הורדת העדכון נכשלה."</string>
+    <string name="text_update_every" formatted="false">"עדכון כל"</string>
+    <string name="text_update_installed" formatted="false">"העדכון הותקן!"</string>
+    <string name="text_updated" formatted="false">"עודכן "</string>
+    <string name="text_updates_22906d" formatted="false">"עדכונים"</string>
+    <string name="text_updates_3c957c" formatted="false">"עדכונים"</string>
+    <string name="text_upload_form_field_named_file_is_required" formatted="false">"בטופס ההעלאה חסר שדה בשם file"</string>
+    <string name="text_usb_storage" formatted="false">"USB / אחסון"</string>
+    <string name="text_use_automatic_location" formatted="false">"שימוש במיקום אוטומטי"</string>
+    <string name="text_use_built_in_android_tv_shortcut" formatted="false">"שימוש בקיצור הדרך המובנה של Android TV"</string>
+    <string name="text_use_custom_background" formatted="false">"שימוש ברקע מותאם אישית"</string>
+    <string name="text_use_folder_shuffle_background" formatted="false">"שימוש ברקע בהצגה אקראית מתיקייה"</string>
+    <string name="text_use_my_location" formatted="false">"שימוש במיקום שלי"</string>
+    <string name="text_use_presentation" formatted="false">"שימוש במצגת"</string>
+    <string name="text_used_clean" formatted="false">"% בשימוש  ·  ניקוי"</string>
+    <string name="text_used_for_the_weather_on_the_home_screen" formatted="false">"משמש להצגת מזג האוויר במסך הבית ולכותרות חדשות מקומיות."</string>
+    <string name="text_used_recent_apps" formatted="false">"% בשימוש · אפליקציות אחרונות"</string>
+    <string name="text_uses_local_adb_to_grant_permissions_and" formatted="false">"משתמש ב-ADB מקומי למתן הרשאות ומשאיר את ADB פתוח"</string>
+    <string name="text_version" formatted="false">"גרסה"</string>
+    <string name="text_version_info" formatted="false">"פרטי גרסה"</string>
+    <string name="text_video_failed_1_s_2_s" formatted="false">"הפעלת הסרטון נכשלה: %1$s\n%2$s"</string>
+    <string name="text_video_failed_1_s_media_error_2_d_3_d" formatted="false">"הפעלת הסרטון נכשלה: %1$s\nשגיאת מדיה %2$d (%3$d)"</string>
+    <string name="text_view_or_filter_the_complete_list_of_supp" formatted="false">"הצגה או סינון של הרשימה המלאה של דגמי הטלוויזיה הנתמכים"</string>
+    <string name="text_voice_input_isn_t_available_on_this_tv" formatted="false">"קלט קולי אינו זמין בטלוויזיה זו"</string>
+    <string name="text_voice_needs_the_internet" formatted="false">"חיפוש קולי דורש חיבור לאינטרנט"</string>
+    <string name="text_volume_button_fix_mode_28c643" formatted="false">"מצב תיקון לחצני עוצמת הקול"</string>
+    <string name="text_volume_button_fix_mode_87cb31" formatted="false">"מצב תיקון לחצני עוצמת הקול"</string>
+    <string name="text_volume_down_25" formatted="false">"הנמכת עוצמת הקול (25)"</string>
+    <string name="text_volume_fix_mode_1_standard_selected" formatted="false">"נבחר מצב 1 (רגיל) לתיקון עוצמת הקול."</string>
+    <string name="text_volume_fix_mode_2_hy320_projector_select" formatted="false">"נבחר מצב 2 (HY320 / מקרן) לתיקון עוצמת הקול."</string>
+    <string name="text_volume_fix_mode_3_onn_tv_box_selected" formatted="false">"נבחר מצב 3 (Onn TV Box) לתיקון עוצמת הקול."</string>
+    <string name="text_volume_up_24" formatted="false">"הגברת עוצמת הקול (24)"</string>
+    <string name="text_waiting_for_approval" formatted="false">"בהמתנה לאישור…"</string>
+    <string name="text_wallpapers_in_folder_tap_to_enable_disab" formatted="false">"תמונות הרקע בתיקייה (לחיצה להפעלה או לכיבוי)"</string>
+    <string name="text_watching_now_ok_to_switch_or_rename" formatted="false">"הפרופיל הפעיל · OK להחלפה או לשינוי שם"</string>
+    <string name="text_weather" formatted="false">"מזג אוויר"</string>
+    <string name="text_weather_a5c8c4" formatted="false">"מזג אוויר"</string>
+    <string name="text_weather_and_location" formatted="false">"מזג אוויר ומיקום"</string>
+    <string name="text_weather_forecast_0d1601" formatted="false">"תחזית מזג האוויר"</string>
+    <string name="text_weather_forecast_1f637b" formatted="false">"תחזית מזג האוויר"</string>
+    <string name="text_weather_from" formatted="false">"מקור נתוני מזג האוויר"</string>
+    <string name="text_weather_on_the_home_screen" formatted="false">"מזג אוויר במסך הבית"</string>
+    <string name="text_weather_source" formatted="false">"מקור נתוני מזג האוויר"</string>
+    <string name="text_weather_updating" formatted="false">"מתבצע עדכון…"</string>
+    <string name="text_webpage_failed_to_load_1_s" formatted="false">"טעינת דף האינטרנט נכשלה: %1$s"</string>
+    <string name="text_webpage_slide_is_missing_a_url" formatted="false">"בשקופית דף האינטרנט חסרה כתובת"</string>
+    <string name="text_welcome" formatted="false">"ברוכים הבאים"</string>
+    <string name="text_what_appears_at_the_top_of_home_behind_y" formatted="false">"מה שמוצג בחלק העליון של מסך הבית, מאחורי האפליקציות. אפשר לבחור חלק מהאפשרויות, את כולן או אף אחת."</string>
+    <string name="text_what_you_were_watching_mixed_into_the_ca" formatted="false">"מה שצפית בו, משולב בקרוסלה"</string>
+    <string name="text_white" formatted="false">"לבן"</string>
+    <string name="text_who_s_watching" formatted="false">"מי צופה?"</string>
+    <string name="text_wi_fi_name_location" formatted="false">"שם רשת ה-Wi-Fi (מיקום)"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, תמונה, שמע וכל שאר הגדרות הטלוויזיה"</string>
+    <string name="text_wi_fi_settings" formatted="false">"📶 הגדרות Wi-Fi…"</string>
+    <string name="text_widget_settings" formatted="false">"הגדרות הווידג'טים"</string>
+    <string name="text_wind" formatted="false">"רוח "</string>
+    <string name="text_yellow" formatted="false">"צהוב"</string>
+    <string name="text_yellow_button" formatted="false">"לחצן צהוב"</string>
+    <string name="text_you_can_also_configure_buttons_later_in" formatted="false">"אפשר להגדיר את הלחצנים גם מאוחר יותר בהגדרות"</string>
+    <string name="text_you_need_the_adb_mode_enabled_for_this_t" formatted="false">"שלב פתרון הבעיות הזה מחייב הפעלה של מצב ADB. תמיד אפשר לשנות את מצב ה-ADB מאוחר יותר בהגדרות.\n\nלהפעיל את ADB עכשיו או לדלג על השלב הזה?"</string>
+    <string name="text_you_re_all_set" formatted="false">"הכול מוכן"</string>
+    <string name="text_your_home_screen" formatted="false">"מסך הבית שלך"</string>
+    <string name="text_your_name" formatted="false">"השם שלך"</string>
+    <string name="text_your_name_and_an_avatar_each_profile_kee" formatted="false">"שם ותמונת פרופיל. לכל פרופיל יש אפליקציות, רקע ומסך בית משלו. אפשר ליצור פרופילים לעד שלושה אנשים."</string>
+    <string name="text_your_wi_fi_network_is_currently_owned_by" formatted="false">"⚠️ רשת ה-Wi-Fi שלך משויכת כרגע ל-setupwraith. לפני השבתת setupwraith, יש לפתוח את הגדרות ה-Wi-Fi, לבחור \"שכחת הרשת\" ולהתחבר אליה מחדש, כדי שרשת ה-Wi-Fi תישאר שמורה."</string>
+    <string name="text_youtube_music_optional" formatted="false">"YouTube Music (אופציונלי)"</string>
+    <string name="text_zoom" formatted="false">"זום"</string>
+    <string name="text_zoom_in" formatted="false">"הגדלה"</string>
+    <string name="text_zoom_out" formatted="false">"הקטנה"</string>
+    <string name="weather_condition_sunny">"שמשי"</string>
+    <string name="weather_condition_clear">"ניקוי"</string>
+    <string name="weather_condition_mostly_sunny">"שמשי ברובו"</string>
+    <string name="weather_condition_mostly_clear">"בהיר ברובו"</string>
+    <string name="weather_condition_partly_cloudy">"מעונן חלקית"</string>
+    <string name="weather_condition_cloudy">"מעונן"</string>
+    <string name="weather_condition_foggy">"ערפילי"</string>
+    <string name="weather_condition_drizzle">"תמונת רקעוף"</string>
+    <string name="weather_condition_rain">"גשם"</string>
+    <string name="weather_condition_heavy_rain">"גשם כבד"</string>
+    <string name="weather_condition_sleet">"גשם מעורב בשלג"</string>
+    <string name="weather_condition_snow">"שלג"</string>
+    <string name="weather_condition_thunderstorms">"סופות רעמים"</string>
+    <string name="message_model_1_s" formatted="false">"דגם: %1$s"</string>
+    <string name="message_product_1_s" formatted="false">"מוצר: %1$s"</string>
+    <string name="message_board_device_1_s" formatted="false">"לוח/מכשיר: %1$s"</string>
+    <string name="message_oem_family_1_s" formatted="false">"משפחת יצרן: %1$s"</string>
+    <string name="message_exact_tv_model_found_and_selected_automatically" formatted="false">"דגם הטלוויזיה המדויק זוהה ונבחר אוטומטית:\n\n• %1$s (%2$s)\n%3$s"</string>
+    <string name="message_choose_closest_tv_model_1_s" formatted="false">"בחירת דגם הטלוויזיה הקרוב ביותר — %1$s"</string>
+    <string name="message_on_google_tv_sets_wi_fi_networks_saved_during_in" formatted="false">"בטלוויזיות Google TV, רשתות Wi-Fi שנשמרו במהלך ההגדרה הראשונית שייכות ל-com.google.android.tungsten.setupwraith. השבתת setupwraith, כדי שמסך הבית המקורי של Google TV יישאר מושבת, תמחק רשת Wi-Fi השייכת ל-setupwraith.\n\nלפני השבתת setupwraith:\n1. יש לפתוח את הגדרות ה-Wi-Fi ← לבחור את רשת ה-Wi-Fi שלך ← \"שכחת הרשת\".\n2. יש להתחבר מחדש לרשת ה-Wi-Fi (מעכשיו היא תהיה שייכת ל-com.android.tv.settings).\n3. יש לחזור לכאן וללחוץ על \"רשת ה-Wi-Fi נוספה מחדש (המשך)\"."</string>
+    <string name="message_no_disabled_app_list_has_been_saved_by_cleanyour" formatted="false">"עדיין לא נשמרה ב-CleanYourTV רשימה של אפליקציות שהושבתו.\n\nבכל הפעלה של \"התחלת הסרת אפליקציות מיותרות\", כל חבילה שמושבתת נרשמת כאן, כך שאפשר לבדוק או להפעיל מחדש אפליקציות בודדות, או לשחזר את כולן."</string>
+    <string name="message_no_saved_disabled_app_backup_was_found_and_no_tv" formatted="false">"לא נמצא גיבוי של אפליקציות שהושבתו, ולא נבחר דגם טלוויזיה.\n\nיש לבחור תחילה את דגם הטלוויזיה, כדי שהשחזור יידע אילו חבילות להפעיל מחדש."</string>
+    <string name="message_your_current_tvos_launcher_settings_have_been_sa" formatted="false">"ההגדרות הנוכחיות של tvOS Launcher נשמרו בנתיב:\n\n%1$s"</string>
+    <string name="message_this_runs_settings_put_global_adb_enabled_0_over" formatted="false">"פעולה זו מריצה את הפקודה 'settings put global adb_enabled 0' באמצעות ADB מקומי ומוודאת שפורט 5555 סגור ברשת הביתית.\n\nאם ההרשאה WRITE_SECURE_SETTINGS כבר ניתנה, tvOS Launcher ימשיך לתקן את שירות הנגישות מתוך האפליקציה, ללא צורך ב-ADB!\n\nטיפ: לאבטחה מרבית, אפשר גם לפתוח את \"אפשרויות למפתחים\" ולבחור \"ביטול הרשאות לניפוי באגים ב-USB\"."</string>
+    <string name="message_keep_alive_monitors_the_accessibility_service_an" formatted="false">"השמירה על פעילות עוקבת אחר שירות הנגישות ומשחזרת אותו אוטומטית אם הטלוויזיה מכבה אותו.\n\n✓ מכיוון שההרשאה WRITE_SECURE_SETTINGS הוענקה בטלוויזיה הזו, השמירה על פעילות מתקנת את שירות הנגישות ישירות מתוך האפליקציה, בלי צורך להשאיר את ADB ברשת (פורט 5555) פתוח."</string>
+    <string name="message_security_warning_keep_alive_monitors_and_restore" formatted="false">"⚠️ אזהרת אבטחה:\n\nהשמירה על פעילות עוקבת אחר ההרשאות ומשחזרת אותן אם הטלוויזיה מכבה אותן ברקע.\n\nללא ההרשאה WRITE_SECURE_SETTINGS, השמירה על פעילות מחייבת להשאיר את ניפוי הבאגים ברשת (ADB בפורט 5555) מופעל ברשת הביתית. לאבטחה טובה יותר, מומלץ להריץ קודם את \"צימוד / תיקון ADB\" במצב מאובטח, כדי שההרשאה WRITE_SECURE_SETTINGS תוענק ואפשר יהיה לסגור את פורט 5555.\n\nלהפעיל שמירה על פעילות בכל זאת?"</string>
+    <string name="message_warning_manual_debloat_lists_all_system_apps_ins" formatted="false">"אזהרה: ההסרה הידנית של אפליקציות מיותרות מציגה את כל אפליקציות המערכת המותקנות בטלוויזיה.\n\n• יש להשבית חבילות רק אם ידוע בדיוק מה הן עושות.\n• השבתה של שירותי ליבה של מערכת Android, של שירותי מקורות הקלט/הטיונר או של חבילות ההגדרות עלולה לשבש את כניסות ה-HDMI, את ה-Wi-Fi ואת השלט, או לגרום ללולאת הפעלה מחדש.\n\nלהמשיך על אחריותך?"</string>
+    <string name="message_write_secure_settings_and_all_launcher_permissio" formatted="false">"ההרשאה WRITE_SECURE_SETTINGS וכל ההרשאות של מסך הבית פעילות עכשיו, ו-ADB (פורט 5555) נסגר לשמירה על האבטחה.\n\nטיפ: לאבטחה מרבית, אפשר לבחור גם \"ביטול הרשאות ניפוי באגים ב-USB\" באפשרויות למפתחים."</string>
+    <string name="search_offer_subscription">מנוי</string>
+    <string name="search_offer_free">חינם</string>
+    <string name="search_offer_free_with_ads">חינם עם פרסומות</string>
+    <string name="search_offer_rent">השכרה</string>
+    <string name="search_offer_buy">רכישה</string>
+    <string name="search_offer_addons">תוספים</string>
+    <string name="network_online">מחובר לאינטרנט</string>
+    <string name="network_no_internet">אין חיבור לאינטרנט</string>
+    <string name="network_offline">לא מחובר</string>
+    <string name="presentation_video_missing_media">בשקופית הסרטון חסר קובץ מדיה</string>
+    <string name="presentation_image_missing_media">בשקופית התמונה חסר קובץ מדיה</string>
+    <string name="control_item_memory" formatted="false">"זיכרון / אפליקציות אחרונות"</string>
+    <string name="control_item_audio" formatted="false">"פלט שמע"</string>
+    <string name="control_item_ambient" formatted="false">"מצב אווירה / מסך נעילה"</string>
+    <string name="control_item_power" formatted="false">"כיבוי / כיבוי המסך"</string>
+    <string name="control_item_inputs" formatted="false">"קיצור דרך למקורות קלט"</string>
+    <string name="control_item_mapper" formatted="false">"קיצור דרך למיפוי לחצנים"</string>
+    <string name="control_item_settings" formatted="false">"קיצור דרך להגדרות"</string>
+    <string name="control_item_search" formatted="false">"קיצור דרך לחיפוש / ל-Assistant"</string>
+    <string name="control_item_weather_panel" formatted="false">"לוח מזג אוויר (עכשיו ומחר)"</string>
+    <string name="cyt_all_count">הכול (%1$s)</string>
+    <string name="cyt_page_range">עמוד %1$s מתוך %2$s (%3$s–%4$s מתוך %5$s)</string>
+    <string name="cyt_models_count">דגמים (%1$s)</string>
+    <string name="cyt_page_number">עמוד %1$s מתוך %2$s</string>
+    <string name="cyt_packages_on_tv">חבילות בטלוויזיה זו (%1$s)</string>
+    <string name="cyt_all_system_apps">כל אפליקציות המערכת (%1$s — בחירה להשבתה / להפעלה)</string>
+    <string name="football_favorite_team_added">נוספה קבוצה מועדפת: %1$s</string>
+    <string name="wallpaper_tessellated_pavement" formatted="false">"מדרכת האבן המשובצת"</string>
+    <string name="wallpaper_grose_valley" formatted="false">"עמק גרוס"</string>
+    <string name="wallpaper_albury_storm" formatted="false">"סערה באלברי"</string>
+    <string name="wallpaper_aresquiers_beach" formatted="false">"חוף אַרֶסְקְיֶיה"</string>
+    <string name="wallpaper_vang_vieng_sunset" formatted="false">"שקיעה בוואנג ויאנג"</string>
+    <string name="wallpaper_aurora" formatted="false">"זוהר צפוני"</string>
+    <string name="wallpaper_midnight" formatted="false">"חצות"</string>
+    <string name="wallpaper_sunset" formatted="false">"שקיעה"</string>
+    <string name="wallpaper_ocean" formatted="false">"אוקיינוס"</string>
+    <string name="wallpaper_graphite" formatted="false">"גרפיט"</string>
+    <string name="profile_emoji_grin" formatted="false">"חיוך"</string>
+    <string name="profile_emoji_cool" formatted="false">"קול"</string>
+    <string name="profile_emoji_cowboy" formatted="false">"קאובוי"</string>
+    <string name="profile_emoji_party" formatted="false">"מסיבה"</string>
+    <string name="profile_emoji_fox" formatted="false">"שועל"</string>
+    <string name="profile_emoji_panda" formatted="false">"פנדה"</string>
+    <string name="profile_emoji_tiger" formatted="false">"נמר"</string>
+    <string name="profile_emoji_lion" formatted="false">"אריה"</string>
+    <string name="profile_emoji_frog" formatted="false">"צפרדע"</string>
+    <string name="profile_emoji_monkey" formatted="false">"קוף"</string>
+    <string name="profile_emoji_koala" formatted="false">"קואלה"</string>
+    <string name="profile_emoji_unicorn" formatted="false">"חד-קרן"</string>
+    <string name="profile_emoji_dog" formatted="false">"כלב"</string>
+    <string name="profile_emoji_cat" formatted="false">"חתול"</string>
+    <string name="profile_emoji_bear" formatted="false">"דוב"</string>
+    <string name="profile_emoji_bunny" formatted="false">"ארנב"</string>
+    <string name="profile_emoji_ghost" formatted="false">"רוח רפאים"</string>
+    <string name="profile_emoji_robot" formatted="false">"רובוט"</string>
+    <string name="profile_emoji_alien" formatted="false">"חייזר"</string>
+    <string name="profile_emoji_pumpkin" formatted="false">"דלעת"</string>
+    <string name="profile_color_sky" formatted="false">"תכלת"</string>
+    <string name="profile_color_pink" formatted="false">"ורוד"</string>
+    <string name="profile_color_mint" formatted="false">"מנטה"</string>
+    <string name="profile_color_lemon" formatted="false">"לימון"</string>
+    <string name="profile_color_lavender" formatted="false">"לבנדר"</string>
+    <string name="profile_color_peach" formatted="false">"אפרסק"</string>
+    <string name="profile_color_silver" formatted="false">"כסוף"</string>
+    <string name="setup_adb_close_steps" formatted="false">"1. יש לפתוח את הגדרות הטלוויזיה ← מערכת ← מידע כללי וללחוץ 7 פעמים על \"מספר Build\" כדי להפעיל את האפשרויות למפתחים.\n2. יש לפתוח את הגדרות ← מערכת ← אפשרויות למפתחים ולהפעיל ניפוי באגים ב-USB או ניפוי באגים ברשת.\n3. יש לחזור לכאן ולבחור \"מתן הרשאות עכשיו\" (פורט 5555 של ADB ייסגר אוטומטית מיד בסיום ההגדרה)."</string>
+    <string name="setup_adb_keep_steps" formatted="false">"1. יש לפתוח את הגדרות הטלוויזיה ← מערכת ← מידע כללי וללחוץ 7 פעמים על \"מספר Build\" כדי להפעיל את האפשרויות למפתחים.\n2. יש לפתוח את הגדרות ← מערכת ← אפשרויות למפתחים ולהפעיל ניפוי באגים ב-USB או ניפוי באגים ברשת.\n3. יש לחזור לכאן ולבחור \"מתן הרשאות עכשיו\" (ADB יישאר מופעל לשימוש ב-CleanYourTV)."</string>
+    <string name="cyt_disable_selected_packages" formatted="false">"✅ השבתת החבילות שנבחרו (%1$s)"</string>
+    <string name="cyt_restore_all_saved_packages" formatted="false">"שחזור כל החבילות השמורות (%1$s)"</string>
+    <string name="cyt_all_tv_models" formatted="false">"כל דגמי הטלוויזיה (%1$s)"</string>
+    <string name="cyt_disabled_apps" formatted="false">"אפליקציות מושבתות (%1$s — בחירה באפליקציה מפעילה אותה מחדש)"</string>
+    <string name="cyt_restore_saved" formatted="false">"שחזור הרשימה השמורה (%1$s)"</string>
+    <string name="cyt_restore_model_list" formatted="false">"שחזור רשימת הדגם (%1$s)"</string>
+    <string name="launcher_desc_stock_google_tv_home_screen_banner_ads" formatted="false">"מסך הבית המקורי של Google TV ופרסומות באנרים"</string>
+    <string name="launcher_desc_google_tv_launcher_watchdog_disable_together_with_launcherx" formatted="false">"רכיב הניטור של מסך הבית של Google TV (יש להשבית יחד עם LauncherX)"</string>
+    <string name="launcher_desc_stock_android_tv_home_screen" formatted="false">"מסך הבית המקורי של Android TV"</string>
+    <string name="launcher_desc_stock_android_tv_leanback_launcher" formatted="false">"מסך הבית המקורי של Android TV ‏(Leanback)"</string>
+    <string name="launcher_desc_philips_oem_home_launcher" formatted="false">"מסך הבית של יצרן Philips"</string>
+    <string name="launcher_desc_philips_oem_home_screen" formatted="false">"מסך הבית של יצרן Philips"</string>
+    <string name="launcher_desc_tcl_oem_home_screen" formatted="false">"מסך הבית של יצרן TCL"</string>
+    <string name="launcher_desc_tcl_oem_tv_home_launcher" formatted="false">"מסך הבית של יצרן TCL"</string>
+    <string name="launcher_desc_tcl_oem_home_launcher" formatted="false">"מסך הבית של יצרן TCL"</string>
+    <string name="launcher_desc_tcl_iffalcon_oem_home_launcher" formatted="false">"מסך הבית של יצרן TCL / iFFALCON"</string>
+    <string name="launcher_desc_ffalcon_oem_home_launcher" formatted="false">"מסך הבית של יצרן FFALCON"</string>
+    <string name="launcher_desc_hisense_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Hisense"</string>
+    <string name="launcher_desc_xiaomi_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Xiaomi"</string>
+    <string name="launcher_desc_sony_oem_tv_home_menu" formatted="false">"תפריט הבית של יצרן Sony"</string>
+    <string name="launcher_desc_skyworth_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Skyworth"</string>
+    <string name="launcher_desc_coocaa_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Coocaa"</string>
+    <string name="launcher_desc_haier_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Haier"</string>
+    <string name="launcher_desc_zeasn_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Zeasn"</string>
+    <string name="launcher_desc_sdmc_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן SDMC"</string>
+    <string name="launcher_desc_amazon_oem_tv_home_screen" formatted="false">"מסך הבית של יצרן Amazon"</string>
+    <string name="launcher_desc_amazon_fire_os_home_button_interceptor" formatted="false">"רכיב יירוט לחצן הבית של Amazon Fire OS"</string>
+    <string name="presentation_name_required" formatted="false">"יש להזין שם לפלייליסט"</string>
+    <string name="presentation_name_too_long" formatted="false">"שם הפלייליסט יכול להכיל עד 80 תווים"</string>
+    <string name="presentation_duplicate_id" formatted="false">"לשקופית %1$d יש מזהה כפול"</string>
+    <string name="presentation_invalid_duration" formatted="false">"משך השקופית %1$d חייב להיות בין שנייה אחת ל-24 שעות"</string>
+    <string name="presentation_negative_order" formatted="false">"המיקום של שקופית %1$d לא יכול להיות שלילי"</string>
+    <string name="presentation_media_required" formatted="false">"לשקופית %1$d נדרש פריט מדיה"</string>
+    <string name="presentation_invalid_url" formatted="false">"כתובת דף האינטרנט בשקופית %1$d חייבת להתחיל ב-http:// או ב-https://"</string>
+    <string name="presentation_invalid_scroll_speed" formatted="false">"מהירות הגלילה של דף האינטרנט בשקופית %1$d חייבת להיות בין 5 ל-1000 פיקסלים לשנייה"</string>
+    <string name="presentation_invalid_wait" formatted="false">"זמן ההמתנה בדף האינטרנט בשקופית %1$d חייב להיות בין 0 ל-300 שניות"</string>
+    <string name="presentation_type_required" formatted="false">"יש לציין את סוג השקופית"</string>
+    <string name="remaining_minutes" formatted="false">"נותרו %1$s דק׳"</string>
+    <string name="remaining_hours_minutes" formatted="false">"נותרו %1$s שע׳ ו-%2$s דק׳"</string>
+    <string name="unit_minute_one" formatted="false">"דקה"</string>
+    <string name="unit_minute_other" formatted="false">"דקות"</string>
+    <string name="unit_hour_one" formatted="false">"שעה"</string>
+    <string name="unit_hour_other" formatted="false">"שעות"</string>
+    <string name="scene_custom_lock_image" formatted="false">"תמונת נעילה מותאמת אישית"</string>
+    <string name="scene_custom_number" formatted="false">"מותאם אישית %1$s"</string>
+    <string name="scene_custom_number_fallback" formatted="false">"מותאם אישית %1$s"</string>
+    <string name="scene_fog" formatted="false">"ערפל"</string>
+    <string name="scene_folder_shuffle" formatted="false">"הצגה אקראית מתיקייה"</string>
+    <string name="scene_golden_hour" formatted="false">"שעת זהב"</string>
+    <string name="scene_night" formatted="false">"לילה"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"שחר ביער הגשם"</string>
+    <string name="scene_waterline" formatted="false">"קו המים"</string>
+    <string name="cyt_summary_done" formatted="false">"בוצע (%1$s אפליקציות הושבתו)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"לא בוצע (%1$s/%2$s הושבתו)"</string>
+    <string name="cyt_similar_apps_scanned" formatted="false">"דגמים עם אפליקציות מערכת דומות (נסרקו %1$s אפליקציות)"</string>
+    <string name="cyt_closest_matches_scanned" formatted="false">"ההתאמות הקרובות ביותר (נסרקו %1$s אפליקציות)"</string>
+    <string name="cyt_restore_saved_disabled_apps" formatted="false">"שחזור האפליקציות המושבתות השמורות (%1$s חבילות)"</string>
+    <string name="cyt_restore_package_count" formatted="false">"שחזור (%1$s חבילות)"</string>
+    <string name="cyt_starting_disable" formatted="false">"מתחילה הסרה של אפליקציות מיותרות באמצעות ADB עבור %1$s חבילות…"</string>
+    <string name="cyt_starting_restore" formatted="false">"מתבצעת הפעלה מחדש של %1$s חבילות באמצעות ADB…"</string>
+    <string name="cyt_restore_success" formatted="false">"%1$s חבילות הופעלו מחדש בטלוויזיה זו, והמצב נכתב לדיסק (sync)."</string>
+    <string name="folder_select_shuffle_count" formatted="false">"בחירת התיקייה והצגה אקראית (%1$s תמונות)"</string>
+    <string name="folder_no_image_files" formatted="false">"אין בתיקייה זו קובצי תמונה (%1$s)"</string>
+    <string name="settings_restore_from_download" formatted="false">"שחזור מ-Download/%1$s"</string>
+    <string name="settings_restore_from_folder" formatted="false">"שחזור מתיקייה זו (%1$s)"</string>
+    <string name="dock_size_changed" formatted="false">"גודל ה-Dock הוגדר ל-%1$s%%."</string>
+    <string name="cyt_restore_saved_confirmation" formatted="false">"נמצאו נתונים שמורים של אפליקציות מושבתות (%1$s חבילות).\n\nלהפעיל מחדש באמצעות ADB את כל %1$s החבילות השמורות?"</string>
+    <string name="folder_shuffle_enabled" formatted="false">"הצגה אקראית מתיקייה הופעלה: %1$s"</string>
+    <string name="lock_folder_shuffle_enabled" formatted="false">"הצגה אקראית מתיקייה הופעלה במסך הנעילה: %1$s"</string>
+    <string name="cyt_no_direct_model" formatted="false">"לא נמצאה התאמה ישירה לשם הדגם %1$s. כדי למצוא את פרופיל הטלוויזיה הקרוב ביותר, יש להשתמש בסריקת אפליקציות המערכת המותקנות באמצעות ADB שמופיעה למעלה."</string>
+    <string name="cyt_selected_model" formatted="false">"הדגם שנבחר: %1$s"</string>
+    <string name="cyt_checking_model" formatted="false">"מתבצעת בדיקה של החבילות המותקנות באמצעות ADB עבור %1$s…"</string>
+    <string name="cyt_checking_model_wifi" formatted="false">"מתבצעת בדיקה של החבילות המותקנות ושל מצב ה-Wi-Fi באמצעות ADB עבור %1$s…"</string>
+    <string name="cyt_no_model_packages" formatted="false">"אף אחת מהחבילות ברשימה של %1$s אינה מותקנת בטלוויזיה זו."</string>
+    <string name="cyt_restore_selected_model" formatted="false">"שחזור פרופיל הדגם שנבחר (%1$s — %2$s חבילות)"</string>
+    <string name="cyt_reenable_model_packages" formatted="false">"הפעלה מחדש של כל החבילות ב-%1$s"</string>
+    <string name="cyt_brand_oem" formatted="false">"מותג/יצרן: %1$s"</string>
+    <string name="cyt_model_search" formatted="false">"חיפוש: \"%1$s\" (%2$s)"</string>
+    <string name="cyt_disabling_progress" formatted="false">"השבתה (%1$s/%2$s):\n%3$s"</string>
+    <string name="cyt_enabling_progress" formatted="false">"הפעלה (%1$s/%2$s):\n%3$s"</string>
+    <string name="settings_restored_from_path" formatted="false">"ההגדרות שוחזרו בהצלחה מהקובץ:\n%1$s"</string>
+    <string name="settings_restore_failed_from_path" formatted="false">"לא ניתן היה לשחזר את ההגדרות מהקובץ:\n%1$s"</string>
+    <string name="settings_backup_write_failed" formatted="false">"לא ניתן היה לכתוב לקובץ Download/%2$s%1$s\n\nיש לאשר גישה לאחסון ולנסות שוב."</string>
+    <string name="cyt_oem_package_match" formatted="false">"%1$s/%2$s חבילות יצרן: %3$s"</string>
+    <string name="cyt_protected_package" formatted="false">"%1$s היא חבילת ליבה מוגנת של המערכת, ואי אפשר להשבית אותה באופן אוטומטי."</string>
+    <string name="cyt_select_apps_for_model" formatted="false">"בחירת אפליקציות להשבתה — %1$s (נמצאו %2$s)"</string>
+    <string name="cyt_disabled_for_model" formatted="false">"%1$s חבילות הושבתו בהצלחה עבור %2$s.\n\n• רשימת האפליקציות המושבתות (%3$s אפליקציות) נשמרה לשחזור בלחיצה אחת.\n• מצב החבילות נכתב לדיסק (sync)."</string>
+    <string name="cyt_restore_model_confirmation" formatted="false">"לא נמצאה רשימה שמורה של אפליקציות מושבתות.\n\nהשחזור ייעשה לפי דגם הטלוויזיה שנבחר (%1$s), ו-%2$s החבילות שלו יופעלו מחדש באמצעות ADB."</string>
+    <string name="cyt_critical_service_warning" formatted="false">"%1$s (%2$s) הוא שירות מערכת קריטי הנדרש לפעולת השלט ולחיבור ה-Bluetooth של הטלוויזיה.\n\nאי אפשר להשבית אותו בשום מצב."</string>
+    <string name="cyt_core_package_warning" formatted="false">"%1$s (%2$s) היא חבילת ליבה של המערכת.\n\nהשבתה שלה עלולה לשבש את הגדרות המערכת או את מקורות הקלט של הטלוויזיה, או לגרום לחוסר יציבות. להשבית בכל זאת?"</string>
+    <string name="cyt_no_model_packages_scan" formatted="false">"אף אחת מהחבילות ברשימה של %1$s (%2$s) אינה מותקנת בטלוויזיה זו.\n\nלסרוק את האפליקציות המותקנות בטלוויזיה באמצעות ADB כדי למצוא את הדגם התואם ביותר?"</string>
+    <string name="button_remap_removed" formatted="false">"המיפוי של %1$s הוסר."</string>
+    <string name="button_remap_removed_empty" formatted="false">"הוסר: remap for ."</string>
+    <string name="dock_move_tooltip" formatted="false">"הזזת %1$s  ·  חצים ימינה/שמאלה, OK לסיום"</string>
+    <string name="dock_move_tooltip_empty" formatted="false">"הזזה   ·  Left/Right, OK when done"</string>
+    <string name="cyt_package_match_reason" formatted="false">"%1$s/%2$s אפליקציות (%3$s)"</string>
+    <string name="profile_switch_to" formatted="false">"מעבר אל %1$s"</string>
+    <string name="profile_switch_to_empty" formatted="false">"מעבר: "</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"מעבר להגדרה ידנית"</string>
+    <string name="profile_name_default" formatted="false">"ברירת מחדל"</string>
+    <string name="profile_name_kids" formatted="false">"ילדים"</string>
+    <string name="profile_name_person" formatted="false">"פרופיל %1$s"</string>
+    <string name="profile_name_profile" formatted="false">"פרופיל %1$s"</string>
+    <string name="legacy_he_text_e3b0c44298" formatted="false">""</string>
+    <string name="legacy_error_free_ccebf23d24" formatted="false">" פנוי"</string>
+    <string name="legacy_error_minute_e00000d893" formatted="false">" דקה"</string>
+    <string name="legacy_error_add_a_person_309e22dac5" formatted="false">"+ הוספת אדם"</string>
+    <string name="legacy_error_add_new_button_to_remap_bbc1125205" formatted="false">"+ הוספת לחצן חדש למיפוי"</string>
+    <string name="legacy_error_a_small_weather_display_on_home_wit_19aaf9e964" formatted="false">"תצוגת מזג אוויר קטנה במסך הבית, עם תחזית ל-5 ימים."</string>
+    <string name="legacy_error_adb_permissions_451adb98f2" formatted="false">"ADB והרשאות"</string>
+    <string name="legacy_error_applications_fa3dec2685" formatted="false">"אפליקציות"</string>
+    <string name="legacy_error_accessories_b08648dbd6" formatted="false">"אביזרים"</string>
+    <string name="legacy_he_all_341_c5540847a4" formatted="false">"הכול (341)"</string>
+    <string name="legacy_he_all_341_tv_models_ccd1e9f493" formatted="false">"כל 341 דגמי הטלוויזיה"</string>
+    <string name="legacy_error_automatic_d461a493a3" formatted="false">"אוטומטי"</string>
+    <string name="legacy_error_automatic_setup_d8ce96413f" formatted="false">"הגדרה אוטומטית"</string>
+    <string name="legacy_error_avatar_color_7c73323031" formatted="false">"צבע הדמות"</string>
+    <string name="legacy_error_avatar_color_87f835ea14" formatted="false">"צבע הדמות…"</string>
+    <string name="legacy_error_button_mapper_service_516a7641b3" formatted="false">"שירות מיפוי הלחצנים"</string>
+    <string name="legacy_error_change_what_this_button_opens_0c7956f2f7" formatted="false">"שינוי מה שהלחצן הזה פותח…"</string>
+    <string name="legacy_error_check_permissions_4f4ffcde63" formatted="false">"בדיקת הרשאות"</string>
+    <string name="legacy_error_checking_github_releases_for_the_la_70ea1523c9" formatted="false">"מתבצעת בדיקה ב-GitHub Releases אם יש גרסה חדשה…"</string>
+    <string name="legacy_error_checking_for_updates_3bbfc1bb9d" formatted="false">"מתבצעת בדיקת עדכונים"</string>
+    <string name="legacy_error_choose_a_look_b0197fc035" formatted="false">"בחירת מראה"</string>
+    <string name="legacy_error_choose_how_to_grant_permissions_bce1ef190d" formatted="false">"בחירת אופן מתן ההרשאות"</string>
+    <string name="legacy_error_choose_icon_for_8ffffe2f45" formatted="false">"בחירת סמל עבור "</string>
+    <string name="legacy_error_choose_new_icon_file_51b8d338e7" formatted="false">"בחירת קובץ סמל חדש…"</string>
+    <string name="legacy_error_choose_new_image_4e083a8186" formatted="false">"בחירת תמונה חדשה…"</string>
+    <string name="legacy_error_classic_top_shelf_content_d32fd61430" formatted="false">"תוכן המדף העליון הקלאסי"</string>
+    <string name="legacy_he_classic_top_shelf_suggestions_e94f17dee4" formatted="false">"הצעות למדף העליון הקלאסי"</string>
+    <string name="legacy_error_classic_background_e6c62ea46d" formatted="false">"רקע קלאסי"</string>
+    <string name="legacy_error_clean_5137c8760c" formatted="false">"ניקוי"</string>
+    <string name="legacy_error_cleanyourtv_beta_runs_the_cleanyour_36754ded33" formatted="false">"הכלי CleanYourTV (בטא) מריץ את פרופילי הסרת האפליקציות המיותרות של CleanYourTV ישירות בטלוויזיה דרך ADB מקומי, ללא צורך במחשב. יש לבחור את דגם הטלוויזיה (או לסרוק לפי חבילות אפליקציות המערכת המותקנות), לבחור אילו אפליקציות מיותרות ואפליקציות טלמטריה להשבית, ואפשר לשחזר אותן בכל עת בלחיצה אחת."</string>
+    <string name="legacy_error_cleaned_b8fa1c69b2" formatted="false">"נוקה · "</string>
+    <string name="legacy_error_clear_all_button_mappings_05b5f94a5b" formatted="false">"ניקוי כל מיפויי הלחצנים"</string>
+    <string name="legacy_error_clock_style_2020700db5" formatted="false">"סגנון שעון"</string>
+    <string name="legacy_error_connected_paired_port_5555_open_96f4110956" formatted="false">"מחובר ומצומד (פורט 5555 פתוחה)"</string>
+    <string name="legacy_error_could_not_decode_image_file_9aeb05d774" formatted="false">"לא ניתן לפענח את קובץ התמונה"</string>
+    <string name="legacy_error_could_not_reach_github_releases_ple_f56e67ee43" formatted="false">"לא ניתן להתחבר ל-GitHub Releases. יש לבדוק את החיבור לאינטרנט."</string>
+    <string name="legacy_error_current_version_v_b7f8adcdff" formatted="false">"הגרסה הנוכחית: v"</string>
+    <string name="legacy_error_custom_2_6270e7f85a" formatted="false">"מותאם אישית 2"</string>
+    <string name="legacy_error_custom_3_e4222ac6d8" formatted="false">"מותאם אישית 3"</string>
+    <string name="legacy_error_custom_4_b20dec98ad" formatted="false">"מותאם אישית 4"</string>
+    <string name="legacy_error_custom_5_6db5ba8e39" formatted="false">"מותאם אישית 5"</string>
+    <string name="legacy_he_dashboard_widgets_4_horizontal_tile_3979f14004" formatted="false">"ווידג'טים בלוח המידע (4 אריחים בשורה)"</string>
+    <string name="legacy_error_default_icon_restored_4651574a02" formatted="false">"סמל ברירת המחדל שוחזר"</string>
+    <string name="legacy_error_delete_profile_47311af432" formatted="false">"מחיקת הפרופיל"</string>
+    <string name="legacy_error_download_install_680ffe96e7" formatted="false">"הורדה והתקנה"</string>
+    <string name="legacy_error_downloading_latest_apk_from_github_9a141b483e" formatted="false">"מתבצעת הורדה של קובץ ה-APK העדכני מ-GitHub…"</string>
+    <string name="legacy_error_each_tv_brand_uses_different_packag_ec560b3b62" formatted="false">"כל יצרן טלוויזיות משתמש בשמות חבילות ופעילויות שונים עבור Wi-Fi, ‏Bluetooth, שמע ומקורות קלט. יש לבחור אפליקציה ואז את הפעילות המדויקת שתיפתח מלוח הבקרה (ומאפליקציית מקורות הקלט ב-Dock)."</string>
+    <string name="legacy_error_each_person_gets_their_own_pinned_a_350015e5c6" formatted="false">"לכל אדם יש אפליקציות מוצמדות ורשימת המשך צפייה משלו."</string>
+    <string name="legacy_error_easy_setup_automatic_via_adb_3f7a6b2155" formatted="false">"הגדרה קלה (אוטומטית דרך ADB)"</string>
+    <string name="legacy_error_enable_tvos_launcher_in_android_tv__63d54093cc" formatted="false">"יש להפעיל את tvOS Launcher בהגדרות הנגישות של Android TV כדי שלחצני השלט הממופים ושכבת לוח הבקרה יפעלו מעל כל אפליקציה."</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"פחות אפליקציות"</string>
+    <string name="legacy_error_glass_82c268188c" formatted="false">"זכוכית"</string>
+    <string name="legacy_error_grant_all_via_adb_320e08a9da" formatted="false">"מתן כל ההרשאות דרך ADB"</string>
+    <string name="legacy_error_grant_permissions_now_859526e49d" formatted="false">"מתן הרשאות עכשיו"</string>
+    <string name="legacy_error_grant_permissions_one_by_one_manual_b5cbe865ab" formatted="false">"מתן הרשאות אחת-אחת באופן ידני"</string>
+    <string name="legacy_error_grant_storage_permission_76e254101d" formatted="false">"מתן הרשאת אחסון"</string>
+    <string name="legacy_error_grant_19c1380d8a" formatted="false">"מתן הרשאה ‹"</string>
+    <string name="legacy_error_grants_all_required_permissions_aut_811773c2f1" formatted="false">"מעניק את כל ההרשאות הנדרשות באופן אוטומטי בבת אחת"</string>
+    <string name="legacy_error_home_dashboard_5531ff6113" formatted="false">"לוח המידע במסך הבית"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"שלג כבד"</string>
+    <string name="legacy_error_hidden_from_dock_press_ok_to_show_1290340827" formatted="false">"מוסתר מה-Dock · לחיצה על OK תציג"</string>
+    <string name="legacy_error_hide_from_all_apps_f82d9040ea" formatted="false">"הסתרה מכל האפליקציות"</string>
+    <string name="legacy_error_home_system_7ed5ca2145" formatted="false">"מסך הבית ומערכת"</string>
+    <string name="legacy_error_home_dashboard_d1e758408c" formatted="false">"לוח המידע במסך הבית"</string>
+    <string name="legacy_error_home_dashboard_widgets_1149c5b41e" formatted="false">"ווידג'טים בלוח המידע במסך הבית…"</string>
+    <string name="legacy_error_installing_update_29e74e90ba" formatted="false">"מתבצעת התקנה של העדכון…"</string>
+    <string name="legacy_error_keep_alive_194eed9348" formatted="false">"שמירה על פעילות"</string>
+    <string name="legacy_error_keep_alive_auto_repair_permissions_64dec5b4f2" formatted="false">"שמירה על פעילות (תיקון אוטומטי של הרשאות)"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"המשך צפייה"</string>
+    <string name="legacy_error_latest_github_version_v_81c9e53520" formatted="false">"הגרסה העדכנית ב-GitHub: v"</string>
+    <string name="legacy_error_listen_for_a_remote_key_press_b07b1c60a5" formatted="false">"האזנה ללחיצת מקש בשלט"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"מראה וסצנות"</string>
+    <string name="legacy_error_manual_permissions_bbed716e43" formatted="false">"הרשאות ידניות"</string>
+    <string name="legacy_error_modern_eef6c7f6dd" formatted="false">"מודרני"</string>
+    <string name="legacy_error_more_apps_2216905b85" formatted="false">"אפליקציות נוספות"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"אפליקציות נוספות"</string>
+    <string name="legacy_error_move_left_in_dock_d545778104" formatted="false">"הזזה שמאלה ב-Dock"</string>
+    <string name="legacy_error_move_right_in_dock_b44019a1fc" formatted="false">"הזזה ימינה ב-Dock"</string>
+    <string name="legacy_error_no_recent_apps_6337834ebc" formatted="false">"אין אפליקציות אחרונות"</string>
+    <string name="legacy_error_not_paired_adb_off_0b378808e9" formatted="false">"לא מצומד (ADB כבוי)"</string>
+    <string name="legacy_error_output_b2439bcb8d" formatted="false">"פלט"</string>
+    <string name="legacy_error_presentation_classic_shelf_9e32077c30" formatted="false">"מצגת ומדף קלאסי"</string>
+    <string name="legacy_error_profiles_3e77bfe515" formatted="false">"פרופילים"</string>
+    <string name="legacy_error_paired_ready_2379bb9b76" formatted="false">"מצומד ומוכן"</string>
+    <string name="legacy_he_persistent_adb_mode_keep_port_5555__6898113324" formatted="false">"מצב ADB קבוע (השארת פורט 5555 פתוחה)"</string>
+    <string name="legacy_error_pin_to_home_db029e6fe7" formatted="false">"הצמדה למסך הבית"</string>
+    <string name="legacy_error_port_5555_open_ready_to_pair_59e62f7f6c" formatted="false">"פורט 5555 פתוחה · מוכן לצימוד"</string>
+    <string name="legacy_error_port_5555_open_tap_to_pair_3b338792bb" formatted="false">"פורט 5555 פתוחה (לחיצה לצימוד)"</string>
+    <string name="legacy_error_power_off_sleep_timer_permission_ddd313295f" formatted="false">"הרשאה לכיבוי ולטיימר שינה"</string>
+    <string name="legacy_error_press_ok_on_an_app_to_show_or_hide__924fe7b892" formatted="false">"יש ללחוץ על OK על אפליקציה כדי להציג אותה ב-Dock של מסך הבית או להסתיר אותה ממנו."</string>
+    <string name="legacy_error_profiles_535e52e4a2" formatted="false">"פרופילים"</string>
+    <string name="legacy_error_quick_buttons_c1ecfd327d" formatted="false">"לחצנים מהירים"</string>
+    <string name="legacy_error_remapped_buttons_c7ad2f6241" formatted="false">"לחצנים ממופים"</string>
+    <string name="legacy_error_remote_fixes_dbaca856c6" formatted="false">"תיקונים לשלט"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"הורד מחדש CleanYourTV"</string>
+    <string name="legacy_error_refresh_weather_now_995b85be8d" formatted="false">"רענון מזג האוויר עכשיו"</string>
+    <string name="legacy_error_remove_from_dock_b27d77465c" formatted="false">"הסרה מה-Dock"</string>
+    <string name="legacy_error_rounded_0a62cd800f" formatted="false">"מעוגל"</string>
+    <string name="legacy_he_scanning_installed_system_packages__c89e27386e" formatted="false">"מתבצעת סריקה של חבילות המערכת המותקנות דרך ADB והשוואה מול 341 דגמי טלוויזיה…"</string>
+    <string name="legacy_error_select_your_language_to_begin_2878d6f6a0" formatted="false">"יש לבחור שפה כדי להתחיל"</string>
+    <string name="legacy_error_serif_1b5e747e50" formatted="false">"סריף"</string>
+    <string name="legacy_error_settings_reset_to_defaults_f10770eb1d" formatted="false">"ההגדרות אופסו לברירת המחדל."</string>
+    <string name="legacy_error_settings_c239b59a77" formatted="false">"הגדרות ‹"</string>
+    <string name="legacy_error_setup_complete_5983596601" formatted="false">"ההגדרה הושלמה"</string>
+    <string name="legacy_error_show_in_dock_press_ok_to_hide_c6db8a2352" formatted="false">"מוצג ב-Dock · לחיצה על OK תסתיר"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"ממטרים"</string>
+    <string name="legacy_error_sleep_d466bcf52e" formatted="false">"שינה"</string>
+    <string name="legacy_error_some_tvs_disable_accessibility_or_o_6fb4d5d368" formatted="false">"יש טלוויזיות שמשביתות את הנגישות או הרשאות אחרות באופן אוטומטי ברקע. כשהאפשרות \"שמירה על פעילות\" מופעלת, tvOS Launcher בודק את מצב ההרשאות ברקע באופן קל, ללא עומס נוסף על ה-RAM או ה-CPU, ומשחזר באופן אוטומטי דרך ADB כל הרשאה שהושבתה."</string>
+    <string name="legacy_error_stencil_0d2302c761" formatted="false">"סטנסיל"</string>
+    <string name="legacy_error_storage_folders_65d3d1d26d" formatted="false">"תיקיות אחסון"</string>
+    <string name="legacy_error_switch_39921a740b" formatted="false">"מעבר"</string>
+    <string name="legacy_error_system_file_picker_c706f36550" formatted="false">"בוחר הקבצים של המערכת…"</string>
+    <string name="legacy_he_this_tv_has_no_inputs_062f3f25f4" formatted="false">"אין לטלוויזיה זו מקורות קלט"</string>
+    <string name="legacy_error_unpin_from_home_df00f5de07" formatted="false">"ביטול ההצמדה למסך הבית"</string>
+    <string name="legacy_error_up_to_date_105c24d6fc" formatted="false">"מעודכן"</string>
+    <string name="legacy_error_update_check_failed_2983d175b8" formatted="false">"בדיקת העדכונים נכשלה"</string>
+    <string name="legacy_error_update_failed_5da8e751a4" formatted="false">"העדכון נכשל"</string>
+    <string name="legacy_error_updated_3a5ecca188" formatted="false">"עודכן"</string>
+    <string name="legacy_error_updating_tvos_launcher_56b2074873" formatted="false">"העדכון של tvOS Launcher מתבצע"</string>
+    <string name="legacy_error_wallpaper_f7d9acadfd" formatted="false">"תמונת רקע"</string>
+    <string name="legacy_error_you_are_running_the_latest_version_e9af7e897b" formatted="false">"הגרסה המותקנת היא העדכנית ביותר."</string>
+    <string name="legacy_error_parent_folder_27421160e5" formatted="false">"➡  .. (תיקיית האב)"</string>
+    <string name="legacy_error_back_to_storage_folders_a393f054ee" formatted="false">"➡  חזרה לתיקיות האחסון"</string>
+    <string name="legacy_he_browse_search_all_341_tv_models_638ce40f94" formatted="false">"📋 עיון / חיפוש בכל 341 דגמי הטלוויזיה"</string>
+    <string name="legacy_he_dynamic_09aabeb4c03e" formatted="false">"דגם הטלוויזיה המדויק זוהה ונבחר אוטומטית:\n\n• %1$s"</string>
+    <string name="legacy_he_dynamic_82314871b94c" formatted="false">"כולן מושבתות (%1$s)"</string>
+    <string name="legacy_he_dynamic_f9b11dd83db2" formatted="false">"%1$s פעילות / %2$s נמצאו ‹"</string>
+    <string name="legacy_he_dynamic_5cacc9d910db" formatted="false">"נמצאו נתונים שמורים של אפליקציות מושבתות (%1$s חבילות).\n\nלהפעיל מחדש באמצעות ADB את כל %2$s החבילות השמורות?"</string>
+    <string name="legacy_he_dynamic_15b45c924e73" formatted="false">"נוספה תמונת רקע מותאמת אישית מס' %1$s."</string>
+    <string name="legacy_he_dynamic_f6e850b4f2e6" formatted="false">"לא ניתן היה לכתוב לקובץ Download/%1$s%2$s\n\nיש לאשר גישה לאחסון ולנסות שוב."</string>
+    <string name="legacy_he_dynamic_5b540d791476" formatted="false">"לפני %1$s ימים"</string>
+    <string name="legacy_he_dynamic_703dfc96737f" formatted="false">"%1$s%% בשימוש · %2$s"</string>
+    <string name="legacy_he_dynamic_699b3b53a882" formatted="false">"%1$s%% בשימוש · %2$s"</string>
+    <string name="legacy_he_dynamic_92ea28b4da86" formatted="false">"RAM: %1$s בשימוש מתוך %2$s"</string>
+    <string name="legacy_he_dynamic_b61dee1514f6" formatted="false">"שורת \"המשך צפייה\" ב-Dock תפסיק להציג תכנים מ-%1$s. האפליקציה %2$s עצמה תישאר מחוברת."</string>
+    <string name="legacy_he_dynamic_edecd490aeae" formatted="false">"מסכי בית של המערכת שמותקנים בטלוויזיה זו (%1$s)"</string>
+    <string name="language_option_title" formatted="false">"עברית"</string>
+    <string name="language_option_description" formatted="false">"שימוש ב-tvOS Launcher בעברית"</string>
+    <string name="presentation_web_presentation_tvos_launcher_c959811f" formatted="false">"מצגת · tvOS Launcher"</string>
+    <string name="presentation_web_pair_with_your_tv_72e248d6" formatted="false">"צימוד לטלוויזיה"</string>
+    <string name="presentation_web_enter_the_6_digit_code_shown_on_the_tv_5bdd16e7" formatted="false">"יש להזין את הקוד בן 6 הספרות שמוצג בטלוויזיה."</string>
+    <string name="presentation_web_pairing_code_1c5ea2f7" formatted="false">"קוד צימוד"</string>
+    <string name="presentation_web_digit_1_ae93e575" formatted="false">"ספרה 1"</string>
+    <string name="presentation_web_digit_2_beadac2c" formatted="false">"ספרה 2"</string>
+    <string name="presentation_web_digit_3_f8b74e73" formatted="false">"ספרה 3"</string>
+    <string name="presentation_web_digit_4_c36fd656" formatted="false">"ספרה 4"</string>
+    <string name="presentation_web_digit_5_9d7fe2d6" formatted="false">"ספרה 5"</string>
+    <string name="presentation_web_digit_6_a4865e85" formatted="false">"ספרה 6"</string>
+    <string name="presentation_web_pair_989da04b" formatted="false">"צימוד"</string>
+    <string name="presentation_web_can_t_see_the_code_on_the_tv_open_presentatio_8ebb1347" formatted="false">"הקוד לא מוצג? יש לפתוח את המצגת בטלוויזיה וללחוץ על ▲ בשלט."</string>
+    <string name="presentation_web_sections_9bae918a" formatted="false">"אזורים"</string>
+    <string name="presentation_web_library_dc20b3d5" formatted="false">"ספרייה"</string>
+    <string name="presentation_web_playlist_7af36c50" formatted="false">"פלייליסט"</string>
+    <string name="presentation_web_forget_this_browser_94e93346" formatted="false">"ביטול הצימוד של הדפדפן הזה"</string>
+    <string name="presentation_web_unpair_10be2fd8" formatted="false">"ביטול צימוד"</string>
+    <string name="presentation_web_now_playing_on_tv_abe04c28" formatted="false">"מוצג עכשיו בטלוויזיה"</string>
+    <string name="presentation_web_connecting_72021eb7" formatted="false">"מתבצע חיבור…"</string>
+    <string name="presentation_web_previous_slide_bfb54922" formatted="false">"השקופית הקודמת"</string>
+    <string name="presentation_web_next_slide_cdc93d1c" formatted="false">"השקופית הבאה"</string>
+    <string name="presentation_web_start_over_5eed7e9f" formatted="false">"הפעלה מההתחלה"</string>
+    <string name="presentation_web_show_the_address_and_code_on_the_tv_120c6380" formatted="false">"הצגת הכתובת והקוד בטלוויזיה"</string>
+    <string name="presentation_web_show_code_on_tv_4bb6f289" formatted="false">"הצגת הקוד בטלוויזיה"</string>
+    <string name="presentation_web_drop_images_or_videos_here_02e76e67" formatted="false">"אפשר לגרור לכאן תמונות או סרטונים"</string>
+    <string name="presentation_web_or_link_uploads_go_straight_to_the_tv_80b3ef38" formatted="false">"או {link} · הקבצים מועלים ישירות לטלוויזיה"</string>
+    <string name="presentation_web_choose_files_70deb128" formatted="false">"בחירת קבצים"</string>
+    <string name="presentation_web_all_a52ace42" formatted="false">"הכול"</string>
+    <string name="presentation_web_images_be7e2f20" formatted="false">"תמונות"</string>
+    <string name="presentation_web_videos_c9a96394" formatted="false">"סרטונים"</string>
+    <string name="presentation_web_add_slide_51dd24ab" formatted="false">"הוספת שקופית"</string>
+    <string name="presentation_web_from_library_b5e37739" formatted="false">"מהספרייה…"</string>
+    <string name="presentation_web_webpage_b1c356d7" formatted="false">"דף אינטרנט…"</string>
+    <string name="presentation_web_slides_a0ffe381" formatted="false">"שקופיות"</string>
+    <string name="presentation_web_drag_to_reorder_ef86a0ed" formatted="false">"אפשר לגרור כדי לשנות את הסדר"</string>
+    <string name="presentation_web_slide_settings_430bbbc9" formatted="false">"הגדרות השקופית"</string>
+    <string name="presentation_web_no_slides_yet_b0e09084" formatted="false">"אין עדיין שקופיות"</string>
+    <string name="presentation_web_add_images_or_videos_from_your_library_or_a_w_78c8f641" formatted="false">"אפשר להוסיף תמונות או סרטונים מהספרייה, או דף אינטרנט. השקופיות מוצגות לפי הסדר, בלולאה."</string>
+    <string name="presentation_web_add_webpage_fff7d0f1" formatted="false">"הוספת דף אינטרנט"</string>
+    <string name="presentation_web_add_from_library_e9a0efb1" formatted="false">"הוספה מהספרייה"</string>
+    <string name="presentation_web_unsaved_changes_a710c2b9" formatted="false">"יש שינויים שלא נשמרו"</string>
+    <string name="presentation_web_revert_0026c505" formatted="false">"ביטול השינויים"</string>
+    <string name="presentation_web_save_to_tv_46bc0108" formatted="false">"שמירה בטלוויזיה"</string>
+    <string name="presentation_web_paired_with_the_tv_2a24e68a" formatted="false">"הצימוד לטלוויזיה הושלם"</string>
+    <string name="presentation_web_not_on_screen_797f0f00" formatted="false">"לא מוצג על המסך"</string>
+    <string name="presentation_web_open_presentation_on_the_tv_or_turn_on_start_09099f48" formatted="false">"יש לפתוח את המצגת בטלוויזיה, או להפעיל בהגדרות את האפשרות \"הפעלה עם הדלקת המכשיר\"."</string>
+    <string name="presentation_web_nothing_playing_05aed12e" formatted="false">"אין תוכן בהצגה"</string>
+    <string name="presentation_web_add_slides_in_playlist_then_save_to_tv_34d9de3a" formatted="false">"יש להוסיף שקופיות בפלייליסט ולבחור באפשרות \"שמירה בטלוויזיה\"."</string>
+    <string name="presentation_web_skipping_dc5420d3" formatted="false">"בדילוג"</string>
+    <string name="presentation_web_starting_aeed4d26" formatted="false">"בטעינה"</string>
+    <string name="presentation_web_label_slide_n_of_count_4197ebe9" formatted="false">"{label} · שקופית {n} מתוך {count}"</string>
+    <string name="presentation_web_no_files_yet_drop_images_or_videos_above_3bfd937b" formatted="false">"אין עדיין קבצים. אפשר לגרור תמונות או סרטונים לאזור שלמעלה."</string>
+    <string name="presentation_web_no_images_yet_c397a5b4" formatted="false">"אין עדיין תמונות."</string>
+    <string name="presentation_web_no_videos_yet_1151b358" formatted="false">"אין עדיין סרטונים."</string>
+    <string name="presentation_web_video_d534be82" formatted="false">"סרטון"</string>
+    <string name="presentation_web_image_1aa4cb0b" formatted="false">"תמונה"</string>
+    <string name="presentation_web_file_50009ce1" formatted="false">"קובץ"</string>
+    <string name="presentation_web_add_to_playlist_f659f573" formatted="false">"הוספה לפלייליסט"</string>
+    <string name="presentation_web_delete_name_3cf8146e" formatted="false">"מחיקת {name}"</string>
+    <string name="presentation_web_delete_name_8e13216a" formatted="false">"למחוק את \"{name}\"?"</string>
+    <string name="presentation_web_it_will_be_removed_from_the_tv_along_with_any_f1383104" formatted="false">"הקובץ יוסר מהטלוויזיה, יחד עם כל השקופיות שמשתמשות בו."</string>
+    <string name="presentation_web_deleted_b48ff39c" formatted="false">"הקובץ נמחק"</string>
+    <string name="presentation_web_only_images_and_videos_can_be_uploaded_7cf8003d" formatted="false">"אפשר להעלות רק תמונות וסרטונים"</string>
+    <string name="presentation_web_waiting_612ffc5c" formatted="false">"בהמתנה…"</string>
+    <string name="presentation_web_pct_of_size_7b41a303" formatted="false">"{pct}% מתוך {size}"</string>
+    <string name="presentation_web_uploaded_3cc3767e" formatted="false">"הועלה"</string>
+    <string name="presentation_web_upload_failed_6efc5d27" formatted="false">"ההעלאה נכשלה"</string>
+    <string name="presentation_web_name_uploaded_2ba2624a" formatted="false">"הקובץ {name} הועלה"</string>
+    <string name="presentation_web_n_files_uploaded_862e4840" formatted="false">"{n} קבצים הועלו"</string>
+    <string name="presentation_web_ok_uploaded_failed_failed_f434f81f" formatted="false">"{ok} הועלו, {failed} נכשלו"</string>
+    <string name="presentation_web_n_uploads_failed_54a17745" formatted="false">"{n} העלאות נכשלו"</string>
+    <string name="presentation_web_upload_failed_status_08b501ad" formatted="false">"ההעלאה נכשלה ({status})"</string>
+    <string name="presentation_web_upload_failed_check_the_tv_is_on_and_on_the_s_5574c47b" formatted="false">"ההעלאה נכשלה. יש לוודא שהטלוויזיה מופעלת ומחוברת לאותה רשת."</string>
+    <string name="presentation_web_webpage_dccfc4ad" formatted="false">"דף אינטרנט"</string>
+    <string name="presentation_web_missing_file_693f5909" formatted="false">"קובץ חסר"</string>
+    <string name="presentation_web_slide_n_title_beab46ed" formatted="false">"שקופית {n}: {title}"</string>
+    <string name="presentation_web_on_tv_7001d394" formatted="false">"בטלוויזיה"</string>
+    <string name="presentation_web_scroll_291873e3" formatted="false">"גלילה"</string>
+    <string name="presentation_web_no_address_yet_7a908fce" formatted="false">"עדיין אין כתובת"</string>
+    <string name="presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_84248c8b" formatted="false">"מוצג בטלוויזיה כדף ברוחב 1920 פיקסלים"</string>
+    <string name="presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_scroll_71ebcb30" formatted="false">"מוצג בטלוויזיה כדף ברוחב 1920 פיקסלים, בגלילה כלפי מטה"</string>
+    <string name="presentation_web_choose_another_file_for_this_slide_9084e548" formatted="false">"יש לבחור קובץ אחר לשקופית הזו."</string>
+    <string name="presentation_web_n_of_count_03e1f091" formatted="false">"{n} מתוך {count}"</string>
+    <string name="presentation_web_on_tv_now_4b481d71" formatted="false">"מוצג עכשיו בטלוויזיה"</string>
+    <string name="presentation_web_hidden_7e6fefff" formatted="false">"מוסתר"</string>
+    <string name="presentation_web_webpage_address_c02cb87f" formatted="false">"כתובת דף האינטרנט"</string>
+    <string name="presentation_web_auto_scroll_30fb5ec8" formatted="false">"גלילה אוטומטית"</string>
+    <string name="presentation_web_scroll_speed_2632882d" formatted="false">"מהירות גלילה"</string>
+    <string name="presentation_web_pause_on_each_screen_d6a984d0" formatted="false">"השהיה בכל מסך"</string>
+    <string name="presentation_web_n_px_s_e1159729" formatted="false">"{n} פיקסלים/שנ׳"</string>
+    <string name="presentation_web_n_s_8e6df4a0" formatted="false">"{n} שנ׳"</string>
+    <string name="presentation_web_s_043a7187" formatted="false">"שנ׳"</string>
+    <string name="presentation_web_time_on_screen_9fa05c65" formatted="false">"משך ההצגה"</string>
+    <string name="presentation_web_plays_to_the_end_194589fa" formatted="false">"מוצג עד הסוף"</string>
+    <string name="presentation_web_until_it_reaches_the_bottom_f3c94373" formatted="false">"עד שמגיעים לתחתית הדף"</string>
+    <string name="presentation_web_5_seconds_less_bccb7d2e" formatted="false">"5 שניות פחות"</string>
+    <string name="presentation_web_5_seconds_more_0ff54420" formatted="false">"5 שניות יותר"</string>
+    <string name="presentation_web_seconds_381a8e96" formatted="false">"שניות"</string>
+    <string name="presentation_web_playback_2db1db07" formatted="false">"הצגה"</string>
+    <string name="presentation_web_fit_9f872ed4" formatted="false">"התאמה למסך"</string>
+    <string name="presentation_web_contain_e534a2c2" formatted="false">"הצגה מלאה"</string>
+    <string name="presentation_web_cover_fa8d8456" formatted="false">"מילוי"</string>
+    <string name="presentation_web_fill_033955d4" formatted="false">"מתיחה"</string>
+    <string name="presentation_web_show_all_of_it_8b61252d" formatted="false">"הצגת התוכן כולו"</string>
+    <string name="presentation_web_fill_the_screen_cropping_edges_3c4d2350" formatted="false">"מילוי המסך, תוך חיתוך השוליים"</string>
+    <string name="presentation_web_stretch_to_the_screen_0e4fa364" formatted="false">"מתיחה לגודל המסך"</string>
+    <string name="presentation_web_play_sound_017e4fd8" formatted="false">"השמעת קול"</string>
+    <string name="presentation_web_show_this_slide_47e42125" formatted="false">"הצגת השקופית"</string>
+    <string name="presentation_web_earlier_e10ae990" formatted="false">"הזזה למעלה"</string>
+    <string name="presentation_web_later_73b6e48a" formatted="false">"הזזה למטה"</string>
+    <string name="presentation_web_remove_slide_913ae394" formatted="false">"הסרת השקופית"</string>
+    <string name="presentation_web_only_images_and_videos_can_be_slides_11e3db96" formatted="false">"רק תמונות וסרטונים יכולים לשמש כשקופיות"</string>
+    <string name="presentation_web_slide_added_save_to_tv_when_ready_ac4d8f72" formatted="false">"השקופית נוספה – בסיום יש לבחור באפשרות \"שמירה בטלוויזיה\""</string>
+    <string name="presentation_web_the_page_opens_full_screen_on_the_tv_and_scro_cd0e902c" formatted="false">"הדף נפתח במסך מלא בטלוויזיה ונגלל לאט כלפי מטה. אפשר לשנות את הגלילה בהגדרות השקופית."</string>
+    <string name="presentation_web_webpage_address_must_start_with_http_or_https_10e086d4" formatted="false">"כתובת דף האינטרנט חייבת להתחיל ב-http:// או ב-https://"</string>
+    <string name="presentation_web_your_library_is_empty_upload_images_or_videos_1b1e7e11" formatted="false">"הספרייה ריקה. יש להעלות תחילה תמונות או סרטונים."</string>
+    <string name="presentation_web_saving_23e39291" formatted="false">"מתבצעת שמירה…"</string>
+    <string name="presentation_web_saved_now_playing_on_the_tv_53e2afb1" formatted="false">"השינויים נשמרו ומוצגים עכשיו בטלוויזיה"</string>
+    <string name="presentation_web_showing_the_address_and_code_on_the_tv_7b38bbb2" formatted="false">"הכתובת והקוד מוצגים בטלוויזיה"</string>
+    <string name="presentation_web_slide_n_time_on_screen_must_be_at_least_1_sec_33e688bf" formatted="false">"שקופית {n}: משך ההצגה חייב להיות שנייה אחת לפחות."</string>
+    <string name="presentation_web_slide_n_webpage_address_must_start_with_http_c20d1c1c" formatted="false">"שקופית {n}: כתובת דף האינטרנט חייבת להתחיל ב-http:// או ב-https://."</string>
+    <string name="presentation_web_slide_n_scroll_speed_must_be_between_5_and_10_7bf1f5cf" formatted="false">"שקופית {n}: מהירות הגלילה חייבת להיות בין 5 ל-1000."</string>
+    <string name="presentation_web_slide_n_pause_must_be_between_0_and_300_secon_ee5928bf" formatted="false">"שקופית {n}: ההשהיה חייבת להיות בין 0 ל-300 שניות."</string>
+    <string name="presentation_web_slide_n_choose_a_file_ce3b2b2e" formatted="false">"שקופית {n}: יש לבחור קובץ."</string>
+    <string name="presentation_web_slide_n_uses_a_deleted_file_59410ac6" formatted="false">"שקופית {n}: הקובץ שנבחר נמחק."</string>
+    <string name="presentation_web_you_have_unsaved_playlist_changes_leave_anywa_794f9b62" formatted="false">"יש בפלייליסט שינויים שלא נשמרו. לצאת בכל זאת?"</string>
+    <string name="presentation_web_video_plays_to_the_end_d1317306" formatted="false">"סרטון · מוצג עד הסוף"</string>
+    <string name="presentation_web_image_d_a95fd646" formatted="false">"תמונה · {d}"</string>
+    <string name="presentation_web_webpage_auto_scroll_7b4685ed" formatted="false">"דף אינטרנט · גלילה אוטומטית"</string>
+    <string name="presentation_web_webpage_d_5742e375" formatted="false">"דף אינטרנט · {d}"</string>
+    <string name="presentation_web_empty_c6c094bc" formatted="false">"ריק"</string>
+    <string name="presentation_web_loop_d_af1a13c7" formatted="false">"לולאה של {d}"</string>
+    <string name="presentation_web_base_n_video_scroll_109344e2" formatted="false">"{base} + {n} סרטונים/גלילה"</string>
+    <string name="presentation_web_request_failed_status_d5f9abf9" formatted="false">"הבקשה נכשלה ({status})"</string>
+    <string name="presentation_web_pair_this_browser_again_with_the_code_on_the_36a7b9e9" formatted="false">"יש לצמד שוב את הדפדפן הזה באמצעות הקוד שמוצג בטלוויזיה."</string>
+    <string name="presentation_web_something_went_wrong_ab827e3f" formatted="false">"אירעה שגיאה"</string>
+    <string name="presentation_web_s_s_07f67a15" formatted="false">"{s} שנ׳"</string>
+    <string name="presentation_web_m_m_79989309" formatted="false">"{m} דק׳"</string>
+    <string name="presentation_web_m_m_s_s_53e20375" formatted="false">"{m} דק׳ {s} שנ׳"</string>
+    <string name="search_keywords_control_center" formatted="false">"לוח בקרה כיבוי שינה"</string>
+    <string name="search_keywords_weather" formatted="false">"מזג אוויר טמפרטורה גשם תחזית"</string>
+    <string name="search_keywords_profile" formatted="false">"פרופיל משתמש צופה"</string>
+    <string name="search_keywords_home_settings" formatted="false">"הגדרות מסך הבית שפה סצנות"</string>
+    <string name="search_keywords_refresh" formatted="false">"רענון חדשות המלצות"</string>
+    <string name="search_keywords_wifi" formatted="false">"רשת אינטרנט אלחוטי"</string>
+    <string name="search_keywords_bluetooth" formatted="false">"שלט אוזניות רמקול צימוד"</string>
+    <string name="search_keywords_sound" formatted="false">"צליל שמע עוצמה רמקול"</string>
+    <string name="search_keywords_display" formatted="false">"תצוגה מסך רזולוציה תמונה"</string>
+    <string name="search_keywords_screen_saver" formatted="false">"שומר מסך מצב אווירה"</string>
+    <string name="search_keywords_date_time" formatted="false">"תאריך שעה שעון"</string>
+    <string name="search_keywords_accessibility" formatted="false">"נגישות כתוביות"</string>
+    <string name="search_keywords_apps" formatted="false">"אפליקציות הסרה אחסון"</string>
+    <string name="search_keywords_storage" formatted="false">"אחסון מקום זיכרון"</string>
+    <string name="search_available_on">"ב-%1$s"</string>
+</resources>

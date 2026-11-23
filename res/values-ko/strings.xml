@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_12_hour" formatted="false">"12시간제"</string>
+    <string name="text_24_hour" formatted="false">"24시간제"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"커다란 글래스 시계와 번갈아 바뀌는 배경 장면"</string>
+    <string name="text_about" formatted="false">"정보"</string>
+    <string name="text_accessibility_service_a268b7" formatted="false">"접근성 서비스"</string>
+    <string name="text_active_42209d" formatted="false">"활성"</string>
+    <string name="text_active_60b543" formatted="false">"활성"</string>
+    <string name="text_active_in_accessibility" formatted="false">"접근성에서 활성화됨"</string>
+    <string name="text_ad_blocking_private_dns_adguard" formatted="false">"광고 차단 프라이빗 DNS (AdGuard)"</string>
+    <string name="text_adb_connection_status" formatted="false">"ADB 연결 상태"</string>
+    <string name="text_add_a_person_f14c89" formatted="false">"프로필 추가"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"고급 설정"</string>
+    <string name="text_align_center" formatted="false">"가운데"</string>
+    <string name="text_align_left" formatted="false">"왼쪽"</string>
+    <string name="text_align_right" formatted="false">"오른쪽"</string>
+    <string name="text_always_on" formatted="false">"항상 켜짐"</string>
+    <string name="text_ambient_colour_themes_028289" formatted="false">"앰비언트 컬러 테마…"</string>
+    <string name="text_ambient_mode" formatted="false">"앰비언트 모드"</string>
+    <string name="text_app_icon_editor" formatted="false">"앱 아이콘 편집기"</string>
+    <string name="text_app_icon_updated" formatted="false">"앱 아이콘이 업데이트되었습니다"</string>
+    <string name="text_app_info_3cd62b" formatted="false">"앱 정보"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"외관 및 장면"</string>
+    <string name="text_application" formatted="false">"애플리케이션"</string>
+    <string name="text_applications" formatted="false">"애플리케이션"</string>
+    <string name="text_apply" formatted="false">"적용"</string>
+    <string name="text_apps_825c0a" formatted="false">"앱"</string>
+    <string name="text_apps_ebb18e" formatted="false">"개 앱"</string>
+    <string name="text_apps_using_nuvio" formatted="false">"Nuvio 사용 앱"</string>
+    <string name="text_audio" formatted="false">"오디오"</string>
+    <string name="text_auto" formatted="false">"자동"</string>
+    <string name="text_automatic_from_internet" formatted="false">"자동 (인터넷 기반)"</string>
+    <string name="text_automatic_updates" formatted="false">"자동 업데이트"</string>
+    <string name="text_automatic_updates_disabled" formatted="false">"자동 업데이트가 비활성화되었습니다."</string>
+    <string name="text_automatic_updates_enabled" formatted="false">"자동 업데이트가 활성화되었습니다."</string>
+    <string name="text_back_to_apps" formatted="false">"앱으로 돌아가기"</string>
+    <string name="text_background_color" formatted="false">"배경 색상"</string>
+    <string name="text_backup_restore" formatted="false">"백업 및 복원"</string>
+    <string name="text_backup_settings_to_download" formatted="false">"Download 폴더에 설정 백업"</string>
+    <string name="text_black" formatted="false">"검정"</string>
+    <string name="text_blue" formatted="false">"파랑"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"버튼 매퍼"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"버튼 매퍼"</string>
+    <string name="text_button_mapper_control_panel" formatted="false">"버튼 매퍼 및 제어판"</string>
+    <string name="text_cancel" formatted="false">"취소"</string>
+    <string name="text_center" formatted="false">"가운데"</string>
+    <string name="text_change_app_icon" formatted="false">"앱 아이콘 변경"</string>
+    <string name="text_change_name_of_input" formatted="false">"입력 이름 변경"</string>
+    <string name="text_changes_the_words_on_the_home_screen_dat" formatted="false">"홈 화면, 날짜, 날씨 및 설정의 표시 언어를 변경합니다."</string>
+    <string name="text_check_for_updates" formatted="false">"업데이트 확인"</string>
+    <string name="text_check_now" formatted="false">"지금 확인 ›"</string>
+    <string name="text_check_permissions" formatted="false">"권한 확인"</string>
+    <string name="text_checking" formatted="false">"확인 중…"</string>
+    <string name="text_checks_github_releases_techgenius1_tvos" formatted="false">"GitHub Releases(techgenius1/tvOS-Launcher)에서 최신 APK를 확인하고 TV에 직접 업데이트를 설치합니다."</string>
+    <string name="text_choose_a_background" formatted="false">"배경 선택"</string>
+    <string name="text_choose_a_city" formatted="false">"도시 선택…"</string>
+    <string name="text_choose_a_photo_or_ambient_colour_theme_b" formatted="false">"앱 뒤에 표시할 사진이나 컬러 테마를 선택하세요."</string>
+    <string name="text_choose_custom_background_image" formatted="false">"사용자 지정 배경 이미지 선택"</string>
+    <string name="text_choose_custom_scene_image" formatted="false">"사용자 지정 장면 이미지 선택"</string>
+    <string name="text_choose_folder_840d4f" formatted="false">"폴더 선택 ›"</string>
+    <string name="text_choose_how_you_want_your_home_screen_to" formatted="false">"홈 화면의 스타일을 선택하세요."</string>
+    <string name="text_choose_image_44c803" formatted="false">"이미지 선택…"</string>
+    <string name="text_choose_tv_model_eb4b40" formatted="false">"TV 모델 선택"</string>
+    <string name="text_choose_which_scenes_take_turns_behind_th" formatted="false">"글래스 시계 뒤에서 번갈아 표시할 장면을 선택하세요."</string>
+    <string name="text_choose_your_scenes" formatted="false">"장면 선택"</string>
+    <string name="text_classic" formatted="false">"클래식"</string>
+    <string name="text_classic_background" formatted="false">"클래식 배경"</string>
+    <string name="text_cleanyourtv_beta" formatted="false">"CLEANYOURTV (베타)"</string>
+    <string name="text_clear_aeec76" formatted="false">"맑음"</string>
+    <string name="text_clock" formatted="false">"시계"</string>
+    <string name="text_clock_font" formatted="false">"시계 글꼴"</string>
+    <string name="text_clock_position" formatted="false">"시계 위치"</string>
+    <string name="text_close_all" formatted="false">"모두 닫기"</string>
+    <string name="text_close" formatted="false">"닫기"</string>
+    <string name="text_connected" formatted="false">"연결됨"</string>
+    <string name="text_continue" formatted="false">"계속"</string>
+    <string name="text_continue_watching" formatted="false">"이어보기"</string>
+    <string name="text_control_panel" formatted="false">"제어판"</string>
+    <string name="text_control_panel_overlay" formatted="false">"제어판 (오버레이)"</string>
+    <string name="text_could_not_load_selected_image" formatted="false">"선택한 이미지를 불러올 수 없습니다."</string>
+    <string name="text_current_place" formatted="false">"현재 위치"</string>
+    <string name="text_current_version" formatted="false">"현재 버전"</string>
+    <string name="text_custom" formatted="false">"사용자 지정"</string>
+    <string name="text_custom_background_updated" formatted="false">"사용자 지정 배경화면이 업데이트되었습니다."</string>
+    <string name="text_custom_label" formatted="false">"사용자 지정 이름"</string>
+    <string name="text_custom_scene_wallpaper_updated" formatted="false">"사용자 지정 장면 배경화면이 업데이트되었습니다."</string>
+    <string name="text_dark" formatted="false">"다크"</string>
+    <string name="text_dash_latest_releases" formatted="false">"인기 콘텐츠"</string>
+    <string name="text_dash_news" formatted="false">"실시간 뉴스"</string>
+    <string name="text_dash_top_media" formatted="false">"인기 영화 및 시리즈"</string>
+    <string name="text_debloat_status" formatted="false">"디블로트 상태"</string>
+    <string name="text_debloat_tv_3ec289" formatted="false">"TV 최적화 (Debloat)…"</string>
+    <string name="text_detected_automatically" formatted="false">"자동 감지됨"</string>
+    <string name="text_developer" formatted="false">"개발자"</string>
+    <string name="text_disable" formatted="false">"사용 안 함"</string>
+    <string name="text_disabled_apps_backup" formatted="false">"비활성화된 앱 백업"</string>
+    <string name="text_do_not_disturb" formatted="false">"방해 금지 모드"</string>
+    <string name="text_dock_rows" formatted="false">"독 줄 수"</string>
+    <string name="text_don_t_show_weather" formatted="false">"날씨 표시 안 함"</string>
+    <string name="text_done" formatted="false">"완료"</string>
+    <string name="text_double_tap_2x" formatted="false">"두 번 누르기 (2x)"</string>
+    <string name="text_down" formatted="false">"아래"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"CleanYourTV 다운로드"</string>
+    <string name="text_each_scene_stays" formatted="false">"장면 전환 간격"</string>
+    <string name="text_enable_adb_debugging" formatted="false">"ADB 디버깅 활성화"</string>
+    <string name="text_enable_in_accessibility" formatted="false">"접근성에서 활성화…"</string>
+    <string name="text_enable_in_accessibility_so_remapped_butt" formatted="false">"모든 앱에서 리모컨 버튼 매핑이 작동하도록 접근성에서 활성화하세요"</string>
+    <string name="text_finish_setting_up" formatted="false">"설정 완료"</string>
+    <string name="text_free_forecast_service_no_account_needed" formatted="false">"계정이 필요 없는 무료 일기예보 서비스"</string>
+    <string name="text_get_started" formatted="false">"시작하기"</string>
+    <string name="text_github_release_latest_version" formatted="false">"GitHub 최신 릴리스 버전"</string>
+    <string name="text_go_to_home_screen" formatted="false">"홈 화면으로 이동"</string>
+    <string name="text_good_afternoon" formatted="false">"좋은 오후입니다"</string>
+    <string name="text_good_evening" formatted="false">"좋은 저녁입니다"</string>
+    <string name="text_good_morning" formatted="false">"좋은 아침입니다"</string>
+    <string name="text_good_night" formatted="false">"안녕히 주무세요"</string>
+    <string name="text_gray" formatted="false">"회색"</string>
+    <string name="text_green" formatted="false">"초록"</string>
+    <string name="text_hidden_apps" formatted="false">"숨겨진 앱"</string>
+    <string name="text_hide" formatted="false">"숨기기"</string>
+    <string name="text_hide_input" formatted="false">"입력 숨기기"</string>
+    <string name="text_home_screen" formatted="false">"홈 화면"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"홈 설정"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"홈 설정"</string>
+    <string name="text_indigo" formatted="false">"남색"</string>
+    <string name="text_inputs" formatted="false">"외부 입력"</string>
+    <string name="text_language" formatted="false">"언어"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"언어, 날씨, 장면, 앱 및 프로필"</string>
+    <string name="text_left" formatted="false">"왼쪽"</string>
+    <string name="text_let_s_set_up_tvos_launcher" formatted="false">"tvOS Launcher 설정을 시작합니다."</string>
+    <string name="text_link_nuvio_forks_like_nuvio_native_legac" formatted="false">"같은 Nuvio 계정으로 로그인하는 Nuvio 포크(예: Nuvio Native Legacy)를 연결하세요. 해당 앱의 독 타일에 Nuvio의 이어서 보기가 표시되고, 검색에서 작품이 그 앱으로 열립니다."</string>
+    <string name="text_live_cricket_scores" formatted="false">"실시간 크리켓 스코어"</string>
+    <string name="text_location_873ca7" formatted="false">"위치"</string>
+    <string name="text_location_eeea97" formatted="false">"위치"</string>
+    <string name="text_long_press_volume_button_fix" formatted="false">"볼륨 버튼 길게 누르기 수정"</string>
+    <string name="text_look" formatted="false">"외관"</string>
+    <string name="text_make_tvos_launcher_the_home_screen" formatted="false">"tvOS Launcher를 기본 홈 화면으로 설정"</string>
+    <string name="text_manual_setup" formatted="false">"수동 설정"</string>
+    <string name="text_memory" formatted="false">"메모리"</string>
+    <string name="text_min_left" formatted="false">" min"</string>
+    <string name="text_minutes" formatted="false">"분"</string>
+    <string name="text_move" formatted="false">"이동"</string>
+    <string name="text_move_icon" formatted="false">"아이콘 이동"</string>
+    <string name="text_move_to_other_apps" formatted="false">"기타 앱으로 이동"</string>
+    <string name="text_news_country_auto" formatted="false">"자동 (UI 언어와 동기화)"</string>
+    <string name="text_next_9f81b4" formatted="false">"다음"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"야간 장면"</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"아직 최근 실행한 앱이 없습니다"</string>
+    <string name="text_none" formatted="false">"없음"</string>
+    <string name="text_none_clear_action" formatted="false">"없음 (동작 지우기)"</string>
+    <string name="text_not_done" formatted="false">"미완료"</string>
+    <string name="text_not_installed" formatted="false">"설치되지 않음"</string>
+    <string name="status_off" formatted="false">"꺼짐"</string>
+    <string name="text_official_app" formatted="false">"공식 앱"</string>
+    <string name="text_ok_to_change_back_to_go_back" formatted="false">"확인(OK)으로 변경, 뒤로 버튼으로 돌아가기"</string>
+    <string name="text_ok_to_change_hold_ok_to_move_back_to_go" formatted="false">"확인(OK)으로 변경, 길게 눌러 이동, 뒤로 버튼으로 돌아가기"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore_back_to_go" formatted="false">"확인(OK)으로 열기  ·  길게 눌러 복원  ·  뒤로 돌아가기"</string>
+    <string name="status_on" formatted="false">"켜짐"</string>
+    <string name="text_on_this_tv" formatted="false">"이 TV에 저장됨"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"배경 사진과 앱 배너 그리드"</string>
+    <string name="text_one_scene_has_to_stay_on" formatted="false">"최소 하나의 장면이 켜져 있어야 합니다."</string>
+    <string name="text_open_4f0000" formatted="false">"열기"</string>
+    <string name="text_open_55abf9" formatted="false">"열기"</string>
+    <string name="text_orange" formatted="false">"주황"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"기타 앱"</string>
+    <string name="text_other_apps_bdcc9c" formatted="false">"기타 앱"</string>
+    <string name="text_packages" formatted="false">"개 패키지"</string>
+    <string name="text_pair_now" formatted="false">"지금 페어링"</string>
+    <string name="text_pair_repair_adb_connection" formatted="false">"ADB 연결 페어링 / 복구"</string>
+    <string name="text_people_3a2eb8" formatted="false">"프로필"</string>
+    <string name="text_pink" formatted="false">"분홍"</string>
+    <string name="text_power_off" formatted="false">"전원 끄기"</string>
+    <string name="text_presentation" formatted="false">"프레젠테이션"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"앱에서 ▲ 버튼을 눌러 종료"</string>
+    <string name="text_preview" formatted="false">"미리보기"</string>
+    <string name="text_purple" formatted="false">"보라"</string>
+    <string name="text_quick_settings" formatted="false">"빠른 설정"</string>
+    <string name="text_recent_apps" formatted="false">"최근 앱"</string>
+    <string name="text_recent_apps_switcher" formatted="false">"최근 앱 전환기"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"최근 앱 전환기 (오버레이)"</string>
+    <string name="text_red" formatted="false">"빨강"</string>
+    <string name="text_refresh" formatted="false">"새로고침"</string>
+    <string name="text_releases_country_auto" formatted="false">"자동 (UI 언어와 동기화)"</string>
+    <string name="text_releases_country_setting" formatted="false">"인기 콘텐츠 국가"</string>
+    <string name="text_releases_loading" formatted="false">"콘텐츠 불러오는 중…"</string>
+    <string name="text_rename_app" formatted="false">"앱 이름 변경"</string>
+    <string name="text_rename_e8372b" formatted="false">"이름 변경…"</string>
+    <string name="text_rename_f9a6a6" formatted="false">"이름 변경"</string>
+    <string name="text_repair" formatted="false">"복구"</string>
+    <string name="text_reset_043c3c" formatted="false">"초기화"</string>
+    <string name="text_reset_a1f27d" formatted="false">"초기화"</string>
+    <string name="text_reset_settings" formatted="false">"설정을 초기화하시겠습니까?"</string>
+    <string name="text_reset_settings_to_defaults" formatted="false">"설정을 기본값으로 초기화"</string>
+    <string name="text_reset_to_default" formatted="false">"기본값으로 재설정"</string>
+    <string name="text_reset_to_default_icon" formatted="false">"기본 아이콘으로 초기화"</string>
+    <string name="text_restore" formatted="false">"복원 ›"</string>
+    <string name="text_restore_debloated_apps_3d05c1" formatted="false">"비활성화된 앱 복원…"</string>
+    <string name="text_restore_settings_from_folder" formatted="false">"폴더에서 설정 복원…"</string>
+    <string name="text_right" formatted="false">"오른쪽"</string>
+    <string name="text_save" formatted="false">"저장"</string>
+    <string name="text_scenes" formatted="false">"장면"</string>
+    <string name="text_screensaver" formatted="false">"화면 보호기"</string>
+    <string name="text_scroll_for_more" formatted="false">"더 보려면 스크롤 ›"</string>
+    <string name="text_search_946f53" formatted="false">"검색"</string>
+    <string name="text_search_by_name" formatted="false">"이름으로 검색"</string>
+    <string name="text_search_for_a_city_or_town" formatted="false">"도시 또는 지역 검색…"</string>
+    <string name="text_seconds_ee379b" formatted="false">"초"</string>
+    <string name="text_set_manually" formatted="false">"수동 설정됨"</string>
+    <string name="text_settings" formatted="false">"설정"</string>
+    <string name="text_settings_kept" formatted="false">"설정 저장 위치"</string>
+    <string name="text_show_on_home_screen" formatted="false">"홈 화면에 표시"</string>
+    <string name="text_single_tap_1x" formatted="false">"한 번 누르기 (1x)"</string>
+    <string name="text_skip_setup" formatted="false">"설정 건너뛰기"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"취침 예약"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"취침 예약"</string>
+    <string name="text_small_clock" formatted="false">"작은 시계"</string>
+    <string name="text_sound" formatted="false">"소리"</string>
+    <string name="text_start" formatted="false">"시작 ›"</string>
+    <string name="text_suggested" formatted="false">"추천"</string>
+    <string name="text_tap_check_for_updates" formatted="false">"업데이트 확인을 누르세요"</string>
+    <string name="text_teal" formatted="false">"청록"</string>
+    <string name="text_temperature" formatted="false">"온도 단위"</string>
+    <string name="text_this_resets_look_scenes_clock_and_langua" formatted="false">"외관, 장면, 시계 및 언어 설정을 기본값으로 되돌립니다."</string>
+    <string name="text_triple_tap_3x" formatted="false">"세 번 누르기 (3x)"</string>
+    <string name="text_turn_off_custom_scene" formatted="false">"사용자 지정 장면 끄기"</string>
+    <string name="text_turn_on_custom_scene" formatted="false">"사용자 지정 장면 켜기"</string>
+    <string name="text_turn_the_tv_off_after" formatted="false">"다음 시간 후 TV 끄기:"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"TV 설정"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"TV 설정"</string>
+    <string name="text_uninstall_3fd78c" formatted="false">"설치 삭제"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"설치 삭제"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"tvOS Launcher 설치 삭제"</string>
+    <string name="text_up_and_down_to_browse_ok_to_change_back" formatted="false">"위/아래로 탐색, 확인(OK)으로 변경, 뒤로 버튼으로 닫기"</string>
+    <string name="text_up_and_down_to_move_ok_when_done" formatted="false">"위/아래로 이동, 완료되면 확인(OK)"</string>
+    <string name="text_up" formatted="false">"위"</string>
+    <string name="text_update_available" formatted="false">"업데이트 가능"</string>
+    <string name="text_update_every" formatted="false">"업데이트 주기"</string>
+    <string name="text_updates_22906d" formatted="false">"업데이트"</string>
+    <string name="text_updates_3c957c" formatted="false">"업데이트"</string>
+    <string name="text_use_automatic_location" formatted="false">"자동 위치 사용"</string>
+    <string name="text_use_custom_background" formatted="false">"사용자 지정 배경 사용"</string>
+    <string name="text_use_my_location" formatted="false">"내 위치 사용"</string>
+    <string name="text_used_for_the_weather_on_the_home_screen" formatted="false">"홈 화면의 날씨 및 지역 뉴스에 사용됩니다."</string>
+    <string name="text_used_recent_apps" formatted="false">"% · 최근 앱"</string>
+    <string name="text_version" formatted="false">"버전"</string>
+    <string name="text_version_info" formatted="false">"버전 정보"</string>
+    <string name="text_weather" formatted="false">"날씨"</string>
+    <string name="text_weather_a5c8c4" formatted="false">"날씨"</string>
+    <string name="text_weather_and_location" formatted="false">"날씨 및 위치"</string>
+    <string name="text_weather_from" formatted="false">"날씨 제공:"</string>
+    <string name="text_weather_on_the_home_screen" formatted="false">"홈 화면 날씨 표시"</string>
+    <string name="text_weather_source" formatted="false">"날씨 정보 제공처"</string>
+    <string name="text_welcome" formatted="false">"환영합니다"</string>
+    <string name="text_white" formatted="false">"흰색"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, 화면, 소리 및 기타 TV 설정"</string>
+    <string name="text_yellow" formatted="false">"노랑"</string>
+    <string name="text_you_re_all_set" formatted="false">"모든 준비가 완료되었습니다"</string>
+    <string name="text_zoom" formatted="false">"확대/축소"</string>
+    <string name="text_zoom_in" formatted="false">"확대"</string>
+    <string name="text_zoom_out" formatted="false">"축소"</string>
+    <string name="weather_condition_sunny">"화창함"</string>
+    <string name="weather_condition_clear">"맑음"</string>
+    <string name="weather_condition_mostly_sunny">"대체로 화창함"</string>
+    <string name="weather_condition_mostly_clear">"대체로 맑음"</string>
+    <string name="weather_condition_partly_cloudy">"구름 조금"</string>
+    <string name="weather_condition_cloudy">"흐림"</string>
+    <string name="weather_condition_foggy">"안개"</string>
+    <string name="weather_condition_drizzle">"이슬비"</string>
+    <string name="weather_condition_rain">"비"</string>
+    <string name="weather_condition_heavy_rain">"폭우"</string>
+    <string name="weather_condition_sleet">"진눈깨비"</string>
+    <string name="weather_condition_snow">"눈"</string>
+    <string name="weather_condition_thunderstorms">"뇌우"</string>
+
+    <string name="profile_color_pink" formatted="false">"분홍"</string>
+    <string name="remaining_minutes" formatted="false">"%1$s min"</string>
+    <string name="remaining_hours_minutes" formatted="false">"%1$s h %2$s min"</string>
+    <string name="unit_minute_one" formatted="false">"분"</string>
+    <string name="unit_minute_other" formatted="false">"분"</string>
+    <string name="scene_custom_number" formatted="false">"사용자 지정 %1$s"</string>
+    <string name="scene_fog" formatted="false">"안개"</string>
+    <string name="scene_golden_hour" formatted="false">"골든 아워"</string>
+    <string name="scene_night" formatted="false">"밤"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"열대우림의 새벽"</string>
+    <string name="scene_waterline" formatted="false">"수평선"</string>
+    <string name="cyt_summary_done" formatted="false">"완료 (%1$s 개 앱)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"미완료 (%1$s/%2$s)"</string>
+    <string name="dock_move_tooltip" formatted="false">"이동 %1$s  ·  Left/Right, OK when done"</string>
+    <string name="dock_move_tooltip_empty" formatted="false">"이동   ·  Left/Right, OK when done"</string>
+    <string name="profile_switch_to" formatted="false">"전환: %1$s"</string>
+    <string name="profile_switch_to_empty" formatted="false">"전환: "</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"수동 설정으로 전환"</string>
+    <string name="legacy_error_free_ccebf23d24" formatted="false">" 여유"</string>
+    <string name="legacy_error_minute_e00000d893" formatted="false">"분"</string>
+    <string name="legacy_error_add_a_person_309e22dac5" formatted="false">"+ 프로필 추가"</string>
+    <string name="legacy_error_add_new_button_to_remap_bbc1125205" formatted="false">"+ 매핑할 새 버튼 추가"</string>
+    <string name="legacy_error_adb_permissions_451adb98f2" formatted="false">"ADB 및 권한"</string>
+    <string name="legacy_error_accessories_b08648dbd6" formatted="false">"액세서리"</string>
+    <string name="legacy_error_automatic_setup_d8ce96413f" formatted="false">"자동 설정"</string>
+    <string name="legacy_error_avatar_color_87f835ea14" formatted="false">"아바타 색상…"</string>
+    <string name="legacy_error_button_mapper_service_516a7641b3" formatted="false">"버튼 매퍼 서비스"</string>
+    <string name="legacy_error_check_permissions_4f4ffcde63" formatted="false">"권한 확인"</string>
+    <string name="legacy_error_checking_github_releases_for_the_la_70ea1523c9" formatted="false">"GitHub에서 최신 버전을 확인하는 중…"</string>
+    <string name="legacy_error_checking_for_updates_3bbfc1bb9d" formatted="false">"업데이트 확인 중"</string>
+    <string name="legacy_error_choose_a_look_b0197fc035" formatted="false">"외관 선택"</string>
+    <string name="legacy_error_choose_how_to_grant_permissions_bce1ef190d" formatted="false">"권한 허용 방식을 선택하세요"</string>
+    <string name="legacy_error_choose_icon_for_8ffffe2f45" formatted="false">"아이콘 선택: "</string>
+    <string name="legacy_error_choose_new_icon_file_51b8d338e7" formatted="false">"새 아이콘 파일 선택…"</string>
+    <string name="legacy_error_choose_new_image_4e083a8186" formatted="false">"새 이미지 선택…"</string>
+    <string name="legacy_error_classic_background_e6c62ea46d" formatted="false">"클래식 배경"</string>
+    <string name="legacy_error_clean_5137c8760c" formatted="false">"정리"</string>
+    <string name="legacy_error_cleaned_b8fa1c69b2" formatted="false">"정리 완료 · "</string>
+    <string name="legacy_error_clear_all_button_mappings_05b5f94a5b" formatted="false">"모든 버튼 매핑 초기화"</string>
+    <string name="legacy_error_clock_style_2020700db5" formatted="false">"시계 스타일"</string>
+    <string name="legacy_error_could_not_decode_image_file_9aeb05d774" formatted="false">"이미지 파일을 읽을 수 없습니다"</string>
+    <string name="legacy_error_could_not_reach_github_releases_ple_f56e67ee43" formatted="false">"GitHub Releases에 연결할 수 없습니다. 인터넷 연결을 확인하세요."</string>
+    <string name="legacy_error_current_version_v_b7f8adcdff" formatted="false">"현재 버전: v"</string>
+    <string name="legacy_error_custom_2_6270e7f85a" formatted="false">"사용자 지정 2"</string>
+    <string name="legacy_error_custom_3_e4222ac6d8" formatted="false">"사용자 지정 3"</string>
+    <string name="legacy_error_custom_4_b20dec98ad" formatted="false">"사용자 지정 4"</string>
+    <string name="legacy_error_custom_5_6db5ba8e39" formatted="false">"사용자 지정 5"</string>
+    <string name="legacy_error_default_icon_restored_4651574a02" formatted="false">"기본 아이콘으로 복원되었습니다"</string>
+    <string name="legacy_error_delete_profile_47311af432" formatted="false">"프로필 삭제"</string>
+    <string name="legacy_error_download_install_680ffe96e7" formatted="false">"다운로드 및 설치"</string>
+    <string name="legacy_error_downloading_latest_apk_from_github_9a141b483e" formatted="false">"GitHub에서 최신 APK를 다운로드하는 중…"</string>
+    <string name="legacy_error_each_person_gets_their_own_pinned_a_350015e5c6" formatted="false">"각 프로필마다 고정된 앱과 이어보기 목록이 별도로 저장됩니다."</string>
+    <string name="legacy_error_easy_setup_automatic_via_adb_3f7a6b2155" formatted="false">"간편 설정 (ADB 자동 권한 부여)"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"앱 접기"</string>
+    <string name="legacy_error_glass_82c268188c" formatted="false">"글래스"</string>
+    <string name="legacy_error_grant_all_via_adb_320e08a9da" formatted="false">"ADB로 모든 권한 부여"</string>
+    <string name="legacy_error_grant_permissions_now_859526e49d" formatted="false">"지금 권한 부여"</string>
+    <string name="legacy_error_grant_permissions_one_by_one_manual_b5cbe865ab" formatted="false">"권한을 하나씩 수동으로 허용합니다"</string>
+    <string name="legacy_error_grant_storage_permission_76e254101d" formatted="false">"저장소 권한 허용"</string>
+    <string name="legacy_error_grant_19c1380d8a" formatted="false">"허용 ›"</string>
+    <string name="legacy_error_grants_all_required_permissions_aut_811773c2f1" formatted="false">"필요한 모든 권한을 한 번에 자동으로 부여합니다"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"폭설"</string>
+    <string name="legacy_error_hide_from_all_apps_f82d9040ea" formatted="false">"모든 앱에서 숨기기"</string>
+    <string name="legacy_error_home_system_7ed5ca2145" formatted="false">"홈 및 시스템"</string>
+    <string name="legacy_error_installing_update_29e74e90ba" formatted="false">"업데이트 설치 중…"</string>
+    <string name="legacy_error_keep_alive_194eed9348" formatted="false">"KEEP ALIVE (자동 권한 복구)"</string>
+    <string name="legacy_error_keep_alive_auto_repair_permissions_64dec5b4f2" formatted="false">"Keep Alive (권한 자동 복구)"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"이어보기"</string>
+    <string name="legacy_error_latest_github_version_v_81c9e53520" formatted="false">"최신 GitHub 버전: v"</string>
+    <string name="legacy_error_listen_for_a_remote_key_press_b07b1c60a5" formatted="false">"리모컨 버튼 입력 대기"</string>
+    <string name="legacy_error_loading_titles_be1d486f11" formatted="false">"콘텐츠 불러오는 중…"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"외관 및 장면"</string>
+    <string name="legacy_error_manual_permissions_bbed716e43" formatted="false">"수동 권한 설정"</string>
+    <string name="legacy_error_modern_eef6c7f6dd" formatted="false">"모던"</string>
+    <string name="legacy_error_more_apps_2216905b85" formatted="false">"더 많은 앱"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"더 많은 앱"</string>
+    <string name="legacy_error_most_watched_68c54c41e7" formatted="false">"인기 콘텐츠"</string>
+    <string name="legacy_error_move_left_in_dock_d545778104" formatted="false">"독에서 왼쪽으로 이동"</string>
+    <string name="legacy_error_move_right_in_dock_b44019a1fc" formatted="false">"독에서 오른쪽으로 이동"</string>
+    <string name="legacy_error_no_recent_apps_6337834ebc" formatted="false">"최근 실행한 앱 없음"</string>
+    <string name="legacy_error_not_paired_adb_off_0b378808e9" formatted="false">"페어링 안 됨 (ADB 꺼짐)"</string>
+    <string name="legacy_error_output_b2439bcb8d" formatted="false">"출력"</string>
+    <string name="legacy_error_profiles_3e77bfe515" formatted="false">"프로필"</string>
+    <string name="legacy_error_paired_ready_2379bb9b76" formatted="false">"페어링 완료"</string>
+    <string name="legacy_error_pin_to_home_db029e6fe7" formatted="false">"홈에 고정"</string>
+    <string name="legacy_error_profiles_535e52e4a2" formatted="false">"프로필"</string>
+    <string name="legacy_error_quick_buttons_c1ecfd327d" formatted="false">"빠른 설정"</string>
+    <string name="legacy_error_remapped_buttons_c7ad2f6241" formatted="false">"매핑된 리모컨 버튼"</string>
+    <string name="legacy_error_remote_fixes_dbaca856c6" formatted="false">"리모컨 수정"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"CleanYourTV 다시 다운로드"</string>
+    <string name="legacy_error_remove_from_dock_b27d77465c" formatted="false">"독에서 제거"</string>
+    <string name="legacy_error_rounded_0a62cd800f" formatted="false">"둥근 글꼴"</string>
+    <string name="legacy_error_select_your_language_to_begin_2878d6f6a0" formatted="false">"시작하려면 언어를 선택하세요"</string>
+    <string name="legacy_error_serif_1b5e747e50" formatted="false">"명조(세리프)"</string>
+    <string name="legacy_error_settings_c239b59a77" formatted="false">"설정 ›"</string>
+    <string name="legacy_error_setup_complete_5983596601" formatted="false">"설정 완료"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"소나기"</string>
+    <string name="legacy_error_sleep_d466bcf52e" formatted="false">"절전"</string>
+    <string name="legacy_error_stencil_0d2302c761" formatted="false">"스텐실"</string>
+    <string name="legacy_error_storage_folders_65d3d1d26d" formatted="false">"저장소 폴더"</string>
+    <string name="legacy_error_switch_39921a740b" formatted="false">"전환"</string>
+    <string name="legacy_error_system_file_picker_c706f36550" formatted="false">"시스템 파일 선택기…"</string>
+    <string name="legacy_error_unpin_from_home_df00f5de07" formatted="false">"홈에서 고정 해제"</string>
+    <string name="legacy_error_up_to_date_105c24d6fc" formatted="false">"최신 상태"</string>
+    <string name="legacy_error_update_check_failed_2983d175b8" formatted="false">"업데이트 확인 실패"</string>
+    <string name="legacy_error_update_failed_5da8e751a4" formatted="false">"업데이트 실패"</string>
+    <string name="legacy_error_updating_tvos_launcher_56b2074873" formatted="false">"tvOS Launcher 업데이트 중"</string>
+    <string name="legacy_error_you_are_running_the_latest_version_e9af7e897b" formatted="false">"최신 버전을 사용 중입니다."</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"홈 설정"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"이어보기"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"취침 예약"</string>
+    <string name="language_option_title" formatted="false">"한국어"</string>
+    <string name="language_option_description" formatted="false">"tvOS Launcher를 한국어로 사용"</string>
+    <string name="search_available_on">"%1$s에서"</string>
+</resources>

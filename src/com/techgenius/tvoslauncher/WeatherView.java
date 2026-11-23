@@ -44,7 +44,7 @@ final class WeatherView extends View {
     protected void onDraw(Canvas c) {
         Context ctx = getContext();
         if (data == null) {
-            text(c, I18n.s(ctx, "Getting the weather\u2026", "Hava durumu alınıyor\u2026"), getWidth() / 2f, getHeight() / 2f + 5 * u, 13, medium, 0.7f, Paint.Align.CENTER);
+            text(c, I18n.resourceString(ctx, R.string.text_getting_the_weather), getWidth() / 2f, getHeight() / 2f + 5 * u, 13, medium, 0.7f, Paint.Align.CENTER);
             return;
         }
         if (full) drawFull(c);
@@ -61,7 +61,7 @@ final class WeatherView extends View {
         float tw = text(c, d.temp + "\u00b0", tx, h / 2f + 8 * u, 22, regular, 1f, Paint.Align.LEFT);
         float cx = tx + tw + 9 * u;
         text(c, Weather.describe(ctx, d.code, d.day), cx, h / 2f - 2 * u, 11.5f, semibold, 1f, Paint.Align.LEFT);
-        text(c, (d.place.isEmpty() ? "" : d.place + "  ") + I18n.s(ctx, "H:", "Y:") + d.max + "\u00b0 " + I18n.s(ctx, "L:", "D:") + d.min + "\u00b0",
+        text(c, (d.place.isEmpty() ? "" : d.place + "  ") + I18n.resourceString(ctx, R.string.text_h) + d.max + "\u00b0 " + I18n.resourceString(ctx, R.string.text_l) + d.min + "\u00b0",
                 cx, h / 2f + 12 * u, 11.5f, medium, 0.7f, Paint.Align.LEFT);
     }
 
@@ -70,15 +70,15 @@ final class WeatherView extends View {
         Weather.Data d = data;
         float w = getWidth(), pad = 20 * u, x0 = pad, x1 = w - pad, mid = w / 2f;
         // Header
-        text(c, d.place.isEmpty() ? I18n.s(ctx, "My Location", "Konumum") : d.place, mid, pad + 14 * u, 17, semibold, 1f, Paint.Align.CENTER);
+        text(c, d.place.isEmpty() ? I18n.resourceString(ctx, R.string.text_my_location) : d.place, mid, pad + 14 * u, 17, semibold, 1f, Paint.Align.CENTER);
         text(c, d.temp + "\u00b0", mid + 5 * u, pad + 66 * u, 54, regular, 1f, Paint.Align.CENTER);
         text(c, Weather.describe(ctx, d.code, d.day), mid, pad + 86 * u, 14.5f, medium, 0.85f, Paint.Align.CENTER);
-        text(c, I18n.s(ctx, "H:", "Y:") + d.max + "\u00b0  " + I18n.s(ctx, "L:", "D:") + d.min + "\u00b0", mid, pad + 104 * u, 13.5f, medium, 0.85f, Paint.Align.CENTER);
+        text(c, I18n.resourceString(ctx, R.string.text_h) + d.max + "\u00b0  " + I18n.resourceString(ctx, R.string.text_l) + d.min + "\u00b0", mid, pad + 104 * u, 13.5f, medium, 0.85f, Paint.Align.CENTER);
 
         // Hourly
         float y = pad + 126 * u;
-        text(c, I18n.s(ctx, "HOURLY FORECAST", "SAATLİK TAHMİN"), x0, y, 11.5f, semibold, 0.55f, Paint.Align.LEFT);
-        text(c, I18n.s(ctx, "Humidity ", "Nem %") + d.humidity + (I18n.isTr(ctx) ? "" : "%") + "  \u00b7  " + I18n.s(ctx, "Wind ", "Rüzgar ") + d.wind + " " + d.windUnit, x1, y, 11.5f, medium, 0.55f, Paint.Align.RIGHT);
+        text(c, I18n.resourceString(ctx, R.string.text_hourly_forecast), x0, y, 11.5f, semibold, 0.55f, Paint.Align.LEFT);
+        text(c, I18n.resourceString(ctx, R.string.text_humidity) + d.humidity + (I18n.isTr(ctx) ? "" : "%") + "  \u00b7  " + I18n.resourceString(ctx, R.string.text_wind) + d.wind + " " + d.windUnit, x1, y, 11.5f, medium, 0.55f, Paint.Align.RIGHT);
         hairline(c, x0, x1, y + 8 * u);
         int hn = Math.min(6, d.hours.size());
         float hw = (x1 - x0) / Math.max(1, hn);
@@ -92,7 +92,7 @@ final class WeatherView extends View {
 
         // 5-day list with range bars
         y += 102 * u;
-        text(c, I18n.s(ctx, "5-DAY FORECAST", "5 GÜNLÜK TAHMİN"), x0, y, 11.5f, semibold, 0.55f, Paint.Align.LEFT);
+        text(c, I18n.resourceString(ctx, R.string.text_5_day_forecast), x0, y, 11.5f, semibold, 0.55f, Paint.Align.LEFT);
         int lo = Integer.MAX_VALUE, hi = Integer.MIN_VALUE;
         for (Weather.Day day : d.days) {
             lo = Math.min(lo, day.min);
@@ -140,7 +140,7 @@ final class WeatherView extends View {
         }
         // Source and time of the last update.
         String when = android.text.format.DateFormat.getTimeFormat(getContext()).format(new java.util.Date(d.fetchedAt));
-        text(c, Weather.sourceName(d.source) + "  \u00b7  " + I18n.s(ctx, "Updated ", "Güncellendi ") + when, mid, getHeight() - 14 * u, 11.5f, medium, 0.5f, Paint.Align.CENTER);
+        text(c, Weather.sourceName(d.source) + "  \u00b7  " + I18n.resourceString(ctx, R.string.text_updated) + when, mid, getHeight() - 14 * u, 11.5f, medium, 0.5f, Paint.Align.CENTER);
     }
 
     /** Apple Weather's palette: blue (cold) -> teal -> green -> yellow -> orange -> red (hot). */

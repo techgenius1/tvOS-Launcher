@@ -341,13 +341,13 @@ public final class HomeDashboard {
     }
 
     public static String getWidgetTitleById(Context c, String id) {
-        if (WIDGET_PRAYER.equals(id)) return I18n.t(c, "dash_prayer_times");
-        if (WIDGET_FOOTBALL.equals(id)) return I18n.t(c, "dash_football");
-        if (WIDGET_RELEASES.equals(id)) return I18n.t(c, "dash_latest_releases");
-        if (WIDGET_WEATHER.equals(id)) return I18n.t(c, "weather");
-        if (WIDGET_CRICKET.equals(id)) return I18n.t(c, "dash_cricket");
-        if (WIDGET_NEWS.equals(id)) return I18n.t(c, "dash_news");
-        if (WIDGET_TOP_MEDIA.equals(id)) return I18n.t(c, "dash_top_media");
+        if (WIDGET_PRAYER.equals(id)) return I18n.resourceString(c, R.string.text_dash_prayer_times);
+        if (WIDGET_FOOTBALL.equals(id)) return I18n.resourceString(c, R.string.text_dash_football);
+        if (WIDGET_RELEASES.equals(id)) return I18n.resourceString(c, R.string.text_dash_latest_releases);
+        if (WIDGET_WEATHER.equals(id)) return I18n.resourceString(c, R.string.text_weather);
+        if (WIDGET_CRICKET.equals(id)) return I18n.resourceString(c, R.string.text_live_cricket_scores);
+        if (WIDGET_NEWS.equals(id)) return I18n.resourceString(c, R.string.text_dash_news);
+        if (WIDGET_TOP_MEDIA.equals(id)) return I18n.resourceString(c, R.string.text_dash_top_media);
         return id;
     }
 
@@ -560,7 +560,7 @@ public final class HomeDashboard {
     public static String getReleasesCountriesSummary(Context c) {
         if (isReleasesCountryAuto(c)) {
             String cc = defaultCountryForUiLang(c);
-            return I18n.t(c, "releases_country_auto") + " (" + cc + ")";
+            return I18n.resourceString(c, R.string.text_releases_country_auto) + " (" + cc + ")";
         }
         List<String> codes = getEffectiveReleasesCountries(c);
         if (codes.size() == 1) {
@@ -737,11 +737,11 @@ public final class HomeDashboard {
                 Weather.Data wd = Weather.cached(c);
                 if (wd != null && wd.place != null) wx = wd.place;
             }
-            String base = I18n.s(c, "Sync with Weather", "Hava Durumu ile e\u015fitle");
+            String base = I18n.resourceString(c, R.string.text_sync_with_weather);
             return (wx != null && !wx.isEmpty()) ? (base + " (" + wx + ")") : base;
         }
         String custom = prefs(c).getString(KEY_PRAYER_LOC_NAME, "");
-        return (custom != null && !custom.isEmpty()) ? custom : I18n.s(c, "Custom", "\u00d6zel");
+        return (custom != null && !custom.isEmpty()) ? custom : I18n.resourceString(c, R.string.text_custom);
     }
 
     public interface PrayerCallback {
@@ -901,11 +901,11 @@ public final class HomeDashboard {
 
     public static String[] getPrayerLabels(Context c) {
         return new String[]{
-            I18n.t(c, "prayer_fajr"),
-            I18n.t(c, "prayer_dhuhr"),
-            I18n.t(c, "prayer_asr"),
-            I18n.t(c, "prayer_maghrib"),
-            I18n.t(c, "prayer_isha")
+            I18n.resourceString(c, R.string.text_prayer_fajr),
+            I18n.resourceString(c, R.string.text_prayer_dhuhr),
+            I18n.resourceString(c, R.string.text_prayer_asr),
+            I18n.resourceString(c, R.string.text_prayer_maghrib),
+            I18n.resourceString(c, R.string.text_prayer_isha)
         };
     }
 
@@ -1517,14 +1517,14 @@ public final class HomeDashboard {
     public static void showWidgetLongPressMenu(final MainActivity host, final View anchorCard, final String widgetId) {
         List<String> labels = new ArrayList<String>();
         List<Runnable> actions = new ArrayList<Runnable>();
-        labels.add(I18n.s(host, "Move", "Taşı"));
+        labels.add(I18n.resourceString(host, R.string.text_move));
         actions.add(new Runnable() {
             @Override
             public void run() {
                 startMovingWidget(host, widgetId);
             }
         });
-        labels.add(I18n.s(host, "Disable", "Kapat"));
+        labels.add(I18n.resourceString(host, R.string.text_disable));
         actions.add(new Runnable() {
             @Override
             public void run() {
@@ -1619,7 +1619,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_prayer_times"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_dash_prayer_times));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -1679,8 +1679,8 @@ public final class HomeDashboard {
                 int mins = remMin % 60;
                 nextPrayerTv.setText(labels[nextIdx] + "  " + times[nextIdx]);
                 String remStr = hrs > 0
-                        ? (hrs + "h " + mins + "m " + I18n.t(host, "prayer_remaining"))
-                        : (mins + "m " + I18n.t(host, "prayer_remaining"));
+                        ? (hrs + "h " + mins + "m " + I18n.resourceString(host, R.string.text_prayer_remaining))
+                        : (mins + "m " + I18n.resourceString(host, R.string.text_prayer_remaining));
                 countdownTv.setText(remStr);
 
                 String stripSig = nextIdx + "|" + d.fajr + "|" + d.dhuhr + "|" + d.asr + "|" + d.maghrib + "|" + d.isha;
@@ -1753,7 +1753,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_football"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_dash_football));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -1788,7 +1788,7 @@ public final class HomeDashboard {
                     matchRows.removeAllViews();
                     badgeTv.setText("");
                     TextView empty = new TextView(host);
-                    empty.setText(I18n.t(host, "football_loading"));
+                    empty.setText(I18n.resourceString(host, R.string.text_football_loading));
                     empty.setTextColor(0x99FFFFFF);
                     empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
                     matchRows.addView(empty);
@@ -1927,7 +1927,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_latest_releases"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_dash_latest_releases));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -1973,7 +1973,7 @@ public final class HomeDashboard {
                 List<String> effCountries = getEffectiveReleasesCountries(host);
                 countryBadgeTv.setText(TextUtils.join(",", effCountries));
                 if (itemsRef.isEmpty()) {
-                    titleTv.setText(I18n.t(host, "releases_loading"));
+                    titleTv.setText(I18n.resourceString(host, R.string.text_releases_loading));
                     metaTv.setText("");
                     return;
                 }
@@ -2061,7 +2061,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "weather"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_weather));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -2088,7 +2088,7 @@ public final class HomeDashboard {
         todayCol.setOrientation(LinearLayout.VERTICAL);
 
         TextView todayLabelTv = new TextView(host);
-        todayLabelTv.setText(I18n.s(host, "Today", "Bugün"));
+        todayLabelTv.setText(I18n.resourceString(host, R.string.text_today));
         todayLabelTv.setTextColor(0x99FFFFFF);
         todayLabelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
         todayLabelTv.setSingleLine(true);
@@ -2140,7 +2140,7 @@ public final class HomeDashboard {
         tomCol.setOrientation(LinearLayout.VERTICAL);
 
         TextView tomLabelTv = new TextView(host);
-        tomLabelTv.setText(I18n.t(host, "tomorrow_short"));
+        tomLabelTv.setText(I18n.resourceString(host, R.string.text_tomorrow_short));
         tomLabelTv.setTextColor(0x99FFFFFF);
         tomLabelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
         tomLabelTv.setSingleLine(true);
@@ -2190,7 +2190,7 @@ public final class HomeDashboard {
                 Weather.Data w = Weather.cached(host);
                 if (w == null) {
                     tempTv.setText("--°");
-                    condTv.setText(I18n.t(host, "weather_updating"));
+                    condTv.setText(I18n.resourceString(host, R.string.text_weather_updating));
                     cityTv.setText("");
                     weatherDiv.setVisibility(View.GONE);
                     tomCol.setVisibility(View.GONE);
@@ -2346,7 +2346,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_cricket"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_live_cricket_scores));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -2379,7 +2379,7 @@ public final class HomeDashboard {
                     lastCricketSig[0] = "EMPTY";
                     rowsBox.removeAllViews();
                     TextView tv = new TextView(host);
-                    tv.setText(I18n.s(host, "Loading cricket scores…", "Kriket skorları yükleniyor…"));
+                    tv.setText(I18n.resourceString(host, R.string.text_loading_cricket_scores));
                     tv.setTextColor(0x99FFFFFF);
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10.5f);
                     rowsBox.addView(tv);
@@ -2491,7 +2491,7 @@ public final class HomeDashboard {
     public static String getNewsCountrySummary(Context c) {
         if (isNewsCountryAuto(c)) {
             String cc = getEffectiveNewsCountry(c);
-            return I18n.t(c, "news_country_auto") + " (" + cc + ")";
+            return I18n.resourceString(c, R.string.text_news_country_auto) + " (" + cc + ")";
         }
         return getNewsCountryDisplayName(getEffectiveNewsCountry(c));
     }
@@ -2597,7 +2597,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_news"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_dash_news));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -2645,7 +2645,7 @@ public final class HomeDashboard {
             @Override
             public void run() {
                 if (sMemNews.isEmpty()) {
-                    headlineTv.setText(I18n.s(host, "Loading top headlines…", "Gündem haberleri yükleniyor…"));
+                    headlineTv.setText(I18n.resourceString(host, R.string.text_loading_top_headlines));
                     srcBadge.setText("● LIVE");
                     newsDivider.setVisibility(View.GONE);
                     subTv.setText("");
@@ -2658,7 +2658,7 @@ public final class HomeDashboard {
                 if (sMemNews.size() > 1) {
                     NewsHeadline next = sMemNews.get((sNewsIdx + 1) % sMemNews.size());
                     newsDivider.setVisibility(View.VISIBLE);
-                    subTv.setText(I18n.s(host, "Next: ", "Sonraki: ") + next.title);
+                    subTv.setText(I18n.resourceString(host, R.string.text_next_b8f003) + next.title);
                 } else {
                     newsDivider.setVisibility(View.GONE);
                     subTv.setText("");
@@ -2761,7 +2761,7 @@ public final class HomeDashboard {
         head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
 
         TextView headerTitle = new TextView(host);
-        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_top_media"));
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.resourceString(host, R.string.text_dash_top_media));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
@@ -2798,7 +2798,7 @@ public final class HomeDashboard {
             @Override
             public void run() {
                 if (sMemTopMedia.isEmpty()) {
-                    titleTv.setText(I18n.s(host, "Loading IMDb Top…", "IMDb En İyiler yükleniyor…"));
+                    titleTv.setText(I18n.resourceString(host, R.string.text_loading_imdb_top));
                     metaTv.setText("");
                     return;
                 }
@@ -2806,8 +2806,8 @@ public final class HomeDashboard {
                 final Suggestions.Item it = sMemTopMedia.get(sTopMediaIdx);
                 titleTv.setText(it.title != null ? it.title : "");
                 String badge = "series".equalsIgnoreCase(it.type)
-                        ? I18n.s(host, "Web Series", "Dizi")
-                        : I18n.s(host, "Movie", "Film");
+                        ? I18n.resourceString(host, R.string.text_web_series)
+                        : I18n.resourceString(host, R.string.text_movie);
                 StringBuilder sb = new StringBuilder(badge);
                 if (it.year != null && !it.year.isEmpty()) sb.append(" • ").append(it.year);
                 if (it.rating > 0) sb.append(String.format(Locale.US, " • ★ %.1f", it.rating));
@@ -2862,7 +2862,7 @@ public final class HomeDashboard {
         PrayerData pd = getCachedOrFallbackPrayer(host);
 
         TextView title = new TextView(host);
-        title.setText(I18n.t(host, "dash_prayer_times")
+        title.setText(I18n.resourceString(host, R.string.text_dash_prayer_times)
                 + (pd.city != null && !pd.city.isEmpty() ? (" — " + pd.city) : ""));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
@@ -2871,12 +2871,12 @@ public final class HomeDashboard {
 
         int[] next = computeNextPrayer(pd);
         String[] labels = {
-            I18n.t(host, "prayer_fajr"),
-            I18n.t(host, "prayer_sunrise"),
-            I18n.t(host, "prayer_dhuhr"),
-            I18n.t(host, "prayer_asr"),
-            I18n.t(host, "prayer_maghrib"),
-            I18n.t(host, "prayer_isha")
+            I18n.resourceString(host, R.string.text_prayer_fajr),
+            I18n.resourceString(host, R.string.text_prayer_sunrise),
+            I18n.resourceString(host, R.string.text_prayer_dhuhr),
+            I18n.resourceString(host, R.string.text_prayer_asr),
+            I18n.resourceString(host, R.string.text_prayer_maghrib),
+            I18n.resourceString(host, R.string.text_prayer_isha)
         };
         String[] times = { pd.fajr, pd.sunrise, pd.dhuhr, pd.asr, pd.maghrib, pd.isha };
         int highlightIdx = next[0] == 0 ? 0 : next[0] + 1;
@@ -2919,7 +2919,7 @@ public final class HomeDashboard {
 
         // Location selector button (Country / City or Sync with Weather)
         final TextView locBtn = createActionPill(host,
-                I18n.s(host, "Location", "Konum") + ": " + getPrayerLocationSummary(host));
+                I18n.resourceString(host, R.string.text_location_eeea97) + ": " + getPrayerLocationSummary(host));
         LinearLayout.LayoutParams lblp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lblp.topMargin = dp(host, 14);
@@ -2934,7 +2934,7 @@ public final class HomeDashboard {
 
         // Calculation method cycle button
         final TextView methodBtn = createActionPill(host,
-                I18n.t(host, "prayer_method_label") + ": " + getPrayerMethodName(host));
+                I18n.resourceString(host, R.string.text_prayer_method_label) + ": " + getPrayerMethodName(host));
         LinearLayout.LayoutParams mblp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mblp.topMargin = dp(host, 8);
@@ -2950,7 +2950,7 @@ public final class HomeDashboard {
                     }
                 }
                 setPrayerMethod(host, PRAYER_METHOD_IDS[nextIdx]);
-                methodBtn.setText(I18n.t(host, "prayer_method_label") + ": " + getPrayerMethodName(host));
+                methodBtn.setText(I18n.resourceString(host, R.string.text_prayer_method_label) + ": " + getPrayerMethodName(host));
                 fetchPrayerTimes(host, true, new PrayerCallback() {
                     @Override
                     public void onResult(PrayerData data) {
@@ -2972,7 +2972,7 @@ public final class HomeDashboard {
         LinearLayout panel = createModalContainer(host, dp(host, 560));
 
         TextView title = new TextView(host);
-        title.setText(I18n.s(host, "Prayer Times Location", "Namaz Vakitleri Konumu"));
+        title.setText(I18n.resourceString(host, R.string.text_prayer_times_location_01fe75));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
@@ -3000,7 +3000,7 @@ public final class HomeDashboard {
         srlp.topMargin = dp(host, 12);
 
         final EditText input = new EditText(host);
-        input.setHint(I18n.s(host, "Search city or country (e.g. Istanbul, London)…", "Şehir veya ülke ara (örn. İstanbul, Londra)…"));
+        input.setHint(I18n.resourceString(host, R.string.text_search_city_or_country_e_g_istanbul_lond));
         input.setHintTextColor(0x88FFFFFF);
         input.setTextColor(Color.WHITE);
         input.setSingleLine(true);
@@ -3012,7 +3012,7 @@ public final class HomeDashboard {
         input.setBackground(inBg);
         searchRow.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        final TextView searchBtn = createActionPill(host, I18n.s(host, "Search", "Ara"));
+        final TextView searchBtn = createActionPill(host, I18n.resourceString(host, R.string.text_search_946f53));
         LinearLayout.LayoutParams sblp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         sblp.leftMargin = dp(host, 10);
@@ -3035,7 +3035,7 @@ public final class HomeDashboard {
                 boolean isAuto = isPrayerLocationAuto(host);
                 String wxCity = Weather.place(host);
                 String autoLbl = (isAuto ? "✓ " : "")
-                        + I18n.s(host, "Sync with Weather location", "Hava Durumu konumu ile eşitle")
+                        + I18n.resourceString(host, R.string.text_sync_with_weather_location)
                         + (wxCity != null && !wxCity.isEmpty() ? " (" + wxCity + ")" : "");
                 TextView autoRow = createActionPill(host, autoLbl);
                 autoRow.setOnClickListener(new View.OnClickListener() {
@@ -3083,7 +3083,7 @@ public final class HomeDashboard {
                 }
                 listCol.removeAllViews();
                 TextView loading = new TextView(host);
-                loading.setText(I18n.s(host, "Searching…", "Aranıyor…"));
+                loading.setText(I18n.resourceString(host, R.string.text_searching));
                 loading.setTextColor(0xB8FFFFFF);
                 loading.setPadding(dp(host, 8), dp(host, 12), dp(host, 8), dp(host, 12));
                 listCol.addView(loading);
@@ -3099,8 +3099,8 @@ public final class HomeDashboard {
                         if (res == null || res.isEmpty()) {
                             TextView empty = new TextView(host);
                             empty.setText(res == null
-                                    ? I18n.s(host, "Search failed. Check internet connection.", "Arama başarısız. İnternet bağlantısını kontrol edin.")
-                                    : I18n.s(host, "No matching city or country found.", "Eşleşen şehir veya ülke bulunamadı."));
+                                    ? I18n.resourceString(host, R.string.text_search_failed_check_internet_connection)
+                                    : I18n.resourceString(host, R.string.text_no_matching_city_or_country_found));
                             empty.setTextColor(0xB8FFFFFF);
                             empty.setPadding(dp(host, 8), dp(host, 12), dp(host, 8), dp(host, 12));
                             listCol.addView(empty);
@@ -3143,13 +3143,13 @@ public final class HomeDashboard {
         headerRow.setOrientation(LinearLayout.HORIZONTAL);
         headerRow.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = new TextView(host);
-        title.setText(I18n.t(host, "dash_football"));
+        title.setText(I18n.resourceString(host, R.string.text_dash_football));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
         headerRow.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView refreshPill = createActionPill(host, "↻ " + I18n.s(host, "Refresh", "Yenile"));
+        TextView refreshPill = createActionPill(host, "↻ " + I18n.resourceString(host, R.string.text_refresh));
         refreshPill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -3174,8 +3174,8 @@ public final class HomeDashboard {
         alp.topMargin = dp(host, 10);
 
         final TextView filterBtn = createActionPill(host, favOnlyFilter
-                ? I18n.s(host, "Filter: ★ Favorites", "Filtre: ★ Favoriler")
-                : I18n.s(host, "Filter: All Matches", "Filtre: Tüm Maçlar"));
+                ? I18n.resourceString(host, R.string.text_filter_favorites)
+                : I18n.resourceString(host, R.string.text_filter_all_matches));
         filterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -3220,7 +3220,7 @@ public final class HomeDashboard {
         });
         actions.addView(leagueBtn, lgLp);
 
-        TextView favBtn = createActionPill(host, "★ " + I18n.t(host, "football_fav_teams"));
+        TextView favBtn = createActionPill(host, "★ " + I18n.resourceString(host, R.string.text_football_fav_teams));
         LinearLayout.LayoutParams fblp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         fblp.leftMargin = dp(host, 8);
         favBtn.setOnClickListener(new View.OnClickListener() {
@@ -3248,9 +3248,8 @@ public final class HomeDashboard {
         if (matches.isEmpty()) {
             TextView empty = new TextView(host);
             empty.setText(favOnlyFilter
-                    ? I18n.s(host, "No upcoming or live matches found for your favorite teams.",
-                            "Favori takımlarınız için yaklaşan veya canlı maç bulunamadı.")
-                    : I18n.t(host, "football_no_matches"));
+                    ? I18n.resourceString(host, R.string.text_no_upcoming_or_live_matches_found_for_yo)
+                    : I18n.resourceString(host, R.string.text_football_no_matches));
             empty.setTextColor(0x99FFFFFF);
             empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
             empty.setPadding(0, dp(host, 20), 0, dp(host, 20));
@@ -3366,7 +3365,7 @@ public final class HomeDashboard {
         LinearLayout panel = createModalContainer(host, dp(host, 560));
 
         TextView title = new TextView(host);
-        title.setText("★ " + I18n.t(host, "football_fav_teams"));
+        title.setText("★ " + I18n.resourceString(host, R.string.text_football_fav_teams));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
@@ -3381,7 +3380,7 @@ public final class HomeDashboard {
         crlp.topMargin = dp(host, 10);
 
         final EditText input = new EditText(host);
-        input.setHint(I18n.s(host, "Enter any club or national team…", "Herhangi bir kulüp veya milli takım yazın…"));
+        input.setHint(I18n.resourceString(host, R.string.text_enter_any_club_or_national_team));
         input.setHintTextColor(0x77FFFFFF);
         input.setTextColor(Color.WHITE);
         input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
@@ -3394,7 +3393,7 @@ public final class HomeDashboard {
         input.setBackground(inBg);
         customRow.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView addBtn = createActionPill(host, "+ " + I18n.s(host, "Add", "Ekle"));
+        TextView addBtn = createActionPill(host, "+ " + I18n.resourceString(host, R.string.text_add));
         LinearLayout.LayoutParams ablp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ablp.leftMargin = dp(host, 8);
@@ -3470,7 +3469,7 @@ public final class HomeDashboard {
 
         LinearLayout panel = createModalContainer(host, dp(host, 600));
         TextView title = new TextView(host);
-        title.setText(I18n.s(host, "Live Cricket Scores", "Canlı Kriket Skorları"));
+        title.setText(I18n.resourceString(host, R.string.text_live_cricket_scores));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
@@ -3500,7 +3499,7 @@ public final class HomeDashboard {
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
-        TextView refreshBtn = createActionPill(host, "↻ " + I18n.s(host, "Refresh Scores", "Skorları Yenile"));
+        TextView refreshBtn = createActionPill(host, "↻ " + I18n.resourceString(host, R.string.text_refresh_scores));
         LinearLayout.LayoutParams rblp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         rblp.topMargin = dp(host, 12);
@@ -3528,7 +3527,7 @@ public final class HomeDashboard {
 
         LinearLayout panel = createModalContainer(host, dp(host, 620));
         TextView title = new TextView(host);
-        title.setText(I18n.s(host, "Live News Headlines", "Canlı Haber Başlıkları"));
+        title.setText(I18n.resourceString(host, R.string.text_live_news_headlines));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
@@ -3570,7 +3569,7 @@ public final class HomeDashboard {
 
         LinearLayout panel = createModalContainer(host, dp(host, 580));
         TextView title = new TextView(host);
-        title.setText(I18n.s(host, "Top Movies & Web Series", "En İyi Filmler ve Diziler"));
+        title.setText(I18n.resourceString(host, R.string.text_top_movies_web_series));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
@@ -3584,8 +3583,8 @@ public final class HomeDashboard {
             final int idx = i;
             final Suggestions.Item it = sMemTopMedia.get(i);
             String badge = "series".equalsIgnoreCase(it.type)
-                    ? I18n.s(host, "Series", "Dizi")
-                    : I18n.s(host, "Movie", "Film");
+                    ? I18n.resourceString(host, R.string.text_series)
+                    : I18n.resourceString(host, R.string.text_movie);
             String label = "[" + badge + "]  " + it.title
                     + (it.year != null && !it.year.isEmpty() ? (" (" + it.year + ")") : "")
                     + (it.rating > 0 ? String.format(Locale.US, "   ★ %.1f", it.rating) : "");
@@ -3619,7 +3618,7 @@ public final class HomeDashboard {
         LinearLayout panel = createModalContainer(host, dp(host, 560));
 
         TextView title = new TextView(host);
-        title.setText(I18n.t(host, "dash_latest_releases"));
+        title.setText(I18n.resourceString(host, R.string.text_dash_latest_releases));
         title.setTextColor(Color.WHITE);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));

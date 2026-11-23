@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_12_hour" formatted="false">"12 timmar"</string>
+    <string name="text_24_hour" formatted="false">"24 timmar"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"En stor glasklocka med scener som turas om"</string>
+    <string name="text_about" formatted="false">"Om"</string>
+    <string name="text_accessibility_service_a268b7" formatted="false">"TILLGÄNGLIGHETSTJÄNST"</string>
+    <string name="text_active_42209d" formatted="false">"aktiva"</string>
+    <string name="text_active_60b543" formatted="false">"Aktiv"</string>
+    <string name="text_active_in_accessibility" formatted="false">"Aktiv i Tillgänglighet"</string>
+    <string name="text_ad_blocking_private_dns_adguard" formatted="false">"Annonsblockerande privat DNS (AdGuard)"</string>
+    <string name="text_adb_connection_status" formatted="false">"ADB-anslutningsstatus"</string>
+    <string name="text_add_a_person_f14c89" formatted="false">"Lägg till en person"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"Avancerat"</string>
+    <string name="text_align_center" formatted="false">"Mitten"</string>
+    <string name="text_align_left" formatted="false">"Vänster"</string>
+    <string name="text_align_right" formatted="false">"Höger"</string>
+    <string name="text_always_on" formatted="false">"Alltid på"</string>
+    <string name="text_ambient_colour_themes_028289" formatted="false">"Stämningsfulla färgteman…"</string>
+    <string name="text_ambient_mode" formatted="false">"Viloläge"</string>
+    <string name="text_app_icon_editor" formatted="false">"Appikonredigerare"</string>
+    <string name="text_app_icon_updated" formatted="false">"Appikon uppdaterad"</string>
+    <string name="text_app_info_3cd62b" formatted="false">"Appinfo"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"Utseende och scener"</string>
+    <string name="text_application" formatted="false">"APPLIKATION"</string>
+    <string name="text_applications" formatted="false">"Applikationer"</string>
+    <string name="text_apply" formatted="false">"Tillämpa"</string>
+    <string name="text_apps_825c0a" formatted="false">"Appar"</string>
+    <string name="text_apps_using_nuvio" formatted="false">"Appar som använder Nuvio"</string>
+    <string name="text_audio" formatted="false">"Ljud"</string>
+    <string name="text_automatic_from_internet" formatted="false">"Automatisk (från internet)"</string>
+    <string name="text_automatic_updates" formatted="false">"Automatiska uppdateringar"</string>
+    <string name="text_automatic_updates_disabled" formatted="false">"Automatiska uppdateringar inaktiverade."</string>
+    <string name="text_automatic_updates_enabled" formatted="false">"Automatiska uppdateringar aktiverade."</string>
+    <string name="text_back_to_apps" formatted="false">"Tillbaka till Appar"</string>
+    <string name="text_background_color" formatted="false">"Bakgrundsfärg"</string>
+    <string name="text_backup_restore" formatted="false">"SÄKERHETSKOPIERING OCH ÅTERSTÄLLNING"</string>
+    <string name="text_backup_settings_to_download" formatted="false">"Säkerhetskopiera inställningar till Download"</string>
+    <string name="text_black" formatted="false">"Svart"</string>
+    <string name="text_blue" formatted="false">"Blå"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"Knappmappare"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"Knappmappare"</string>
+    <string name="text_button_mapper_control_panel" formatted="false">"Knappmappare och kontrollpanel"</string>
+    <string name="text_cancel" formatted="false">"Avbryt"</string>
+    <string name="text_center" formatted="false">"Mitten"</string>
+    <string name="text_change_app_icon" formatted="false">"Ändra appikon"</string>
+    <string name="text_change_name_of_input" formatted="false">"Ändra namn på ingång"</string>
+    <string name="text_changes_the_words_on_the_home_screen_dat" formatted="false">"Ändrar språket på hemskärmen, datum, väder och inställningar."</string>
+    <string name="text_check_for_updates" formatted="false">"Sök efter uppdateringar"</string>
+    <string name="text_check_now" formatted="false">"Sök nu ›"</string>
+    <string name="text_check_permissions" formatted="false">"Kontrollera behörigheter"</string>
+    <string name="text_checking" formatted="false">"Söker…"</string>
+    <string name="text_checks_github_releases_techgenius1_tvos" formatted="false">"Söker på GitHub Releases (techgenius1/tvOS-Launcher) efter den senaste APK-filen och installerar uppdateringar direkt på din TV."</string>
+    <string name="text_choose_a_background" formatted="false">"Välj en bakgrund"</string>
+    <string name="text_choose_a_city" formatted="false">"Välj en stad…"</string>
+    <string name="text_choose_a_photo_or_ambient_colour_theme_b" formatted="false">"Välj ett foto eller ett färgtema bakom dina appar."</string>
+    <string name="text_choose_custom_background_image" formatted="false">"Välj bild för anpassad bakgrund"</string>
+    <string name="text_choose_custom_scene_image" formatted="false">"Välj bild för anpassad scen"</string>
+    <string name="text_choose_folder_840d4f" formatted="false">"Välj mapp ›"</string>
+    <string name="text_choose_how_you_want_your_home_screen_to" formatted="false">"Välj hur du vill att hemskärmen ska se ut."</string>
+    <string name="text_choose_image_44c803" formatted="false">"Välj bild…"</string>
+    <string name="text_choose_tv_model_eb4b40" formatted="false">"Välj TV-modell"</string>
+    <string name="text_choose_which_scenes_take_turns_behind_th" formatted="false">"Välj vilka scener som turas om bakom glasklockan."</string>
+    <string name="text_choose_your_scenes" formatted="false">"Välj dina scener"</string>
+    <string name="text_classic" formatted="false">"Klassisk"</string>
+    <string name="text_classic_background" formatted="false">"KLASSISK BAKGRUND"</string>
+    <string name="text_clear_aeec76" formatted="false">"Klart"</string>
+    <string name="text_clock" formatted="false">"Klocka"</string>
+    <string name="text_clock_font" formatted="false">"Klocktypsnitt"</string>
+    <string name="text_clock_position" formatted="false">"Klockposition"</string>
+    <string name="text_close_all" formatted="false">"Stäng alla"</string>
+    <string name="text_close" formatted="false">"Stäng"</string>
+    <string name="text_connected" formatted="false">"Ansluten"</string>
+    <string name="text_continue" formatted="false">"Fortsätt"</string>
+    <string name="text_continue_watching" formatted="false">"Fortsätt titta"</string>
+    <string name="text_control_panel" formatted="false">"Kontrollpanel"</string>
+    <string name="text_control_panel_overlay" formatted="false">"Kontrollpanel (överlägg)"</string>
+    <string name="text_could_not_load_selected_image" formatted="false">"Kunde inte läsa in den valda bilden."</string>
+    <string name="text_current_place" formatted="false">"Nuvarande plats"</string>
+    <string name="text_current_version" formatted="false">"Nuvarande version"</string>
+    <string name="text_custom" formatted="false">"Anpassad"</string>
+    <string name="text_custom_background_updated" formatted="false">"Anpassad bakgrund uppdaterad."</string>
+    <string name="text_custom_label" formatted="false">"Anpassad etikett"</string>
+    <string name="text_custom_scene_wallpaper_updated" formatted="false">"Anpassad scenbakgrund uppdaterad."</string>
+    <string name="text_dark" formatted="false">"Mörk"</string>
+    <string name="text_dash_latest_releases" formatted="false">"Mest sedda"</string>
+    <string name="text_dash_news" formatted="false">"Livenyheter"</string>
+    <string name="text_dash_top_media" formatted="false">"Toppfilmer och serier"</string>
+    <string name="text_debloat_status" formatted="false">"Debloat-status"</string>
+    <string name="text_debloat_tv_3ec289" formatted="false">"Rensa TV (Debloat)…"</string>
+    <string name="text_detected_automatically" formatted="false">"Identifierad automatiskt"</string>
+    <string name="text_developer" formatted="false">"Utvecklare"</string>
+    <string name="text_disable" formatted="false">"Inaktivera"</string>
+    <string name="text_disabled_apps_backup" formatted="false">"Säkerhetskopia av inaktiverade appar"</string>
+    <string name="text_do_not_disturb" formatted="false">"Stör ej"</string>
+    <string name="text_dock_rows" formatted="false">"Dockrader"</string>
+    <string name="text_don_t_show_weather" formatted="false">"Visa inte väder"</string>
+    <string name="text_done" formatted="false">"Klar"</string>
+    <string name="text_double_tap_2x" formatted="false">"Dubbeltryck (2x)"</string>
+    <string name="text_down" formatted="false">"Ner"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"Ladda ner CleanYourTV"</string>
+    <string name="text_each_scene_stays" formatted="false">"Varje scen visas i"</string>
+    <string name="text_enable_adb_debugging" formatted="false">"Aktivera ADB-felsökning"</string>
+    <string name="text_enable_in_accessibility" formatted="false">"Aktivera i Tillgänglighet…"</string>
+    <string name="text_enable_in_accessibility_so_remapped_butt" formatted="false">"Aktivera i Tillgänglighet så att omprogrammerade knappar fungerar i alla appar"</string>
+    <string name="text_finish_setting_up" formatted="false">"Slutför inställning"</string>
+    <string name="text_free_forecast_service_no_account_needed" formatted="false">"Gratis vädertjänst, inget konto behövs"</string>
+    <string name="text_get_started" formatted="false">"Kom igång"</string>
+    <string name="text_github_release_latest_version" formatted="false">"Senaste GitHub-version"</string>
+    <string name="text_go_to_home_screen" formatted="false">"Gå till hemskärmen"</string>
+    <string name="text_good_afternoon" formatted="false">"God eftermiddag"</string>
+    <string name="text_good_evening" formatted="false">"God kväll"</string>
+    <string name="text_good_morning" formatted="false">"God morgon"</string>
+    <string name="text_good_night" formatted="false">"God natt"</string>
+    <string name="text_gray" formatted="false">"Grå"</string>
+    <string name="text_green" formatted="false">"Grön"</string>
+    <string name="text_hidden_apps" formatted="false">"Dolda appar"</string>
+    <string name="text_hide" formatted="false">"Dölj"</string>
+    <string name="text_hide_input" formatted="false">"Dölj ingång"</string>
+    <string name="text_home_screen" formatted="false">"Hemskärm"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"Heminställningar"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"Heminställningar"</string>
+    <string name="text_inputs" formatted="false">"Ingångar"</string>
+    <string name="text_language" formatted="false">"Språk"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"Språk, väder, scener, appar och personer"</string>
+    <string name="text_left" formatted="false">"Vänster"</string>
+    <string name="text_let_s_set_up_tvos_launcher" formatted="false">"Låt oss ställa in tvOS Launcher."</string>
+    <string name="text_link_nuvio_forks_like_nuvio_native_legac" formatted="false">"Länka Nuvio-forkar (som Nuvio Native Legacy) som loggar in med samma Nuvio-konto. Deras ruta i dockan visar då Nuvios Fortsätt titta, och Sök öppnar titlar i dem."</string>
+    <string name="text_live_cricket_scores" formatted="false">"Live-cricketresultat"</string>
+    <string name="text_location_873ca7" formatted="false">"PLATS"</string>
+    <string name="text_location_eeea97" formatted="false">"Plats"</string>
+    <string name="text_long_press_volume_button_fix" formatted="false">"Fix för långt tryck på volymknappen"</string>
+    <string name="text_look" formatted="false">"UTSEENDE"</string>
+    <string name="text_make_tvos_launcher_the_home_screen" formatted="false">"Gör tvOS Launcher till hemskärm"</string>
+    <string name="text_manual_setup" formatted="false">"Manuell inställning"</string>
+    <string name="text_memory" formatted="false">"Minne"</string>
+    <string name="text_min_left" formatted="false">" min"</string>
+    <string name="text_minutes" formatted="false">" minuter"</string>
+    <string name="text_move" formatted="false">"Flytta"</string>
+    <string name="text_move_icon" formatted="false">"Flytta ikon"</string>
+    <string name="text_move_to_other_apps" formatted="false">"Flytta till Andra appar"</string>
+    <string name="text_news_country_auto" formatted="false">"Automatisk (synka med gränssnittsspråk)"</string>
+    <string name="text_next_9f81b4" formatted="false">"Nästa"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"Nattscener"</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"Inga senaste appar ännu"</string>
+    <string name="text_none" formatted="false">"Ingen"</string>
+    <string name="text_none_clear_action" formatted="false">"Ingen (rensa åtgärd)"</string>
+    <string name="text_not_installed" formatted="false">"Inte installerad"</string>
+    <string name="status_off" formatted="false">"Av"</string>
+    <string name="text_official_app" formatted="false">"Officiell app"</string>
+    <string name="text_ok_to_change_back_to_go_back" formatted="false">"OK för att ändra, Tillbaka för att gå tillbaka"</string>
+    <string name="text_ok_to_change_hold_ok_to_move_back_to_go" formatted="false">"OK för att ändra, håll in OK för att flytta, Tillbaka för att gå tillbaka"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore_back_to_go" formatted="false">"OK för att öppna  ·  Håll in OK för att återställa  ·  Tillbaka"</string>
+    <string name="status_on" formatted="false">"På"</string>
+    <string name="text_on_this_tv" formatted="false">"På denna TV"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"Ett foto och ett rutnät med appbanderoller"</string>
+    <string name="text_one_scene_has_to_stay_on" formatted="false">"Minst en scen måste vara aktiverad."</string>
+    <string name="text_open_4f0000" formatted="false">"Öppna"</string>
+    <string name="text_open_55abf9" formatted="false">"Öppna"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"Andra appar"</string>
+    <string name="text_other_apps_bdcc9c" formatted="false">"Andra appar"</string>
+    <string name="text_pair_now" formatted="false">"Parkoppla nu"</string>
+    <string name="text_pair_repair_adb_connection" formatted="false">"Parkoppla / reparera ADB-anslutning"</string>
+    <string name="text_people_3a2eb8" formatted="false">"Personer"</string>
+    <string name="text_pink" formatted="false">"Rosa"</string>
+    <string name="text_power_off" formatted="false">"Stäng av"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"Tryck ▲ på en app för att stänga den"</string>
+    <string name="text_preview" formatted="false">"Förhandsgranskning"</string>
+    <string name="text_purple" formatted="false">"Lila"</string>
+    <string name="text_quick_settings" formatted="false">"Snabbinställningar"</string>
+    <string name="text_recent_apps" formatted="false">"Senaste appar"</string>
+    <string name="text_recent_apps_switcher" formatted="false">"Senaste appväxlare"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"Senaste appväxlare (överlägg)"</string>
+    <string name="text_red" formatted="false">"Röd"</string>
+    <string name="text_refresh" formatted="false">"Uppdatera"</string>
+    <string name="text_releases_country_auto" formatted="false">"Automatisk (synka med gränssnittsspråk)"</string>
+    <string name="text_releases_country_setting" formatted="false">"Mest sedda länder"</string>
+    <string name="text_releases_loading" formatted="false">"Laddar titlar…"</string>
+    <string name="text_rename_app" formatted="false">"Byt namn på app"</string>
+    <string name="text_rename_e8372b" formatted="false">"Byt namn…"</string>
+    <string name="text_rename_f9a6a6" formatted="false">"Byt namn"</string>
+    <string name="text_repair" formatted="false">"Reparera"</string>
+    <string name="text_reset_043c3c" formatted="false">"ÅTERSTÄLL"</string>
+    <string name="text_reset_a1f27d" formatted="false">"Återställ"</string>
+    <string name="text_reset_settings" formatted="false">"Återställa inställningar?"</string>
+    <string name="text_reset_settings_to_defaults" formatted="false">"Återställ inställningar till standard"</string>
+    <string name="text_reset_to_default" formatted="false">"Återställ till standard"</string>
+    <string name="text_reset_to_default_icon" formatted="false">"Återställ till standardikon"</string>
+    <string name="text_restore" formatted="false">"Återställ ›"</string>
+    <string name="text_restore_debloated_apps_3d05c1" formatted="false">"Återställ inaktiverade appar…"</string>
+    <string name="text_restore_settings_from_folder" formatted="false">"Återställ inställningar från mapp…"</string>
+    <string name="text_right" formatted="false">"Höger"</string>
+    <string name="text_save" formatted="false">"Spara"</string>
+    <string name="text_scenes" formatted="false">"SCENER"</string>
+    <string name="text_screensaver" formatted="false">"Skärmsläckare"</string>
+    <string name="text_scroll_for_more" formatted="false">"Skrolla för mer ›"</string>
+    <string name="text_search_946f53" formatted="false">"Sök"</string>
+    <string name="text_search_by_name" formatted="false">"Sök efter namn"</string>
+    <string name="text_search_for_a_city_or_town" formatted="false">"Sök efter en stad eller ort…"</string>
+    <string name="text_seconds_ee379b" formatted="false">" sekunder"</string>
+    <string name="text_set_manually" formatted="false">"Angiven manuellt"</string>
+    <string name="text_settings" formatted="false">"Inställningar"</string>
+    <string name="text_settings_kept" formatted="false">"Inställningar sparas"</string>
+    <string name="text_show_on_home_screen" formatted="false">"Visa på hemskärmen"</string>
+    <string name="text_single_tap_1x" formatted="false">"Enkeltryck (1x)"</string>
+    <string name="text_skip_setup" formatted="false">"Hoppa över inställning"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"Insomningstimer"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"Insomningstimer"</string>
+    <string name="text_small_clock" formatted="false">"Liten klocka"</string>
+    <string name="text_sound" formatted="false">"Ljud"</string>
+    <string name="text_start" formatted="false">"Starta ›"</string>
+    <string name="text_suggested" formatted="false">"Föreslagen"</string>
+    <string name="text_tap_check_for_updates" formatted="false">"Tryck på Sök efter uppdateringar"</string>
+    <string name="text_teal" formatted="false">"Turkos"</string>
+    <string name="text_temperature" formatted="false">"Temperatur"</string>
+    <string name="text_this_resets_look_scenes_clock_and_langua" formatted="false">"Detta återställer utseende, scener, klocka och språk till standardvärden."</string>
+    <string name="text_triple_tap_3x" formatted="false">"Trippeltryck (3x)"</string>
+    <string name="text_turn_off_custom_scene" formatted="false">"Stäng av anpassad scen"</string>
+    <string name="text_turn_on_custom_scene" formatted="false">"Slå på anpassad scen"</string>
+    <string name="text_turn_the_tv_off_after" formatted="false">"Stäng av TV:n efter"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"TV-inställningar"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"TV-inställningar"</string>
+    <string name="text_uninstall_3fd78c" formatted="false">"Avinstallera"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"AVINSTALLERA"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"Avinstallera tvOS Launcher"</string>
+    <string name="text_up_and_down_to_browse_ok_to_change_back" formatted="false">"Upp och ner för att bläddra, OK för att ändra, Tillbaka för att stänga"</string>
+    <string name="text_up_and_down_to_move_ok_when_done" formatted="false">"Upp och ner för att flytta, OK när du är klar"</string>
+    <string name="text_up" formatted="false">"Upp"</string>
+    <string name="text_update_available" formatted="false">"Uppdatering tillgänglig"</string>
+    <string name="text_update_every" formatted="false">"Uppdatera var"</string>
+    <string name="text_updates_22906d" formatted="false">"UPPDATERINGAR"</string>
+    <string name="text_updates_3c957c" formatted="false">"Uppdateringar"</string>
+    <string name="text_use_automatic_location" formatted="false">"Använd automatisk plats"</string>
+    <string name="text_use_custom_background" formatted="false">"Använd anpassad bakgrund"</string>
+    <string name="text_use_my_location" formatted="false">"Använd min plats"</string>
+    <string name="text_used_for_the_weather_on_the_home_screen" formatted="false">"Används för vädret på hemskärmen och lokala nyheter."</string>
+    <string name="text_used_recent_apps" formatted="false">"% · Senaste appar"</string>
+    <string name="text_version_info" formatted="false">"VERSIONSINFORMATION"</string>
+    <string name="text_weather" formatted="false">"Väder"</string>
+    <string name="text_weather_a5c8c4" formatted="false">"VÄDER"</string>
+    <string name="text_weather_and_location" formatted="false">"Väder och plats"</string>
+    <string name="text_weather_from" formatted="false">"Väder från"</string>
+    <string name="text_weather_on_the_home_screen" formatted="false">"Väder på hemskärmen"</string>
+    <string name="text_weather_source" formatted="false">"Väderkälla"</string>
+    <string name="text_welcome" formatted="false">"Välkommen"</string>
+    <string name="text_white" formatted="false">"Vit"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, bild, ljud och resten av TV:n"</string>
+    <string name="text_yellow" formatted="false">"Gul"</string>
+    <string name="text_you_re_all_set" formatted="false">"Allt är klart"</string>
+    <string name="text_zoom_in" formatted="false">"Zooma in"</string>
+    <string name="text_zoom_out" formatted="false">"Zooma ut"</string>
+    <string name="weather_condition_sunny">"Soligt"</string>
+    <string name="weather_condition_clear">"Klart"</string>
+    <string name="weather_condition_mostly_sunny">"Mestadels soligt"</string>
+    <string name="weather_condition_mostly_clear">"Mestadels klart"</string>
+    <string name="weather_condition_partly_cloudy">"Halvklart"</string>
+    <string name="weather_condition_cloudy">"Molnigt"</string>
+    <string name="weather_condition_foggy">"Dimmigt"</string>
+    <string name="weather_condition_drizzle">"Duggregn"</string>
+    <string name="weather_condition_rain">"Regn"</string>
+    <string name="weather_condition_heavy_rain">"Kraftigt regn"</string>
+    <string name="weather_condition_sleet">"Snöblandat regn"</string>
+    <string name="weather_condition_snow">"Snö"</string>
+    <string name="weather_condition_thunderstorms">"Åska"</string>
+
+    <string name="profile_color_pink" formatted="false">"Rosa"</string>
+    <string name="remaining_minutes" formatted="false">"%1$s min"</string>
+    <string name="remaining_hours_minutes" formatted="false">"%1$s h %2$s min"</string>
+    <string name="unit_minute_one" formatted="false">"minut"</string>
+    <string name="unit_minute_other" formatted="false">"minuter"</string>
+    <string name="scene_custom_number" formatted="false">"Anpassad %1$s"</string>
+    <string name="scene_fog" formatted="false">"Dimma"</string>
+    <string name="scene_golden_hour" formatted="false">"Gyllene timmen"</string>
+    <string name="scene_night" formatted="false">"Natt"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"Regnskogsgryning"</string>
+    <string name="scene_waterline" formatted="false">"Vattenlinje"</string>
+    <string name="cyt_summary_done" formatted="false">"Klar (%1$s apps)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"Not done (%1$s/%2$s)"</string>
+    <string name="dock_move_tooltip" formatted="false">"Flytta %1$s  ·  Left/Right, OK when done"</string>
+    <string name="dock_move_tooltip_empty" formatted="false">"Flytta   ·  Left/Right, OK when done"</string>
+    <string name="profile_switch_to" formatted="false">"Byt: %1$s"</string>
+    <string name="profile_switch_to_empty" formatted="false">"Byt: "</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"Byt till manuell inställning"</string>
+    <string name="legacy_error_free_ccebf23d24" formatted="false">" ledigt"</string>
+    <string name="legacy_error_minute_e00000d893" formatted="false">" minut"</string>
+    <string name="legacy_error_add_a_person_309e22dac5" formatted="false">"+ Lägg till en person"</string>
+    <string name="legacy_error_add_new_button_to_remap_bbc1125205" formatted="false">"+ Lägg till ny knapp att mappa"</string>
+    <string name="legacy_error_adb_permissions_451adb98f2" formatted="false">"ADB OCH BEHÖRIGHETER"</string>
+    <string name="legacy_error_accessories_b08648dbd6" formatted="false">"Tillbehör"</string>
+    <string name="legacy_error_automatic_setup_d8ce96413f" formatted="false">"Automatisk inställning"</string>
+    <string name="legacy_error_avatar_color_87f835ea14" formatted="false">"Avatarfärg…"</string>
+    <string name="legacy_error_button_mapper_service_516a7641b3" formatted="false">"Knappmappartjänst"</string>
+    <string name="legacy_error_check_permissions_4f4ffcde63" formatted="false">"Kontrollera behörigheter"</string>
+    <string name="legacy_error_checking_github_releases_for_the_la_70ea1523c9" formatted="false">"Söker på GitHub efter den senaste versionen…"</string>
+    <string name="legacy_error_checking_for_updates_3bbfc1bb9d" formatted="false">"Söker efter uppdateringar"</string>
+    <string name="legacy_error_choose_a_look_b0197fc035" formatted="false">"Välj ett utseende"</string>
+    <string name="legacy_error_choose_how_to_grant_permissions_bce1ef190d" formatted="false">"Välj hur behörigheter ska ges"</string>
+    <string name="legacy_error_choose_icon_for_8ffffe2f45" formatted="false">"Välj ikon för "</string>
+    <string name="legacy_error_choose_new_icon_file_51b8d338e7" formatted="false">"Välj ny ikonfil…"</string>
+    <string name="legacy_error_choose_new_image_4e083a8186" formatted="false">"Välj ny bild…"</string>
+    <string name="legacy_error_classic_background_e6c62ea46d" formatted="false">"Klassisk bakgrund"</string>
+    <string name="legacy_error_clean_5137c8760c" formatted="false">"Rensa"</string>
+    <string name="legacy_error_cleaned_b8fa1c69b2" formatted="false">"Rensat · "</string>
+    <string name="legacy_error_clear_all_button_mappings_05b5f94a5b" formatted="false">"Rensa alla knappmappningar"</string>
+    <string name="legacy_error_clock_style_2020700db5" formatted="false">"Klockstil"</string>
+    <string name="legacy_error_could_not_decode_image_file_9aeb05d774" formatted="false">"Kunde inte läsa bildfilen"</string>
+    <string name="legacy_error_could_not_reach_github_releases_ple_f56e67ee43" formatted="false">"Kunde inte nå GitHub Releases. Kontrollera din internetanslutning."</string>
+    <string name="legacy_error_current_version_v_b7f8adcdff" formatted="false">"Nuvarande version: v"</string>
+    <string name="legacy_error_custom_2_6270e7f85a" formatted="false">"Anpassad 2"</string>
+    <string name="legacy_error_custom_3_e4222ac6d8" formatted="false">"Anpassad 3"</string>
+    <string name="legacy_error_custom_4_b20dec98ad" formatted="false">"Anpassad 4"</string>
+    <string name="legacy_error_custom_5_6db5ba8e39" formatted="false">"Anpassad 5"</string>
+    <string name="legacy_error_default_icon_restored_4651574a02" formatted="false">"Standardikon återställd"</string>
+    <string name="legacy_error_delete_profile_47311af432" formatted="false">"Ta bort profil"</string>
+    <string name="legacy_error_download_install_680ffe96e7" formatted="false">"Ladda ner och installera"</string>
+    <string name="legacy_error_downloading_latest_apk_from_github_9a141b483e" formatted="false">"Laddar ner senaste APK från GitHub…"</string>
+    <string name="legacy_error_each_person_gets_their_own_pinned_a_350015e5c6" formatted="false">"Varje person får sina egna fästa appar och Fortsätt titta-lista."</string>
+    <string name="legacy_error_easy_setup_automatic_via_adb_3f7a6b2155" formatted="false">"Enkel inställning (automatiskt via ADB)"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"Färre appar"</string>
+    <string name="legacy_error_grant_all_via_adb_320e08a9da" formatted="false">"Ge alla via ADB"</string>
+    <string name="legacy_error_grant_permissions_now_859526e49d" formatted="false">"Ge behörigheter nu"</string>
+    <string name="legacy_error_grant_permissions_one_by_one_manual_b5cbe865ab" formatted="false">"Ge behörigheter en efter en manuellt"</string>
+    <string name="legacy_error_grant_storage_permission_76e254101d" formatted="false">"Ge lagringsbehörighet"</string>
+    <string name="legacy_error_grant_19c1380d8a" formatted="false">"Tillåt ›"</string>
+    <string name="legacy_error_grants_all_required_permissions_aut_811773c2f1" formatted="false">"Ger alla nödvändiga behörigheter automatiskt på en gång"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"Kraftigt snöfall"</string>
+    <string name="legacy_error_hide_from_all_apps_f82d9040ea" formatted="false">"Dölj från Alla appar"</string>
+    <string name="legacy_error_home_system_7ed5ca2145" formatted="false">"Hem och system"</string>
+    <string name="legacy_error_installing_update_29e74e90ba" formatted="false">"Installerar uppdatering…"</string>
+    <string name="legacy_error_keep_alive_194eed9348" formatted="false">"KEEP ALIVE (AUTOMATISK REPARATION)"</string>
+    <string name="legacy_error_keep_alive_auto_repair_permissions_64dec5b4f2" formatted="false">"Keep Alive (reparera behörigheter automatiskt)"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"Fortsätt titta"</string>
+    <string name="legacy_error_latest_github_version_v_81c9e53520" formatted="false">"Senaste GitHub-version: v"</string>
+    <string name="legacy_error_listen_for_a_remote_key_press_b07b1c60a5" formatted="false">"Lyssna efter ett knapptryck på fjärrkontrollen"</string>
+    <string name="legacy_error_loading_titles_be1d486f11" formatted="false">"Laddar titlar…"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"Utseende och scener"</string>
+    <string name="legacy_error_manual_permissions_bbed716e43" formatted="false">"Manuella behörigheter"</string>
+    <string name="legacy_error_more_apps_2216905b85" formatted="false">"Fler appar"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"Fler appar"</string>
+    <string name="legacy_error_most_watched_68c54c41e7" formatted="false">"Mest sedda"</string>
+    <string name="legacy_error_move_left_in_dock_d545778104" formatted="false">"Flytta åt vänster i dockan"</string>
+    <string name="legacy_error_move_right_in_dock_b44019a1fc" formatted="false">"Flytta åt höger i dockan"</string>
+    <string name="legacy_error_no_recent_apps_6337834ebc" formatted="false">"Inga senaste appar"</string>
+    <string name="legacy_error_not_paired_adb_off_0b378808e9" formatted="false">"Inte parkopplad (ADB av)"</string>
+    <string name="legacy_error_output_b2439bcb8d" formatted="false">"Utgång"</string>
+    <string name="legacy_error_profiles_3e77bfe515" formatted="false">"PROFILER"</string>
+    <string name="legacy_error_paired_ready_2379bb9b76" formatted="false">"Parkopplad och redo"</string>
+    <string name="legacy_error_pin_to_home_db029e6fe7" formatted="false">"Fäst på hemskärmen"</string>
+    <string name="legacy_error_profiles_535e52e4a2" formatted="false">"Profiler"</string>
+    <string name="legacy_error_quick_buttons_c1ecfd327d" formatted="false">"Snabbinställningar"</string>
+    <string name="legacy_error_remapped_buttons_c7ad2f6241" formatted="false">"OMPROGRAMMERADE KNAPPAR"</string>
+    <string name="legacy_error_remote_fixes_dbaca856c6" formatted="false">"FJÄRRKONTROLLFIXAR"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"Ladda ner CleanYourTV igen"</string>
+    <string name="legacy_error_remove_from_dock_b27d77465c" formatted="false">"Ta bort från dockan"</string>
+    <string name="legacy_error_rounded_0a62cd800f" formatted="false">"Rundad"</string>
+    <string name="legacy_error_select_your_language_to_begin_2878d6f6a0" formatted="false">"Välj ditt språk för att börja"</string>
+    <string name="legacy_error_settings_c239b59a77" formatted="false">"Inställningar ›"</string>
+    <string name="legacy_error_setup_complete_5983596601" formatted="false">"Inställning klar"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"Regnskurar"</string>
+    <string name="legacy_error_sleep_d466bcf52e" formatted="false">"Vila"</string>
+    <string name="legacy_error_stencil_0d2302c761" formatted="false">"Schablon"</string>
+    <string name="legacy_error_storage_folders_65d3d1d26d" formatted="false">"Lagringsmappar"</string>
+    <string name="legacy_error_switch_39921a740b" formatted="false">"Byt"</string>
+    <string name="legacy_error_system_file_picker_c706f36550" formatted="false">"Systemets filväljare…"</string>
+    <string name="legacy_error_unpin_from_home_df00f5de07" formatted="false">"Lossa från hemskärmen"</string>
+    <string name="legacy_error_up_to_date_105c24d6fc" formatted="false">"Uppdaterad"</string>
+    <string name="legacy_error_update_check_failed_2983d175b8" formatted="false">"Uppdateringssökning misslyckades"</string>
+    <string name="legacy_error_update_failed_5da8e751a4" formatted="false">"Uppdatering misslyckades"</string>
+    <string name="legacy_error_updating_tvos_launcher_56b2074873" formatted="false">"Uppdaterar tvOS Launcher"</string>
+    <string name="legacy_error_you_are_running_the_latest_version_e9af7e897b" formatted="false">"Du använder den senaste versionen."</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"Heminställningar"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"Fortsätt titta"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"Insomningstimer"</string>
+    <string name="legacy_error_parent_folder_27421160e5" formatted="false">"⬅  .. (Överordnad mapp)"</string>
+    <string name="legacy_error_back_to_storage_folders_a393f054ee" formatted="false">"⬅  Tillbaka till lagringsmappar"</string>
+    <string name="language_option_title" formatted="false">"Svenska"</string>
+    <string name="language_option_description" formatted="false">"Använd tvOS Launcher på svenska"</string>
+    <string name="search_available_on">"På %1$s"</string>
+</resources>

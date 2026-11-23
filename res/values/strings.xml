@@ -1,4 +1,1720 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="welcome_greetings" translatable="false">
+        <item>"Welcome"</item>
+        <item>"Hoş Geldiniz"</item>
+        <item>"Välkommen"</item>
+        <item>"स्वागत है"</item>
+        <item>"স্বাগতম"</item>
+        <item>"வரவேற்கிறோம்"</item>
+        <item>"స్వాగతం"</item>
+        <item>"Bienvenue"</item>
+        <item>"Bienvenido"</item>
+        <item>"Willkommen"</item>
+        <item>"ようこそ"</item>
+        <item>"Benvenuto"</item>
+        <item>"Bem-vindo"</item>
+        <item>"欢迎"</item>
+        <item>"ברוכים הבאים"</item>
+    </string-array>
+    <string name="message_no_place_found">"No place found for “%1$s”."</string>
+    <string name="message_location_set">"Location set to %1$s."</string>
+    <string name="message_update_current">"You are up to date (v%1$s)"</string>
+    <string name="message_update_changelog">"Changelog — v%1$s"</string>
+    <string name="message_update_downloading">"Downloading update v%1$s…"</string>
+    <string name="message_update_installing_adb">"Installing update v%1$s automatically via ADB…"</string>
+    <string name="message_update_available_details">"A new version of tvOS Launcher is available on GitHub.\nCurrent version: v%1$s  →  New version: v%2$s\n\n%3$s"</string>
+    <string name="message_update_signature_mismatch">"The downloaded update (v%1$s) is signed with a different key than your installed app.\n\nAndroid requires existing installs to be uninstalled before switching signatures. To install, please backup your settings in Settings -&gt; Backup &amp; Restore, then reinstall."</string>
+    <string name="message_cloud_sign_in">"Sign in to %1$s"</string>
+    <string name="message_cloud_unreachable">"Couldn\'t reach %1$s"</string>
+    <string name="message_cloud_unreachable_retry">"Couldn\'t reach %1$s. Focus the tile again to retry."</string>
+    <string name="message_cloud_sign_in_instructions">"To sign in, focus the %1$s tile on the Home screen and scan the QR code."</string>
+    <string name="message_cloud_sign_out_question">"Sign out of %1$s?"</string>
+    <string name="message_cloud_sign_out_details">"Continue watching on the dock will stop showing your %1$s titles. The %1$s app itself stays signed in."</string>
+    <string name="message_cloud_signed_out">"Signed out of %1$s."</string>
+    <string name="message_app_not_installed">"%1$s is not installed on this TV"</string>
+    <string name="message_sleep_off_in_minutes">"Off in %1$s min"</string>
+    <string name="message_cannot_open_app">"Can\'t open %1$s"</string>
+    <string name="message_cannot_switch_input">"Can\'t switch to %1$s"</string>
+    <string name="message_app_moved_to_other_apps">"%1$s moved to Other Apps"</string>
+    <string name="message_app_hidden">"%1$s hidden (Settings &gt; Apps &gt; Hidden apps)"</string>
+    <string name="message_app_back_home">"%1$s is back on Home"</string>
+    <string name="message_app_restored_home">"%1$s restored to Home Screen."</string>
+    <string name="message_delete_profile">"Delete “%1$s”?"</string>
+    <string name="search_open_in">"▶  Open in %1$s"</string>
+    <string name="search_get_app">"Get %1$s"</string>
+    <string name="message_removed">"Removed %1$s"</string>
+    <string name="message_refreshing">"Refreshing"</string>
+    <string name="message_not_available_on_tv">"Not available on this TV"</string>
+    <string name="message_use_arrows_to_move">"Use arrows to move · OK when done"</string>
+    <string name="news_age_now">"Just now"</string>
+    <string name="news_age_yesterday">"Yesterday"</string>
+    <string name="news_age_minutes">"%1$s min ago"</string>
+    <string name="news_age_hours">"%1$s h ago"</string>
+    <plurals name="news_age_days">
+        <item quantity="one">"%1$s day ago"</item>
+        <item quantity="other">"%1$s days ago"</item>
+    </plurals>
+    <plurals name="message_closed_apps">
+        <item quantity="one">"Closed %1$s app"</item>
+        <item quantity="other">"Closed %1$s apps"</item>
+    </plurals>
+    <plurals name="message_closed_apps_freed">
+        <item quantity="one">"Closed %1$s app · freed %2$s MB"</item>
+        <item quantity="other">"Closed %1$s apps · freed %2$s MB"</item>
+    </plurals>
     <string name="power_service_desc">Lets tvOS Launcher by techgenius remap remote buttons, open the Control Panel overlay over any app, put the TV to sleep (Power Off, Sleep Timer), and close background apps.</string>
+    <string name="text_12_hour" formatted="false">"12 hour"</string>
+    <string name="text_1_set_tvos_launcher_as_default_via_local" formatted="false">"1. Set tvOS Launcher as Default via Local ADB"</string>
+    <string name="text_24_hour" formatted="false">"24 hour"</string>
+    <string name="text_2_disable_system_launchers_google_tv_and" formatted="false">"2. Disable System Launchers (Google TV / Android TV / OEM)"</string>
+    <string name="text_3_days" formatted="false">"3 days"</string>
+    <string name="text_3_fix_home_button_via_accessibility_butt" formatted="false">"3. Fix Home Button via Accessibility (Button Mapper)"</string>
+    <string name="text_4_open_android_system_home_settings" formatted="false">"4. Open Android System Home Settings"</string>
+    <string name="text_5_day_forecast" formatted="false">"5-DAY FORECAST"</string>
+    <string name="text_a_big_glass_clock_scenes_taking_turns" formatted="false">"A big glass clock, scenes taking turns"</string>
+    <string name="text_a_small_weather_display_on_home_with_a_5" formatted="false">"A small weather display on Home with a 5-day forecast (also syncs Prayer Times location)."</string>
+    <string name="text_about" formatted="false">"About"</string>
+    <string name="text_accessibility" formatted="false">"Accessibility"</string>
+    <string name="text_accessibility_service_a268b7" formatted="false">"ACCESSIBILITY SERVICE"</string>
+    <string name="text_accessibility_service_bb9182" formatted="false">"Accessibility Service"</string>
+    <string name="text_account" formatted="false">"Account"</string>
+    <string name="text_actions" formatted="false">"ACTIONS"</string>
+    <string name="text_active_42209d" formatted="false">"active"</string>
+    <string name="text_active_60b543" formatted="false">"Active"</string>
+    <string name="text_active_in_accessibility" formatted="false">"Active in Accessibility"</string>
+    <string name="text_active_set_as_default_home_launcher" formatted="false">"Active — Set as default home launcher"</string>
+    <string name="text_active_works_in_all_apps" formatted="false">"Active (works in all apps)"</string>
+    <string name="text_activities_in" formatted="false">"ACTIVITIES IN "</string>
+    <string name="text_ad_blocking_private_dns_adguard" formatted="false">"Ad-blocking Private DNS (AdGuard)"</string>
+    <string name="text_adb_connection_required" formatted="false">"ADB Connection Required"</string>
+    <string name="text_adb_connection_status" formatted="false">"ADB connection status"</string>
+    <string name="text_adb_debugging_enabled" formatted="false">"ADB debugging enabled."</string>
+    <string name="text_adb_debugging_is_currently_turned_off_pe" formatted="false">"ADB debugging is currently turned off. Persistent ADB Mode requires ADB to be enabled.\n\nWould you like to enable ADB and switch to Persistent ADB Mode?"</string>
+    <string name="text_adb_debugging_needed" formatted="false">"ADB Debugging Needed"</string>
+    <string name="text_adb_enabled_and_switched_to_persistent_a" formatted="false">"ADB enabled and switched to Persistent ADB Mode."</string>
+    <string name="text_adb_enabled_not_paired" formatted="false">"ADB Enabled · Not Paired"</string>
+    <string name="text_adb_install_failed_opening_package_insta" formatted="false">"ADB install failed, opening package installer…"</string>
+    <string name="text_adb_is_active_selecting_install_will_dow" formatted="false">"ADB is active — selecting Install will download and install the update automatically."</string>
+    <string name="text_adb_is_turned_off_secure_mode_selecting" formatted="false">"ADB is turned off (Secure Mode) — selecting Install will download the update and open the system package installer."</string>
+    <string name="text_adb_mode_required" formatted="false">"ADB Mode Required"</string>
+    <string name="text_adb_operating_mode_01f44c" formatted="false">"ADB operating mode"</string>
+    <string name="text_adb_operating_mode_1c02d4" formatted="false">"ADB Operating Mode"</string>
+    <string name="text_adb_paired_and_all_permissions_granted" formatted="false">"ADB paired and all permissions granted!"</string>
+    <string name="text_adb_security_mode" formatted="false">"ADB &amp; SECURITY MODE"</string>
+    <string name="text_add_a_person_ef7edb" formatted="false">"Add a person…"</string>
+    <string name="text_add_a_person_f14c89" formatted="false">"Add a person"</string>
+    <string name="text_add_as_many_custom_wallpapers_as_you_wan" formatted="false">"Add as many custom wallpapers as you want without any limit"</string>
+    <string name="text_add" formatted="false">"Add"</string>
+    <string name="text_add_custom_subreddit" formatted="false">"Add custom subreddit…"</string>
+    <string name="text_add_favorite_football_team_0ba5b6" formatted="false">"Add favorite football team…"</string>
+    <string name="text_add_favorite_football_team_56b172" formatted="false">"Add Favorite Football Team"</string>
+    <string name="text_add_images_videos_or_webpages_from_a_pho" formatted="false">"Add images, videos or webpages from a phone or computer on the same Wi-Fi."</string>
+    <string name="text_add_new_button_to_remap_7d8e68" formatted="false">"+ Add New Button to Remap…"</string>
+    <string name="text_add_new_button_to_remap_e322f7" formatted="false">"Add new button to remap"</string>
+    <string name="text_add_new_wallpaper" formatted="false">"Add new wallpaper…"</string>
+    <string name="text_add_subreddit" formatted="false">"Add Subreddit"</string>
+    <string name="text_add_user" formatted="false">"Add User"</string>
+    <string name="text_added_custom_wallpaper_s" formatted="false">"Added custom wallpaper #%s."</string>
+    <string name="text_adds_a_presentation_card_to_home" formatted="false">"Adds a Presentation card to Home"</string>
+    <string name="text_advanced_981d59" formatted="false">"Advanced ›"</string>
+    <string name="text_advanced_e7d42a" formatted="false">"Advanced"</string>
+    <string name="text_align_center" formatted="false">"Center"</string>
+    <string name="text_align_dynamic" formatted="false">"Dynamic"</string>
+    <string name="text_align_left" formatted="false">"Left"</string>
+    <string name="text_align_right" formatted="false">"Right"</string>
+    <string name="text_all_341_models" formatted="false">"All 341 Models"</string>
+    <string name="text_all_button_mappings_cleared" formatted="false">"All button mappings cleared."</string>
+    <string name="text_all_disabled_s" formatted="false">"All disabled (%s)"</string>
+    <string name="text_all_permissions_granted_automatically" formatted="false">"All permissions granted automatically!"</string>
+    <string name="text_all_s" formatted="false">"All (%s)"</string>
+    <string name="text_allow" formatted="false">"Allow…"</string>
+    <string name="text_allowed" formatted="false">"Allowed"</string>
+    <string name="text_already_disabled" formatted="false">" [Already disabled]"</string>
+    <string name="text_always_on" formatted="false">"Always on"</string>
+    <string name="text_ambient_colour_themes_028289" formatted="false">"Ambient colour themes…"</string>
+    <string name="text_ambient_colour_themes_930057" formatted="false">"Ambient colour themes"</string>
+    <string name="text_ambient_mode" formatted="false">"Ambient Mode"</string>
+    <string name="text_ambient_mode_standby" formatted="false">"Ambient Mode / StandBy"</string>
+    <string name="text_ambient_themes" formatted="false">"AMBIENT THEMES"</string>
+    <string name="text_and_enter" formatted="false">" and enter:"</string>
+    <string name="text_android_accessibility_suite_talkback_opt" formatted="false">"Android Accessibility Suite / TalkBack (optional)"</string>
+    <string name="text_android_power_menu" formatted="false">"Android Power Menu"</string>
+    <string name="text_android_power_menu_shutdown_reboot_stand" formatted="false">"Android Power Menu (Shutdown / Reboot / Standby)"</string>
+    <string name="text_android_tv_remote_service_optional_keep" formatted="false">"Android TV Remote Service (optional — keep if you use Google TV phone remote)"</string>
+    <string name="text_app_icon_editor" formatted="false">"App Icon Editor"</string>
+    <string name="text_app_icon_reset_to_default" formatted="false">"App icon reset to default"</string>
+    <string name="text_app_icon_updated" formatted="false">"App icon updated"</string>
+    <string name="text_app_info_3cd62b" formatted="false">"App info"</string>
+    <string name="text_app_info_c575c9" formatted="false">"App Info"</string>
+    <string name="text_app_layout_reset_to_default" formatted="false">"App layout reset to default."</string>
+    <string name="text_app_name_or_package_name" formatted="false">"App name or package name…"</string>
+    <string name="text_app_switch_recents_187" formatted="false">"App Switch / Recents (187)"</string>
+    <string name="text_appearance" formatted="false">"Appearance"</string>
+    <string name="text_appearance_and_scenes" formatted="false">"Appearance and scenes"</string>
+    <string name="text_application" formatted="false">"APPLICATION"</string>
+    <string name="text_applications" formatted="false">"Applications"</string>
+    <string name="text_apply" formatted="false">"Apply"</string>
+    <string name="text_apps_825c0a" formatted="false">"Apps"</string>
+    <string name="text_apps_ebb18e" formatted="false">"apps"</string>
+    <string name="text_apps_settings" formatted="false">"Apps &amp; Settings"</string>
+    <string name="text_apps_using_nuvio" formatted="false">"Apps using Nuvio"</string>
+    <string name="text_ask_who_is_watching_on_wake" formatted="false">"Ask who is watching on wake"</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_and_t" formatted="false">"Assign Single Tap (1x), Double Tap (2x) and Triple Tap (3x) actions for each remote button — such as opening the Control Panel overlay, the Recent Apps Switcher overlay, or any installed app."</string>
+    <string name="text_assign_single_tap_1x_double_tap_2x_tripl" formatted="false">"Assign Single Tap (1x), Double Tap (2x) &amp; Triple Tap (3x) actions"</string>
+    <string name="text_audio" formatted="false">"Audio"</string>
+    <string name="text_audio_track_222" formatted="false">"Audio Track (222)"</string>
+    <string name="text_auto" formatted="false">"Auto"</string>
+    <string name="text_auto_change_interval" formatted="false">"Auto-change interval"</string>
+    <string name="text_auto_changing_1080p_4k_wallpapers_from_y" formatted="false">"Auto-changing 1080p/4K wallpapers from your selected subreddits"</string>
+    <string name="text_auto_launch_lock_screen_when_idle" formatted="false">"Auto-launch Lock Screen when idle"</string>
+    <string name="text_automatic_from_internet" formatted="false">"Automatic (from internet)"</string>
+    <string name="text_automatic_launch_on_boot_disabled" formatted="false">"Automatic launch on boot disabled."</string>
+    <string name="text_automatic_updates" formatted="false">"Automatic updates"</string>
+    <string name="text_automatic_updates_disabled" formatted="false">"Automatic updates disabled."</string>
+    <string name="text_automatic_updates_enabled" formatted="false">"Automatic updates enabled."</string>
+    <string name="text_automatically_follows_your_weather_locat" formatted="false">"Automatically follows your Weather location"</string>
+    <string name="text_back_4" formatted="false">"Back (4)"</string>
+    <string name="text_back" formatted="false">"Back"</string>
+    <string name="text_back_to_apps" formatted="false">"Back to Apps"</string>
+    <string name="text_back_to_folders" formatted="false">"Back to folders"</string>
+    <string name="text_back_to_parent_folder" formatted="false">"Back to parent folder"</string>
+    <string name="text_back_to_return_hold_ok_for_options" formatted="false">"Back to return   ·   Hold OK for options"</string>
+    <string name="text_back_to_usage_mode_selection" formatted="false">"Back to Usage Mode Selection"</string>
+    <string name="text_background_color" formatted="false">"Background color"</string>
+    <string name="text_background_mode" formatted="false">"BACKGROUND MODE"</string>
+    <string name="text_backup_failed" formatted="false">"Backup Failed"</string>
+    <string name="text_backup_restore" formatted="false">"BACKUP &amp; RESTORE"</string>
+    <string name="text_backup_settings_to_download" formatted="false">"Backup settings to Download"</string>
+    <string name="text_big_clock_night_scene_style" formatted="false">"Big Clock (Night Scene style)"</string>
+    <string name="text_black" formatted="false">"Black"</string>
+    <string name="text_bloatware_background_service" formatted="false">"Bloatware / background service"</string>
+    <string name="text_blue" formatted="false">"Blue"</string>
+    <string name="text_blue_button" formatted="false">"Blue Button"</string>
+    <string name="text_bluetooth" formatted="false">"Bluetooth"</string>
+    <string name="text_bm_inputs_overlay" formatted="false">"TV Inputs Panel (Overlay)"</string>
+    <string name="text_bookmark_favorite" formatted="false">"Bookmark / Favorite"</string>
+    <string name="text_browse_all_341_tv_models" formatted="false">"📋 Browse All 341 TV Models"</string>
+    <string name="text_built_in_actions" formatted="false">"BUILT-IN ACTIONS"</string>
+    <string name="text_button_mapper_7fa6e3" formatted="false">"Button Mapper"</string>
+    <string name="text_button_mapper_accessibility_service" formatted="false">"Button Mapper accessibility service"</string>
+    <string name="text_button_mapper_bed8af" formatted="false">"Button mapper"</string>
+    <string name="text_button_mapper_control_panel" formatted="false">"Button Mapper &amp; Control Panel"</string>
+    <string name="text_button_mapper_control_panel_accessibilit" formatted="false">"Button Mapper &amp; Control Panel (Accessibility)"</string>
+    <string name="text_button_remapping" formatted="false">"BUTTON REMAPPING"</string>
+    <string name="text_by_default_live_news_automatically_syncs" formatted="false">"By default, Live News automatically syncs with your selected launcher language. Selecting a country above overrides it for the News widget."</string>
+    <string name="text_by_default_most_watched_automatically_sy" formatted="false">"By default, Most Watched automatically syncs with your selected UI language. Selecting any country above switches to custom multi-country mode."</string>
+    <string name="text_by_default_prayer_times_syncs_with_the_w" formatted="false">"By default, Prayer Times syncs with the Weather location chosen during setup or in Weather settings. Search or pick any city above to set a separate location for Prayer Times."</string>
+    <string name="text_caffeine_desc" formatted="false">"Caffeine denies Android's idle mode and prevents Android TV's automatic Ambient Mode from turning on, keeping your TV awake and preventing it from going to sleep."</string>
+    <string name="text_caffeine_disabled" formatted="false">"Caffeine disabled."</string>
+    <string name="text_caffeine_enabled_tv_will_stay_awake_and" formatted="false">"Caffeine enabled — TV will stay awake and block automatic Ambient / sleep mode."</string>
+    <string name="text_caffeine_title" formatted="false">"Caffeine (Prevent Sleep &amp; Ambient Mode)"</string>
+    <string name="text_can_t_reach_the_internet" formatted="false">"Can’t reach the internet"</string>
+    <string name="text_cancel" formatted="false">"Cancel"</string>
+    <string name="text_center" formatted="false">"Center"</string>
+    <string name="text_change_any_of_this_later_in_settings_fro" formatted="false">"Change any of this later in Settings, from the gear in Control Center."</string>
+    <string name="text_change_app_icon" formatted="false">"Change app icon"</string>
+    <string name="text_change_colour" formatted="false">"Change Colour"</string>
+    <string name="text_change_emoji" formatted="false">"Change Emoji"</string>
+    <string name="text_change_model" formatted="false">"Change Model…"</string>
+    <string name="text_change_name_of_input" formatted="false">"Change name of input"</string>
+    <string name="text_changes_the_words_on_the_home_screen_dat" formatted="false">"Changes the words on the home screen, date, weather and settings."</string>
+    <string name="text_channel_down" formatted="false">"Channel Down"</string>
+    <string name="text_channel_up" formatted="false">"Channel Up"</string>
+    <string name="text_channels" formatted="false">"Channels"</string>
+    <string name="text_check_for_updates" formatted="false">"Check for updates"</string>
+    <string name="text_check_now" formatted="false">"Check now ›"</string>
+    <string name="text_check_permissions" formatted="false">"Check permissions"</string>
+    <string name="text_checked_items_are_currently_disabled_dis" formatted="false">"Checked items are currently DISABLED. Disabling the stock system launcher (e.g. Google TV Home / LauncherX + setupwraith, Android TV Home, or TCL/Philips OEM Home) forces Android to use tvOS Launcher when pressing the Home key."</string>
+    <string name="text_checking" formatted="false">"Checking…"</string>
+    <string name="text_checks_github_releases_techgenius1_tvos" formatted="false">"Checks GitHub Releases (techgenius1/tvOS-Launcher) for the latest APK and installs updates directly on your TV."</string>
+    <string name="text_choose_a_background" formatted="false">"Choose a Background"</string>
+    <string name="text_choose_a_city" formatted="false">"Choose a City…"</string>
+    <string name="text_choose_a_photo_or_ambient_colour_theme_b" formatted="false">"Choose a photo or ambient colour theme behind your apps."</string>
+    <string name="text_choose_action" formatted="false">"Choose Action"</string>
+    <string name="text_choose_activity" formatted="false">"Choose Activity"</string>
+    <string name="text_choose_background_folder_to_shuffle" formatted="false">"Choose background folder to shuffle"</string>
+    <string name="text_choose_city" formatted="false">"Choose City"</string>
+    <string name="text_choose_custom_background_image" formatted="false">"Choose custom background image"</string>
+    <string name="text_choose_custom_scene_image" formatted="false">"Choose custom scene image"</string>
+    <string name="text_choose_folder_768e16" formatted="false">"Choose folder…"</string>
+    <string name="text_choose_folder_840d4f" formatted="false">"Choose folder ›"</string>
+    <string name="text_choose_folder_to_restore_settings" formatted="false">"Choose Folder to Restore Settings"</string>
+    <string name="text_choose_how_you_want_your_home_screen_to" formatted="false">"Choose how you want your Home Screen to look."</string>
+    <string name="text_choose_image_44c803" formatted="false">"Choose image…"</string>
+    <string name="text_choose_image_d3f17f" formatted="false">"Choose image ›"</string>
+    <string name="text_choose_lock_screen_folder_to_shuffle" formatted="false">"Choose Lock Screen folder to shuffle"</string>
+    <string name="text_choose_lock_screen_image" formatted="false">"Choose Lock Screen image"</string>
+    <string name="text_choose_tv_model_6fead7" formatted="false">"Choose TV model…"</string>
+    <string name="text_choose_tv_model_eb4b40" formatted="false">"Choose TV model"</string>
+    <string name="text_choose_tv_model_fcb2e7" formatted="false">"Choose TV Model…"</string>
+    <string name="text_choose_tvos_launcher_when_asked" formatted="false">"Choose tvOS Launcher when asked"</string>
+    <string name="text_choose_wallpaper_folder_to_shuffle" formatted="false">"Choose wallpaper folder to shuffle"</string>
+    <string name="text_choose_which_scenes_take_turns_behind_th" formatted="false">"Choose which scenes take turns behind the glass clock."</string>
+    <string name="text_choose_your_scenes" formatted="false">"Choose Your Scenes"</string>
+    <string name="text_chromecast_built_in_google_cast_receiver" formatted="false">"Chromecast built-in / Google Cast receiver (optional — keep if you Cast from phone)"</string>
+    <string name="text_city_name_e_g_istanbul" formatted="false">"City name, e.g. Istanbul"</string>
+    <string name="text_city_or_country_e_g_istanbul_london" formatted="false">"City or country, e.g. Istanbul, London"</string>
+    <string name="text_classic" formatted="false">"Classic"</string>
+    <string name="text_classic_background" formatted="false">"CLASSIC BACKGROUND"</string>
+    <string name="text_classic_clock_weather" formatted="false">"CLASSIC CLOCK &amp; WEATHER"</string>
+    <string name="text_classic_custom_wallpaper" formatted="false">"Classic Custom Wallpaper"</string>
+    <string name="text_classic_look" formatted="false">"Classic look"</string>
+    <string name="text_classic_photo" formatted="false">"Classic photo"</string>
+    <string name="text_classic_top_shelf" formatted="false">"Classic Top Shelf"</string>
+    <string name="text_classic_wallpapers" formatted="false">"CLASSIC WALLPAPERS"</string>
+    <string name="text_clean_up_space" formatted="false">"Clean Up Space?"</string>
+    <string name="text_cleaning_up_files" formatted="false">"Cleaning Up Files…"</string>
+    <string name="text_cleanyourtv_beta" formatted="false">"CLEANYOURTV (BETA)"</string>
+    <string name="text_cleanyourtv_beta_runs_the_cleanyourtv_de" formatted="false">"CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), disable stock launchers or bloatware, and restore them anytime with one tap."</string>
+    <string name="text_cleanyourtv_downloaded_to_download_folde" formatted="false">"CleanYourTV downloaded to Download folder."</string>
+    <string name="text_cleanyourtv_files_missing" formatted="false">"⚠️ CleanYourTV Files Missing"</string>
+    <string name="text_clear_aeec76" formatted="false">"Clear"</string>
+    <string name="text_clear_all_remapped_buttons" formatted="false">"Clear all remapped buttons"</string>
+    <string name="text_clear_continue_watching_history" formatted="false">"Clear Continue Watching history"</string>
+    <string name="text_clear_d47414" formatted="false">"clear"</string>
+    <string name="text_clear_filter" formatted="false">"Clear filter"</string>
+    <string name="text_clear_filter_show_all" formatted="false">"Clear filter (Show all)"</string>
+    <string name="text_clock_alignment" formatted="false">"Clock alignment"</string>
+    <string name="text_clock" formatted="false">"Clock"</string>
+    <string name="text_clock_font" formatted="false">"Clock font"</string>
+    <string name="text_clock_position" formatted="false">"Clock position"</string>
+    <string name="text_close_adb_disable_port_5555" formatted="false">"Close ADB (Disable Port 5555)"</string>
+    <string name="text_close_adb_now" formatted="false">"Close ADB Now"</string>
+    <string name="text_close_all" formatted="false">"Close All"</string>
+    <string name="text_close" formatted="false">"Close"</string>
+    <string name="text_closing_adb" formatted="false">"Closing ADB…"</string>
+    <string name="text_colour" formatted="false">"Colour"</string>
+    <string name="text_connected" formatted="false">"Connected"</string>
+    <string name="text_connecting_to_local_adb_on_port_5555_and" formatted="false">"Connecting to local ADB on port 5555 and granting permissions…\n\nIf an “Allow USB debugging?” prompt appears, check “Always allow” and press Allow."</string>
+    <string name="text_continue" formatted="false">"Continue"</string>
+    <string name="text_continue_watching" formatted="false">"Continue Watching"</string>
+    <string name="text_continue_watching_5df929" formatted="false">"Continue watching"</string>
+    <string name="text_continue_watching_cleared" formatted="false">"Continue Watching cleared."</string>
+    <string name="text_continue_watching_dnd_notification_acces" formatted="false">"Continue Watching &amp; DND (Notification Access)"</string>
+    <string name="text_continue_watching_dnd_permission" formatted="false">"Continue Watching &amp; DND permission"</string>
+    <string name="text_continue_watching_do_not_disturb" formatted="false">"Continue Watching &amp; Do Not Disturb"</string>
+    <string name="text_continue_watching_isn_t_available_on_thi" formatted="false">"Continue Watching isn't available on this TV (Android limits it on low-memory TVs)."</string>
+    <string name="text_continue_watching_on_dock" formatted="false">"Continue Watching on dock"</string>
+    <string name="text_control_center" formatted="false">"Control Center"</string>
+    <string name="text_control_panel" formatted="false">"Control Panel"</string>
+    <string name="text_control_panel_actions_and_items_reset_to" formatted="false">"Control Panel actions and items reset to default."</string>
+    <string name="text_control_panel_items_show_hide" formatted="false">"CONTROL PANEL ITEMS (SHOW / HIDE)"</string>
+    <string name="text_control_panel_overlay" formatted="false">"Control Panel (Overlay)"</string>
+    <string name="text_core_system_package" formatted="false">"⚠️ Core System Package"</string>
+    <string name="text_core_system_package_disabling_may_affect" formatted="false">"⚠️ Core system package — disabling may affect system stability"</string>
+    <string name="text_could_not_check_for_updates" formatted="false">"Could not check for updates."</string>
+    <string name="text_could_not_connect_to_adb_enable_usb_netw" formatted="false">"Could not connect to ADB — enable USB/Network Debugging or use Step 3 / Step 4."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_1f7e75" formatted="false">"Could not connect to local ADB on port 5555.\n\nPlease make sure USB Debugging / Network Debugging is turned ON in Developer Options, then try again — or choose Manual Setup."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_2d1be7" formatted="false">"Could not connect to local ADB on port 5555.\n\n1. Open Settings → System → About and click Build 7 times.\n2. Open Developer Options and turn on USB Debugging / Network Debugging.\n3. Return here and tap Pair / Repair again."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_4d4bb1" formatted="false">"Could not connect to local ADB on port 5555.\nPlease enable USB / Network Debugging in Developer Options and tap Pair / Repair ADB first."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_58099e" formatted="false">"Could not connect to local ADB on port 5555.\nPlease make sure USB / Network Debugging is enabled in Developer Options and tap Pair / Repair ADB first."</string>
+    <string name="text_could_not_connect_to_local_adb_on_port_5_ac5816" formatted="false">"Could not connect to local ADB on port 5555."</string>
+    <string name="text_could_not_decode_image_file" formatted="false">"Could not decode image file."</string>
+    <string name="text_could_not_load_selected_image" formatted="false">"Could not load selected image."</string>
+    <string name="text_could_not_start_installer" formatted="false">"Could not start installer."</string>
+    <string name="text_couldn_t_search_check_the_internet_conne" formatted="false">"Couldn't search. Check the internet connection."</string>
+    <string name="text_countries_select_one_or_multiple" formatted="false">"COUNTRIES (SELECT ONE OR MULTIPLE)"</string>
+    <string name="text_country" formatted="false">"COUNTRY"</string>
+    <string name="text_cp_bg_blurry" formatted="false">"Blurry (Current content blur)"</string>
+    <string name="text_cp_bg_mode" formatted="false">"Control Panel background"</string>
+    <string name="text_cp_bg_transparent" formatted="false">"Transparent"</string>
+    <string name="text_create_your_profile" formatted="false">"Create Your Profile"</string>
+    <string name="text_critical_system_service" formatted="false">"🛑 Critical System Service"</string>
+    <string name="text_critical_system_service_protected_cannot" formatted="false">"🛑 Critical system service — protected (cannot be disabled)"</string>
+    <string name="text_critical_system_service_protected" formatted="false">" [Critical System Service — Protected]"</string>
+    <string name="text_current_place" formatted="false">"Current place"</string>
+    <string name="text_current_version" formatted="false">"Current version"</string>
+    <string name="text_currently_synced_to_d6cd7b" formatted="false">"Currently synced to: "</string>
+    <string name="text_currently_synced_to_e6a065" formatted="false">"Currently synced to: "</string>
+    <string name="text_custom" formatted="false">"Custom"</string>
+    <string name="text_custom_background_updated" formatted="false">"Custom background updated."</string>
+    <string name="text_custom_folder_shuffle" formatted="false">"CUSTOM &amp; FOLDER SHUFFLE"</string>
+    <string name="text_custom_image" formatted="false">"Custom image"</string>
+    <string name="text_custom_key_code_enter_number" formatted="false">"Custom Key Code (Enter Number…)"</string>
+    <string name="text_custom_label" formatted="false">"Custom label"</string>
+    <string name="text_custom_lock_screen_image_updated" formatted="false">"Custom Lock Screen image updated."</string>
+    <string name="text_custom_scene_wallpaper_updated" formatted="false">"Custom scene wallpaper updated."</string>
+    <string name="text_custom_wallpaper_1e4315" formatted="false">"Custom Wallpaper #"</string>
+    <string name="text_custom_wallpaper_208136" formatted="false">"CUSTOM WALLPAPER"</string>
+    <string name="text_custom_wallpaper_clock_alignment" formatted="false">"Custom wallpaper clock alignment"</string>
+    <string name="text_custom_wallpaper_mode_9acb13" formatted="false">"CUSTOM WALLPAPER MODE"</string>
+    <string name="text_custom_wallpaper_mode_f2890b" formatted="false">"Custom wallpaper mode"</string>
+    <string name="text_custom_wallpaper_settings" formatted="false">"Custom wallpaper settings…"</string>
+    <string name="text_custom_wallpapers_unlimited" formatted="false">"CUSTOM WALLPAPERS (UNLIMITED)"</string>
+    <string name="text_dark" formatted="false">"Dark"</string>
+    <string name="text_dash_football" formatted="false">"Football Matches"</string>
+    <string name="text_dash_latest_releases" formatted="false">"Most Watched"</string>
+    <string name="text_dash_news" formatted="false">"Live News"</string>
+    <string name="text_dash_prayer_times" formatted="false">"Prayer Times"</string>
+    <string name="text_dash_top_media" formatted="false">"Top Movies &amp; Series"</string>
+    <string name="text_dashboard_widgets" formatted="false">"DASHBOARD WIDGETS"</string>
+    <string name="text_date_time" formatted="false">"Date &amp; Time"</string>
+    <string name="text_debloat_complete" formatted="false">"Debloat Complete"</string>
+    <string name="text_debloat_status" formatted="false">"Debloat status"</string>
+    <string name="text_debloat_tv_3ec289" formatted="false">"Debloat TV…"</string>
+    <string name="text_debloat_tv_af7d50" formatted="false">"Debloat TV — "</string>
+    <string name="text_debloating_tv" formatted="false">"Debloating TV…"</string>
+    <string name="text_default" formatted="false">"Default"</string>
+    <string name="text_default_ambient_mode" formatted="false">"Default (Ambient Mode)"</string>
+    <string name="text_default_app_launch_main_activity" formatted="false">"Default App Launch (Main Activity)"</string>
+    <string name="text_default_automatic" formatted="false">"Default (Automatic)"</string>
+    <string name="text_default_home_launcher_set_via_adb" formatted="false">"Default home launcher set via ADB!"</string>
+    <string name="text_default_home_screen_3e8523" formatted="false">"Default Home Screen"</string>
+    <string name="text_default_home_screen_57e442" formatted="false">"Default home screen"</string>
+    <string name="text_default_launcher_setup_tcl_philips_googl" formatted="false">"DEFAULT LAUNCHER SETUP (TCL / PHILIPS / GOOGLE TV)"</string>
+    <string name="text_default_playlist_cannot_be_deleted" formatted="false">"Default playlist cannot be deleted"</string>
+    <string name="text_default_screen_off" formatted="false">"Default (Screen Off)"</string>
+    <string name="text_default_wallpaper_clock_alignment" formatted="false">"Default wallpaper clock alignment"</string>
+    <string name="text_delete" formatted="false">"Delete"</string>
+    <string name="text_depth_effect_foreground_png" formatted="false">"Depth Effect Foreground (PNG) #"</string>
+    <string name="text_depth_effect_foreground_removed" formatted="false">"Depth effect foreground removed."</string>
+    <string name="text_depth_effect_foreground_updated" formatted="false">"Depth effect foreground updated."</string>
+    <string name="text_detected_automatically" formatted="false">"Detected automatically"</string>
+    <string name="text_detected_your_current_wi_fi_network_is_o" formatted="false">"⚠️ Detected: Your current Wi-Fi network IS owned by setupwraith (cname=com.google.android.tungsten.setupwraith).\n\n"</string>
+    <string name="text_developer" formatted="false">"Developer"</string>
+    <string name="text_developer_options" formatted="false">"Developer Options…"</string>
+    <string name="text_didn_t_catch_that_press_the_mic_to_try_a" formatted="false">"Didn’t catch that — press the mic to try again"</string>
+    <string name="text_disable_all" formatted="false">"Disable all ›"</string>
+    <string name="text_disable_all_stock_launchers" formatted="false">"Disable All Stock Launchers"</string>
+    <string name="text_disable_all_stock_launchers_set_tvos_lau" formatted="false">"Disable All Stock Launchers &amp; Set tvOS Launcher as Home"</string>
+    <string name="text_disable_anyway" formatted="false">"Disable Anyway"</string>
+    <string name="text_disable" formatted="false">"Disable"</string>
+    <string name="text_disable_selected" formatted="false">"Disable Selected"</string>
+    <string name="text_disable_stock_tv_launchers_tcl_philips_g" formatted="false">"Disable Stock TV Launchers (TCL / Philips / Google TV)"</string>
+    <string name="text_disable_system_launchers_072c87" formatted="false">"Disable System Launchers"</string>
+    <string name="text_disable_system_launchers_13dcb9" formatted="false">"Disable system launchers"</string>
+    <string name="text_disable_system_launchers_e1810e" formatted="false">"Disable system launchers…"</string>
+    <string name="text_disabled_31f3e7" formatted="false">" [Disabled]"</string>
+    <string name="text_disabled_62ff42" formatted="false">"Disabled"</string>
+    <string name="text_disabled_a89c2a" formatted="false">" [Disabled]"</string>
+    <string name="text_disabled_ae652f" formatted="false">"Disabled"</string>
+    <string name="text_disabled_apps_backup" formatted="false">"Disabled apps backup"</string>
+    <string name="text_disabled_apps_record" formatted="false">"Disabled Apps Record"</string>
+    <string name="text_disabled_tap_to_enable_85233e" formatted="false">" [Disabled — Tap to Enable]"</string>
+    <string name="text_disabled_tap_to_enable_ad587c" formatted="false">" [Disabled — Tap to Enable]"</string>
+    <string name="text_disabling_package" formatted="false">"Disabling Package…"</string>
+    <string name="text_disconnected_adb_off" formatted="false">"Disconnected (ADB Off)"</string>
+    <string name="text_display" formatted="false">"Display"</string>
+    <string name="text_displayed_when_no_app_is_focused_when_fo" formatted="false">"Displayed when no app is focused, when focus is on Settings / non-app elements, or when the focused app has no Continue Watching items."</string>
+    <string name="text_do_not_disturb" formatted="false">"Do Not Disturb"</string>
+    <string name="text_dock" formatted="false">"DOCK"</string>
+    <string name="text_dock_rows" formatted="false">"Dock rows"</string>
+    <string name="text_dock_scale_50_to_50" formatted="false">"DOCK SCALE (-50% TO +50%)"</string>
+    <string name="text_dock_size" formatted="false">"Dock size"</string>
+    <string name="text_don_t_show_weather" formatted="false">"Don't Show Weather"</string>
+    <string name="text_done" formatted="false">"Done"</string>
+    <string name="text_double_tap_2x" formatted="false">"Double Tap (2x)"</string>
+    <string name="text_down" formatted="false">"Down"</string>
+    <string name="text_download_all_tv_models_again" formatted="false">"Download All TV Models Again?"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"Download CleanYourTV"</string>
+    <string name="text_download_cleanyourtv_first" formatted="false">"Download CleanYourTV first"</string>
+    <string name="text_download_cleanyourtv_now" formatted="false">"Download CleanYourTV Now"</string>
+    <string name="text_download_cleanyourtv_required" formatted="false">"Download CleanYourTV Required"</string>
+    <string name="text_download" formatted="false">"Download"</string>
+    <string name="text_download_failed" formatted="false">"Download Failed"</string>
+    <string name="text_downloading_cleanyourtv" formatted="false">"Downloading CleanYourTV…"</string>
+    <string name="text_downloading_to_download_folder" formatted="false">"Downloading to Download folder…"</string>
+    <string name="text_e_g_85_play_pause_164_mute_178_tv_input" formatted="false">"e.g. 85 (Play/Pause), 164 (Mute), 178 (TV Input)"</string>
+    <string name="text_e_g_tcl_philips_sony_hisense_xiaomi" formatted="false">"e.g. tcl, philips, sony, hisense, xiaomi…"</string>
+    <string name="text_e_g_tcl_sony_hisense_xiaomi_philips_skyw" formatted="false">"e.g. tcl, sony, hisense, xiaomi, philips, skyworth…"</string>
+    <string name="text_each_person_keeps_their_own_keep_watchin" formatted="false">"Each person keeps their own Keep Watching row and app order."</string>
+    <string name="text_each_scene_stays" formatted="false">"Each scene stays"</string>
+    <string name="text_each_tv_brand_uses_different_package_and" formatted="false">"Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, Inputs, and Ambient Mode. You can also choose Lock Screen for Ambient Mode (for TVs without built-in Ambient Mode) and toggle individual Control Panel items on or off."</string>
+    <string name="text_each_wallpaper_stays" formatted="false">"Each wallpaper stays"</string>
+    <string name="text_emoji" formatted="false">"Emoji"</string>
+    <string name="text_enable_accessibility_service_in_settings" formatted="false">"Enable Accessibility Service in Settings to open the Android Power Menu"</string>
+    <string name="text_enable_adb_debugging" formatted="false">"Enable ADB Debugging"</string>
+    <string name="text_enable_adb_for_persistent_mode" formatted="false">"Enable ADB for Persistent Mode?"</string>
+    <string name="text_enable_adb_now" formatted="false">"Enable ADB Now"</string>
+    <string name="text_enable_adb_switch" formatted="false">"Enable ADB &amp; Switch"</string>
+    <string name="text_enable_all" formatted="false">"Enable all ›"</string>
+    <string name="text_enable_button_mapper_in_accessibility" formatted="false">"Enable Button Mapper in Accessibility…"</string>
+    <string name="text_enable_home_button_fix_accessibility_rem" formatted="false">"Enable Home Button Fix (Accessibility Remap)"</string>
+    <string name="text_enable_home_dashboard" formatted="false">"Enable Home Dashboard"</string>
+    <string name="text_enable_in_accessibility" formatted="false">"Enable in Accessibility…"</string>
+    <string name="text_enable_in_accessibility_so_remapped_butt" formatted="false">"Enable in Accessibility so remapped buttons work in all apps"</string>
+    <string name="text_enable_keep_alive_348093" formatted="false">"Enable Keep Alive"</string>
+    <string name="text_enable_keep_alive_5ae818" formatted="false">"Enable Keep Alive?"</string>
+    <string name="text_enable_usb_network_debugging_in_develope" formatted="false">"Enable USB / Network Debugging in Developer Options"</string>
+    <string name="text_enable_via_adb" formatted="false">"Enable via ADB"</string>
+    <string name="text_enabled" formatted="false">" [Enabled]"</string>
+    <string name="text_enabled_in_shuffle" formatted="false">"Enabled in shuffle"</string>
+    <string name="text_enabled_tap_to_disable_046b6f" formatted="false">" [Enabled — Tap to Disable]"</string>
+    <string name="text_enabled_tap_to_disable_fff589" formatted="false">" [Enabled — Tap to Disable]"</string>
+    <string name="text_enabling_adb" formatted="false">"Enabling ADB…"</string>
+    <string name="text_enabling_adb_debugging" formatted="false">"Enabling ADB debugging…"</string>
+    <string name="text_enabling_adb_debugging_and_switching_to" formatted="false">"Enabling ADB debugging and switching to Persistent ADB Mode…"</string>
+    <string name="text_enabling_package" formatted="false">"Enabling Package…"</string>
+    <string name="text_endpoint_not_found" formatted="false">"Endpoint not found"</string>
+    <string name="text_enter_android_key_code" formatted="false">"Enter Android Key Code"</string>
+    <string name="text_enter_any_club_or_national_team" formatted="false">"Enter any club or national team…"</string>
+    <string name="text_exact_model_code_match" formatted="false">"Exact model code match"</string>
+    <string name="text_exact_model_match" formatted="false">"Exact model match"</string>
+    <string name="text_fast_forward" formatted="false">"Fast Forward"</string>
+    <string name="text_fetching_next_reddit_wallpaper" formatted="false">"Fetching next Reddit wallpaper…"</string>
+    <string name="text_filter_all_matches" formatted="false">"Filter: All Matches"</string>
+    <string name="text_filter_b3bfd1" formatted="false">"Filter"</string>
+    <string name="text_filter_bf262c" formatted="false">"Filter ›"</string>
+    <string name="text_filter_favorites" formatted="false">"Filter: ★ Favorites"</string>
+    <string name="text_filter_system_apps_b26cf2" formatted="false">"🔍 Filter system apps…"</string>
+    <string name="text_filter_system_apps_f2c530" formatted="false">"Filter System Apps"</string>
+    <string name="text_filter_tv_models" formatted="false">"Filter TV Models"</string>
+    <string name="text_finish_setting_up" formatted="false">"Finish Setting Up"</string>
+    <string name="text_fix_home_button_launch_tvos_launcher" formatted="false">"Fix Home button (Launch tvOS Launcher)"</string>
+    <string name="text_folder_shuffle" formatted="false">"Folder shuffle"</string>
+    <string name="text_football_fav_teams" formatted="false">"Favorite Teams"</string>
+    <string name="text_football_loading" formatted="false">"Loading matches…"</string>
+    <string name="text_football_no_matches" formatted="false">"No matches scheduled right now"</string>
+    <string name="text_forecast_provider" formatted="false">"FORECAST PROVIDER"</string>
+    <string name="text_found_from_your_internet_connection" formatted="false">"Found from your internet connection"</string>
+    <string name="text_free_forecast_service_no_account_needed" formatted="false">"Free forecast service, no account needed"</string>
+    <string name="text_generic_android_tv_google_tv_profile" formatted="false">"Generic Android TV / Google TV profile"</string>
+    <string name="text_get" formatted="false">"Get"</string>
+    <string name="text_get_started" formatted="false">"Get Started"</string>
+    <string name="text_getting_the_weather" formatted="false">"Getting the weather…"</string>
+    <string name="text_github_release_latest_version" formatted="false">"GitHub release latest version"</string>
+    <string name="text_go_to_home_screen" formatted="false">"Go to Home Screen"</string>
+    <string name="text_good_afternoon" formatted="false">"Good afternoon"</string>
+    <string name="text_good_evening" formatted="false">"Good evening"</string>
+    <string name="text_good_morning" formatted="false">"Good morning"</string>
+    <string name="text_good_night" formatted="false">"Good night"</string>
+    <string name="text_google_assistant_voice_search_optional" formatted="false">"Google Assistant / Voice Search (optional)"</string>
+    <string name="text_google_play_games_optional" formatted="false">"Google Play Games (optional)"</string>
+    <string name="text_google_telemetry_diagnostics" formatted="false">"Google telemetry &amp; diagnostics"</string>
+    <string name="text_google_tv_notice_setupwraith_wi_fi_check" formatted="false">"ℹ️ Google TV Notice (setupwraith Wi-Fi check):\n\n"</string>
+    <string name="text_google_tv_setup_wizard_launcher_watchdog" formatted="false">"Google TV setup wizard &amp; launcher watchdog"</string>
+    <string name="text_google_tv_store_movies_tv" formatted="false">"Google TV store / Movies &amp; TV"</string>
+    <string name="text_google_tv_wi_fi_notice" formatted="false">"GOOGLE TV WI-FI NOTICE"</string>
+    <string name="text_google_tv_wi_fi_warning" formatted="false">"Google TV Wi-Fi Warning"</string>
+    <string name="text_grant_all" formatted="false">"Grant All ›"</string>
+    <string name="text_grant_all_files_access" formatted="false">"Grant All Files Access…"</string>
+    <string name="text_grant_all_permissions_via_local_adb" formatted="false">"Grant All Permissions via Local ADB"</string>
+    <string name="text_grant_permissions_close_adb_now" formatted="false">"Grant Permissions &amp; Close ADB Now"</string>
+    <string name="text_grant_permissions_now_keep_adb_open" formatted="false">"Grant Permissions Now (Keep ADB Open)"</string>
+    <string name="text_grant_permissions_one_by_one_manually_th" formatted="false">"Grant permissions one by one manually through Android TV Settings"</string>
+    <string name="text_grant_storage_access" formatted="false">"Grant Storage Access…"</string>
+    <string name="text_granting_permissions_via_local_adb_if_an" formatted="false">"Granting permissions via local ADB…\n\nIf an “Allow USB debugging?” prompt appears on screen, check “Always allow” and press Allow."</string>
+    <string name="text_grants_write_secure_settings_closes_port" formatted="false">"Grants WRITE_SECURE_SETTINGS &amp; closes port 5555 when done"</string>
+    <string name="text_grants_write_secure_settings_once_to_sel" formatted="false">"Grants WRITE_SECURE_SETTINGS once to self-repair Accessibility, then closes port 5555"</string>
+    <string name="text_gray" formatted="false">"Gray"</string>
+    <string name="text_green_button" formatted="false">"Green Button"</string>
+    <string name="text_green" formatted="false">"Green"</string>
+    <string name="text_guide_button" formatted="false">"Guide Button"</string>
+    <string name="text_h" formatted="false">"H:"</string>
+    <string name="text_headlines_from_your_city_and_the_world" formatted="false">"Headlines from your city and the world"</string>
+    <string name="text_hidden_apps" formatted="false">"Hidden apps"</string>
+    <string name="text_hide" formatted="false">"Hide"</string>
+    <string name="text_hide_input" formatted="false">"Hide input"</string>
+    <string name="text_hide_inputs_or_change_name_of_hdmi_tv_in" formatted="false">"Hide inputs or change name of HDMI &amp; TV inputs ›"</string>
+    <string name="text_home_3" formatted="false">"Home (3)"</string>
+    <string name="text_home_button_fix_accessibility_enabled" formatted="false">"Home Button Fix &amp; Accessibility enabled!"</string>
+    <string name="text_home_button_fix_disabled" formatted="false">"Home button fix disabled."</string>
+    <string name="text_home_button_fix_enabled_5232e5" formatted="false">"Home button fix enabled."</string>
+    <string name="text_home_button_fix_enabled_d7a9be" formatted="false">"Home Button Fix enabled!"</string>
+    <string name="text_home_button_fix_enabled_please_also_enab" formatted="false">"Home button fix enabled — please also enable Accessibility service above so Home key can be intercepted."</string>
+    <string name="text_home_button_fix_enabled_pressing_home_wi" formatted="false">"Home button fix enabled — pressing Home will launch tvOS Launcher."</string>
+    <string name="text_home_permissions" formatted="false">"HOME &amp; PERMISSIONS"</string>
+    <string name="text_home_screen" formatted="false">"Home screen"</string>
+    <string name="text_home_screen_search_shortcut" formatted="false">"Home screen search shortcut"</string>
+    <string name="text_home_screen_weather_shortcut" formatted="false">"Home screen weather shortcut"</string>
+    <string name="text_home_screen_widget_settings" formatted="false">"Home screen widget settings"</string>
+    <string name="text_home_screen_widgets" formatted="false">"HOME SCREEN WIDGETS"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"Home settings"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"Home Settings"</string>
+    <string name="text_hourly_forecast" formatted="false">"HOURLY FORECAST"</string>
+    <string name="text_how_to_watch" formatted="false">"HOW TO WATCH"</string>
+    <string name="text_humidity" formatted="false">"Humidity "</string>
+    <string name="text_i_understand_open_manual_debloat" formatted="false">"I Understand — Open Manual Debloat"</string>
+    <string name="text_images" formatted="false">"images"</string>
+    <string name="text_images_videos_and_webpages_sent_from_any" formatted="false">"Images, videos and webpages sent from any phone or computer on the same Wi-Fi. For everyone on this TV."</string>
+    <string name="text_in_app_results" formatted="false">"In-App Results"</string>
+    <string name="text_in_control_center_needs_location_access" formatted="false">"In Control Center (needs location access)"</string>
+    <string name="text_included_in_rotation" formatted="false">"Included in rotation"</string>
+    <string name="text_indigo" formatted="false">"Indigo"</string>
+    <string name="text_info_button" formatted="false">"Info Button"</string>
+    <string name="text_input" formatted="false">"Input"</string>
+    <string name="text_inputs_app_on_dock" formatted="false">"INPUTS APP ON DOCK"</string>
+    <string name="text_inputs" formatted="false">"Inputs"</string>
+    <string name="text_inputs_control_panel_dock" formatted="false">"Inputs (Control Panel &amp; Dock)"</string>
+    <string name="text_install" formatted="false">"Install"</string>
+    <string name="text_installed_apps" formatted="false">"INSTALLED APPS"</string>
+    <string name="text_installed_system_launchers_on_this_tv_s" formatted="false">"INSTALLED SYSTEM LAUNCHERS ON THIS TV (%s)"</string>
+    <string name="text_internal_storage" formatted="false">"Internal Storage"</string>
+    <string name="text_iphone_duo" formatted="false">"iPhone Duo"</string>
+    <string name="text_iphone_rounded" formatted="false">"iPhone Rounded"</string>
+    <string name="text_its_layout_and_continue_watching_list_wi" formatted="false">"Its layout and Continue Watching list will be removed."</string>
+    <string name="text_just_your_background_for_now" formatted="false">"Just your background for now"</string>
+    <string name="text_keep_alive_auto_repair_accessibility" formatted="false">"Keep Alive (Auto-repair Accessibility)"</string>
+    <string name="text_keep_alive_disabled" formatted="false">"Keep Alive disabled."</string>
+    <string name="text_keep_alive_enabled" formatted="false">"Keep Alive enabled."</string>
+    <string name="text_keep_screen_awake" formatted="false">"Keep Screen Awake"</string>
+    <string name="text_keep_typing_to_search_movies_and_shows" formatted="false">"Keep typing to search movies and shows"</string>
+    <string name="text_keeps_network_adb_enabled_for_cleanyourt" formatted="false">"Keeps network ADB enabled for CleanYourTV debloating (Note: leaves port 5555 open on LAN)"</string>
+    <string name="text_key" formatted="false">"Key: "</string>
+    <string name="text_l" formatted="false">"L:"</string>
+    <string name="text_language" formatted="false">"Language"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"Language, weather, scenes, apps and people"</string>
+    <string name="text_larger_dock_extra_apps_automatically_mov" formatted="false">"Larger dock — extra apps automatically move to Other apps if needed"</string>
+    <string name="text_last_channel" formatted="false">"Last Channel"</string>
+    <string name="text_launch_automatically_on_system_boot" formatted="false">"Launch automatically on system boot"</string>
+    <string name="text_left" formatted="false">"Left"</string>
+    <string name="text_let_s_set_up_tvos_launcher" formatted="false">"Let’s set up tvOS Launcher."</string>
+    <string name="text_link_nuvio_forks_like_nuvio_native_legac" formatted="false">"Link Nuvio forks (like Nuvio Native Legacy) that sign in to the same Nuvio account. Their dock tile then shows Nuvio's Continue Watching, and Search opens titles in them."</string>
+    <string name="text_listening" formatted="false">"Listening…"</string>
+    <string name="text_live_cricket_scores" formatted="false">"Live Cricket Scores"</string>
+    <string name="text_live_news_headlines" formatted="false">"Live News Headlines"</string>
+    <string name="text_loading_cricket_scores" formatted="false">"Loading cricket scores…"</string>
+    <string name="text_loading_imdb_top" formatted="false">"Loading IMDb Top…"</string>
+    <string name="text_loading_next_reddit_wallpaper" formatted="false">"Loading next Reddit wallpaper…"</string>
+    <string name="text_loading_top_headlines" formatted="false">"Loading top headlines…"</string>
+    <string name="text_loading_tv_models" formatted="false">"Loading TV models…"</string>
+    <string name="text_location_873ca7" formatted="false">"LOCATION"</string>
+    <string name="text_location_eeea97" formatted="false">"Location"</string>
+    <string name="text_location_mode" formatted="false">"LOCATION MODE"</string>
+    <string name="text_lock_now" formatted="false">"Lock Now"</string>
+    <string name="text_lock_screen" formatted="false">"Lock Screen"</string>
+    <string name="text_lock_screen_options" formatted="false">"LOCK SCREEN OPTIONS"</string>
+    <string name="text_lock_screen_settings_8b5317" formatted="false">"Lock screen settings…"</string>
+    <string name="text_lock_screen_settings_d4db1f" formatted="false">"Lock screen settings"</string>
+    <string name="text_long_press_volume_button_fix" formatted="false">"Long-press volume button fix"</string>
+    <string name="text_long_press_volume_fix_disabled_using_nat" formatted="false">"Long-press volume fix disabled (using native TV volume)."</string>
+    <string name="text_long_press_volume_fix_enabled_for_tvs_wh" formatted="false">"Long-press volume fix enabled (for TVs where holding volume stops repeating)."</string>
+    <string name="text_look" formatted="false">"LOOK"</string>
+    <string name="text_looks_like" formatted="false">"Looks like "</string>
+    <string name="text_m" formatted="false">"m"</string>
+    <string name="text_make_home_screen" formatted="false">"Make Home Screen"</string>
+    <string name="text_make_tvos_launcher_default_home" formatted="false">"Make tvOS Launcher Default Home"</string>
+    <string name="text_make_tvos_launcher_the_home_screen" formatted="false">"Make tvOS Launcher the Home Screen"</string>
+    <string name="text_make_tvos_launcher_your_home_screen" formatted="false">"Make tvOS Launcher your home screen?"</string>
+    <string name="text_manage_system_apps_in_tv_settings" formatted="false">"Manage system apps in TV settings…"</string>
+    <string name="text_manual_debloat_all_system_apps_22aced" formatted="false">"Manual debloat (All system apps)"</string>
+    <string name="text_manual_debloat_all_system_apps_99b35c" formatted="false">"Manual debloat (All system apps)…"</string>
+    <string name="text_manual_debloat_warning" formatted="false">"⚠️ Manual Debloat Warning"</string>
+    <string name="text_manual_setup" formatted="false">"Manual Setup"</string>
+    <string name="text_map_any_button_on_your_remote_with_singl" formatted="false">"Map any button on your remote with Single Tap (1x), Double Tap (2x) and Triple Tap (3x) actions — open the Control Panel, Recent Apps Switcher, or any app."</string>
+    <string name="text_matching_models_for" formatted="false">"MATCHING MODELS FOR "</string>
+    <string name="text_matching_places" formatted="false">"Matching places"</string>
+    <string name="text_media_file_is_missing_for_slide" formatted="false">"Media file is missing for slide"</string>
+    <string name="text_media_item_not_found" formatted="false">"Media item not found"</string>
+    <string name="text_memory" formatted="false">"Memory"</string>
+    <string name="text_menu_button" formatted="false">"Menu Button"</string>
+    <string name="text_min_0240eb" formatted="false">" min"</string>
+    <string name="text_min_938b57" formatted="false">"min"</string>
+    <string name="text_min_left" formatted="false">" min left"</string>
+    <string name="text_minutes" formatted="false">" minutes"</string>
+    <string name="text_mode_1_standard_default" formatted="false">"Mode 1 (Standard · Default)"</string>
+    <string name="text_mode_1_standard_default_for_most_android" formatted="false">"Mode 1 — Standard (Default, for most Android TVs &amp; IR remotes)"</string>
+    <string name="text_mode_2_hy320_projector" formatted="false">"Mode 2 (HY320 / Projector)"</string>
+    <string name="text_mode_2_hy320_projector_audioservice_ir_p" formatted="false">"Mode 2 — HY320 / Projector (AudioService &amp; IR pulse-burst mode)"</string>
+    <string name="text_mode_3_onn_tv_box_fast_release_stop_0_ex" formatted="false">"Mode 3 — Onn TV Box (Fast release stop, 0 extra steps on release, ADB &amp; Secure mode)"</string>
+    <string name="text_mode_manual_setup_without_adb" formatted="false">"Mode: Manual Setup (Without ADB)"</string>
+    <string name="text_mode_persistent_adb_setup_keep_adb_open" formatted="false">"Mode: Persistent ADB Setup (Keep ADB Open)"</string>
+    <string name="text_mode_secure_auto_setup_close_adb_recomme" formatted="false">"Mode: Secure Auto Setup &amp; Close ADB (Recommended)"</string>
+    <string name="text_models_by_system_app_similarity" formatted="false">"Models by System App Similarity"</string>
+    <string name="text_move" formatted="false">"Move"</string>
+    <string name="text_move_icon" formatted="false">"Move icon"</string>
+    <string name="text_move_to_other_apps" formatted="false">"Move to Other Apps"</string>
+    <string name="text_movie" formatted="false">"Movie"</string>
+    <string name="text_movies_tv" formatted="false">"Movies &amp; TV"</string>
+    <string name="text_mute_unmute_164" formatted="false">"Mute / Unmute (164)"</string>
+    <string name="text_my_location" formatted="false">"My Location"</string>
+    <string name="text_name" formatted="false">"Name"</string>
+    <string name="text_navigation_click_sounds" formatted="false">"Navigation click sounds"</string>
+    <string name="text_new_profile" formatted="false">"New Profile"</string>
+    <string name="text_news" formatted="false">"News"</string>
+    <string name="text_news_country_auto" formatted="false">"Automatic (Sync with UI language)"</string>
+    <string name="text_news_country_setting" formatted="false">"Live News country"</string>
+    <string name="text_next_9f81b4" formatted="false">"Next"</string>
+    <string name="text_next_b8f003" formatted="false">"Next: "</string>
+    <string name="text_next_page" formatted="false">"Next Page"</string>
+    <string name="text_next_track" formatted="false">"Next Track"</string>
+    <string name="text_next_wallpaper_b7a1c2" formatted="false">"Next wallpaper"</string>
+    <string name="text_next_wallpaper_f38b4f" formatted="false">"Next Wallpaper"</string>
+    <string name="text_night_scenes_6b95bc" formatted="false">"Night scenes"</string>
+    <string name="text_night_scenes_b6104d" formatted="false">"NIGHT SCENES"</string>
+    <string name="text_night_scenes_clock" formatted="false">"NIGHT SCENES CLOCK"</string>
+    <string name="text_night_scenes_custom_wallpaper" formatted="false">"Night Scenes Custom Wallpaper"</string>
+    <string name="text_no_apps_to_close" formatted="false">"No apps to close"</string>
+    <string name="text_no_changelog_text_provided_for_this_rele" formatted="false">"No changelog text provided for this release."</string>
+    <string name="text_no_disabled_packages_have_been_recorded" formatted="false">"No disabled packages have been recorded by CleanYourTV yet."</string>
+    <string name="text_no_enabled_slides_in_the_active_playlist" formatted="false">"No enabled slides in the active playlist"</string>
+    <string name="text_no_hidden_apps_hold_ok_on_any_app_on_the" formatted="false">"No hidden apps. Hold OK on any app on the home screen dock and choose Hide."</string>
+    <string name="text_no_images_in_this_folder_open_a_subfolde" formatted="false">"No images in this folder (open a subfolder below)"</string>
+    <string name="text_no_keep_all" formatted="false">"No, Keep All"</string>
+    <string name="text_no_matching_apps_found" formatted="false">"No Matching Apps Found"</string>
+    <string name="text_no_matching_city_or_country_found" formatted="false">"No matching city or country found."</string>
+    <string name="text_no_movies_or_shows_found" formatted="false">"No movies or shows found"</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"No recent apps yet"</string>
+    <string name="text_no_results" formatted="false">"No results"</string>
+    <string name="text_no_saved_disabled_app_backup_was_found_a" formatted="false">"No saved disabled-app backup was found, and no TV model is selected yet. Choose a TV model first if you want to restore by model profile."</string>
+    <string name="text_no_screensaver_or_sleep_while_presenting" formatted="false">"No screensaver or sleep while presenting"</string>
+    <string name="text_no_settings_backup_json_found_in_this_fo" formatted="false">"No settings backup (.json) found in this folder"</string>
+    <string name="text_no_stock_android_tv_google_tv_launcher_p" formatted="false">"No stock Android TV / Google TV launcher packages were detected on this TV."</string>
+    <string name="text_no_stock_android_tv_google_tv_oem_launch" formatted="false">"No stock Android TV / Google TV / OEM launcher packages were detected on this TV."</string>
+    <string name="text_no_system_file_picker_available_on_this" formatted="false">"No system file picker available on this TV."</string>
+    <string name="text_no_upcoming_or_live_matches_found_for_yo" formatted="false">"No upcoming or live matches found for your favorite teams."</string>
+    <string name="text_none" formatted="false">"None"</string>
+    <string name="text_none_choose_png" formatted="false">"None — Choose PNG ›"</string>
+    <string name="text_none_clear_action" formatted="false">"None (Clear action)"</string>
+    <string name="text_none_found" formatted="false">"None found"</string>
+    <string name="text_none_no_action" formatted="false">"None (No action)"</string>
+    <string name="text_none_saved" formatted="false">"None saved"</string>
+    <string name="text_not_allowed" formatted="false">"Not allowed"</string>
+    <string name="text_not_connected_85d0dd" formatted="false">"Not Connected"</string>
+    <string name="text_not_connected_ebd8d2" formatted="false">"Not connected"</string>
+    <string name="text_not_done" formatted="false">"Not done"</string>
+    <string name="text_not_done_select_tv_model_first" formatted="false">"Not done (Select TV model first)"</string>
+    <string name="text_not_downloaded_tap_to_download" formatted="false">"Not downloaded · Tap to download ›"</string>
+    <string name="text_not_installed" formatted="false">"Not installed"</string>
+    <string name="text_not_now" formatted="false">"Not Now"</string>
+    <string name="text_not_on_this_tv" formatted="false">"Not on this TV"</string>
+    <string name="text_not_selected" formatted="false">"Not selected"</string>
+    <string name="text_not_set" formatted="false">"Not set"</string>
+    <string name="text_not_signed_in" formatted="false">"Not signed in"</string>
+    <string name="text_not_streaming_right_now" formatted="false">"Not streaming right now."</string>
+    <string name="text_nothing_to_continue_yet" formatted="false">"Nothing to continue yet"</string>
+    <string name="text_nothing_to_present_yet" formatted="false">"Nothing to present yet"</string>
+    <string name="text_notifications_83" formatted="false">"Notifications (83)"</string>
+    <string name="text_now" formatted="false">"Now"</string>
+    <string name="status_off" formatted="false">"Off"</string>
+    <string name="text_off_tap_to_enable_home_button_remap" formatted="false">"Off — Tap to enable Home button remap"</string>
+    <string name="text_official_app" formatted="false">"Official app"</string>
+    <string name="text_ok" formatted="false">"OK"</string>
+    <string name="text_ok_to_change_back_to_go_back" formatted="false">"OK to change, Back to go back"</string>
+    <string name="text_ok_to_change_hold_ok_to_move_back_to_go" formatted="false">"OK to change, hold OK to move, Back to go back"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore" formatted="false">"OK to open  ·  Hold OK to restore"</string>
+    <string name="text_ok_to_open_hold_ok_to_restore_back_to_go" formatted="false">"OK to open  ·  Hold OK to restore  ·  Back to go back"</string>
+    <string name="text_ok_to_switch_or_edit" formatted="false">"OK to switch or edit"</string>
+    <string name="legacy_he_on_prefix" formatted="false">"On "</string>
+    <string name="text_on_default" formatted="false">"On (Default)"</string>
+    <string name="status_on" formatted="false">"On"</string>
+    <string name="text_on_google_tv_if_you_disable_setupwraith" formatted="false">"On Google TV, if you disable setupwraith, make sure your Wi-Fi network was re-added in Wi-Fi Settings."</string>
+    <string name="text_on_pressing_home_launches_tvos_launcher" formatted="false">"On — Pressing Home launches tvOS Launcher"</string>
+    <string name="text_on_tcl_and_philips_android_11_12_tvs_the" formatted="false">"On TCL and Philips Android 11/12 TVs, the OEM firmware often hides the Android Default Home UI and forces the stock launcher when pressing Home. Disabling the stock launcher (Option 2) or enabling the Home Button Fix (Option 3) guarantees pressing Home always opens tvOS Launcher."</string>
+    <string name="text_on_tcl_philips_and_google_tvs_oem_firmwa" formatted="false">"On TCL, Philips, and Google TVs, OEM firmware often forces the stock launcher when pressing Home. Follow the steps below so pressing Home always opens tvOS Launcher, then click Continue."</string>
+    <string name="text_on_the_lock_screen_only_clock_date_and_g" formatted="false">"On the Lock Screen, only Clock, Date, and Greeting are shown above your selected backgrounds. Pressing any remote button returns to where you were before."</string>
+    <string name="text_on_this_tv" formatted="false">"On this TV"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"One photo and a grid of app banners"</string>
+    <string name="text_one_scene_has_to_stay_on" formatted="false">"One scene has to stay on."</string>
+    <string name="text_one_tap_actions" formatted="false">"ONE-TAP ACTIONS"</string>
+    <string name="text_one_wallpaper_has_to_stay_on" formatted="false">"One wallpaper has to stay on."</string>
+    <string name="text_only_your_currently_selected_tv_model_is" formatted="false">"Only your currently selected TV model is kept in the Download folder.\n\nWould you like to download all CleanYourTV models again to choose a different TV model?"</string>
+    <string name="text_open_4f0000" formatted="false">"Open"</string>
+    <string name="text_open_55abf9" formatted="false">"Open"</string>
+    <string name="text_open_android_default_home_settings" formatted="false">"Open Android Default Home Settings"</string>
+    <string name="text_open_android_tv_settings" formatted="false">"Open Android TV Settings…"</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_9d4f5e" formatted="false">"Open Developer Options and turn on USB Debugging / Network Debugging."</string>
+    <string name="text_open_developer_options_and_turn_on_usb_d_c22f55" formatted="false">"Open Developer Options and turn on USB Debugging / Network Debugging to complete switching to Persistent ADB Mode."</string>
+    <string name="text_open_developer_options" formatted="false">"Open Developer Options…"</string>
+    <string name="text_open_developer_options_tv_settings" formatted="false">"Open Developer Options / TV Settings…"</string>
+    <string name="text_open_on_a_phone_or_computer_on_the_same" formatted="false">"Open on a phone or computer on the same Wi-Fi:\n\n"</string>
+    <string name="text_open_settings" formatted="false">"Open Settings"</string>
+    <string name="text_open_system_file_picker" formatted="false">"Open System File Picker…"</string>
+    <string name="text_open_system_selector_if_supported_by_tv" formatted="false">"Open system selector (if supported by TV) ›"</string>
+    <string name="text_open_tv_ambient_mode_screensaver_or_buil" formatted="false">"Open TV Ambient Mode / Screensaver (or built-in fallback)"</string>
+    <string name="text_open_wi_fi_settings" formatted="false">"📶 Open Wi-Fi Settings…"</string>
+    <string name="text_optional" formatted="false">" [Optional]"</string>
+    <string name="text_options" formatted="false">"OPTIONS"</string>
+    <string name="text_or_open" formatted="false">"Or open "</string>
+    <string name="text_orange" formatted="false">"Orange"</string>
+    <string name="text_other_apps_5ccac2" formatted="false">"Other apps"</string>
+    <string name="text_other_apps_bdcc9c" formatted="false">"Other Apps"</string>
+    <string name="text_packages" formatted="false">"packages"</string>
+    <string name="text_page_navigation" formatted="false">"PAGE NAVIGATION"</string>
+    <string name="text_pair_now" formatted="false">"Pair now"</string>
+    <string name="text_pair_repair_adb_connection" formatted="false">"Pair / Repair ADB connection"</string>
+    <string name="text_pair_repair_adb" formatted="false">"Pair / Repair ADB"</string>
+    <string name="text_pair_with_the_tv_pin_first" formatted="false">"Pair with the TV PIN first"</string>
+    <string name="text_paired" formatted="false">" paired"</string>
+    <string name="text_paired_adb_enabled" formatted="false">"Paired · ADB Enabled"</string>
+    <string name="text_pairing_code_146fc7" formatted="false">"Pairing code\n"</string>
+    <string name="text_pairing_code_216a41" formatted="false">"PAIRING CODE"</string>
+    <string name="text_pause" formatted="false">"Pause"</string>
+    <string name="text_paused" formatted="false">"Paused"</string>
+    <string name="text_people_3a2eb8" formatted="false">"People"</string>
+    <string name="text_people_c31d4d" formatted="false">"PEOPLE"</string>
+    <string name="text_permission_status" formatted="false">"PERMISSION STATUS"</string>
+    <string name="text_permissions_granted_adb_closed" formatted="false">"Permissions Granted &amp; ADB Closed"</string>
+    <string name="text_persistent_adb_mode_keep_network_adb_ope" formatted="false">"Persistent ADB Mode — Keep Network ADB Open (Optional)"</string>
+    <string name="text_persistent_adb_mode_required" formatted="false">"Persistent ADB Mode Required"</string>
+    <string name="text_persistent_adb_mode_selected_port_5555_s" formatted="false">"Persistent ADB Mode selected — Port 5555 stays open for CleanYourTV &amp; ADB tools."</string>
+    <string name="text_persistent_adb_setup" formatted="false">"Persistent ADB Setup"</string>
+    <string name="text_pictures" formatted="false">"Pictures"</string>
+    <string name="text_pink" formatted="false">"Pink"</string>
+    <string name="text_play_as_soon_as_the_tv_turns_on_signage" formatted="false">"Play as soon as the TV turns on (signage)"</string>
+    <string name="text_play" formatted="false">"Play"</string>
+    <string name="text_play_pause" formatted="false">"Play / Pause"</string>
+    <string name="text_playing" formatted="false">"Playing"</string>
+    <string name="text_please_allow_install_unknown_apps_for_tv" formatted="false">"Please allow 'Install unknown apps' for tvOS Launcher."</string>
+    <string name="text_please_download_cleanyourtv_first_it_wil" formatted="false">"Please download CleanYourTV first. It will download the latest release to your Download folder and extract the TV profiles."</string>
+    <string name="text_please_enable_usb_debugging_network_debu" formatted="false">"Please enable USB Debugging / Network Debugging in Developer Options, then return here to run this step."</string>
+    <string name="text_popular_cities" formatted="false">"POPULAR CITIES"</string>
+    <string name="text_popular_movies_and_series_on_your_stream" formatted="false">"Popular movies and series on your streaming services"</string>
+    <string name="text_power_menu" formatted="false">"Power Menu"</string>
+    <string name="text_power_off" formatted="false">"Power Off"</string>
+    <string name="text_power_off_screen_off" formatted="false">"Power Off (Screen Off)"</string>
+    <string name="text_prayer_asr" formatted="false">"Asr"</string>
+    <string name="text_prayer_calculation_method_92d541" formatted="false">"Prayer calculation method"</string>
+    <string name="text_prayer_calculation_method_f4f921" formatted="false">"Prayer Calculation Method"</string>
+    <string name="text_prayer_dhuhr" formatted="false">"Dhuhr"</string>
+    <string name="text_prayer_fajr" formatted="false">"Fajr"</string>
+    <string name="text_prayer_isha" formatted="false">"Isha"</string>
+    <string name="text_prayer_maghrib" formatted="false">"Maghrib"</string>
+    <string name="text_prayer_method_label" formatted="false">"Calculation Method"</string>
+    <string name="text_prayer_remaining" formatted="false">"remaining"</string>
+    <string name="text_prayer_sunrise" formatted="false">"Sunrise"</string>
+    <string name="text_prayer_times_location_01fe75" formatted="false">"Prayer Times Location"</string>
+    <string name="text_prayer_times_location_3a3188" formatted="false">"Prayer times location"</string>
+    <string name="text_preparing_cleanyourtv" formatted="false">"Preparing CleanYourTV…"</string>
+    <string name="text_preparing_download_folder" formatted="false">"Preparing Download folder…"</string>
+    <string name="text_preparing_qr_code" formatted="false">"Preparing QR code…"</string>
+    <string name="text_preparing_to_clean_up_unnecessary_files" formatted="false">"Preparing to clean up unnecessary files…"</string>
+    <string name="text_preparing_uninstall" formatted="false">"Preparing Uninstall…"</string>
+    <string name="text_presentation" formatted="false">"Presentation"</string>
+    <string name="text_presentation_address_qr_code" formatted="false">"Presentation address &amp; QR code"</string>
+    <string name="text_presentation_isn_t_on_screen" formatted="false">"Presentation isn’t on screen"</string>
+    <string name="text_presentation_isn_t_on_screen_start_it_fr" formatted="false">"Presentation isn’t on screen. Start it from the TV or turn on “Start on boot”."</string>
+    <string name="text_presentation_mode" formatted="false">"Presentation mode"</string>
+    <string name="text_presentation_system" formatted="false">"PRESENTATION &amp; SYSTEM"</string>
+    <string name="text_press_back_again_to_exit" formatted="false">"Press Back again to exit"</string>
+    <string name="text_press_ok_to_include_releases_from_this_c" formatted="false">"Press OK to include releases from this country"</string>
+    <string name="text_press_ok_to_select_this_city" formatted="false">"Press OK to select this city"</string>
+    <string name="text_press_ok_to_select_this_country" formatted="false">"Press OK to select this country"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"Press ▲ on an app to close it"</string>
+    <string name="text_press_the_button_on_your_remote_that_you" formatted="false">"Press the button on your remote that you want to remap…\n\n(D-pad navigation, OK and Back are kept for normal navigation.)"</string>
+    <string name="text_preview" formatted="false">"Preview"</string>
+    <string name="text_preview_lock_screen_now" formatted="false">"Preview Lock Screen now"</string>
+    <string name="text_previous_page" formatted="false">"Previous Page"</string>
+    <string name="text_previous_track" formatted="false">"Previous Track"</string>
+    <string name="text_proceed_to_the_next_setup_step_when_you" formatted="false">"Proceed to the next setup step when you are done here"</string>
+    <string name="text_profile" formatted="false">"Profile "</string>
+    <string name="text_protected_core_package" formatted="false">"Protected Core Package"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_17de20" formatted="false">"Pull full app list from ADB and match models by system/OEM package names"</string>
+    <string name="text_pull_full_app_list_from_adb_and_match_mo_795599" formatted="false">"Pull full app list from ADB and match models by OEM/system packages"</string>
+    <string name="text_pulling_full_package_list_from_adb_and_c" formatted="false">"Pulling full package list from ADB and comparing system/OEM package names across 341 TV models…"</string>
+    <string name="text_purple" formatted="false">"Purple"</string>
+    <string name="text_quick_brand_filters" formatted="false">"QUICK BRAND FILTERS"</string>
+    <string name="text_quick_settings" formatted="false">"Quick settings"</string>
+    <string name="text_ram_s_used_of_s" formatted="false">"RAM %s used of %s"</string>
+    <string name="text_re_added_wi_fi_continue" formatted="false">"✅ Re-added Wi-Fi (Continue)"</string>
+    <string name="text_re_enable_all_packages_disabled_by_clean" formatted="false">"Re-enable all packages disabled by CleanYourTV over ADB"</string>
+    <string name="text_re_enable_all_stock_launchers" formatted="false">"Re-enable All Stock Launchers"</string>
+    <string name="text_recent_apps" formatted="false">"Recent Apps"</string>
+    <string name="text_recent_apps_manager_cannot_clear_apps_wh" formatted="false">"Recent Apps Manager cannot clear apps while Secure ADB Mode is active.\n\nEnable Persistent ADB Mode in Settings › Advanced › ADB operating mode to use the Recent Apps feature."</string>
+    <string name="text_recent_apps_switcher" formatted="false">"Recent Apps Switcher"</string>
+    <string name="text_recent_apps_switcher_overlay" formatted="false">"Recent Apps Switcher (Overlay)"</string>
+    <string name="text_recent_searches" formatted="false">"Recent Searches"</string>
+    <string name="text_recommendations" formatted="false">"Recommendations"</string>
+    <string name="text_recommendations_news" formatted="false">"Recommendations &amp; News"</string>
+    <string name="text_record_button" formatted="false">"Record Button"</string>
+    <string name="text_red" formatted="false">"Red"</string>
+    <string name="text_red_button" formatted="false">"Red Button"</string>
+    <string name="text_reddit_wallpaper_options" formatted="false">"REDDIT WALLPAPER OPTIONS"</string>
+    <string name="text_reddit_wallpaper_updated" formatted="false">"Reddit wallpaper updated."</string>
+    <string name="text_reddit_wallpapers" formatted="false">"Reddit Wallpapers"</string>
+    <string name="text_refresh" formatted="false">"Refresh"</string>
+    <string name="text_refresh_carousel" formatted="false">"Refresh Carousel"</string>
+    <string name="text_refresh_scores" formatted="false">"Refresh Scores"</string>
+    <string name="text_refresh_system_app_list" formatted="false">"↻ Refresh system app list"</string>
+    <string name="text_region_mode" formatted="false">"REGION MODE"</string>
+    <string name="text_releases_country_auto" formatted="false">"Automatic (Sync with UI language)"</string>
+    <string name="text_releases_country_setting" formatted="false">"Most Watched countries"</string>
+    <string name="text_releases_loading" formatted="false">"Loading titles…"</string>
+    <string name="text_remapped_buttons_1x_2x_3x_tap" formatted="false">"REMAPPED BUTTONS (1X / 2X / 3X TAP)"</string>
+    <string name="text_remember_what_you_play_in_each_app" formatted="false">"Remember what you play in each app"</string>
+    <string name="text_remove_7e2800" formatted="false">"REMOVE"</string>
+    <string name="text_remove_8d75c6" formatted="false">"Remove"</string>
+    <string name="text_remove_button_remap" formatted="false">"Remove button remap"</string>
+    <string name="text_remove_foreground_cutout" formatted="false">"Remove foreground cutout"</string>
+    <string name="text_remove_from_continue_watching" formatted="false">"Remove from Continue Watching"</string>
+    <string name="text_remove_from_keep_watching" formatted="false">"Remove from Keep Watching"</string>
+    <string name="text_remove_person" formatted="false">"Remove person"</string>
+    <string name="text_remove_revoke_all_permissions_0a9dac" formatted="false">"Remove / Revoke All Permissions"</string>
+    <string name="text_remove_revoke_all_permissions_c108cc" formatted="false">"Remove / revoke all permissions"</string>
+    <string name="text_remove_this_wallpaper" formatted="false">"Remove this wallpaper"</string>
+    <string name="text_remove_wallpaper" formatted="false">"Remove Wallpaper #"</string>
+    <string name="text_rename_app" formatted="false">"Rename App"</string>
+    <string name="text_rename_e8372b" formatted="false">"Rename…"</string>
+    <string name="text_rename_f9a6a6" formatted="false">"Rename"</string>
+    <string name="text_rename_person" formatted="false">"Rename person"</string>
+    <string name="text_rename_profile" formatted="false">"Rename Profile"</string>
+    <string name="text_repair" formatted="false">"Repair"</string>
+    <string name="text_replace_wallpaper" formatted="false">"Replace Wallpaper #"</string>
+    <string name="text_required_so_mapped_buttons_work_over_eve" formatted="false">"Required so mapped buttons work over every app"</string>
+    <string name="text_reset_043c3c" formatted="false">"RESET"</string>
+    <string name="text_reset_a1f27d" formatted="false">"Reset"</string>
+    <string name="text_reset_app_order_unhide_all" formatted="false">"Reset app order &amp; unhide all"</string>
+    <string name="text_reset_control_panel_actions_to_default" formatted="false">"Reset Control Panel actions to default"</string>
+    <string name="text_reset_layout" formatted="false">"Reset Layout"</string>
+    <string name="text_reset_settings" formatted="false">"Reset settings?"</string>
+    <string name="text_reset_settings_to_defaults" formatted="false">"Reset settings to defaults"</string>
+    <string name="text_reset_to_default" formatted="false">"Reset to default"</string>
+    <string name="text_reset_to_default_icon" formatted="false">"Reset to default icon"</string>
+    <string name="text_restore" formatted="false">"Restore ›"</string>
+    <string name="text_restore_all_0aeae4" formatted="false">"Restore all ›"</string>
+    <string name="text_restore_all_9e718c" formatted="false">"Restore All"</string>
+    <string name="text_restore_apps_launchers_first" formatted="false">"Restore Apps &amp; Launchers First"</string>
+    <string name="text_restore_by_selected_tv_model" formatted="false">"Restore by Selected TV Model"</string>
+    <string name="text_restore_complete" formatted="false">"Restore Complete"</string>
+    <string name="text_restore_debloated_apps_2f2301" formatted="false">"Restore debloated apps"</string>
+    <string name="text_restore_debloated_apps_3d05c1" formatted="false">"Restore debloated apps…"</string>
+    <string name="text_restore_debloated_apps_43153c" formatted="false">"Restore Debloated Apps"</string>
+    <string name="text_restore_debloated_apps_disabled_launcher" formatted="false">"Restore debloated apps &amp; disabled launchers, revoke permissions, and uninstall ›"</string>
+    <string name="text_restore_failed" formatted="false">"Restore Failed"</string>
+    <string name="text_restore_options" formatted="false">"RESTORE OPTIONS"</string>
+    <string name="text_restore_settings_from_folder" formatted="false">"Restore settings from folder…"</string>
+    <string name="text_restoring_apps" formatted="false">"Restoring Apps…"</string>
+    <string name="text_resume_06852b" formatted="false">"Resume"</string>
+    <string name="text_resume_45e750" formatted="false">"Resume"</string>
+    <string name="text_resume_playback" formatted="false">"Resume playback"</string>
+    <string name="text_retry" formatted="false">"Retry"</string>
+    <string name="text_revoke_all_permissions" formatted="false">"Revoke All Permissions"</string>
+    <string name="text_revoke" formatted="false">"Revoke ›"</string>
+    <string name="text_revoking_all_permissions" formatted="false">"Revoking all permissions…"</string>
+    <string name="text_revoking_all_permissions_and_opening_and" formatted="false">"Revoking all permissions and opening Android uninstall screen…"</string>
+    <string name="text_revoking_permissions" formatted="false">"Revoking Permissions…"</string>
+    <string name="text_rewind" formatted="false">"Rewind"</string>
+    <string name="text_right" formatted="false">"Right"</string>
+    <string name="text_rotating_nature_scenes_with_a_glass_cloc" formatted="false">"Rotating nature scenes with a glass clock and bottom dock"</string>
+    <string name="text_run_first_time_setup_again" formatted="false">"Run first-time setup again…"</string>
+    <string name="text_run_role_home_set_home_activity" formatted="false">"Run ROLE_HOME &amp; set-home-activity ›"</string>
+    <string name="text_run_role_home_set_home_activity_over_loc" formatted="false">"Run ROLE_HOME &amp; set-home-activity over Local ADB ›"</string>
+    <string name="text_run_via_adb" formatted="false">"Run via ADB ›"</string>
+    <string name="text_running_settings_put_global_adb_enabled" formatted="false">"Running settings put global adb_enabled 0 and verifying port 5555…"</string>
+    <string name="text_s_active_s_found" formatted="false">"%s active / %s found ›"</string>
+    <string name="text_save" formatted="false">"Save"</string>
+    <string name="text_saved_disabled_packages_tap_to_re_enable" formatted="false">"SAVED DISABLED PACKAGES (TAP TO RE-ENABLE)"</string>
+    <string name="text_say_a_movie_show_or_app" formatted="false">"Say a movie, show or app"</string>
+    <string name="text_scan_apps_adb" formatted="false">"Scan Apps (ADB)"</string>
+    <string name="text_scan_installed_apps" formatted="false">"Scan Installed Apps"</string>
+    <string name="text_scan_installed_system_apps_to_find_match" formatted="false">"🔍 Scan Installed System Apps to Find Matching Model"</string>
+    <string name="text_scan_installed_system_apps_via_adb" formatted="false">"🔍 Scan Installed System Apps via ADB"</string>
+    <string name="text_scan_the_code_or_open_this_address_on_a" formatted="false">"Scan the code or open this address on a phone or computer on the same Wi-Fi."</string>
+    <string name="text_scan_with_your_phone_and_approve" formatted="false">"Scan with your phone and approve."</string>
+    <string name="text_scanning_tv_system_apps" formatted="false">"Scanning TV System Apps…"</string>
+    <string name="text_scenes" formatted="false">"SCENES"</string>
+    <string name="text_screen_off" formatted="false">"Screen Off"</string>
+    <string name="text_screen_saver" formatted="false">"Screen Saver"</string>
+    <string name="text_screensaver" formatted="false">"Screensaver"</string>
+    <string name="text_scroll_for_more" formatted="false">"Scroll for more ›"</string>
+    <string name="text_search_946f53" formatted="false">"Search"</string>
+    <string name="text_search_apps_movies_and_shows" formatted="false">"Search apps, movies and shows"</string>
+    <string name="text_search_button" formatted="false">"Search Button"</string>
+    <string name="text_search_by_name" formatted="false">"Search by name"</string>
+    <string name="text_search_city_or_country_65bcc6" formatted="false">"Search City or Country"</string>
+    <string name="text_search_city_or_country_96234e" formatted="false">"Search city or country…"</string>
+    <string name="text_search_city_or_country_e_g_istanbul_lond" formatted="false">"Search city or country (e.g. Istanbul, London)…"</string>
+    <string name="text_search_def46e" formatted="false">"🔍 Search…"</string>
+    <string name="text_search_failed_check_internet_connection" formatted="false">"Search failed. Check internet connection."</string>
+    <string name="text_search_filter_by_brand_or_model" formatted="false">"🔍 Search / Filter by brand or model…"</string>
+    <string name="text_search_for_a_city_or_town" formatted="false">"Search for a city or town…"</string>
+    <string name="text_search_in_apps" formatted="false">"Search in Apps"</string>
+    <string name="text_search_tv_model_or_brand" formatted="false">"Search TV Model or Brand"</string>
+    <string name="text_searching" formatted="false">"Searching…"</string>
+    <string name="text_seconds_344f8a" formatted="false">"seconds"</string>
+    <string name="text_seconds_ee379b" formatted="false">" seconds"</string>
+    <string name="text_secure_mode_active_adb_not_used_self_rep" formatted="false">"Secure Mode Active (ADB Not Used · Self-Repair Ready)"</string>
+    <string name="text_secure_mode_grant_write_secure_settings" formatted="false">"Secure Mode — Grant WRITE_SECURE_SETTINGS &amp; Close ADB (Recommended)"</string>
+    <string name="text_secure_mode_needs_one_time_pair_to_grant" formatted="false">"Secure Mode (Needs One-Time Pair to Grant Permissions)"</string>
+    <string name="text_secure_mode_selected_adb_will_grant_writ" formatted="false">"Secure Mode selected — ADB will grant WRITE_SECURE_SETTINGS and close port 5555 when paired."</string>
+    <string name="text_secure_mode_write_secure_settings_close" formatted="false">"Secure Mode — WRITE_SECURE_SETTINGS &amp; Close ADB (Recommended)"</string>
+    <string name="text_secure_setup_adb" formatted="false">"Secure Setup (ADB)"</string>
+    <string name="text_security_note_keep_alive_is_enabled_by_d" formatted="false">"Security Note: Keep Alive is enabled by default. In Secure Mode, tvOS Launcher uses WRITE_SECURE_SETTINGS to restore Accessibility directly in-process without touching ADB (even if ADB is enabled on the TV). In Persistent ADB Mode, Keep Alive can also use Local ADB on port 5555."</string>
+    <string name="text_select_a_folder_and_enable_or_disable_in" formatted="false">"Select a folder and enable or disable individual wallpapers inside it"</string>
+    <string name="text_select_a_usage_mode_for_permissions_butt" formatted="false">"Select a usage mode for permissions (Button Mapper Accessibility, Continue Watching, and Wi-Fi). Pick ONE usage mode below:"</string>
+    <string name="text_select_all_none" formatted="false">"Select All / None"</string>
+    <string name="text_select_all_select_none" formatted="false">"Select All / Select None"</string>
+    <string name="text_select_at_least_one_package_first" formatted="false">"Select at least one package first."</string>
+    <string name="text_select_home_app" formatted="false">"Select Home App"</string>
+    <string name="text_select_transparent_png_foreground" formatted="false">"Select Transparent PNG Foreground"</string>
+    <string name="text_select_tv_model_first" formatted="false">"Select TV Model First"</string>
+    <string name="text_select_wallpaper_folder_0c14ac" formatted="false">"Select Wallpaper Folder"</string>
+    <string name="text_select_wallpaper_folder_9bea6b" formatted="false">"Select wallpaper folder…"</string>
+    <string name="text_select_wallpaper_image" formatted="false">"Select Wallpaper Image"</string>
+    <string name="text_selected" formatted="false">"Selected"</string>
+    <string name="text_selected_press_ok_to_toggle" formatted="false">"Selected — press OK to toggle"</string>
+    <string name="text_send_any_android_keyevent_keycode_withou" formatted="false">"Send any Android KeyEvent keycode without 3rd-party apps"</string>
+    <string name="text_send_key_code_566257" formatted="false">"Send Key Code…"</string>
+    <string name="text_send_key_code_fb16e1" formatted="false">"Send Key Code"</string>
+    <string name="text_send_key_code_remote_media_system" formatted="false">"Send Key Code (Remote / Media / System)…"</string>
+    <string name="text_send_to_this_tv_535246" formatted="false">"Send to this TV"</string>
+    <string name="text_send_to_this_tv_f2720f" formatted="false">"Send to this TV"</string>
+    <string name="text_series" formatted="false">"Series"</string>
+    <string name="text_set_as_default" formatted="false">"Set as default…"</string>
+    <string name="text_set_default_home_launcher" formatted="false">"Set Default Home Launcher"</string>
+    <string name="text_set_default_via_local_adb_recommended" formatted="false">"Set Default via Local ADB (Recommended)"</string>
+    <string name="text_set_manually" formatted="false">"Set manually"</string>
+    <string name="text_set_png_cutout" formatted="false">"Set (PNG cutout) ›"</string>
+    <string name="text_setting_default_launcher" formatted="false">"Setting Default Launcher…"</string>
+    <string name="text_setting_role_home_and_default_home_activ" formatted="false">"Setting ROLE_HOME and default home activity over Local ADB…"</string>
+    <string name="text_settings_602_scan_641" formatted="false">"Settings (#602 · Scan 641)"</string>
+    <string name="text_settings" formatted="false">"Settings"</string>
+    <string name="text_settings_backed_up" formatted="false">"Settings Backed Up"</string>
+    <string name="text_settings_button" formatted="false">"Settings Button"</string>
+    <string name="text_settings_kept" formatted="false">"Settings kept"</string>
+    <string name="text_settings_restored" formatted="false">"Settings Restored"</string>
+    <string name="text_show_app_names" formatted="false">"Show app names"</string>
+    <string name="text_show_changelog" formatted="false">"Show Changelog"</string>
+    <string name="text_show_clock_date_greeting_over_your_chose" formatted="false">"Show Clock, Date &amp; Greeting over your chosen wallpaper (press any key to return)"</string>
+    <string name="text_show_continue_watching_on_home" formatted="false">"Show Continue Watching on Home"</string>
+    <string name="text_show_inputs_app_on_dock" formatted="false">"Show Inputs app on Dock"</string>
+    <string name="text_show_native_android_shutdown_reboot_and" formatted="false">"Show native Android shutdown, reboot, and standby menu"</string>
+    <string name="text_show_on_home_screen" formatted="false">"Show on Home Screen"</string>
+    <string name="text_show_the_wi_fi_name" formatted="false">"Show the Wi-Fi Name"</string>
+    <string name="text_show_widgets_when_selected_app_has_no_co" formatted="false">"Show widgets when selected app has no Continue Watching"</string>
+    <string name="text_shows_and_movies_you_play_will_appear_he" formatted="false">"Shows and movies you play will appear here."</string>
+    <string name="text_shuffle_folder_86fcb0" formatted="false">"SHUFFLE FOLDER"</string>
+    <string name="text_shuffle_folder_dc8ec3" formatted="false">"Shuffle Folder"</string>
+    <string name="text_sign_out" formatted="false">"Sign out"</string>
+    <string name="text_signed_in_sign_out" formatted="false">"Signed in · Sign out"</string>
+    <string name="text_similar_model_name" formatted="false">"Similar model name"</string>
+    <string name="text_single_multi_wallpapers" formatted="false">"Single / Multi Wallpapers"</string>
+    <string name="text_single_tap_1x" formatted="false">"Single Tap (1x)"</string>
+    <string name="text_skip_now" formatted="false">"Skip now ›"</string>
+    <string name="text_skip_restore_continue" formatted="false">"Skip Restore &amp; Continue"</string>
+    <string name="text_skip_setup" formatted="false">"Skip Setup"</string>
+    <string name="text_skip_setupwraith" formatted="false">"🛡️ Skip setupwraith"</string>
+    <string name="text_skip_this_step" formatted="false">"Skip This Step"</string>
+    <string name="text_skip_to_the_next_reddit_wallpaper" formatted="false">"Skip to the next Reddit wallpaper"</string>
+    <string name="text_skipping_this_slide" formatted="false">"Skipping this slide"</string>
+    <string name="text_sleep_standby_223" formatted="false">"Sleep / Standby (223)"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"Sleep Timer"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"Sleep timer"</string>
+    <string name="text_small_clock" formatted="false">"Small clock"</string>
+    <string name="text_smaller_more_compact_dock" formatted="false">"Smaller, more compact dock"</string>
+    <string name="text_sound" formatted="false">"Sound"</string>
+    <string name="text_sources_input_602_scan_757" formatted="false">"Sources / Input (#602 · Scan 757)"</string>
+    <string name="text_space" formatted="false">"space"</string>
+    <string name="text_standard_apple_tvos_dock_size" formatted="false">"Standard Apple tvOS dock size"</string>
+    <string name="text_start" formatted="false">"Start ›"</string>
+    <string name="text_start_with_the_tv" formatted="false">"Start with the TV"</string>
+    <string name="text_startup_keep_alive" formatted="false">"STARTUP &amp; KEEP ALIVE"</string>
+    <string name="text_step_1_complete_default_home_launcher_se" formatted="false">"Step 1 complete: Default home launcher set via ADB!"</string>
+    <string name="text_step_1_set_tvos_launcher_as_default_via" formatted="false">"Step 1: Set tvOS Launcher as Default via Local ADB"</string>
+    <string name="text_step_2_disable_system_launchers_google_t" formatted="false">"Step 2: Disable System Launchers (Google TV / Android TV / OEM)"</string>
+    <string name="text_step_3_fix_home_button_via_accessibility" formatted="false">"Step 3: Fix Home Button via Accessibility (Button Mapper)"</string>
+    <string name="text_step_4_open_android_system_home_settings" formatted="false">"Step 4: Open Android System Home Settings"</string>
+    <string name="text_stock_android_tv_home_sponsored_rows" formatted="false">"Stock Android TV Home &amp; sponsored rows"</string>
+    <string name="text_stock_google_tv_home_banner_ads" formatted="false">"Stock Google TV Home &amp; banner ads"</string>
+    <string name="text_stop" formatted="false">"Stop"</string>
+    <string name="text_storage" formatted="false">"Storage"</string>
+    <string name="text_subreddits_select_single_or_multiple" formatted="false">"SUBREDDITS (SELECT SINGLE OR MULTIPLE)"</string>
+    <string name="text_subtitles_cc" formatted="false">"Subtitles / CC"</string>
+    <string name="text_suggested" formatted="false">"Suggested"</string>
+    <string name="text_suggestions" formatted="false">"Suggestions"</string>
+    <string name="text_switch_between_secure_auto_setup_persist" formatted="false">"Switch between Secure Auto Setup, Persistent ADB, or Manual Setup"</string>
+    <string name="text_switch_profile" formatted="false">"Switch Profile"</string>
+    <string name="text_switch_tv_hdmi_inputs_on_screen_even_if" formatted="false">"Switch TV / HDMI inputs on screen even if Google TV Launcher is disabled"</string>
+    <string name="text_sync_with_weather" formatted="false">"Sync with Weather"</string>
+    <string name="text_sync_with_weather_location" formatted="false">"Sync with Weather location"</string>
+    <string name="text_system_home_launcher_detected_on_this_tv" formatted="false">"System home launcher detected on this TV"</string>
+    <string name="text_system_launchers_83a49b" formatted="false">"System Launchers"</string>
+    <string name="text_system_launchers_d659b5" formatted="false">"System Launchers"</string>
+    <string name="text_tall_glass" formatted="false">"Tall Glass"</string>
+    <string name="text_tap_actions" formatted="false">"TAP ACTIONS"</string>
+    <string name="text_tap_check_for_updates" formatted="false">"Tap Check for updates"</string>
+    <string name="text_tap_to_detect_select" formatted="false">"Tap to detect / select…"</string>
+    <string name="text_tap_to_include" formatted="false">"Tap to include"</string>
+    <string name="text_tap_to_set_as_active_wallpaper" formatted="false">"Tap to set as active wallpaper"</string>
+    <string name="text_tap_to_toggle_in_scene_rotation_long_pre" formatted="false">"Tap to toggle in scene rotation · Long-press or use actions below"</string>
+    <string name="text_target_action_application" formatted="false">"TARGET ACTION / APPLICATION"</string>
+    <string name="text_teal" formatted="false">"Teal"</string>
+    <string name="text_temperature" formatted="false">"Temperature"</string>
+    <string name="text_that_pin_doesn_t_match_the_one_on_the_tv" formatted="false">"That PIN doesn’t match the one on the TV."</string>
+    <string name="text_the_home_button_on_the_remote_will_open" formatted="false">"The Home button on the remote will open tvOS Launcher."</string>
+    <string name="text_the_home_button_opens_tvos_launcher" formatted="false">"The Home button opens tvOS Launcher"</string>
+    <string name="text_this_resets_look_scenes_clock_and_langua" formatted="false">"This resets look, scenes, clock and language settings back to defaults."</string>
+    <string name="text_this_tv_does_not_have_a_built_in_accessi" formatted="false">"This TV does not have a built-in Accessibility Settings screen. You can enable the Button Mapper &amp; Control Panel service automatically via Local ADB."</string>
+    <string name="text_this_tv_s_settings_have_no_switch_for_th" formatted="false">"This TV's settings have no switch for this permission. Whoever set up the TV can turn it on once from a computer on the same network:\n\n"</string>
+    <string name="text_this_will_disable_keep_alive_and_remove" formatted="false">"This will disable Keep Alive and remove Accessibility Service, Notification Access, Default Home Role, and launcher permissions (both locally and via ADB)."</string>
+    <string name="text_tip_blur_can_t_be_shown_while_a_video_is" formatted="false">"Tip: Blur can't be shown while a video is playing. Android can't blur live video (and DRM video can't be captured), so the video keeps playing behind the panel with a soft shade instead."</string>
+    <string name="text_tip_hold_ok_on_any_app_on_the_home_scree" formatted="false">"Tip: Hold OK on any app on the home screen dock to move or hide it."</string>
+    <string name="text_tip_press_and_hold_ok_on_any_widget_on_t" formatted="false">"Tip: Press and hold OK on any widget on the Home screen to open its menu to move (reorder) or disable it."</string>
+    <string name="text_tmdb_connected" formatted="false">"TMDB connected"</string>
+    <string name="text_to_see_what_you_watch_here_allow_it_in_s" formatted="false">"To see what you watch here, allow it in Settings → Permissions."</string>
+    <string name="text_today" formatted="false">"Today"</string>
+    <string name="text_tomorrow_short" formatted="false">"Tomorrow"</string>
+    <string name="text_top_movies_web_series" formatted="false">"Top Movies &amp; Web Series"</string>
+    <string name="text_top_right_search_shortcut" formatted="false">"Top-right search shortcut"</string>
+    <string name="text_top_right_weather_shortcut" formatted="false">"Top-right weather shortcut"</string>
+    <string name="text_top_shelf_6_column_app_grid_and_custom_w" formatted="false">"Top shelf, 6-column app grid and custom wallpapers"</string>
+    <string name="text_top_shelf_content" formatted="false">"TOP SHELF CONTENT"</string>
+    <string name="text_trending" formatted="false">"Trending"</string>
+    <string name="text_triple_tap_3x" formatted="false">"Triple Tap (3x)"</string>
+    <string name="text_turn_off_custom_image" formatted="false">"Turn off Custom image"</string>
+    <string name="text_turn_off_custom_scene" formatted="false">"Turn off Custom scene"</string>
+    <string name="text_turn_off_folder_shuffle" formatted="false">"Turn off Folder shuffle"</string>
+    <string name="text_turn_off_screen_put_tv_to_sleep" formatted="false">"Turn off screen / put TV to sleep"</string>
+    <string name="text_turn_on_adb_debugging" formatted="false">"Turn On ADB Debugging"</string>
+    <string name="text_turn_on_custom_image" formatted="false">"Turn on Custom image"</string>
+    <string name="text_turn_on_custom_scene" formatted="false">"Turn on Custom scene"</string>
+    <string name="text_turn_on_first" formatted="false">"Turn on first"</string>
+    <string name="text_turn_on_folder_shuffle" formatted="false">"Turn on Folder shuffle"</string>
+    <string name="text_turn_on_off_adb" formatted="false">"Turn On / Off ADB"</string>
+    <string name="text_turn_on_presentation_mode_first" formatted="false">"Turn on Presentation mode first"</string>
+    <string name="text_turn_the_tv_off_after" formatted="false">"Turn the TV off after"</string>
+    <string name="text_turning_on_adb" formatted="false">"Turning On ADB…"</string>
+    <string name="text_turning_on_adb_debugging_for_this_troubl" formatted="false">"Turning on ADB debugging for this troubleshooting step…"</string>
+    <string name="text_tv_input_source" formatted="false">"TV Input / Source"</string>
+    <string name="text_tv_model_matched" formatted="false">"TV Model Matched"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"TV Settings"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"TV settings"</string>
+    <string name="text_tv_speakers" formatted="false">"TV Speakers"</string>
+    <string name="text_tvos_launcher_will_launch_immediately_on" formatted="false">"tvOS Launcher will launch immediately on system boot."</string>
+    <string name="text_tvos_launcher_works_best_as_the_home_scr" formatted="false">"tvOS Launcher works best as the home screen. Allow these once; anything this TV doesn't support is skipped."</string>
+    <string name="text_type_to_search_your_apps_settings_movies" formatted="false">"Type to search your apps, settings, movies and shows"</string>
+    <string name="text_unexpected_server_error" formatted="false">"Unexpected server error"</string>
+    <string name="text_uninstall_3fd78c" formatted="false">"Uninstall"</string>
+    <string name="text_uninstall_f2f89e" formatted="false">"UNINSTALL"</string>
+    <string name="text_uninstall_tvos_launcher" formatted="false">"Uninstall tvOS Launcher"</string>
+    <string name="text_universal_shortcut_actions" formatted="false">"UNIVERSAL SHORTCUT ACTIONS"</string>
+    <string name="text_unsupported_playback_command" formatted="false">"Unsupported playback command"</string>
+    <string name="text_up_and_down_to_browse_ok_to_change_back" formatted="false">"Up and down to browse, OK to change, Back to close"</string>
+    <string name="text_up_and_down_to_move_ok_when_done" formatted="false">"Up and down to move, OK when done"</string>
+    <string name="text_up" formatted="false">"Up"</string>
+    <string name="text_up_next" formatted="false">"Up next"</string>
+    <string name="text_update_available" formatted="false">"Update Available"</string>
+    <string name="text_update_download_failed" formatted="false">"Update download failed."</string>
+    <string name="text_update_every" formatted="false">"Update every"</string>
+    <string name="text_update_installed" formatted="false">"Update installed!"</string>
+    <string name="text_update_signature_mismatch" formatted="false">"Update Signature Mismatch"</string>
+    <string name="text_update_signature_mismatch_cannot_update" formatted="false">"Update signature mismatch: cannot update in-place."</string>
+    <string name="text_updated" formatted="false">"Updated "</string>
+    <string name="text_updates_22906d" formatted="false">"UPDATES"</string>
+    <string name="text_updates_3c957c" formatted="false">"Updates"</string>
+    <string name="text_upload_form_field_named_file_is_required" formatted="false">"Upload form field named file is required"</string>
+    <string name="text_usb_storage" formatted="false">"USB / Storage"</string>
+    <string name="text_use_automatic_location" formatted="false">"Use automatic location"</string>
+    <string name="text_use_built_in_android_tv_shortcut" formatted="false">"Use built-in Android TV shortcut"</string>
+    <string name="text_use_custom_background" formatted="false">"Use custom background"</string>
+    <string name="text_use_folder_shuffle_background" formatted="false">"Use folder shuffle background"</string>
+    <string name="text_use_my_location" formatted="false">"Use My Location"</string>
+    <string name="text_use_presentation" formatted="false">"Use Presentation"</string>
+    <string name="text_used_clean" formatted="false">"% used  ·  Clean"</string>
+    <string name="text_used_for_the_weather_on_the_home_screen" formatted="false">"Used for the weather on the home screen and local headlines."</string>
+    <string name="text_used_recent_apps" formatted="false">"% used · Recent Apps"</string>
+    <string name="text_uses_local_adb_to_grant_permissions_and" formatted="false">"Uses local ADB to grant permissions and keeps ADB open"</string>
+    <string name="text_version" formatted="false">"Version"</string>
+    <string name="text_version_info" formatted="false">"VERSION INFO"</string>
+    <string name="text_video_failed_1_s_2_s" formatted="false">"Video failed: %1$s\n%2$s"</string>
+    <string name="text_video_failed_1_s_media_error_2_d_3_d" formatted="false">"Video failed: %1$s\nMedia error %2$d (%3$d)"</string>
+    <string name="text_view_or_filter_the_complete_list_of_supp" formatted="false">"View or filter the complete list of supported TV models"</string>
+    <string name="text_voice_input_isn_t_available_on_this_tv" formatted="false">"Voice input isn't available on this TV"</string>
+    <string name="text_voice_needs_the_internet" formatted="false">"Voice needs the internet"</string>
+    <string name="text_volume_button_fix_mode_28c643" formatted="false">"Volume button fix mode"</string>
+    <string name="text_volume_button_fix_mode_87cb31" formatted="false">"Volume Button Fix Mode"</string>
+    <string name="text_volume_down_25" formatted="false">"Volume Down (25)"</string>
+    <string name="text_volume_fix_mode_1_standard_selected" formatted="false">"Volume Fix Mode 1 (Standard) selected."</string>
+    <string name="text_volume_fix_mode_2_hy320_projector_select" formatted="false">"Volume Fix Mode 2 (HY320 / Projector) selected."</string>
+    <string name="text_volume_fix_mode_3_onn_tv_box_selected" formatted="false">"Volume Fix Mode 3 (Onn TV Box) selected."</string>
+    <string name="text_volume_up_24" formatted="false">"Volume Up (24)"</string>
+    <string name="text_waiting_for_approval" formatted="false">"Waiting for approval…"</string>
+    <string name="text_wallpapers_in_folder_tap_to_enable_disab" formatted="false">"WALLPAPERS IN FOLDER (TAP TO ENABLE / DISABLE)"</string>
+    <string name="text_watching_now_ok_to_switch_or_rename" formatted="false">"Watching now · OK to switch or rename"</string>
+    <string name="text_weather" formatted="false">"Weather"</string>
+    <string name="text_weather_a5c8c4" formatted="false">"WEATHER"</string>
+    <string name="text_weather_and_location" formatted="false">"Weather and location"</string>
+    <string name="text_weather_forecast_0d1601" formatted="false">"Weather Forecast"</string>
+    <string name="text_weather_forecast_1f637b" formatted="false">"Weather Forecast"</string>
+    <string name="text_weather_from" formatted="false">"Weather from"</string>
+    <string name="text_weather_on_the_home_screen" formatted="false">"Weather on the home screen"</string>
+    <string name="text_weather_source" formatted="false">"Weather source"</string>
+    <string name="text_weather_updating" formatted="false">"Updating…"</string>
+    <string name="text_web_series" formatted="false">"Web Series"</string>
+    <string name="text_webpage_failed_to_load_1_s" formatted="false">"Webpage failed to load: %1$s"</string>
+    <string name="text_webpage_slide_is_missing_a_url" formatted="false">"Webpage slide is missing a URL"</string>
+    <string name="text_welcome" formatted="false">"Welcome"</string>
+    <string name="text_what_appears_at_the_top_of_home_behind_y" formatted="false">"What appears at the top of Home, behind your apps. Choose any, all or none."</string>
+    <string name="text_what_you_were_watching_mixed_into_the_ca" formatted="false">"What you were watching, mixed into the carousel"</string>
+    <string name="text_white" formatted="false">"White"</string>
+    <string name="text_who_s_watching" formatted="false">"Who’s Watching?"</string>
+    <string name="text_wi_fi" formatted="false">"Wi-Fi"</string>
+    <string name="text_wi_fi_name_location" formatted="false">"Wi-Fi Name (Location)"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, picture, sound and the rest of the TV"</string>
+    <string name="text_wi_fi_settings" formatted="false">"📶 Wi-Fi Settings…"</string>
+    <string name="text_widget_settings" formatted="false">"WIDGET SETTINGS"</string>
+    <string name="text_wind" formatted="false">"Wind "</string>
+    <string name="text_yellow" formatted="false">"Yellow"</string>
+    <string name="text_yellow_button" formatted="false">"Yellow Button"</string>
+    <string name="text_yes_delete_unnecessary_files" formatted="false">"Yes, Delete Unnecessary Files"</string>
+    <string name="text_you_can_also_configure_buttons_later_in" formatted="false">"You can also configure buttons later in Settings"</string>
+    <string name="text_you_need_the_adb_mode_enabled_for_this_t" formatted="false">"You need the ADB mode enabled for this troubleshooting step. You can always change the ADB mode from Settings later.\n\nWould you like to enable ADB now or skip this step?"</string>
+    <string name="text_you_re_all_set" formatted="false">"You're All Set"</string>
+    <string name="text_your_home_screen" formatted="false">"Your Home Screen"</string>
+    <string name="text_your_name" formatted="false">"Your name"</string>
+    <string name="text_your_name_and_an_avatar_each_profile_kee" formatted="false">"Your name and an avatar. Each profile keeps its own apps, background and Home Screen. Up to three people can have one."</string>
+    <string name="text_your_selected_tv_model_s_files_in_the_do" formatted="false">"Your selected TV model's files in the Download folder were deleted.\n\nWould you like to download CleanYourTV again to continue?"</string>
+    <string name="text_your_wi_fi_network_is_currently_owned_by" formatted="false">"⚠️ Your Wi-Fi network is currently owned by setupwraith. Before disabling setupwraith, open Wi-Fi Settings, Forget your Wi-Fi network, and re-connect so Wi-Fi stays saved."</string>
+    <string name="text_youtube_music_optional" formatted="false">"YouTube Music (optional)"</string>
+    <string name="text_zoom" formatted="false">"Zoom"</string>
+    <string name="text_zoom_in" formatted="false">"Zoom in"</string>
+    <string name="text_zoom_out" formatted="false">"Zoom out"</string>
+    <string name="weather_condition_sunny">"Sunny"</string>
+    <string name="weather_condition_clear">"Clear"</string>
+    <string name="weather_condition_mostly_sunny">"Mostly Sunny"</string>
+    <string name="weather_condition_mostly_clear">"Mostly Clear"</string>
+    <string name="weather_condition_partly_cloudy">"Partly Cloudy"</string>
+    <string name="weather_condition_cloudy">"Cloudy"</string>
+    <string name="weather_condition_foggy">"Foggy"</string>
+    <string name="weather_condition_drizzle">"Drizzle"</string>
+    <string name="weather_condition_rain">"Rain"</string>
+    <string name="weather_condition_heavy_rain">"Heavy Rain"</string>
+    <string name="weather_condition_sleet">"Sleet"</string>
+    <string name="weather_condition_snow">"Snow"</string>
+    <string name="weather_condition_thunderstorms">"Thunderstorms"</string>
+    <string name="message_downloaded_1_s_tv_models_ready" formatted="false">"Downloaded (%1$s TV models ready)"</string>
+    <string name="message_selected_tv_files_missing_1_s_download_cleanyour" formatted="false">"⚠️ Selected TV files missing (%1$s) — Download CleanYourTV again"</string>
+    <string name="message_selected_tv_model_1_s_would_you_like_to_delete_t" formatted="false">"Selected TV model:\n%1$s\n\nWould you like to delete the other unnecessary CleanYourTV model files to clean up storage space?"</string>
+    <string name="message_deleting_unnecessary_model_files_1_s_2_s" formatted="false">"Deleting unnecessary model files… (%1$s / %2$s)"</string>
+    <string name="message_downloading_to_download_folder_1_s" formatted="false">"Downloading to Download folder… (%1$s)"</string>
+    <string name="message_unzipping_tv_models_in_download_folder_1_s_files" formatted="false">"Unzipping TV models in Download folder… (%1$s files)"</string>
+    <string name="message_could_not_download_cleanyourtv_from_github_1_s" formatted="false">"Could not download CleanYourTV from GitHub.\n\n%1$s"</string>
+    <string name="message_model_1_s" formatted="false">"Model: %1$s"</string>
+    <string name="message_product_1_s" formatted="false">"Product: %1$s"</string>
+    <string name="message_board_device_1_s" formatted="false">"Board/Device: %1$s"</string>
+    <string name="message_oem_family_1_s" formatted="false">"OEM family: %1$s"</string>
+    <string name="message_exact_tv_model_found_and_selected_automatically" formatted="false">"Exact TV model found and selected automatically:\n\n• %1$s (%2$s)\n%3$s"</string>
+    <string name="message_choose_closest_tv_model_1_s" formatted="false">"Choose Closest TV Model — %1$s"</string>
+    <string name="message_on_google_tv_sets_wi_fi_networks_saved_during_in" formatted="false">"On Google TV sets, Wi-Fi networks saved during initial setup belong to com.google.android.tungsten.setupwraith. Disabling setupwraith so the stock Google TV launcher stays dead will delete a Wi-Fi network owned by setupwraith.\n\nBefore disabling setupwraith:\n1. Open Wi-Fi Settings → select your Wi-Fi network → Forget network.\n2. Re-connect to your Wi-Fi network (it will now belong to com.android.tv.settings).\n3. Return here and tap \"I Forgot &amp; Re-added Wi-Fi — Continue\"."</string>
+    <string name="message_no_disabled_app_list_has_been_saved_by_cleanyour" formatted="false">"No disabled app list has been saved by CleanYourTV yet.\n\nWhen you run Start Debloat, every disabled package is recorded here so you can inspect or re-enable individual apps or restore all of them."</string>
+    <string name="message_no_saved_disabled_app_backup_was_found_and_no_tv" formatted="false">"No saved disabled-app backup was found, and no TV model is selected.\n\nPlease select your TV model first so Restore knows which packages to re-enable."</string>
+    <string name="message_your_current_tvos_launcher_settings_have_been_sa" formatted="false">"Your current tvOS Launcher settings have been saved to:\n\n%1$s"</string>
+    <string name="message_persistent_adb_mode_keep_port_1_s_open" formatted="false">"Persistent ADB Mode (Keep port %1$s open)"</string>
+    <string name="message_connected_paired_port_1_s_open" formatted="false">"Connected &amp; Paired (Port %1$s Open)"</string>
+    <string name="message_port_1_s_open_ready_to_pair" formatted="false">"Port %1$s Open · Ready to Pair"</string>
+    <string name="message_this_runs_settings_put_global_adb_enabled_0_over" formatted="false">"This runs 'settings put global adb_enabled 0' over Local ADB and verifies that port 5555 is closed on your home network.\n\nIf WRITE_SECURE_SETTINGS is already granted, tvOS Launcher will continue repairing Accessibility in-process without needing ADB!\n\nTip: For maximum security, you can also open Developer Options and click 'Revoke USB debugging authorizations'."</string>
+    <string name="message_keep_alive_monitors_the_accessibility_service_an" formatted="false">"Keep Alive monitors the Accessibility Service and automatically restores it if your TV turns it off.\n\n✓ Because WRITE_SECURE_SETTINGS is granted on this TV, Keep Alive repairs Accessibility directly in-process without needing Network ADB (port 5555) to stay open."</string>
+    <string name="message_security_warning_keep_alive_monitors_and_restore" formatted="false">"⚠️ Security Warning:\n\nKeep Alive monitors and restores permissions if your TV turns them off in the background.\n\nWithout WRITE_SECURE_SETTINGS, Keep Alive requires Network Debugging (ADB on port 5555) to stay enabled on your home network. For better security, run Pair / Repair ADB in Secure Mode first so WRITE_SECURE_SETTINGS is granted and port 5555 can be closed.\n\nEnable Keep Alive anyway?"</string>
+    <string name="message_warning_manual_debloat_lists_all_system_apps_ins" formatted="false">"WARNING: Manual Debloat lists ALL system apps installed on your TV.\n\n• Only disable packages if you know exactly what you are doing.\n• Disabling core Android system services, TV input/tuner services, or Settings packages can break HDMI inputs, Wi-Fi, remote control, or cause a bootloop.\n\nProceed at your own risk?"</string>
+    <string name="message_browse_search_all_1_s_tv_models" formatted="false">"📋 Browse / Search All %1$s TV Models"</string>
+    <string name="message_scanning_installed_system_packages_over_adb_and" formatted="false">"Scanning installed system packages over ADB and comparing across %1$s TV models…"</string>
+    <string name="message_all_1_s_tv_models" formatted="false">"All %1$s TV Models"</string>
+    <string name="message_write_secure_settings_and_all_launcher_permissio" formatted="false">"WRITE_SECURE_SETTINGS and all launcher permissions are now active, and ADB (port 5555) has been closed for your security.\n\nTip: For maximum security, you can also select “Revoke USB debugging authorizations” in Developer Options."</string>
+    <string name="search_offer_subscription">Subscription</string>
+    <string name="search_offer_free">Free</string>
+    <string name="search_offer_free_with_ads">Free with ads</string>
+    <string name="search_offer_rent">Rent</string>
+    <string name="search_offer_buy">Buy</string>
+    <string name="search_offer_addons">Add-ons</string>
+    <string name="network_online">Online</string>
+    <string name="network_no_internet">No internet</string>
+    <string name="network_offline">Offline</string>
+    <string name="presentation_video_missing_media">Video slide is missing media</string>
+    <string name="presentation_image_missing_media">Image slide is missing media</string>
+    <string name="control_item_memory" formatted="false">"Memory / Recent Apps"</string>
+    <string name="control_item_audio" formatted="false">"Audio Output"</string>
+    <string name="control_item_ambient" formatted="false">"Ambient Mode / Lock Screen"</string>
+    <string name="control_item_power" formatted="false">"Power Off / Screen Off"</string>
+    <string name="control_item_inputs" formatted="false">"TV Inputs Shortcut"</string>
+    <string name="control_item_mapper" formatted="false">"Button Mapper Shortcut"</string>
+    <string name="control_item_settings" formatted="false">"Settings Shortcut"</string>
+    <string name="control_item_search" formatted="false">"Search / Assistant Shortcut"</string>
+    <string name="control_item_weather_panel" formatted="false">"Weather Panel (Current &amp; Tomorrow)"</string>
+    <string name="cyt_all_count">All (%1$s)</string>
+    <string name="cyt_page_range">PAGE %1$s OF %2$s (%3$s–%4$s OF %5$s)</string>
+    <string name="cyt_models_count">MODELS (%1$s)</string>
+    <string name="cyt_page_number">Page %1$s of %2$s</string>
+    <string name="cyt_packages_on_tv">PACKAGES ON THIS TV (%1$s)</string>
+    <string name="cyt_all_system_apps">ALL SYSTEM APPS (%1$s — TAP TO DISABLE / ENABLE)</string>
+    <string name="football_favorite_team_added">Added favorite team: %1$s</string>
+    <string name="wallpaper_tessellated_pavement" formatted="false">"Tessellated Pavement"</string>
+    <string name="wallpaper_grose_valley" formatted="false">"Grose Valley"</string>
+    <string name="wallpaper_albury_storm" formatted="false">"Albury Storm"</string>
+    <string name="wallpaper_aresquiers_beach" formatted="false">"Aresquiers Beach"</string>
+    <string name="wallpaper_vang_vieng_sunset" formatted="false">"Vang Vieng Sunset"</string>
+    <string name="wallpaper_aurora" formatted="false">"Aurora"</string>
+    <string name="wallpaper_midnight" formatted="false">"Midnight"</string>
+    <string name="wallpaper_sunset" formatted="false">"Sunset"</string>
+    <string name="wallpaper_ocean" formatted="false">"Ocean"</string>
+    <string name="wallpaper_graphite" formatted="false">"Graphite"</string>
+    <string name="profile_emoji_grin" formatted="false">"Grin"</string>
+    <string name="profile_emoji_cool" formatted="false">"Cool"</string>
+    <string name="profile_emoji_cowboy" formatted="false">"Cowboy"</string>
+    <string name="profile_emoji_party" formatted="false">"Party"</string>
+    <string name="profile_emoji_fox" formatted="false">"Fox"</string>
+    <string name="profile_emoji_panda" formatted="false">"Panda"</string>
+    <string name="profile_emoji_tiger" formatted="false">"Tiger"</string>
+    <string name="profile_emoji_lion" formatted="false">"Lion"</string>
+    <string name="profile_emoji_frog" formatted="false">"Frog"</string>
+    <string name="profile_emoji_monkey" formatted="false">"Monkey"</string>
+    <string name="profile_emoji_koala" formatted="false">"Koala"</string>
+    <string name="profile_emoji_unicorn" formatted="false">"Unicorn"</string>
+    <string name="profile_emoji_dog" formatted="false">"Dog"</string>
+    <string name="profile_emoji_cat" formatted="false">"Cat"</string>
+    <string name="profile_emoji_bear" formatted="false">"Bear"</string>
+    <string name="profile_emoji_bunny" formatted="false">"Bunny"</string>
+    <string name="profile_emoji_ghost" formatted="false">"Ghost"</string>
+    <string name="profile_emoji_robot" formatted="false">"Robot"</string>
+    <string name="profile_emoji_alien" formatted="false">"Alien"</string>
+    <string name="profile_emoji_pumpkin" formatted="false">"Pumpkin"</string>
+    <string name="profile_color_sky" formatted="false">"Sky"</string>
+    <string name="profile_color_pink" formatted="false">"Pink"</string>
+    <string name="profile_color_mint" formatted="false">"Mint"</string>
+    <string name="profile_color_lemon" formatted="false">"Lemon"</string>
+    <string name="profile_color_lavender" formatted="false">"Lavender"</string>
+    <string name="profile_color_peach" formatted="false">"Peach"</string>
+    <string name="profile_color_silver" formatted="false">"Silver"</string>
+    <string name="setup_adb_close_steps" formatted="false">"1. Open TV Settings → System → About and click Build 7 times to unlock Developer Options.\n2. Open Settings → System → Developer Options and enable USB Debugging / Network Debugging.\n3. Return here and select Grant Permissions Now (ADB port 5555 will be closed automatically right after setup)."</string>
+    <string name="setup_adb_keep_steps" formatted="false">"1. Open TV Settings → System → About and click Build 7 times to unlock Developer Options.\n2. Open Settings → System → Developer Options and enable USB Debugging / Network Debugging.\n3. Return here and select Grant Permissions Now (ADB will remain enabled for CleanYourTV)."</string>
+    <string name="cyt_disable_selected_packages" formatted="false">"✅ Disable Selected Packages (%1$s)"</string>
+    <string name="cyt_restore_all_saved_packages" formatted="false">"Restore All Saved Packages (%1$s)"</string>
+    <string name="cyt_all_tv_models" formatted="false">"All TV Models (%1$s)"</string>
+    <string name="cyt_disabled_apps" formatted="false">"Disabled Apps (%1$s — Tap an app to re-enable)"</string>
+    <string name="cyt_restore_saved" formatted="false">"Restore Saved (%1$s)"</string>
+    <string name="cyt_restore_model_list" formatted="false">"Restore Model List (%1$s)"</string>
+    <string name="launcher_desc_stock_google_tv_home_screen_banner_ads" formatted="false">"Stock Google TV Home screen &amp; banner ads"</string>
+    <string name="launcher_desc_google_tv_launcher_watchdog_disable_together_with_launcherx" formatted="false">"Google TV launcher watchdog (disable together with LauncherX)"</string>
+    <string name="launcher_desc_stock_android_tv_home_screen" formatted="false">"Stock Android TV Home screen"</string>
+    <string name="launcher_desc_stock_android_tv_leanback_launcher" formatted="false">"Stock Android TV Leanback launcher"</string>
+    <string name="launcher_desc_philips_oem_home_launcher" formatted="false">"Philips OEM Home launcher"</string>
+    <string name="launcher_desc_philips_oem_home_screen" formatted="false">"Philips OEM Home screen"</string>
+    <string name="launcher_desc_tcl_oem_home_screen" formatted="false">"TCL OEM Home screen"</string>
+    <string name="launcher_desc_tcl_oem_tv_home_launcher" formatted="false">"TCL OEM TV Home launcher"</string>
+    <string name="launcher_desc_tcl_oem_home_launcher" formatted="false">"TCL OEM Home launcher"</string>
+    <string name="launcher_desc_tcl_iffalcon_oem_home_launcher" formatted="false">"TCL / iFFALCON OEM Home launcher"</string>
+    <string name="launcher_desc_ffalcon_oem_home_launcher" formatted="false">"FFALCON OEM Home launcher"</string>
+    <string name="launcher_desc_hisense_oem_tv_home_screen" formatted="false">"Hisense OEM TV Home screen"</string>
+    <string name="launcher_desc_xiaomi_oem_tv_home_screen" formatted="false">"Xiaomi OEM TV Home screen"</string>
+    <string name="launcher_desc_sony_oem_tv_home_menu" formatted="false">"Sony OEM TV Home menu"</string>
+    <string name="launcher_desc_skyworth_oem_tv_home_screen" formatted="false">"Skyworth OEM TV Home screen"</string>
+    <string name="launcher_desc_coocaa_oem_tv_home_screen" formatted="false">"Coocaa OEM TV Home screen"</string>
+    <string name="launcher_desc_haier_oem_tv_home_screen" formatted="false">"Haier OEM TV Home screen"</string>
+    <string name="launcher_desc_zeasn_oem_tv_home_screen" formatted="false">"Zeasn OEM TV Home screen"</string>
+    <string name="launcher_desc_sdmc_oem_tv_home_screen" formatted="false">"SDMC OEM TV Home screen"</string>
+    <string name="launcher_desc_amlogic_oem_tv_box_home_caution_disabling_may_bootloop_some" formatted="false">"Amlogic OEM TV Box Home — Caution: disabling may bootloop some boxes; try Set Default + Launch on Boot first"</string>
+    <string name="launcher_desc_amazon_oem_tv_home_screen" formatted="false">"Amazon OEM TV Home screen"</string>
+    <string name="launcher_desc_amazon_fire_os_home_button_interceptor" formatted="false">"Amazon Fire OS Home button interceptor"</string>
+    <string name="presentation_name_required" formatted="false">"Playlist name is required"</string>
+    <string name="presentation_name_too_long" formatted="false">"Playlist name must be 80 characters or less"</string>
+    <string name="presentation_duplicate_id" formatted="false">"Slide %1$d has a duplicate id"</string>
+    <string name="presentation_invalid_duration" formatted="false">"Slide %1$d duration must be between 1 second and 24 hours"</string>
+    <string name="presentation_negative_order" formatted="false">"Slide %1$d order must not be negative"</string>
+    <string name="presentation_media_required" formatted="false">"Slide %1$d requires a media item"</string>
+    <string name="presentation_invalid_url" formatted="false">"Slide %1$d webpage URL must start with http:// or https://"</string>
+    <string name="presentation_invalid_scroll_speed" formatted="false">"Slide %1$d webpage scroll speed must be between 5 and 1000 pixels per second"</string>
+    <string name="presentation_invalid_wait" formatted="false">"Slide %1$d webpage wait time must be between 0 and 300 seconds"</string>
+    <string name="presentation_type_required" formatted="false">"Slide type is required"</string>
+    <string name="remaining_minutes" formatted="false">"%1$s min left"</string>
+    <string name="remaining_hours_minutes" formatted="false">"%1$s h %2$s min left"</string>
+    <string name="unit_row_one" formatted="false">"row"</string>
+    <string name="unit_row_other" formatted="false">"rows"</string>
+    <string name="unit_minute_one" formatted="false">"minute"</string>
+    <string name="unit_minute_other" formatted="false">"minutes"</string>
+    <string name="unit_hour_one" formatted="false">"hour"</string>
+    <string name="unit_hour_other" formatted="false">"hours"</string>
+    <string name="scene_custom_lock_image" formatted="false">"Custom Lock Image"</string>
+    <string name="scene_custom_number" formatted="false">"Custom %1$s"</string>
+    <string name="scene_custom_number_fallback" formatted="false">"Custom %1$s"</string>
+    <string name="scene_fog" formatted="false">"Fog"</string>
+    <string name="scene_folder_shuffle" formatted="false">"Folder Shuffle"</string>
+    <string name="scene_golden_hour" formatted="false">"Golden hour"</string>
+    <string name="scene_night" formatted="false">"Night"</string>
+    <string name="scene_rainforest_dawn" formatted="false">"Rainforest dawn"</string>
+    <string name="scene_waterline" formatted="false">"Waterline"</string>
+    <string name="scene_gradient_aurora">@string/wallpaper_aurora</string>
+    <string name="scene_photo_tessellated">@string/wallpaper_tessellated_pavement</string>
+    <string name="cyt_summary_done" formatted="false">"Done (%1$s apps disabled)"</string>
+    <string name="cyt_summary_not_done" formatted="false">"Not done (%1$s/%2$s disabled)"</string>
+    <string name="cyt_similar_apps_scanned" formatted="false">"Models with Similar System Apps (%1$s apps scanned)"</string>
+    <string name="cyt_closest_matches_scanned" formatted="false">"CLOSEST MATCHES (%1$s APPS SCANNED)"</string>
+    <string name="cyt_restore_saved_disabled_apps" formatted="false">"Restore Saved Disabled Apps (%1$s packages)"</string>
+    <string name="cyt_restore_package_count" formatted="false">"Restore (%1$s pkgs)"</string>
+    <string name="cyt_starting_disable" formatted="false">"Starting ADB debloat for %1$s packages…"</string>
+    <string name="cyt_starting_restore" formatted="false">"Re-enabling %1$s packages over ADB…"</string>
+    <string name="cyt_restore_success" formatted="false">"Re-enabled %1$s packages on this TV and flushed state to disk (sync)."</string>
+    <string name="folder_select_shuffle_count" formatted="false">"Select this folder &amp; shuffle (%1$s images)"</string>
+    <string name="folder_no_image_files" formatted="false">"No image files (%1$s) in this folder"</string>
+    <string name="settings_restore_from_download" formatted="false">"Restore from Download/%1$s"</string>
+    <string name="settings_restore_from_folder" formatted="false">"Restore from this folder (%1$s)"</string>
+    <string name="uninstall_restore_permissions_explanation" formatted="false">"Before uninstalling tvOS Launcher:\n\n1. Reload / re-enable any debloated apps and disabled system launchers so your TV has a working stock home screen.\n2. Automatically revoke all tvOS Launcher special permissions (Accessibility, Keep Alive, Default Home role) so Android can uninstall cleanly.\n3. Open the Android app uninstall screen for tvOS Launcher.\n\nHow would you like to proceed?"</string>
+    <string name="dock_size_changed" formatted="false">"Dock size set to %1$s%%."</string>
+    <string name="cyt_restore_saved_confirmation" formatted="false">"Found saved disabled-app data (%1$s packages).\n\nRe-enable all %1$s saved packages over ADB?"</string>
+    <string name="folder_shuffle_enabled" formatted="false">"Folder shuffle enabled: %1$s"</string>
+    <string name="folder_shuffle_enabled_empty" formatted="false">"Folder shuffle enabled: "</string>
+    <string name="lock_folder_shuffle_enabled" formatted="false">"Lock Screen folder shuffle enabled: %1$s"</string>
+    <string name="lock_folder_shuffle_enabled_empty" formatted="false">"Lock Screen folder shuffle enabled: "</string>
+    <string name="cyt_no_direct_model" formatted="false">"No direct model name match for %1$s. Use Scan Installed System Apps via ADB above to find the closest TV profile."</string>
+    <string name="cyt_no_direct_model_empty" formatted="false">"No direct model name match for . Use Scan Installed System Apps via ADB above to find the closest TV profile."</string>
+    <string name="cyt_selected_model" formatted="false">"Selected model: %1$s"</string>
+    <string name="cyt_selected_model_empty" formatted="false">"Selected model: "</string>
+    <string name="cyt_checking_model" formatted="false">"Checking installed packages over ADB for %1$s…"</string>
+    <string name="cyt_checking_model_empty" formatted="false">"Checking installed packages over ADB for …"</string>
+    <string name="cyt_checking_model_wifi" formatted="false">"Checking installed packages and Wi-Fi status over ADB for %1$s…"</string>
+    <string name="cyt_checking_model_wifi_empty" formatted="false">"Checking installed packages and Wi-Fi status over ADB for …"</string>
+    <string name="cyt_no_model_packages" formatted="false">"None of the packages listed in %1$s are installed on this TV."</string>
+    <string name="cyt_no_model_packages_empty" formatted="false">"None of the packages listed in  are installed on this TV."</string>
+    <string name="cyt_restore_selected_model" formatted="false">"Restore Selected Model Profile (%1$s — %2$s packages)"</string>
+    <string name="cyt_restore_selected_model_empty" formatted="false">"Restore Selected Model Profile ( — %2$s packages)"</string>
+    <string name="cyt_reenable_model_packages" formatted="false">"Re-enable all packages in %1$s"</string>
+    <string name="cyt_reenable_model_packages_empty" formatted="false">"Re-enable all packages in "</string>
+    <string name="cyt_brand_oem" formatted="false">"Brand/OEM: %1$s"</string>
+    <string name="cyt_model_search" formatted="false">"Search: \"%1$s\" (%2$s)"</string>
+    <string name="cyt_disabling_progress" formatted="false">"Disabling (%1$s/%2$s):\n%3$s"</string>
+    <string name="cyt_enabling_progress" formatted="false">"Enabling (%1$s/%2$s):\n%3$s"</string>
+    <string name="settings_restored_from_path" formatted="false">"Settings were successfully restored from:\n%1$s"</string>
+    <string name="settings_restore_failed_from_path" formatted="false">"Could not restore settings from:\n%1$s"</string>
+    <string name="settings_backup_write_failed" formatted="false">"Could not write to Download/%2$s%1$s\n\nPlease allow storage access and try again."</string>
+    <string name="cyt_one_model_kept" formatted="false">"1 model kept (%1$s) · Tap to download all"</string>
+    <string name="cyt_oem_package_match" formatted="false">"%1$s/%2$s OEM pkgs: %3$s"</string>
+    <string name="cyt_protected_package" formatted="false">"%1$s is a protected core system package and cannot be disabled automatically."</string>
+    <string name="cyt_select_apps_for_model" formatted="false">"Select Apps to Disable — %1$s (%2$s found)"</string>
+    <string name="cyt_select_apps_for_model_empty" formatted="false">"Select Apps to Disable —  (%2$s found)"</string>
+    <string name="cyt_disabled_for_model" formatted="false">"Successfully disabled %1$s packages for %2$s.\n\n• Saved disabled app list (%3$s apps) for one-tap Restore.\n• Flushed package state to disk (sync)."</string>
+    <string name="cyt_disabled_for_model_empty" formatted="false">"Successfully disabled %1$s packages for .\n\n• Saved disabled app list (%3$s apps) for one-tap Restore.\n• Flushed package state to disk (sync)."</string>
+    <string name="cyt_restore_model_confirmation" formatted="false">"No saved disabled-app list was found.\n\nRestore will use your selected TV model (%1$s) and re-enable its %2$s packages over ADB."</string>
+    <string name="cyt_restore_model_confirmation_empty" formatted="false">"No saved disabled-app list was found.\n\nRestore will use your selected TV model () and re-enable its %2$s packages over ADB."</string>
+    <string name="cyt_critical_service_warning" formatted="false">"%1$s (%2$s) is a critical system service required for your TV remote and Bluetooth connectivity.\n\nIt cannot be disabled under any circumstances."</string>
+    <string name="cyt_critical_service_warning_hebrew_fallback" formatted="false">"%1$s (%2$s) is a critical system service required for your TV remote and Bluetooth connectivity.\n\nIt cannot be disabled under any circumstances."</string>
+    <string name="cyt_core_package_warning" formatted="false">"%1$s (%2$s) is a core system package.\n\nDisabling it may break system settings, TV inputs, or cause instability. Disable anyway?"</string>
+    <string name="cyt_core_package_warning_hebrew_fallback" formatted="false">"%1$s (%2$s) is a core system package.\n\nDisabling it may break system settings, TV inputs, or cause instability. Disable anyway?"</string>
+    <string name="cyt_no_model_packages_scan" formatted="false">"None of the packages listed in %1$s (%2$s) are installed on this TV.\n\nWould you like to scan your TV's installed apps over ADB to find the closest matching TV model?"</string>
+    <string name="cyt_no_model_packages_scan_hebrew_fallback" formatted="false">"None of the packages listed in %1$s (%2$s) are installed on this TV.\n\nWould you like to scan your TV's installed apps over ADB to find the closest matching TV model?"</string>
+    <string name="button_remap_removed" formatted="false">"Removed remap for %1$s."</string>
+    <string name="button_remap_removed_empty" formatted="false">"Removed remap for ."</string>
+    <string name="dock_move_tooltip" formatted="false">"Move %1$s  ·  Left/Right, OK when done"</string>
+    <string name="dock_move_tooltip_empty" formatted="false">"Move   ·  Left/Right, OK when done"</string>
+    <string name="cyt_package_match_reason" formatted="false">"%1$s/%2$s apps (%3$s)"</string>
+    <string name="profile_switch_to" formatted="false">"Switch to %1$s"</string>
+    <string name="profile_switch_to_empty" formatted="false">"Switch to "</string>
+    <string name="profile_switch_to_manual_setup" formatted="false">"Switch to Manual Setup"</string>
+    <string name="profile_name_default" formatted="false">"Default"</string>
+    <string name="profile_name_kids" formatted="false">"Kids"</string>
+    <string name="profile_name_person" formatted="false">"Person %1$s"</string>
+    <string name="profile_name_profile" formatted="false">"Profile %1$s"</string>
+    <string name="legacy_error_choose_action_403e2eb1f6" formatted="false">" - Choose Action"</string>
+    <string name="legacy_error_active_2a222bd79b" formatted="false">" active"</string>
+    <string name="legacy_error_found_710b0411e0" formatted="false">" found"</string>
+    <string name="legacy_error_free_ccebf23d24" formatted="false">" free"</string>
+    <string name="legacy_error_minute_e00000d893" formatted="false">" minute"</string>
+    <string name="legacy_error_d_pad_navigation_ok_and_back_are_ke_64801f9ee7" formatted="false">"(D-pad navigation, OK and Back are kept for normal navigation.)"</string>
+    <string name="legacy_error_add_a_person_309e22dac5" formatted="false">"+ Add a person"</string>
+    <string name="legacy_error_add_new_button_to_remap_bbc1125205" formatted="false">"+ Add new button to remap"</string>
+    <string name="legacy_error_a_small_weather_display_on_home_wit_19aaf9e964" formatted="false">"A small weather display on Home, with a 5-day forecast."</string>
+    <string name="legacy_error_adb_permissions_451adb98f2" formatted="false">"ADB &amp; PERMISSIONS"</string>
+    <string name="legacy_error_applications_fa3dec2685" formatted="false">"APPLICATIONS"</string>
+    <string name="legacy_error_accessories_b08648dbd6" formatted="false">"Accessories"</string>
+    <string name="legacy_error_automatic_d461a493a3" formatted="false">"Automatic"</string>
+    <string name="legacy_error_automatic_setup_d8ce96413f" formatted="false">"Automatic Setup"</string>
+    <string name="legacy_error_avatar_color_7c73323031" formatted="false">"Avatar Color"</string>
+    <string name="legacy_error_avatar_color_87f835ea14" formatted="false">"Avatar color…"</string>
+    <string name="legacy_error_build_in_actions_e2a57ada34" formatted="false">"BUILD-IN ACTIONS"</string>
+    <string name="legacy_error_blurry_current_content_blur_4a1054836b" formatted="false">"Blurry (Current content blur)"</string>
+    <string name="legacy_error_button_mapper_service_516a7641b3" formatted="false">"Button Mapper service"</string>
+    <string name="legacy_error_change_what_this_button_opens_0c7956f2f7" formatted="false">"Change what this button opens…"</string>
+    <string name="legacy_error_check_permissions_4f4ffcde63" formatted="false">"Check Permissions"</string>
+    <string name="legacy_error_checking_github_releases_for_the_la_70ea1523c9" formatted="false">"Checking GitHub releases for the latest version…"</string>
+    <string name="legacy_error_checking_for_updates_3bbfc1bb9d" formatted="false">"Checking for Updates"</string>
+    <string name="legacy_error_choose_a_look_b0197fc035" formatted="false">"Choose a look"</string>
+    <string name="legacy_error_choose_how_to_grant_permissions_bce1ef190d" formatted="false">"Choose how to grant permissions"</string>
+    <string name="legacy_error_choose_icon_for_8ffffe2f45" formatted="false">"Choose icon for "</string>
+    <string name="legacy_error_choose_new_icon_file_51b8d338e7" formatted="false">"Choose new icon file…"</string>
+    <string name="legacy_error_choose_new_image_4e083a8186" formatted="false">"Choose new image…"</string>
+    <string name="legacy_error_city_name_e_g_instanbul_f4d0c7eac7" formatted="false">"City name, e.g. Instanbul"</string>
+    <string name="legacy_error_city_name_e_g_instanbul_8632013492" formatted="false">"City name, e.g. Instanbul…"</string>
+    <string name="legacy_error_classic_top_shelf_content_d32fd61430" formatted="false">"Classic Top Shelf content"</string>
+    <string name="legacy_error_classic_background_e6c62ea46d" formatted="false">"Classic background"</string>
+    <string name="legacy_error_clean_5137c8760c" formatted="false">"Clean"</string>
+    <string name="legacy_error_cleanyourtv_beta_runs_the_cleanyour_36754ded33" formatted="false">"CleanYourTV (Beta) runs the CleanYourTV debloat profiles directly on your TV over Local ADB without needing a PC. Choose your TV model (or scan by installed system app packages), pick which bloatware and telemetry apps to disable, and restore them anytime with one tap."</string>
+    <string name="legacy_error_cleaned_b8fa1c69b2" formatted="false">"Cleaned · "</string>
+    <string name="legacy_error_clear_all_button_mappings_05b5f94a5b" formatted="false">"Clear all button mappings"</string>
+    <string name="legacy_error_clock_style_2020700db5" formatted="false">"Clock style"</string>
+    <string name="legacy_error_connected_paired_port_5555_open_96f4110956" formatted="false">"Connected &amp; Paired (Port 5555 Open)"</string>
+    <string name="legacy_error_control_panel_background_4e3133c08f" formatted="false">"Control Panel background"</string>
+    <string name="legacy_error_could_not_decode_image_file_9aeb05d774" formatted="false">"Could not decode image file"</string>
+    <string name="legacy_error_could_not_reach_github_releases_ple_f56e67ee43" formatted="false">"Could not reach GitHub Releases. Please check your internet connection."</string>
+    <string name="legacy_error_current_version_v_b7f8adcdff" formatted="false">"Current version: v"</string>
+    <string name="legacy_error_custom_2_6270e7f85a" formatted="false">"Custom 2"</string>
+    <string name="legacy_error_custom_3_e4222ac6d8" formatted="false">"Custom 3"</string>
+    <string name="legacy_error_custom_4_b20dec98ad" formatted="false">"Custom 4"</string>
+    <string name="legacy_error_custom_5_6db5ba8e39" formatted="false">"Custom 5"</string>
+    <string name="legacy_error_default_icon_restored_4651574a02" formatted="false">"Default icon restored"</string>
+    <string name="legacy_error_delete_profile_47311af432" formatted="false">"Delete profile"</string>
+    <string name="legacy_error_disable_stock_tv_launcher_tcl_phili_b3988da24a" formatted="false">"Disable Stock TV Launcher (TCL / Philips / Google TV)"</string>
+    <string name="legacy_error_download_install_680ffe96e7" formatted="false">"Download &amp; Install"</string>
+    <string name="legacy_error_downloading_latest_apk_from_github_9a141b483e" formatted="false">"Downloading latest APK from GitHub…"</string>
+    <string name="legacy_error_dynamic_b6ee7b3e8d" formatted="false">"Dynamic"</string>
+    <string name="legacy_error_each_tv_brand_uses_different_packag_ec560b3b62" formatted="false">"Each TV brand uses different package and activity names for Wi-Fi, Bluetooth, Sound, and Inputs. Choose an app and then pick the exact activity to launch from the Control Panel (and from the Inputs app on the dock)."</string>
+    <string name="legacy_error_each_person_gets_their_own_pinned_a_350015e5c6" formatted="false">"Each person gets their own pinned apps and Continue Watching list."</string>
+    <string name="legacy_error_easy_setup_automatic_via_adb_3f7a6b2155" formatted="false">"Easy Setup (Automatic via ADB)"</string>
+    <string name="legacy_error_enable_5342e09f27" formatted="false">"Enable"</string>
+    <string name="legacy_error_enable_tvos_launcher_in_android_tv__63d54093cc" formatted="false">"Enable tvOS Launcher in Android TV Accessibility Settings so remapped remote buttons and the Control Panel overlay work over any app."</string>
+    <string name="legacy_error_enabled_92c1cdfdf4" formatted="false">"Enabled"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"Fewer apps"</string>
+    <string name="legacy_error_glass_82c268188c" formatted="false">"Glass"</string>
+    <string name="legacy_error_grant_all_via_adb_320e08a9da" formatted="false">"Grant All via ADB"</string>
+    <string name="legacy_error_grant_permissions_now_859526e49d" formatted="false">"Grant Permissions Now"</string>
+    <string name="legacy_error_grant_permissions_one_by_one_manual_b5cbe865ab" formatted="false">"Grant permissions one by one manually"</string>
+    <string name="legacy_error_grant_storage_permission_76e254101d" formatted="false">"Grant storage permission"</string>
+    <string name="legacy_error_grant_19c1380d8a" formatted="false">"Grant ›"</string>
+    <string name="legacy_error_grants_all_required_permissions_aut_811773c2f1" formatted="false">"Grants all required permissions automatically at once"</string>
+    <string name="legacy_error_home_dashboard_5531ff6113" formatted="false">"HOME DASHBOARD"</string>
+    <string name="legacy_error_heavy_snow_0e40289d61" formatted="false">"Heavy Snow"</string>
+    <string name="legacy_error_hidden_from_dock_press_ok_to_show_1290340827" formatted="false">"Hidden from dock · press OK to show"</string>
+    <string name="legacy_error_hide_from_all_apps_f82d9040ea" formatted="false">"Hide from All Apps"</string>
+    <string name="legacy_error_home_system_7ed5ca2145" formatted="false">"Home &amp; System"</string>
+    <string name="legacy_error_home_dashboard_d1e758408c" formatted="false">"Home Dashboard"</string>
+    <string name="legacy_error_home_dashboard_widgets_1149c5b41e" formatted="false">"Home Dashboard widgets…"</string>
+    <string name="legacy_error_home_screen_a9bd313674" formatted="false">"Home Screen"</string>
+    <string name="legacy_error_humidity_46819ccb5e" formatted="false">"Humidity"</string>
+    <string name="legacy_error_installing_update_29e74e90ba" formatted="false">"Installing update…"</string>
+    <string name="legacy_error_keep_alive_194eed9348" formatted="false">"KEEP ALIVE"</string>
+    <string name="legacy_error_keep_alive_auto_repair_permissions_64dec5b4f2" formatted="false">"Keep Alive (Auto-repair permissions)"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"Keep watching"</string>
+    <string name="legacy_error_latest_github_version_v_81c9e53520" formatted="false">"Latest GitHub version: v"</string>
+    <string name="legacy_error_listen_for_a_remote_key_press_b07b1c60a5" formatted="false">"Listen for a remote key press"</string>
+    <string name="legacy_error_loading_matches_ad34faae05" formatted="false">"Loading matches…"</string>
+    <string name="legacy_error_loading_titles_be1d486f11" formatted="false">"Loading titles…"</string>
+    <string name="legacy_error_look_and_scenes_d899765a88" formatted="false">"Look and scenes"</string>
+    <string name="legacy_error_manual_permissions_bbed716e43" formatted="false">"Manual Permissions"</string>
+    <string name="legacy_error_mode_2_hy320_projector_ef5ee01ce9" formatted="false">"Mode 2 (Hy320 / Projector)"</string>
+    <string name="legacy_error_mode_2_hy320_projector_audioservice_60a1cd7cd6" formatted="false">"Mode 2 — HY320 / Projector (AudioService &amp; IR pulse-birst mode)"</string>
+    <string name="legacy_error_mode_persistent_adb_setup_keep_adb__df15d3c67c" formatted="false">"Mode: Persistent ADB Setup (keep ADB Open)"</string>
+    <string name="legacy_error_modern_eef6c7f6dd" formatted="false">"Modern"</string>
+    <string name="legacy_error_more_apps_2216905b85" formatted="false">"More Apps"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"More apps"</string>
+    <string name="legacy_error_most_watched_68c54c41e7" formatted="false">"Most Watched"</string>
+    <string name="legacy_error_move_left_in_dock_d545778104" formatted="false">"Move left in dock"</string>
+    <string name="legacy_error_move_right_in_dock_b44019a1fc" formatted="false">"Move right in dock"</string>
+    <string name="legacy_error_next_wallpaper_324bb3e2c2" formatted="false">"Next Wallpaper"</string>
+    <string name="legacy_error_no_recent_apps_6337834ebc" formatted="false">"No recent apps"</string>
+    <string name="legacy_error_no_screensaver_or_skleep_while_pres_f11df8428e" formatted="false">"No screensaver or skleep while presenting"</string>
+    <string name="legacy_error_not_paired_adb_off_0b378808e9" formatted="false">"Not paired (ADB off)"</string>
+    <string name="legacy_error_output_b2439bcb8d" formatted="false">"Output"</string>
+    <string name="legacy_error_presentation_classic_shelf_9e32077c30" formatted="false">"PRESENTATION &amp;CLASSIC SHELF"</string>
+    <string name="legacy_error_profiles_3e77bfe515" formatted="false">"PROFILES"</string>
+    <string name="legacy_error_paired_ready_2379bb9b76" formatted="false">"Paired &amp; Ready"</string>
+    <string name="legacy_error_pin_to_home_db029e6fe7" formatted="false">"Pin to Home"</string>
+    <string name="legacy_error_port_5555_open_ready_to_pair_59e62f7f6c" formatted="false">"Port 5555 Open · Ready to Pair"</string>
+    <string name="legacy_error_port_5555_open_tap_to_pair_3b338792bb" formatted="false">"Port 5555 open (Tap to pair)"</string>
+    <string name="legacy_error_power_off_sleep_timer_permission_ddd313295f" formatted="false">"Power Off &amp; Sleep Timer permission"</string>
+    <string name="legacy_error_press_ok_on_an_app_to_show_or_hide__924fe7b892" formatted="false">"Press OK on an app to show or hide it from the home screen dock."</string>
+    <string name="legacy_error_press_the_button_on_your_remote_tha_31115834c8" formatted="false">"Press the button on your remote that you want to remap"</string>
+    <string name="legacy_error_profile_d696a35bdd" formatted="false">"Profile"</string>
+    <string name="legacy_error_profiles_535e52e4a2" formatted="false">"Profiles"</string>
+    <string name="legacy_error_quick_buttons_c1ecfd327d" formatted="false">"Quick buttons"</string>
+    <string name="legacy_error_remapped_buttons_c7ad2f6241" formatted="false">"REMAPPED BUTTONS"</string>
+    <string name="legacy_error_remote_fixes_dbaca856c6" formatted="false">"REMOTE FIXES"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"Re-download CleanYourTV"</string>
+    <string name="legacy_error_refresh_weather_now_995b85be8d" formatted="false">"Refresh weather now"</string>
+    <string name="legacy_error_remove_from_dock_b27d77465c" formatted="false">"Remove from dock"</string>
+    <string name="legacy_error_restore_a76e13b983" formatted="false">"Restore"</string>
+    <string name="legacy_error_rounded_0a62cd800f" formatted="false">"Rounded"</string>
+    <string name="legacy_error_screen_6e56137e21" formatted="false">"Screen"</string>
+    <string name="legacy_error_screen_off_d658cfab35" formatted="false">"Screen off"</string>
+    <string name="legacy_error_select_your_language_to_begin_2878d6f6a0" formatted="false">"Select your language to begin"</string>
+    <string name="legacy_error_send_any_android_keyevent_keycode_w_971fee0a57" formatted="false">"Send any Android KeyEvent keycode without 4rd-party apps"</string>
+    <string name="legacy_error_serif_1b5e747e50" formatted="false">"Serif"</string>
+    <string name="legacy_error_set_default_via_local_adb_067b44d9c3" formatted="false">"Set Default via Local ADB"</string>
+    <string name="legacy_error_settings_reset_to_defaults_f10770eb1d" formatted="false">"Settings reset to defaults."</string>
+    <string name="legacy_error_settings_c239b59a77" formatted="false">"Settings ›"</string>
+    <string name="legacy_error_setup_complete_5983596601" formatted="false">"Setup Complete"</string>
+    <string name="legacy_error_show_in_dock_press_ok_to_hide_c6db8a2352" formatted="false">"Show in dock · press OK to hide"</string>
+    <string name="legacy_error_showers_b77eaa0a3f" formatted="false">"Showers"</string>
+    <string name="legacy_error_sleep_d466bcf52e" formatted="false">"Sleep"</string>
+    <string name="legacy_error_some_tvs_disable_accessibility_or_o_6fb4d5d368" formatted="false">"Some TVs disable Accessibility or other permissions automatically in the background. When Keep Alive is on, tvOS Launcher lightly checks permission status in the background without extra RAM or CPU load and automatically restores any disabled permissions via ADB."</string>
+    <string name="legacy_error_stencil_0d2302c761" formatted="false">"Stencil"</string>
+    <string name="legacy_error_storage_folders_65d3d1d26d" formatted="false">"Storage folders"</string>
+    <string name="legacy_error_switch_39921a740b" formatted="false">"Switch"</string>
+    <string name="legacy_error_switch_7156dbe932" formatted="false">"Switch: "</string>
+    <string name="legacy_error_system_file_picker_c706f36550" formatted="false">"System file picker…"</string>
+    <string name="legacy_error_tv_input_shortcut_04ee12cd52" formatted="false">"TV Input Shortcut"</string>
+    <string name="legacy_error_transparent_aac7e89fcd" formatted="false">"Transparent"</string>
+    <string name="legacy_error_unpin_from_home_df00f5de07" formatted="false">"Unpin from Home"</string>
+    <string name="legacy_error_up_to_date_105c24d6fc" formatted="false">"Up to Date"</string>
+    <string name="legacy_error_update_check_failed_2983d175b8" formatted="false">"Update Check Failed"</string>
+    <string name="legacy_error_update_failed_5da8e751a4" formatted="false">"Update Failed"</string>
+    <string name="legacy_error_updated_3a5ecca188" formatted="false">"Updated"</string>
+    <string name="legacy_error_updating_tvos_launcher_56b2074873" formatted="false">"Updating tvOS Launcher"</string>
+    <string name="legacy_error_updating_dfe40efe92" formatted="false">"Updating…"</string>
+    <string name="legacy_error_wallpaper_f7d9acadfd" formatted="false">"WALLPAPER"</string>
+    <string name="legacy_error_wind_d151346fe7" formatted="false">"Wind"</string>
+    <string name="legacy_error_you_are_running_the_latest_version_e9af7e897b" formatted="false">"You are running the latest version."</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"Home Settings"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"Keep watching"</string>
+    <string name="legacy_error_now_ed5eb9a37e" formatted="false">"Now"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"Sleep Timer"</string>
+    <string name="legacy_error_c_celsius_0532f5b86c" formatted="false">"°C (Celsius)"</string>
+    <string name="legacy_error_f_fahrenheit_28bf499373" formatted="false">"°F (Fahrenheit)"</string>
+    <string name="legacy_error_parent_folder_27421160e5" formatted="false">"⬅  .. (Parent folder)"</string>
+    <string name="legacy_error_back_to_storage_folders_a393f054ee" formatted="false">"⬅  Back to storage folders"</string>
+    <string name="legacy_he_text_e3b0c44298" formatted="false">""</string>
+    <string name="legacy_he_all_341_c5540847a4" formatted="false">"All (341)"</string>
+    <string name="legacy_he_all_341_tv_models_ccd1e9f493" formatted="false">"All 341 TV Models"</string>
+    <string name="legacy_he_classic_top_shelf_suggestions_e94f17dee4" formatted="false">"Classic Top Shelf suggestions"</string>
+    <string name="legacy_he_dashboard_widgets_4_horizontal_tile_3979f14004" formatted="false">"DASHBOARD WIDGETS (4 HORIZONTAL TILES)"</string>
+    <string name="legacy_he_persistent_adb_mode_keep_port_5555__6898113324" formatted="false">"Persistent ADB Mode (Keep port 5555 open)"</string>
+    <string name="legacy_he_scanning_installed_system_packages__c89e27386e" formatted="false">"Scanning installed system packages over ADB and comparing across 341 TV models…"</string>
+    <string name="legacy_he_this_tv_has_no_inputs_062f3f25f4" formatted="false">"This TV has no inputs"</string>
+    <string name="legacy_he_browse_search_all_341_tv_models_638ce40f94" formatted="false">"📋 Browse / Search All 341 TV Models"</string>
+    <string name="legacy_he_dynamic_09aabeb4c03e" formatted="false">"Exact TV model found and selected automatically:\n\n• %1$s"</string>
+    <string name="legacy_he_dynamic_82314871b94c" formatted="false">"All disabled (%1$s)"</string>
+    <string name="legacy_he_dynamic_f9b11dd83db2" formatted="false">"%1$s active / %2$s found ›"</string>
+    <string name="legacy_he_dynamic_5cacc9d910db" formatted="false">"Found saved disabled-app data (%1$s packages).\n\nRe-enable all %2$s saved packages over ADB?"</string>
+    <string name="legacy_he_dynamic_15b45c924e73" formatted="false">"Added custom wallpaper #%1$s."</string>
+    <string name="legacy_he_dynamic_f6e850b4f2e6" formatted="false">"Could not write to Download/%1$s%2$s\n\nPlease allow storage access and try again."</string>
+    <string name="legacy_he_dynamic_5b540d791476" formatted="false">"%1$s days ago"</string>
+    <string name="legacy_he_dynamic_703dfc96737f" formatted="false">"%1$s%% used · Recent Apps"</string>
+    <string name="legacy_he_dynamic_699b3b53a882" formatted="false">"%1$s%% used · Clean"</string>
+    <string name="legacy_he_dynamic_92ea28b4da86" formatted="false">"RAM %1$s used of %2$s"</string>
+    <string name="legacy_he_dynamic_b61dee1514f6" formatted="false">"Continue watching on the dock will stop showing your %1$s titles. The %2$s app itself stays signed in."</string>
+    <string name="legacy_he_dynamic_edecd490aeae" formatted="false">"INSTALLED SYSTEM LAUNCHERS ON THIS TV (%1$s)"</string>
+    <string name="language_option_title" formatted="false">"English"</string>
+    <string name="language_option_description" formatted="false">"Use tvOS Launcher in English"</string>
+    <string name="presentation_web_presentation_tvos_launcher_c959811f" formatted="false">"Presentation · tvOS Launcher"</string>
+    <string name="presentation_web_pair_with_your_tv_72e248d6" formatted="false">"Pair with your TV"</string>
+    <string name="presentation_web_enter_the_6_digit_code_shown_on_the_tv_5bdd16e7" formatted="false">"Enter the 6-digit code shown on the TV."</string>
+    <string name="presentation_web_pairing_code_1c5ea2f7" formatted="false">"Pairing code"</string>
+    <string name="presentation_web_digit_1_ae93e575" formatted="false">"Digit 1"</string>
+    <string name="presentation_web_digit_2_beadac2c" formatted="false">"Digit 2"</string>
+    <string name="presentation_web_digit_3_f8b74e73" formatted="false">"Digit 3"</string>
+    <string name="presentation_web_digit_4_c36fd656" formatted="false">"Digit 4"</string>
+    <string name="presentation_web_digit_5_9d7fe2d6" formatted="false">"Digit 5"</string>
+    <string name="presentation_web_digit_6_a4865e85" formatted="false">"Digit 6"</string>
+    <string name="presentation_web_pair_989da04b" formatted="false">"Pair"</string>
+    <string name="presentation_web_can_t_see_the_code_on_the_tv_open_presentatio_8ebb1347" formatted="false">"Can’t see the code? On the TV, open Presentation and press ▲ on the remote."</string>
+    <string name="presentation_web_sections_9bae918a" formatted="false">"Sections"</string>
+    <string name="presentation_web_library_dc20b3d5" formatted="false">"Library"</string>
+    <string name="presentation_web_playlist_7af36c50" formatted="false">"Playlist"</string>
+    <string name="presentation_web_forget_this_browser_94e93346" formatted="false">"Forget this browser"</string>
+    <string name="presentation_web_unpair_10be2fd8" formatted="false">"Unpair"</string>
+    <string name="presentation_web_now_playing_on_tv_abe04c28" formatted="false">"Now playing on TV"</string>
+    <string name="presentation_web_connecting_72021eb7" formatted="false">"Connecting…"</string>
+    <string name="presentation_web_previous_slide_bfb54922" formatted="false">"Previous slide"</string>
+    <string name="presentation_web_next_slide_cdc93d1c" formatted="false">"Next slide"</string>
+    <string name="presentation_web_start_over_5eed7e9f" formatted="false">"Start over"</string>
+    <string name="presentation_web_show_the_address_and_code_on_the_tv_120c6380" formatted="false">"Show the address and code on the TV"</string>
+    <string name="presentation_web_show_code_on_tv_4bb6f289" formatted="false">"Show code on TV"</string>
+    <string name="presentation_web_drop_images_or_videos_here_02e76e67" formatted="false">"Drop images or videos here"</string>
+    <string name="presentation_web_or_link_uploads_go_straight_to_the_tv_80b3ef38" formatted="false">"or {link} · uploads go straight to the TV"</string>
+    <string name="presentation_web_choose_files_70deb128" formatted="false">"choose files"</string>
+    <string name="presentation_web_all_a52ace42" formatted="false">"All"</string>
+    <string name="presentation_web_images_be7e2f20" formatted="false">"Images"</string>
+    <string name="presentation_web_videos_c9a96394" formatted="false">"Videos"</string>
+    <string name="presentation_web_add_slide_51dd24ab" formatted="false">"Add Slide"</string>
+    <string name="presentation_web_from_library_b5e37739" formatted="false">"From Library…"</string>
+    <string name="presentation_web_webpage_b1c356d7" formatted="false">"Webpage…"</string>
+    <string name="presentation_web_slides_a0ffe381" formatted="false">"Slides"</string>
+    <string name="presentation_web_drag_to_reorder_ef86a0ed" formatted="false">"Drag to reorder"</string>
+    <string name="presentation_web_slide_settings_430bbbc9" formatted="false">"Slide settings"</string>
+    <string name="presentation_web_no_slides_yet_b0e09084" formatted="false">"No slides yet"</string>
+    <string name="presentation_web_add_images_or_videos_from_your_library_or_a_w_78c8f641" formatted="false">"Add images or videos from your Library, or a webpage. Slides play in order and loop."</string>
+    <string name="presentation_web_add_webpage_fff7d0f1" formatted="false">"Add Webpage"</string>
+    <string name="presentation_web_add_from_library_e9a0efb1" formatted="false">"Add from Library"</string>
+    <string name="presentation_web_unsaved_changes_a710c2b9" formatted="false">"Unsaved changes"</string>
+    <string name="presentation_web_revert_0026c505" formatted="false">"Revert"</string>
+    <string name="presentation_web_save_to_tv_46bc0108" formatted="false">"Save to TV"</string>
+    <string name="presentation_web_paired_with_the_tv_2a24e68a" formatted="false">"Paired with the TV"</string>
+    <string name="presentation_web_not_on_screen_797f0f00" formatted="false">"Not on screen"</string>
+    <string name="presentation_web_open_presentation_on_the_tv_or_turn_on_start_09099f48" formatted="false">"Open Presentation on the TV, or turn on “Start on boot” in Settings."</string>
+    <string name="presentation_web_nothing_playing_05aed12e" formatted="false">"Nothing playing"</string>
+    <string name="presentation_web_add_slides_in_playlist_then_save_to_tv_34d9de3a" formatted="false">"Add slides in Playlist, then Save to TV."</string>
+    <string name="presentation_web_skipping_dc5420d3" formatted="false">"Skipping"</string>
+    <string name="presentation_web_starting_aeed4d26" formatted="false">"Starting"</string>
+    <string name="presentation_web_label_slide_n_of_count_4197ebe9" formatted="false">"{label} · Slide {n} of {count}"</string>
+    <string name="presentation_web_no_files_yet_drop_images_or_videos_above_3bfd937b" formatted="false">"No files yet. Drop images or videos above."</string>
+    <string name="presentation_web_no_images_yet_c397a5b4" formatted="false">"No images yet."</string>
+    <string name="presentation_web_no_videos_yet_1151b358" formatted="false">"No videos yet."</string>
+    <string name="presentation_web_video_d534be82" formatted="false">"Video"</string>
+    <string name="presentation_web_image_1aa4cb0b" formatted="false">"Image"</string>
+    <string name="presentation_web_file_50009ce1" formatted="false">"File"</string>
+    <string name="presentation_web_add_to_playlist_f659f573" formatted="false">"Add to Playlist"</string>
+    <string name="presentation_web_delete_name_3cf8146e" formatted="false">"Delete {name}"</string>
+    <string name="presentation_web_delete_name_8e13216a" formatted="false">"Delete “{name}”?"</string>
+    <string name="presentation_web_it_will_be_removed_from_the_tv_along_with_any_f1383104" formatted="false">"It will be removed from the TV, along with any slides that use it."</string>
+    <string name="presentation_web_deleted_b48ff39c" formatted="false">"Deleted"</string>
+    <string name="presentation_web_only_images_and_videos_can_be_uploaded_7cf8003d" formatted="false">"Only images and videos can be uploaded"</string>
+    <string name="presentation_web_waiting_612ffc5c" formatted="false">"Waiting…"</string>
+    <string name="presentation_web_pct_of_size_7b41a303" formatted="false">"{pct}% of {size}"</string>
+    <string name="presentation_web_uploaded_3cc3767e" formatted="false">"Uploaded"</string>
+    <string name="presentation_web_upload_failed_6efc5d27" formatted="false">"Upload failed"</string>
+    <string name="presentation_web_name_uploaded_2ba2624a" formatted="false">"{name} uploaded"</string>
+    <string name="presentation_web_n_files_uploaded_862e4840" formatted="false">"{n} files uploaded"</string>
+    <string name="presentation_web_ok_uploaded_failed_failed_f434f81f" formatted="false">"{ok} uploaded, {failed} failed"</string>
+    <string name="presentation_web_n_uploads_failed_54a17745" formatted="false">"{n} uploads failed"</string>
+    <string name="presentation_web_upload_failed_status_08b501ad" formatted="false">"Upload failed ({status})"</string>
+    <string name="presentation_web_upload_failed_check_the_tv_is_on_and_on_the_s_5574c47b" formatted="false">"Upload failed. Check the TV is on and on the same network."</string>
+    <string name="presentation_web_webpage_dccfc4ad" formatted="false">"Webpage"</string>
+    <string name="presentation_web_missing_file_693f5909" formatted="false">"Missing file"</string>
+    <string name="presentation_web_slide_n_title_beab46ed" formatted="false">"Slide {n}: {title}"</string>
+    <string name="presentation_web_on_tv_7001d394" formatted="false">"On TV"</string>
+    <string name="presentation_web_scroll_291873e3" formatted="false">"Scroll"</string>
+    <string name="presentation_web_no_address_yet_7a908fce" formatted="false">"No address yet"</string>
+    <string name="presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_84248c8b" formatted="false">"Shown on the TV as a 1920-px-wide page"</string>
+    <string name="presentation_web_shown_on_the_tv_as_a_1920_px_wide_page_scroll_71ebcb30" formatted="false">"Shown on the TV as a 1920-px-wide page, scrolling down"</string>
+    <string name="presentation_web_choose_another_file_for_this_slide_9084e548" formatted="false">"Choose another file for this slide."</string>
+    <string name="presentation_web_n_of_count_03e1f091" formatted="false">"{n} of {count}"</string>
+    <string name="presentation_web_on_tv_now_4b481d71" formatted="false">"On TV now"</string>
+    <string name="presentation_web_hidden_7e6fefff" formatted="false">"Hidden"</string>
+    <string name="presentation_web_webpage_address_c02cb87f" formatted="false">"Webpage address"</string>
+    <string name="presentation_web_auto_scroll_30fb5ec8" formatted="false">"Auto-scroll"</string>
+    <string name="presentation_web_scroll_speed_2632882d" formatted="false">"Scroll speed"</string>
+    <string name="presentation_web_pause_on_each_screen_d6a984d0" formatted="false">"Pause on each screen"</string>
+    <string name="presentation_web_n_px_s_e1159729" formatted="false">"{n} px/s"</string>
+    <string name="presentation_web_n_s_8e6df4a0" formatted="false">"{n} s"</string>
+    <string name="presentation_web_s_043a7187" formatted="false">"s"</string>
+    <string name="presentation_web_time_on_screen_9fa05c65" formatted="false">"Time on screen"</string>
+    <string name="presentation_web_plays_to_the_end_194589fa" formatted="false">"Plays to the end"</string>
+    <string name="presentation_web_until_it_reaches_the_bottom_f3c94373" formatted="false">"Until it reaches the bottom"</string>
+    <string name="presentation_web_5_seconds_less_bccb7d2e" formatted="false">"5 seconds less"</string>
+    <string name="presentation_web_5_seconds_more_0ff54420" formatted="false">"5 seconds more"</string>
+    <string name="presentation_web_seconds_381a8e96" formatted="false">"Seconds"</string>
+    <string name="presentation_web_playback_2db1db07" formatted="false">"Playback"</string>
+    <string name="presentation_web_fit_9f872ed4" formatted="false">"Fit"</string>
+    <string name="presentation_web_contain_e534a2c2" formatted="false">"Contain"</string>
+    <string name="presentation_web_cover_fa8d8456" formatted="false">"Cover"</string>
+    <string name="presentation_web_fill_033955d4" formatted="false">"Fill"</string>
+    <string name="presentation_web_show_all_of_it_8b61252d" formatted="false">"Show all of it"</string>
+    <string name="presentation_web_fill_the_screen_cropping_edges_3c4d2350" formatted="false">"Fill the screen, cropping edges"</string>
+    <string name="presentation_web_stretch_to_the_screen_0e4fa364" formatted="false">"Stretch to the screen"</string>
+    <string name="presentation_web_play_sound_017e4fd8" formatted="false">"Play sound"</string>
+    <string name="presentation_web_show_this_slide_47e42125" formatted="false">"Show this slide"</string>
+    <string name="presentation_web_earlier_e10ae990" formatted="false">"Earlier"</string>
+    <string name="presentation_web_later_73b6e48a" formatted="false">"Later"</string>
+    <string name="presentation_web_remove_slide_913ae394" formatted="false">"Remove Slide"</string>
+    <string name="presentation_web_only_images_and_videos_can_be_slides_11e3db96" formatted="false">"Only images and videos can be slides"</string>
+    <string name="presentation_web_slide_added_save_to_tv_when_ready_ac4d8f72" formatted="false">"Slide added — Save to TV when ready"</string>
+    <string name="presentation_web_the_page_opens_full_screen_on_the_tv_and_scro_cd0e902c" formatted="false">"The page opens full screen on the TV and scrolls down slowly. You can change scrolling in the slide’s settings."</string>
+    <string name="presentation_web_webpage_address_must_start_with_http_or_https_10e086d4" formatted="false">"Webpage address must start with http:// or https://"</string>
+    <string name="presentation_web_your_library_is_empty_upload_images_or_videos_1b1e7e11" formatted="false">"Your Library is empty. Upload images or videos first."</string>
+    <string name="presentation_web_saving_23e39291" formatted="false">"Saving…"</string>
+    <string name="presentation_web_saved_now_playing_on_the_tv_53e2afb1" formatted="false">"Saved — now playing on the TV"</string>
+    <string name="presentation_web_showing_the_address_and_code_on_the_tv_7b38bbb2" formatted="false">"Showing the address and code on the TV"</string>
+    <string name="presentation_web_slide_n_time_on_screen_must_be_at_least_1_sec_33e688bf" formatted="false">"Slide {n}: time on screen must be at least 1 second."</string>
+    <string name="presentation_web_slide_n_webpage_address_must_start_with_http_c20d1c1c" formatted="false">"Slide {n}: webpage address must start with http:// or https://."</string>
+    <string name="presentation_web_slide_n_scroll_speed_must_be_between_5_and_10_7bf1f5cf" formatted="false">"Slide {n}: scroll speed must be between 5 and 1000."</string>
+    <string name="presentation_web_slide_n_pause_must_be_between_0_and_300_secon_ee5928bf" formatted="false">"Slide {n}: pause must be between 0 and 300 seconds."</string>
+    <string name="presentation_web_slide_n_choose_a_file_ce3b2b2e" formatted="false">"Slide {n}: choose a file."</string>
+    <string name="presentation_web_slide_n_uses_a_deleted_file_59410ac6" formatted="false">"Slide {n}: uses a deleted file."</string>
+    <string name="presentation_web_you_have_unsaved_playlist_changes_leave_anywa_794f9b62" formatted="false">"You have unsaved playlist changes. Leave anyway?"</string>
+    <string name="presentation_web_video_plays_to_the_end_d1317306" formatted="false">"Video · plays to the end"</string>
+    <string name="presentation_web_image_d_a95fd646" formatted="false">"Image · {d}"</string>
+    <string name="presentation_web_webpage_auto_scroll_7b4685ed" formatted="false">"Webpage · auto-scroll"</string>
+    <string name="presentation_web_webpage_d_5742e375" formatted="false">"Webpage · {d}"</string>
+    <string name="presentation_web_empty_c6c094bc" formatted="false">"Empty"</string>
+    <string name="presentation_web_loop_d_af1a13c7" formatted="false">"Loop {d}"</string>
+    <string name="presentation_web_base_n_video_scroll_109344e2" formatted="false">"{base} + {n} video/scroll"</string>
+    <string name="presentation_web_request_failed_status_d5f9abf9" formatted="false">"Request failed ({status})"</string>
+    <string name="presentation_web_pair_this_browser_again_with_the_code_on_the_36a7b9e9" formatted="false">"Pair this browser again with the code on the TV."</string>
+    <string name="presentation_web_something_went_wrong_ab827e3f" formatted="false">"Something went wrong"</string>
+    <string name="presentation_web_s_s_07f67a15" formatted="false">"{s}s"</string>
+    <string name="presentation_web_m_m_79989309" formatted="false">"{m}m"</string>
+    <string name="presentation_web_m_m_s_s_53e20375" formatted="false">"{m}m {s}s"</string>
+    <string name="search_keywords_input" formatted="false">"input hdmi av tv source"</string>
+    <string name="search_keywords_control_center" formatted="false">"controls power sleep"</string>
+    <string name="search_keywords_weather" formatted="false">"weather temperature rain"</string>
+    <string name="search_keywords_profile" formatted="false">"profile user who"</string>
+    <string name="search_keywords_home_settings" formatted="false">"settings launcher preferences"</string>
+    <string name="search_keywords_refresh" formatted="false">"refresh reload news recommendations"</string>
+    <string name="search_keywords_wifi" formatted="false">"wifi network internet"</string>
+    <string name="search_keywords_bluetooth" formatted="false">"bluetooth remote controller headphones speaker pair"</string>
+    <string name="search_keywords_sound" formatted="false">"sound audio volume speaker"</string>
+    <string name="search_keywords_display" formatted="false">"display resolution screen picture"</string>
+    <string name="search_keywords_screen_saver" formatted="false">"screensaver dream ambient"</string>
+    <string name="search_keywords_date_time" formatted="false">"date time clock"</string>
+    <string name="search_keywords_accessibility" formatted="false">"accessibility captions"</string>
+    <string name="search_keywords_apps" formatted="false">"apps applications uninstall storage"</string>
+    <string name="search_keywords_storage" formatted="false">"storage space memory"</string>
+    <string name="search_keywords_tv_settings" formatted="false">"settings system device"</string>
+    <string name="search_available_on">"On %1$s"</string>
 </resources>

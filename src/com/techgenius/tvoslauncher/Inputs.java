@@ -154,7 +154,7 @@ final class Inputs {
                 in.type = info.getType();
                 in.passthrough = info.isPassthroughInput();
                 CharSequence custom = info.loadCustomLabel(c), label = info.loadLabel(c);
-                in.origLabel = custom != null && custom.length() > 0 ? custom.toString() : label != null ? tidy(label.toString(), in.type) : I18n.t(c, "Input");
+                in.origLabel = custom != null && custom.length() > 0 ? custom.toString() : label != null ? tidy(label.toString(), in.type) : I18n.resourceString(c, R.string.text_input);
                 in.label = in.origLabel;
                 in.disconnected = tm.getInputState(in.id) == TvInputManager.INPUT_STATE_DISCONNECTED;
                 out.add(in);

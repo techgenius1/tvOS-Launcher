@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.techgenius.tvoslauncher.I18n;
+import com.techgenius.tvoslauncher.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -123,8 +124,9 @@ final class AdminServer {
             } catch (Exception e) {
                 Log.w(TAG, r.method + " " + r.path + ": " + e);
                 String msg = e.getMessage();
-                // Validation messages thrown by Model (e.g. "Slide type is required") are English keys.
-                if (msg == null) msg = tr("Unexpected server error");
+                if (msg == null) msg = I18n.resourceString(AdminServer.this.context, R.string.text_unexpected_server_error);
+                else if (e instanceof IllegalArgumentException && "Slide type is required".equals(msg))
+                    msg = I18n.resourceString(context, R.string.presentation_type_required);
                 else if (e instanceof IllegalArgumentException) msg = tr(msg);
                 json(out, 500, new JSONObject().put("error", msg));
             }
@@ -190,13 +192,13 @@ final class AdminServer {
         // Web app
         if (p.equals("/") || p.equals("/index.html")) { asset(out, "index.html", "text/html; charset=utf-8"); return; }
         if (p.equals("/app.css")) { asset(out, "app.css", "text/css; charset=utf-8"); return; }
-        if (p.equals("/app.js")) { asset(out, "app.js", "application/javascript; charset=utf-8"); return; }
+        if (p.equals("/app.js")) { appScript(out); return; }
         if (p.equals("/logo.png")) { asset(out, "logo.png", "image/png"); return; }
         if (p.equals("/icon.svg")) { asset(out, "icon.svg", "image/svg+xml"); return; }
         if (p.equals("/api/info")) { json(out, 200, info()); return; }
         if (p.equals("/api/pair") && "POST".equals(r.method)) {
             String token = pairing.pair(body(r).optString("pin"));
-            if (token == null) json(out, 403, new JSONObject().put("error", tr("That PIN doesn\u2019t match the one on the TV.")));
+            if (token == null) json(out, 403, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_that_pin_doesn_t_match_the_one_on_the_tv)));
             else json(out, 200, new JSONObject().put("token", token));
             return;
         }
@@ -206,7 +208,7 @@ final class AdminServer {
         String token = auth.startsWith("Bearer") ? auth.substring(6).trim() : r.query.get("token");
         if (!pairing.valid(token)) {
             drain(r);
-            json(out, 401, new JSONObject().put("error", tr("Pair with the TV PIN first")));
+            json(out, 401, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_pair_with_the_tv_pin_first)));
             return;
         }
         String[] seg = p.replaceAll("^/+|/+$", "").split("/");
@@ -220,7 +222,7 @@ final class AdminServer {
         } else if (seg.length == 4 && seg[1].equals("media") && seg[3].equals("file") && "GET".equals(r.method)) {
             mediaFile(r, out, seg[2]);
         } else if (seg.length == 3 && seg[1].equals("media") && "DELETE".equals(r.method)) {
-            if (!repo.deleteMedia(seg[2])) json(out, 404, new JSONObject().put("error", tr("Media item not found")));
+            if (!repo.deleteMedia(seg[2])) json(out, 404, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_media_item_not_found)));
             else {
                 gateway.reload();
                 json(out, 200, new JSONObject().put("deleted", true));
@@ -235,7 +237,7 @@ final class AdminServer {
                 || (seg.length == 3 && seg[1].equals("playlists") && "PUT".equals(r.method))) {
             savePlaylist(r, out, "POST".equals(r.method) ? 201 : 200);
         } else if (seg.length == 3 && seg[1].equals("playlists") && "DELETE".equals(r.method)) {
-            json(out, 400, new JSONObject().put("error", tr("Default playlist cannot be deleted")));
+            json(out, 400, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_default_playlist_cannot_be_deleted)));
         } else if (seg.length == 4 && seg[1].equals("playlists") && seg[3].equals("activate") && "POST".equals(r.method)) {
             gateway.reload();
             json(out, 200, new JSONObject().put("playlist", repo.playlist().toJson()));
@@ -244,15 +246,15 @@ final class AdminServer {
         } else if (p.equals("/api/playback/control") && "POST".equals(r.method)) {
             String cmd = body(r).optString("command").toLowerCase(Locale.US);
             if (!cmd.matches("play|pause|next|previous|restart|showconnectioninfo|connectinfo|connection")) {
-                json(out, 400, new JSONObject().put("error", tr("Unsupported playback command")));
+                json(out, 400, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_unsupported_playback_command)));
             } else if (!gateway.control(cmd)) {
-                json(out, 409, new JSONObject().put("error", tr("Presentation isn\u2019t on screen. Start it from the TV or turn on \u201cStart on boot\u201d.")));
+                json(out, 409, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_presentation_isn_t_on_screen_start_it_fr)));
             } else {
                 json(out, 200, new JSONObject().put("accepted", true));
             }
         } else {
             drain(r);
-            json(out, 404, new JSONObject().put("error", tr("Endpoint not found")));
+            json(out, 404, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_endpoint_not_found)));
         }
     }
 
@@ -274,7 +276,7 @@ final class AdminServer {
 
     private void savePlaylist(Req r, OutputStream out, int okStatus) throws Exception {
         List<Model.Slide> slides = Model.slidesFromRequest(body(r));
-        List<String> errors = Model.validate(context, Repo.PLAYLIST_NAME, slides);
+        List<String> errors = Model.validate(context, true, Repo.PLAYLIST_NAME, slides);
         if (!errors.isEmpty()) {
             json(out, 400, new JSONObject().put("errors", new JSONArray(errors)));
             return;
@@ -312,7 +314,7 @@ final class AdminServer {
                 String boundary = type.substring(b + 9).replace("\"", "").trim();
                 Multipart mp = Multipart.extract(raw, boundary, dir);
                 if (mp.file == null) {
-                    json(out, 400, new JSONObject().put("error", tr("Upload form field named file is required")));
+                    json(out, 400, new JSONObject().put("error", I18n.resourceString(AdminServer.this.context, R.string.text_upload_form_field_named_file_is_required)));
                     return;
                 }
                 payload = mp.file;
@@ -444,6 +446,41 @@ final class AdminServer {
     }
 
     // ------------------------------------------------------------------ io helpers
+
+    private void appScript(OutputStream out) throws Exception {
+        String[] keys = context.getResources().getStringArray(R.array.presentation_web_keys);
+        android.content.res.TypedArray values =
+                context.getResources().obtainTypedArray(R.array.presentation_web_values);
+        JSONObject hebrew = new JSONObject();
+        JSONObject polish = new JSONObject();
+        try {
+            if (keys.length != values.length())
+                throw new IllegalStateException("Presentation translation index is inconsistent");
+            android.content.res.Configuration config =
+                    new android.content.res.Configuration(context.getResources().getConfiguration());
+            config.setLocale(Locale.forLanguageTag("he-IL"));
+            android.content.res.Resources hebrewResources = context.createConfigurationContext(config).getResources();
+            config.setLocale(Locale.forLanguageTag("pl-PL"));
+            android.content.res.Resources polishResources = context.createConfigurationContext(config).getResources();
+            for (int i = 0; i < keys.length; i++) {
+                int id = values.getResourceId(i, 0);
+                if (id == 0 || hebrew.has(keys[i]))
+                    throw new IllegalStateException("Invalid presentation translation key: " + keys[i]);
+                hebrew.put(keys[i], hebrewResources.getString(id));
+                polish.put(keys[i], polishResources.getString(id));
+            }
+        } finally {
+            values.recycle();
+        }
+        JSONObject translations = new JSONObject().put("he", hebrew).put("pl", polish);
+        try (InputStream in = context.getAssets().open("present/app.js")) {
+            ByteArrayOutputStream body = new ByteArrayOutputStream();
+            body.write(("\"use strict\";\nconst I18N = " + translations + ";\n")
+                    .getBytes(StandardCharsets.UTF_8));
+            copy(in, body, Long.MAX_VALUE);
+            send(out, 200, "application/javascript; charset=utf-8", body.toByteArray());
+        }
+    }
 
     private void asset(OutputStream out, String name, String type) throws IOException {
         try (InputStream in = context.getAssets().open("present/" + name)) {

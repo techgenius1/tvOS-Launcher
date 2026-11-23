@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.techgenius.tvoslauncher.I18n;
+import com.techgenius.tvoslauncher.R;
 import com.techgenius.tvoslauncher.Ui;
 
 import org.json.JSONObject;
@@ -171,7 +172,7 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
             }
 
             @Override public void onReceivedError(WebView v, WebResourceRequest r, WebResourceError e) {
-                if (r.isForMainFrame()) showError(String.format(tr("Webpage failed to load: %1$s"), e.getDescription()), current());
+                if (r.isForMainFrame()) showError(String.format(I18n.resourceString(PresentationActivity.this, R.string.text_webpage_failed_to_load_1_s), e.getDescription()), current());
             }
         });
         webView.setWebChromeClient(new WebChromeClient());
@@ -258,13 +259,13 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
         icon.setBackground(shape);
         col.addView(icon, new LinearLayout.LayoutParams(u(150), u(90)));
         TextView t = label(26, "semibold", 1f);
-        t.setText(tr("Nothing to present yet"));
+        t.setText(I18n.resourceString(PresentationActivity.this, R.string.text_nothing_to_present_yet));
         t.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tl.topMargin = u(20);
         col.addView(t, tl);
         TextView b = label(14, "regular", 0.7f);
-        b.setText(tr("Add images, videos or webpages from a phone or computer on the same Wi-Fi."));
+        b.setText(I18n.resourceString(PresentationActivity.this, R.string.text_add_images_videos_or_webpages_from_a_pho));
         b.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(u(460), ViewGroup.LayoutParams.WRAP_CONTENT);
         bl.topMargin = u(6);
@@ -299,15 +300,15 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
         text.setOrientation(LinearLayout.VERTICAL);
         text.setPaddingRelative(u(18), 0, 0, 0);
         TextView t = label(17, "semibold", 1f);
-        t.setText(tr("Send to this TV"));
+        t.setText(I18n.resourceString(PresentationActivity.this, R.string.text_send_to_this_tv_f2720f));
         TextView sub = label(11.5f, "regular", 0.65f);
-        sub.setText(tr("Scan the code or open this address on a phone or computer on the same Wi-Fi."));
+        sub.setText(I18n.resourceString(PresentationActivity.this, R.string.text_scan_the_code_or_open_this_address_on_a));
         sub.setMaxWidth(u(300));
         TextView addr = label(15, "medium", 1f);
         addr.setText(url.replace("http://", ""));
         addr.setTextDirection(View.TEXT_DIRECTION_LTR);  // IP:port must not reorder in RTL
         TextView pinL = label(11, "medium", 0.55f);
-        pinL.setText(tr("PAIRING CODE"));
+        pinL.setText(I18n.resourceString(PresentationActivity.this, R.string.text_pairing_code_216a41));
         pinL.setLetterSpacing(0.08f);
         TextView pin = label(24, "semibold", 1f);
         String p = Presenter.pin(this);
@@ -360,7 +361,7 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
                     finish();
                 } else {
                     backPressedAt = now;
-                    badge(tr("Press Back again to exit"));
+                    badge(I18n.resourceString(PresentationActivity.this, R.string.text_press_back_again_to_exit));
                 }
                 return true;
             default:
@@ -413,7 +414,7 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
                     if (isAutoScrollSlide()) startAutoScroll(false);
                     else if (current() != null && !Model.VIDEO.equals(current().type)) schedule();
                     setState("playing");
-                    badge("\u25b6  " + tr("Playing"));
+                    badge("\u25b6  " + I18n.resourceString(PresentationActivity.this, R.string.text_playing));
                 }
                 break;
             case "pause":
@@ -423,7 +424,7 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
                 handler.removeCallbacks(scrollStep);
                 if (mediaPlayer != null && mediaPlayer.isPlaying()) mediaPlayer.pause();
                 setState("paused");
-                badge("\u275a\u275a  " + tr("Paused"));
+                badge("\u275a\u275a  " + I18n.resourceString(PresentationActivity.this, R.string.text_paused));
                 break;
             case "next":
                 next();
@@ -510,13 +511,13 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
             mp.setOnErrorListener((p, what, extra) -> {
                 Model.Slide cur = current();
                 if (cur != null && Model.VIDEO.equals(cur.type) && mediaPlayer == p) {
-                    showError(String.format(tr("Video failed: %1$s\nMedia error %2$d (%3$d)"), m.displayName, what, extra), cur);
+                    showError(String.format(I18n.resourceString(PresentationActivity.this, R.string.text_video_failed_1_s_media_error_2_d_3_d), m.displayName, what, extra), cur);
                 }
                 return true;
             });
             mp.prepareAsync();
         } catch (Exception e) {
-            showError(String.format(tr("Video failed: %1$s\n%2$s"), m.displayName, e.getMessage()), s);
+            showError(String.format(I18n.resourceString(PresentationActivity.this, R.string.text_video_failed_1_s_2_s), m.displayName, e.getMessage()), s);
             return;
         }
         reveal(videoView);
@@ -541,7 +542,7 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
     void showWebpage(Model.Slide s) {
         String url = s.url == null ? "" : s.url;
         if (url.trim().isEmpty()) {
-            showError(tr("Webpage slide is missing a URL"), s);
+            showError(I18n.resourceString(PresentationActivity.this, R.string.text_webpage_slide_is_missing_a_url), s);
             return;
         }
         activeWebpageSlideId = s.id;
@@ -558,12 +559,13 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
 
     Model.Media resolveMedia(Model.Slide s) {
         if (s.mediaId == null || s.mediaId.trim().isEmpty()) {
-            showError(tr(Model.VIDEO.equals(s.type) ? "Video slide is missing media" : "Image slide is missing media"), s);
+            showError(I18n.resourceString(this, Model.VIDEO.equals(s.type)
+                    ? R.string.presentation_video_missing_media : R.string.presentation_image_missing_media), s);
             return null;
         }
         Model.Media m = Presenter.repo(this).getMedia(s.mediaId);
         if (m == null || !Presenter.repo(this).file(m).exists()) {
-            showError(tr("Media file is missing for slide"), s);
+            showError(I18n.resourceString(PresentationActivity.this, R.string.text_media_file_is_missing_for_slide), s);
             return null;
         }
         return m;
@@ -611,13 +613,13 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
             status.playlistId = playlist == null ? null : playlist.id;
             status.playlistName = playlist == null ? null : playlist.name;
             status.slideCount = 0;
-            status.error = tr("No enabled slides in the active playlist");
+            status.error = I18n.resourceString(PresentationActivity.this, R.string.text_no_enabled_slides_in_the_active_playlist);
         }
     }
 
     void showError(String message, Model.Slide s) {
         hideSurfaces();
-        messageTitle.setText(tr("Skipping this slide"));
+        messageTitle.setText(I18n.resourceString(PresentationActivity.this, R.string.text_skipping_this_slide));
         messageBody.setText(message);
         messageCard.setVisibility(View.VISIBLE);
         synchronized (statusLock) {
@@ -924,11 +926,6 @@ public class PresentationActivity extends Activity implements AdminServer.Gatewa
         g.setColor(color);
         g.setStroke(Math.max(1, u(0.6f)), 0x33FFFFFF);
         return g;
-    }
-
-    /** UI text in the launcher's in-app language. */
-    String tr(String en) {
-        return I18n.t(this, en);
     }
 
     TextView label(float size, String weight, float alpha) {

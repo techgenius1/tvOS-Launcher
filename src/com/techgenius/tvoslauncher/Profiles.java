@@ -30,6 +30,15 @@ final class Profiles {
         return list(c).size() < MAX;
     }
 
+    static String switchLabel(Context c, String name) {
+        String label = String.valueOf(name);
+        if (label.isEmpty()) return I18n.resourceString(c, R.string.profile_switch_to_empty);
+        // The legacy dictionary matched this complete phrase before translating profile names.
+        if (label.equals("Manual Setup")) return I18n.resourceString(c, R.string.profile_switch_to_manual_setup);
+        if (I18n.LANG_HE.equals(I18n.getLang(c))) label = I18nHe.translate(c, label);
+        return I18n.resourceString(c, R.string.profile_switch_to, label);
+    }
+
     static final class Profile {
         String id, name, emoji = "";
         int color;
@@ -40,8 +49,14 @@ final class Profiles {
             "\uD83D\uDC3C", "\uD83D\uDC2F", "\uD83E\uDD81", "\uD83D\uDC38", "\uD83D\uDC35",
             "\uD83D\uDC28", "\uD83E\uDD84", "\uD83D\uDC36", "\uD83D\uDC31", "\uD83D\uDC3B",
             "\uD83D\uDC30", "\uD83D\uDC7B", "\uD83E\uDD16", "\uD83D\uDC7D", "\uD83C\uDF83"};
-    static final String[] EMOJI_NAMES = {"Grin", "Cool", "Cowboy", "Party", "Fox", "Panda", "Tiger", "Lion", "Frog",
-            "Monkey", "Koala", "Unicorn", "Dog", "Cat", "Bear", "Bunny", "Ghost", "Robot", "Alien", "Pumpkin"};
+    static final int[] EMOJI_NAME_RESOURCES = {
+            R.string.profile_emoji_grin, R.string.profile_emoji_cool, R.string.profile_emoji_cowboy,
+            R.string.profile_emoji_party, R.string.profile_emoji_fox, R.string.profile_emoji_panda,
+            R.string.profile_emoji_tiger, R.string.profile_emoji_lion, R.string.profile_emoji_frog,
+            R.string.profile_emoji_monkey, R.string.profile_emoji_koala, R.string.profile_emoji_unicorn,
+            R.string.profile_emoji_dog, R.string.profile_emoji_cat, R.string.profile_emoji_bear,
+            R.string.profile_emoji_bunny, R.string.profile_emoji_ghost, R.string.profile_emoji_robot,
+            R.string.profile_emoji_alien, R.string.profile_emoji_pumpkin};
 
     /** Emoji not used by any profile other than `exceptId`. */
     static List<String> freeEmojis(Context c, String exceptId) {
@@ -52,8 +67,10 @@ final class Profiles {
         return out;
     }
 
-    static String emojiName(String e) {
-        for (int i = 0; i < EMOJIS.length; i++) if (EMOJIS[i].equals(e)) return EMOJI_NAMES[i];
+    static String emojiName(Context c, String e) {
+        for (int i = 0; i < EMOJIS.length; i++) {
+            if (EMOJIS[i].equals(e)) return I18n.resourceString(c, EMOJI_NAME_RESOURCES[i]);
+        }
         return "";
     }
 
@@ -67,7 +84,16 @@ final class Profiles {
             {0xFFD3C4F7, 0xFF4B2E99},   // lavender
             {0xFFFFCFA8, 0xFF8A4512},   // peach
             {0xFFD9DCE3, 0xFF3A3D45}};  // silver
-    static final String[] COLOR_NAMES = {"Sky", "Pink", "Mint", "Lemon", "Lavender", "Peach", "Silver"};
+    static final int[] COLOR_NAME_RESOURCES = {
+            R.string.profile_color_sky, R.string.profile_color_pink, R.string.profile_color_mint,
+            R.string.profile_color_lemon, R.string.profile_color_lavender, R.string.profile_color_peach,
+            R.string.profile_color_silver};
+
+    static String[] colorNames(Context c) {
+        String[] names = new String[COLOR_NAME_RESOURCES.length];
+        for (int i = 0; i < names.length; i++) names[i] = I18n.resourceString(c, COLOR_NAME_RESOURCES[i]);
+        return names;
+    }
 
     static SharedPreferences store(Context c) {
         return c.getSharedPreferences("profiles", Context.MODE_PRIVATE);

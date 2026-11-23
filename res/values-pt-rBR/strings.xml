@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_applications" formatted="false">"Aplicativos"</string>
+    <string name="text_apps_825c0a" formatted="false">"Aplicativos"</string>
+    <string name="text_back" formatted="false">"Voltar"</string>
+    <string name="text_check_for_updates" formatted="false">"Verificar atualizações"</string>
+    <string name="text_continue_watching" formatted="false">"Continuar Assistindo"</string>
+    <string name="text_country" formatted="false">"PAÍS"</string>
+    <string name="text_cp_bg_blurry" formatted="false">"Desfocado (Desfoque do conteúdo atual)"</string>
+    <string name="text_cp_bg_mode" formatted="false">"Fundo do Painel de Controle"</string>
+    <string name="text_cp_bg_transparent" formatted="false">"Transparente"</string>
+    <string name="text_currently_synced_to_d6cd7b" formatted="false">"Sincronizado atualmente com: "</string>
+    <string name="text_currently_synced_to_e6a065" formatted="false">"Sincronizado atualmente com: "</string>
+    <string name="text_dash_latest_releases" formatted="false">"Mais Assistidos"</string>
+    <string name="text_dash_news" formatted="false">"Notícias ao Vivo"</string>
+    <string name="text_delete" formatted="false">"Excluir"</string>
+    <string name="text_disabled_62ff42" formatted="false">"Desativado"</string>
+    <string name="text_disabled_ae652f" formatted="false">"Desativado"</string>
+    <string name="text_download_cleanyourtv" formatted="false">"Baixar CleanYourTV"</string>
+    <string name="text_download" formatted="false">"Baixar"</string>
+    <string name="text_football_loading" formatted="false">"Carregando partidas…"</string>
+    <string name="text_home_settings_2f49b8" formatted="false">"Configurações da tela inicial"</string>
+    <string name="text_home_settings_c5e57e" formatted="false">"Configurações da Tela Inicial"</string>
+    <string name="text_language_weather_scenes_apps_and_people" formatted="false">"Idioma, clima, cenas, aplicativos e pessoas"</string>
+    <string name="text_live_cricket_scores" formatted="false">"Placar de Críquete ao Vivo"</string>
+    <string name="text_news_country_auto" formatted="false">"Automático (Sincronizar com o idioma)"</string>
+    <string name="text_news_country_setting" formatted="false">"País das Notícias ao Vivo"</string>
+    <string name="text_next_9f81b4" formatted="false">"Próximo"</string>
+    <string name="text_next_wallpaper_f38b4f" formatted="false">"Próximo Papel de Parede"</string>
+    <string name="text_no_recent_apps_yet" formatted="false">"Nenhum aplicativo recente ainda"</string>
+    <string name="status_off" formatted="false">"Desativado"</string>
+    <string name="status_on" formatted="false">"Ativado"</string>
+    <string name="text_one_photo_and_a_grid_of_app_banners" formatted="false">"Uma foto e uma grade de aplicativos"</string>
+    <string name="text_open_settings" formatted="false">"Abrir Configurações"</string>
+    <string name="text_persistent_adb_mode_required" formatted="false">"Modo ADB Persistente Necessário"</string>
+    <string name="text_press_ok_to_select_this_country" formatted="false">"Pressione OK para selecionar este país"</string>
+    <string name="text_press_on_an_app_to_close_it" formatted="false">"Pressione ▲ em um aplicativo para fechá-lo"</string>
+    <string name="text_quick_settings" formatted="false">"Configurações rápidas"</string>
+    <string name="text_recent_apps" formatted="false">"Aplicativos Recentes"</string>
+    <string name="text_region_mode" formatted="false">"MODO DE REGIÃO"</string>
+    <string name="text_releases_country_auto" formatted="false">"Automático (Sincronizar com o idioma)"</string>
+    <string name="text_releases_country_setting" formatted="false">"Países de Mais Assistidos"</string>
+    <string name="text_releases_loading" formatted="false">"Carregando títulos…"</string>
+    <string name="text_remove_8d75c6" formatted="false">"Remover"</string>
+    <string name="text_save" formatted="false">"Salvar"</string>
+    <string name="text_selected" formatted="false">"Selecionado"</string>
+    <string name="text_settings" formatted="false">"Configurações"</string>
+    <string name="text_show_on_home_screen" formatted="false">"Mostrar na Tela Inicial"</string>
+    <string name="text_sleep_timer_3ba051" formatted="false">"Temporizador de Desligamento"</string>
+    <string name="text_sleep_timer_e034d8" formatted="false">"Temporizador de desligamento"</string>
+    <string name="text_tv_settings_32ce87" formatted="false">"Configurações da TV"</string>
+    <string name="text_tv_settings_95b137" formatted="false">"Configurações da TV"</string>
+    <string name="text_used_recent_apps" formatted="false">"% · Aplicativos Recentes"</string>
+    <string name="text_weather_updating" formatted="false">"Atualizando…"</string>
+    <string name="text_wi_fi_picture_sound_and_the_rest_of_the" formatted="false">"Wi-Fi, imagem, som e configurações da TV"</string>
+    <string name="text_widget_settings" formatted="false">"CONFIGURAÇÕES DE WIDGETS"</string>
+    <string name="weather_condition_foggy">"Neblina"</string>
+    <string name="weather_condition_sleet">"Chuva congelante"</string>
+    <string name="weather_condition_thunderstorms">"Tempestades"</string>
+
+    <string name="legacy_error_blurry_current_content_blur_4a1054836b" formatted="false">"Desfocado (Desfoque do conteúdo atual)"</string>
+    <string name="legacy_error_control_panel_background_4e3133c08f" formatted="false">"Fundo do Painel de Controle"</string>
+    <string name="legacy_error_enable_5342e09f27" formatted="false">"Ativar"</string>
+    <string name="legacy_error_enabled_92c1cdfdf4" formatted="false">"Ativado"</string>
+    <string name="legacy_error_fewer_apps_cfd46af9c4" formatted="false">"Menos aplicativos"</string>
+    <string name="legacy_error_home_screen_a9bd313674" formatted="false">"Tela Inicial"</string>
+    <string name="legacy_error_keep_watching_fea850b766" formatted="false">"Continuar assistindo"</string>
+    <string name="legacy_error_loading_matches_ad34faae05" formatted="false">"Carregando partidas…"</string>
+    <string name="legacy_error_loading_titles_be1d486f11" formatted="false">"Carregando títulos…"</string>
+    <string name="legacy_error_more_apps_ea224e3aeb" formatted="false">"Mais aplicativos"</string>
+    <string name="legacy_error_most_watched_68c54c41e7" formatted="false">"Mais Assistidos"</string>
+    <string name="legacy_error_next_wallpaper_324bb3e2c2" formatted="false">"Próximo Papel de Parede"</string>
+    <string name="legacy_error_quick_buttons_c1ecfd327d" formatted="false">"Configurações rápidas"</string>
+    <string name="legacy_error_re_download_cleanyourtv_512abbde4f" formatted="false">"Baixar CleanYourTV novamente"</string>
+    <string name="legacy_error_screen_6e56137e21" formatted="false">"Tela Inicial"</string>
+    <string name="legacy_error_transparent_aac7e89fcd" formatted="false">"Transparente"</string>
+    <string name="legacy_error_updating_dfe40efe92" formatted="false">"Atualizando…"</string>
+    <string name="legacy_error_home_settings_343f965e26" formatted="false">"Configurações da Tela Inicial"</string>
+    <string name="legacy_error_keep_watching_b741424299" formatted="false">"Continuar assistindo"</string>
+    <string name="legacy_error_sleep_timer_2310f8fd86" formatted="false">"Temporizador de Desligamento"</string>
+    <string name="language_option_title" formatted="false">"Português (Brasil)"</string>
+    <string name="language_option_description" formatted="false">"Usar o tvOS Launcher em português do Brasil"</string>
+    <string name="search_available_on">"Em %1$s"</string>
+</resources>

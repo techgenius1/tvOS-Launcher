@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.techgenius.tvoslauncher.I18n;
+import com.techgenius.tvoslauncher.R;
 
 /**
  * Presentation feature entry point (replaces AppGraph.kt). Owns the repository, pairing and the
@@ -88,7 +89,7 @@ public final class Presenter {
                     Model.Status s = new Model.Status();
                     s.available = false;
                     s.state = "not_on_screen";
-                    s.error = I18n.t(app, "Presentation isn\u2019t on screen");
+                    s.error = I18n.resourceString(app, R.string.text_presentation_isn_t_on_screen);
                     return s;
                 }
             });

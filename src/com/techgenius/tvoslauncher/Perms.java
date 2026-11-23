@@ -85,7 +85,7 @@ final class Perms {
         }
         if (tryStart(a, new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))) return;
         if (tryStart(a, new Intent("android.settings.NOTIFICATION_POLICY_ACCESS_SETTINGS"))) return;
-        lastResort(a, I18n.s(a, "Continue Watching & Do Not Disturb", "\u0130zlemeye Devam Et ve Rahats\u0131z Etmeyin"),
+        lastResort(a, I18n.resourceString(a, R.string.text_continue_watching_do_not_disturb),
                 "adb shell cmd notification allow_listener com.techgenius.tvoslauncher/com.techgenius.tvoslauncher.MediaWatchService");
     }
 
@@ -271,14 +271,14 @@ final class Perms {
         }
 
         String[] items = {
-            I18n.s(a, "Set Default via Local ADB (Recommended)", "Yerel ADB ile Varsayılan Yap (Önerilen)"),
-            I18n.s(a, "Disable Stock TV Launchers (TCL / Philips / Google TV)", "Stok TV Başlatıcılarını Devre Dışı Bırak (TCL / Philips / Google TV)"),
-            I18n.s(a, "Enable Home Button Fix (Accessibility Remap)", "Ana Ekran Tuşu Düzeltmesini Aç (Erişilebilirlik)"),
-            I18n.s(a, "Open Android Default Home Settings", "Android Varsayılan Ana Ekran Ayarlarını Aç")
+            I18n.resourceString(a, R.string.text_set_default_via_local_adb_recommended),
+            I18n.resourceString(a, R.string.text_disable_stock_tv_launchers_tcl_philips_g),
+            I18n.resourceString(a, R.string.text_enable_home_button_fix_accessibility_rem),
+            I18n.resourceString(a, R.string.text_open_android_default_home_settings)
         };
 
         new AlertDialog.Builder(a, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(I18n.s(a, "Set Default Home Launcher", "Varsayılan Ana Ekran Yap"))
+                .setTitle(I18n.resourceString(a, R.string.text_set_default_home_launcher))
                 .setItems(items, (d, which) -> {
                     switch (which) {
                         case 0:
@@ -286,13 +286,13 @@ final class Perms {
                                 if (a.isFinishing()) return;
                                 if (ok) {
                                     android.widget.Toast.makeText(a,
-                                            I18n.s(a, "Default home launcher set via ADB!", "Varsayılan ana ekran ADB ile ayarlandı!"),
+                                            I18n.resourceString(a, R.string.text_default_home_launcher_set_via_adb),
                                             android.widget.Toast.LENGTH_SHORT).show();
                                     if (hasEnabledStockLauncher(a)) {
                                         CleanYourTv.showDisableSystemLaunchersDialog(a, null);
                                     }
                                 } else {
-                                    lastResort(a, I18n.s(a, "Home screen", "Ana ekran"),
+                                    lastResort(a, I18n.resourceString(a, R.string.text_home_screen),
                                             "adb shell cmd role add-role-holder --user 0 android.app.role.HOME com.techgenius.tvoslauncher\n"
                                             + "adb shell cmd package set-home-activity com.techgenius.tvoslauncher/.MainActivity\n"
                                             + "adb shell pm disable-user --user 0 com.google.android.tvlauncher");
@@ -307,7 +307,7 @@ final class Perms {
                             if (!ButtonMapper.isServiceEnabled(a)) {
                                 if (LocalAdb.hasWriteSecureSettings(a) && LocalAdb.repairPermissionsViaSecureSettings(a)) {
                                     android.widget.Toast.makeText(a,
-                                            I18n.s(a, "Home Button Fix & Accessibility enabled!", "Ana Ekran Tuşu Düzeltmesi ve Erişilebilirlik etkinleştirildi!"),
+                                            I18n.resourceString(a, R.string.text_home_button_fix_accessibility_enabled),
                                             android.widget.Toast.LENGTH_SHORT).show();
                                     return;
                                 }
@@ -318,7 +318,7 @@ final class Perms {
                                 LocalAdb.grantAllPermissions(a, null);
                             }
                             android.widget.Toast.makeText(a,
-                                    I18n.s(a, "Home Button Fix enabled!", "Ana Ekran Tuşu Düzeltmesi etkinleştirildi!"),
+                                    I18n.resourceString(a, R.string.text_home_button_fix_enabled_d7a9be),
                                     android.widget.Toast.LENGTH_SHORT).show();
                             break;
                         case 3:
@@ -326,7 +326,7 @@ final class Perms {
                             break;
                     }
                 })
-                .setNegativeButton(I18n.s(a, "Cancel", "İptal"), null)
+                .setNegativeButton(I18n.resourceString(a, R.string.text_cancel), null)
                 .show();
     }
 
@@ -348,7 +348,7 @@ final class Perms {
             } catch (Throwable ignored) { }
         }
         Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
-        if (tryStart(a, Intent.createChooser(home, I18n.s(a, "Select Home App", "Ana Ekran Uygulamasını Seçin")))) return;
+        if (tryStart(a, Intent.createChooser(home, I18n.resourceString(a, R.string.text_select_home_app)))) return;
         tryStart(a, new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + a.getPackageName())));
     }
 
@@ -356,11 +356,9 @@ final class Perms {
     private static void lastResort(Activity a, String what, String cmd) {
         new AlertDialog.Builder(a, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle(what)
-                .setMessage(I18n.s(a,
-                        "This TV's settings have no switch for this permission. Whoever set up the TV can turn it on once from a computer on the same network:\n\n",
-                        "Bu TV'nin ayarlar\u0131nda bu izin i\u00e7in bir se\u00e7enek yok. TV'yi kuran ki\u015fi ayn\u0131 a\u011fdaki bir bilgisayardan bir kez etkinle\u015ftirebilir:\n\n") + cmd)
-                .setPositiveButton(I18n.s(a, "OK", "Tamam"), null)
-                .setNeutralButton(I18n.s(a, "App info", "Uygulama bilgisi"), (d, w) -> tryStart(a, new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                .setMessage(I18n.resourceString(a, R.string.text_this_tv_s_settings_have_no_switch_for_th) + cmd)
+                .setPositiveButton(I18n.resourceString(a, R.string.text_ok), null)
+                .setNeutralButton(I18n.resourceString(a, R.string.text_app_info_3cd62b), (d, w) -> tryStart(a, new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.parse("package:" + a.getPackageName()))))
                 .show();
     }

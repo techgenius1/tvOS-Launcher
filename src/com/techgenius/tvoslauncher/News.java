@@ -260,12 +260,15 @@ final class News {
     }
 
     /** "Just now", "5 min ago", "3 h ago", "Yesterday" \u2014 worked out when shown, so it never goes stale. */
-    static String age(long published) {
+    static String age(android.content.Context c, long published) {
         if (published <= 0) return "";
         long min = (System.currentTimeMillis() - published) / 60000;
-        if (min < 1) return "Just now";
-        if (min < 60) return min + " min ago";
-        if (min < 24 * 60) return (min / 60) + " h ago";
-        return min < 48 * 60 ? "Yesterday" : (min / 1440) + " days ago";
+        if (min < 1) return I18n.resourceString(c, R.string.news_age_now);
+        if (min < 60) return I18n.resourceString(c, R.string.news_age_minutes, min);
+        if (min < 24 * 60) return I18n.resourceString(c, R.string.news_age_hours, min / 60);
+        if (min < 48 * 60) return I18n.resourceString(c, R.string.news_age_yesterday);
+        long days = min / 1440;
+        return I18n.resourceQuantityString(c, R.plurals.news_age_days,
+                (int) Math.min(days, Integer.MAX_VALUE), days);
     }
 }
