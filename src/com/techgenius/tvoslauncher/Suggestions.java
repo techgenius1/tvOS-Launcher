@@ -399,6 +399,9 @@ final class Suggestions {
                 ? Arrays.asList("US") : countries;
         String uiLang = I18n.getLang(c);
         String jwLang = "az".equals(uiLang) ? "tr" : uiLang;
+        if (jwLang != null && jwLang.contains("-")) {
+            jwLang = jwLang.substring(0, jwLang.indexOf('-'));
+        }
         if (jwLang == null || jwLang.length() != 2) jwLang = "en";
 
         List<List<Item>> perCountryLists = new ArrayList<>();
@@ -489,7 +492,7 @@ final class Suggestions {
             String n = names.get(g.optJSONObject(i).optString("shortName"));
             if (n != null) out.add(n);
         }
-        return String.join(" \u00b7 ", out);
+        return android.text.TextUtils.join(" \u00b7 ", out);
     }
 
     static JSONObject post(String url, String json) throws Exception {
@@ -551,7 +554,7 @@ final class Suggestions {
                 JSONArray g = m.optJSONArray("genres");
                 List<String> names = new ArrayList<>();
                 for (int j = 0; g != null && j < g.length() && names.size() < 2; j++) names.add(g.optString(j));
-                it.genres = String.join(", ", names);
+                it.genres = android.text.TextUtils.join(", ", names);
                 it.link = id;
                 list.add(it);
             }
@@ -574,7 +577,7 @@ final class Suggestions {
                 StringBuilder q = new StringBuilder("/discover/").append(kind)
                         .append("?watch_region=IN&with_watch_monetization_types=flatrate&sort_by=popularity.desc")
                         .append("&language=en-IN&include_adult=false&with_watch_providers=").append(p.id);
-                if (!langs.isEmpty()) q.append("&with_original_language=").append(URLEncoder.encode(String.join("|", langs), "UTF-8"));
+                if (!langs.isEmpty()) q.append("&with_original_language=").append(URLEncoder.encode(android.text.TextUtils.join("|", langs), "UTF-8"));
                 JSONArray results = get(c, q.toString()).optJSONArray("results");
                 List<Item> list = new ArrayList<>();
                 for (int i = 0; results != null && i < results.length() && list.size() < POOL; i++) {
@@ -651,7 +654,7 @@ final class Suggestions {
             String n = names.get(ids.optInt(i));
             if (n != null) out.add(n.replace("Action & Adventure", "Action").replace("Sci-Fi & Fantasy", "Sci-Fi"));
         }
-        return String.join(" \u00b7 ", out);
+        return android.text.TextUtils.join(" \u00b7 ", out);
     }
 
     /** TMDB GET. Accepts either a v4 read-access token (eyJ\u2026) or a v3 API key. */

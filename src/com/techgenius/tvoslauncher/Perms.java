@@ -126,6 +126,7 @@ final class Perms {
         "com.homwee.launcher",
         "com.zeasn.whaleos.launcher",
         "com.sdmc.launcher",
+        "com.droidlogic.mboxlauncher",
         "com.amazon.tv.launcher",
         "com.amazon.firehomestarter"
     };

@@ -82,7 +82,7 @@ final class LocalAdb {
     private static android.database.ContentObserver accSettingsObserver;
     private static volatile boolean repairInProgress = false;
     private static volatile long lastRepairAttemptMs = 0L;
-    private static final long KEEP_ALIVE_INTERVAL_MS = 12_000L;
+    private static final long KEEP_ALIVE_INTERVAL_MS = 60_000L;
     private static final long REPAIR_COOLDOWN_MS = 2_500L;
 
     private static final Runnable KEEP_ALIVE_TICK = new Runnable() {
@@ -1281,6 +1281,25 @@ final class LocalAdb {
                 }
             }
         }, "local-adb-keyevent").start();
+        return true;
+    }
+
+    static boolean sendLongPressKeyEventViaAdbAsync(Context c, int keyCode) {
+        if (c == null || getAdbMode(c) == ADB_MODE_SECURE_CLOSE || keyCode <= 0 || !isPaired(c)) return false;
+        new Thread(() -> {
+            String cmd = "input keyevent --longpress " + keyCode;
+            String[] hosts = {"127.0.0.1", localLanIp()};
+            for (String h : hosts) {
+                if (h == null || h.isEmpty()) continue;
+                int port = resolveOpenPort(c, h, 350);
+                if (port <= 0) continue;
+                try {
+                    runShellCommand(c, h, port, cmd);
+                    return;
+                } catch (Exception ignored) {
+                }
+            }
+        }, "local-adb-longpress").start();
         return true;
     }
 

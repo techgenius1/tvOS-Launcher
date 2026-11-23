@@ -138,17 +138,33 @@ final class Search {
 
     // ------------------------------------------------------------------ titles
 
-    static final String JW_SEARCH = "query S($q: String!, $first: Int!) { popularTitles(country: IN, first: $first,"
-            + " filter: {searchQuery: $q}) { edges { node { objectType"
-            + " content(country: IN, language: \"en\") { title originalReleaseYear shortDescription"
+    static final String JW_SEARCH = "query S($q: String!, $first: Int!, $country: Country!, $lang: Language!) {"
+            + " popularTitles(country: $country, first: $first, filter: {searchQuery: $q}) { edges { node { objectType"
+            + " content(country: $country, language: $lang) { title originalReleaseYear shortDescription"
             + " posterUrl(profile: S332, format: JPG) backdrops(profile: S1440, format: JPG) { backdropUrl }"
-            + " genres { translation(language: \"en\") } externalIds { imdbId } scoring { imdbScore } }"
-            + " offers(country: IN, platform: WEB) { monetizationType standardWebURL deeplinkURL(platform: ANDROID_TV)"
+            + " genres { translation(language: $lang) } externalIds { imdbId } scoring { imdbScore } }"
+            + " offers(country: $country, platform: WEB) { monetizationType standardWebURL deeplinkURL(platform: ANDROID_TV)"
             + " package { clearName technicalName icon(profile: S100, format: PNG) } } } } } }";
 
-    /** Titles matching q on any service in India (JustWatch), best match first. */
+    /** Titles matching q on installed streaming apps in the active region (JustWatch), best match first. */
     static List<Title> titles(Context c, String q, Apps apps) throws Exception {
-        JSONObject vars = new JSONObject().put("q", q).put("first", MAX_TITLES);
+        List<String> countries = HomeDashboard.getEffectiveReleasesCountries(c);
+        String country = (countries != null && !countries.isEmpty())
+                ? countries.get(0) : HomeDashboard.defaultCountryForUiLang(c);
+        if (country == null || country.trim().isEmpty()) country = "US";
+        country = country.trim().toUpperCase(Locale.US);
+        if ("AZ".equals(country)) country = "TR";
+
+        String lang = I18n.getLang(c);
+        if ("az".equals(lang)) lang = "tr";
+        if (lang != null && lang.contains("-")) lang = lang.substring(0, lang.indexOf('-'));
+        if (lang == null || lang.length() != 2) lang = "en";
+
+        JSONObject vars = new JSONObject()
+                .put("q", q)
+                .put("first", MAX_TITLES)
+                .put("country", country)
+                .put("lang", lang);
         JSONObject res = post("https://apis.justwatch.com/graphql",
                 new JSONObject().put("query", JW_SEARCH).put("variables", vars).toString());
         JSONArray edges = res.getJSONObject("data").getJSONObject("popularTitles").getJSONArray("edges");
@@ -170,7 +186,7 @@ final class Search {
             JSONArray g = ct.optJSONArray("genres");
             List<String> gn = new ArrayList<>();
             for (int j = 0; g != null && j < g.length() && gn.size() < 2; j++) gn.add(g.getJSONObject(j).optString("translation"));
-            t.genres = String.join(", ", gn);
+            t.genres = android.text.TextUtils.join(", ", gn);
             JSONObject ids = ct.optJSONObject("externalIds");
             if (ids != null) t.imdb = clean(ids.optString("imdbId"));
             JSONObject sc = ct.optJSONObject("scoring");
@@ -194,7 +210,7 @@ final class Search {
             }
             t.offers = group(c, raw, apps);
             if (!t.imdb.isEmpty()) addStremio(c, t);
-            out.add(t);
+            if (!t.offers.isEmpty()) out.add(t);
         }
         return out;
     }
@@ -227,7 +243,7 @@ final class Search {
                 JSONArray g = m.optJSONArray("genres");
                 List<String> gn = new ArrayList<>();
                 for (int j = 0; g != null && j < g.length() && gn.size() < 2; j++) gn.add(g.optString(j));
-                t.genres = String.join(", ", gn);
+                t.genres = android.text.TextUtils.join(", ", gn);
                 addStremio(c, t);
                 out.add(t);
             }
@@ -294,12 +310,13 @@ final class Search {
         Map<String, Offer> best = new LinkedHashMap<>();
         for (Offer o : raw) {
             resolve(c, o, apps);
+            if (!o.installed()) continue;
             String key = !o.pkg.isEmpty() ? o.pkg : !o.getPkg.isEmpty() ? o.getPkg : norm(o.service);
             Offer cur = best.get(key);
             if (cur == null || o.rank() < cur.rank()) best.put(key, o);
         }
         List<Offer> out = new ArrayList<>(best.values());
-        out.sort((x, y) -> x.installed() != y.installed() ? (x.installed() ? -1 : 1) : Integer.compare(x.rank(), y.rank()));
+        java.util.Collections.sort(out, (x, y) -> x.installed() != y.installed() ? (x.installed() ? -1 : 1) : Integer.compare(x.rank(), y.rank()));
         return out;
     }
 
@@ -449,5 +466,305 @@ final class Search {
         } finally {
             con.disconnect();
         }
+    }
+
+    // ------------------------------------------------------------------ in-app search & providers
+
+    static final class AppSearchEntry {
+        String pkg = "", label = "", deepLinkPrefix = "";
+    }
+
+    static final class AppSearchTarget {
+        String pkg = "", label = "", deepLinkUrl = "", query = "";
+    }
+
+    static final class InAppResult {
+        String pkg = "", appName = "", title = "", subtitle = "", art = "";
+        String intentAction = "", intentData = "", intentExtra = "";
+    }
+
+    private static final String[][] KNOWN_SEARCH_APPS = {
+        {"com.google.android.youtube.tv", "YouTube", "https://www.youtube.com/results?search_query="},
+        {"org.smarttube.stable", "SmartTube", "https://www.youtube.com/results?search_query="},
+        {"com.liskovsoft.smarttubetv.beta", "SmartTube", "https://www.youtube.com/results?search_query="},
+        {"com.teamsmart.videomanager.tv", "SmartTube", "https://www.youtube.com/results?search_query="},
+        {"com.netflix.ninja", "Netflix", "https://www.netflix.com/search?q="},
+        {"com.netflix.mediaclient", "Netflix", "https://www.netflix.com/search?q="},
+        {"com.spotify.tv.android", "Spotify", "spotify:search:"},
+        {"com.spotify.music", "Spotify", "spotify:search:"},
+        {"com.amazon.amazonvideo.livingroom", "Prime Video", ""},
+        {"com.amazon.avod.thirdpartyclient", "Prime Video", ""},
+        {"com.disney.disneyplus", "Disney+", ""},
+        {"in.startv.hotstar", "Disney+", ""},
+        {"tv.twitch.android.app", "Twitch", "twitch://search?query="},
+        {"tv.twitch.android.viewer", "Twitch", "twitch://search?query="},
+        {"com.stremio.one", "Stremio", "stremio:///search?search="},
+        {"com.stremio.tv", "Stremio", "stremio:///search?search="},
+        {"com.android.vending", "Google Play", "market://search?q="}
+    };
+
+    static List<AppSearchEntry> discoverSearchableApps(Context c) {
+        List<AppSearchEntry> out = new ArrayList<>();
+        if (c == null) return out;
+        PackageManager pm = c.getPackageManager();
+        Set<String> seenPkgs = new HashSet<>();
+        String myPkg = c.getPackageName();
+
+        for (String[] row : KNOWN_SEARCH_APPS) {
+            String pkg = row[0];
+            if (seenPkgs.contains(pkg) || !Suggestions.installed(c, pkg)) continue;
+            seenPkgs.add(pkg);
+            AppSearchEntry e = new AppSearchEntry();
+            e.pkg = pkg;
+            e.label = resolveAppLabel(pm, pkg, row[1]);
+            e.deepLinkPrefix = row[2];
+            out.add(e);
+        }
+
+        try {
+            List<ResolveInfo> list = pm.queryIntentActivities(new Intent(Intent.ACTION_SEARCH), 0);
+            if (list != null) {
+                for (ResolveInfo ri : list) {
+                    if (ri.activityInfo == null || ri.activityInfo.packageName == null) continue;
+                    String pkg = ri.activityInfo.packageName;
+                    if (seenPkgs.contains(pkg) || pkg.equals(myPkg)
+                            || pkg.startsWith("com.android.cts")
+                            || pkg.equals("com.google.android.gms")
+                            || pkg.equals("com.google.android.katniss")
+                            || pkg.equals("com.android.settings")) {
+                        continue;
+                    }
+                    if (pm.getLeanbackLaunchIntentForPackage(pkg) == null
+                            && pm.getLaunchIntentForPackage(pkg) == null) {
+                        continue;
+                    }
+                    seenPkgs.add(pkg);
+                    AppSearchEntry e = new AppSearchEntry();
+                    e.pkg = pkg;
+                    CharSequence lbl = ri.loadLabel(pm);
+                    e.label = (lbl != null && lbl.length() > 0) ? lbl.toString() : resolveAppLabel(pm, pkg, pkg);
+                    e.deepLinkPrefix = "";
+                    out.add(e);
+                }
+            }
+        } catch (Throwable ignored) { }
+
+        return out;
+    }
+
+    static List<AppSearchTarget> appSearchTargets(List<AppSearchEntry> entries, String q) {
+        List<AppSearchTarget> out = new ArrayList<>();
+        if (entries == null || entries.isEmpty() || q == null) return out;
+        String trimmed = q.trim();
+        if (trimmed.isEmpty()) return out;
+
+        String enc;
+        try {
+            enc = URLEncoder.encode(trimmed, "UTF-8").replace("+", "%20");
+        } catch (Exception e) {
+            enc = trimmed;
+        }
+
+        for (AppSearchEntry entry : entries) {
+            AppSearchTarget t = new AppSearchTarget();
+            t.pkg = entry.pkg;
+            t.label = entry.label;
+            t.deepLinkUrl = entry.deepLinkPrefix.isEmpty() ? "" : (entry.deepLinkPrefix + enc);
+            t.query = trimmed;
+            out.add(t);
+        }
+        return out;
+    }
+
+    static List<AppSearchTarget> appSearchTargets(Context c, String q) {
+        return appSearchTargets(discoverSearchableApps(c), q);
+    }
+
+    private static String resolveAppLabel(PackageManager pm, String pkg, String fallback) {
+        try {
+            CharSequence l = pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0));
+            if (l != null && l.length() > 0) return l.toString();
+        } catch (Throwable ignored) { }
+        return fallback;
+    }
+
+    static boolean openAppSearch(MainActivity a, AppSearchTarget t) {
+        if (a == null || t == null || t.pkg.isEmpty()) return false;
+        remember(a, t.query);
+        a.prepareForAppLaunch();
+
+        if (!t.deepLinkUrl.isEmpty()) {
+            try {
+                Intent view = new Intent(Intent.ACTION_VIEW, Uri.parse(t.deepLinkUrl)).setPackage(t.pkg);
+                if (Suggestions.start(a, view)) {
+                    a.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                    return true;
+                }
+            } catch (Throwable ignored) { }
+        }
+
+        try {
+            Intent search = new Intent(Intent.ACTION_SEARCH)
+                    .setPackage(t.pkg)
+                    .putExtra(SearchManager.QUERY, t.query);
+            if (Suggestions.start(a, search)) {
+                a.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                return true;
+            }
+        } catch (Throwable ignored) { }
+
+        try {
+            PackageManager pm = a.getPackageManager();
+            Intent launch = pm.getLeanbackLaunchIntentForPackage(t.pkg);
+            if (launch == null) launch = pm.getLaunchIntentForPackage(t.pkg);
+            if (launch != null && Suggestions.start(a, launch)) {
+                a.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                return true;
+            }
+        } catch (Throwable ignored) { }
+
+        return false;
+    }
+
+    static List<InAppResult> queryAppSearchProviders(Context c, String q, int maxTotal) {
+        List<InAppResult> out = new ArrayList<>();
+        if (c == null || q == null || q.trim().isEmpty() || maxTotal <= 0) return out;
+        String trimmed = q.trim();
+        try {
+            SearchManager sm = (SearchManager) c.getSystemService(Context.SEARCH_SERVICE);
+            if (sm == null) return out;
+            List<android.app.SearchableInfo> searchables = sm.getSearchablesInGlobalSearch();
+            if (searchables == null || searchables.isEmpty()) return out;
+
+            PackageManager pm = c.getPackageManager();
+            String myPkg = c.getPackageName();
+            Set<String> seenKeys = new HashSet<>();
+
+            for (android.app.SearchableInfo si : searchables) {
+                if (out.size() >= maxTotal || si == null) continue;
+                String auth = si.getSuggestAuthority();
+                if (auth == null || auth.isEmpty()) continue;
+                String pkg = si.getSearchActivity() != null ? si.getSearchActivity().getPackageName() : "";
+                if (pkg.isEmpty() || pkg.equals(myPkg)
+                        || pkg.startsWith("com.android.cts")
+                        || pkg.equals("com.google.android.gms")
+                        || pkg.equals("com.android.vending")
+                        || pkg.equals("com.google.android.katniss")
+                        || pkg.startsWith("com.android.providers")) {
+                    continue;
+                }
+                String appName = resolveAppLabel(pm, pkg, pkg);
+                android.database.Cursor cur = null;
+                try {
+                    Uri.Builder b = new Uri.Builder()
+                            .scheme("content")
+                            .authority(auth);
+                    String path = si.getSuggestPath();
+                    if (path != null && !path.isEmpty()) {
+                        b.appendEncodedPath(path.startsWith("/") ? path.substring(1) : path);
+                    }
+                    b.appendPath(SearchManager.SUGGEST_URI_PATH_QUERY);
+                    String sel = si.getSuggestSelection();
+                    String[] selArgs = null;
+                    if (sel == null) {
+                        b.appendPath(trimmed);
+                    } else {
+                        selArgs = new String[]{trimmed};
+                    }
+                    b.appendQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT, "8");
+
+                    cur = c.getContentResolver().query(b.build(), null, sel, selArgs, null);
+                    if (cur != null) {
+                        int count = 0;
+                        while (cur.moveToNext() && count < 8 && out.size() < maxTotal) {
+                            String title = colStr(cur, SearchManager.SUGGEST_COLUMN_TEXT_1);
+                            if (title.isEmpty()) continue;
+                            String dedup = pkg + "|" + title.toLowerCase(Locale.ROOT);
+                            if (!seenKeys.add(dedup)) continue;
+
+                            InAppResult r = new InAppResult();
+                            r.pkg = pkg;
+                            r.appName = appName;
+                            r.title = title;
+                            r.subtitle = colStr(cur, SearchManager.SUGGEST_COLUMN_TEXT_2);
+                            r.art = colStr(cur, SearchManager.SUGGEST_COLUMN_RESULT_CARD_IMAGE);
+                            if (r.art.isEmpty()) r.art = colStr(cur, SearchManager.SUGGEST_COLUMN_ICON_1);
+                            r.intentAction = colStr(cur, SearchManager.SUGGEST_COLUMN_INTENT_ACTION);
+                            if (r.intentAction.isEmpty()) {
+                                r.intentAction = si.getSuggestIntentAction() != null ? si.getSuggestIntentAction() : "";
+                            }
+                            if (r.intentAction.isEmpty()) r.intentAction = Intent.ACTION_VIEW;
+
+                            String d = colStr(cur, SearchManager.SUGGEST_COLUMN_INTENT_DATA);
+                            if (d.isEmpty() && si.getSuggestIntentData() != null) d = si.getSuggestIntentData();
+                            String did = colStr(cur, SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+                            if (!did.isEmpty()) {
+                                r.intentData = d.isEmpty() ? did : (d.endsWith("/") ? d + did : d + "/" + did);
+                            } else {
+                                r.intentData = d;
+                            }
+                            r.intentExtra = colStr(cur, SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA);
+                            out.add(r);
+                            count++;
+                        }
+                    }
+                } catch (Throwable ignored) {
+                } finally {
+                    if (cur != null) {
+                        try { cur.close(); } catch (Throwable ignored) { }
+                    }
+                }
+            }
+        } catch (Throwable ignored) { }
+        return out;
+    }
+
+    private static String colStr(android.database.Cursor c, String col) {
+        try {
+            int idx = c.getColumnIndex(col);
+            if (idx >= 0 && !c.isNull(idx)) {
+                String s = c.getString(idx);
+                return s != null ? s.trim() : "";
+            }
+        } catch (Throwable ignored) { }
+        return "";
+    }
+
+    static boolean openInAppResult(MainActivity a, InAppResult r) {
+        if (a == null || r == null || r.pkg.isEmpty()) return false;
+        a.prepareForAppLaunch();
+
+        try {
+            String action = r.intentAction.isEmpty() ? Intent.ACTION_VIEW : r.intentAction;
+            Intent intent = new Intent(action);
+            if (!r.intentData.isEmpty()) {
+                intent.setData(Uri.parse(r.intentData));
+            }
+            if (!r.intentExtra.isEmpty()) {
+                intent.putExtra(SearchManager.EXTRA_DATA_KEY, r.intentExtra);
+            }
+            intent.setPackage(r.pkg);
+            if (Suggestions.start(a, intent)) {
+                a.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                return true;
+            }
+            intent.setPackage(null);
+            if (Suggestions.start(a, intent)) {
+                a.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                return true;
+            }
+        } catch (Throwable ignored) { }
+
+        try {
+            PackageManager pm = a.getPackageManager();
+            Intent launch = pm.getLeanbackLaunchIntentForPackage(r.pkg);
+            if (launch == null) launch = pm.getLaunchIntentForPackage(r.pkg);
+            if (launch != null && Suggestions.start(a, launch)) {
+                a.overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                return true;
+            }
+        } catch (Throwable ignored) { }
+
+        return false;
     }
 }

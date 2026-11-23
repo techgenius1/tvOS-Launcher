@@ -226,7 +226,7 @@ final class News {
         } finally {
             con.disconnect();
         }
-        out.sort((a, b) -> Long.compare(b.published, a.published));  // newest first
+        java.util.Collections.sort(out, (a, b) -> Long.compare(b.published, a.published));  // newest first
         return out.size() > 8 ? new ArrayList<>(out.subList(0, 8)) : out;
     }
 

@@ -569,11 +569,9 @@ public final class ButtonMapper {
             return false;
         }
 
-        // Never intercept or lock core navigation, selection, back, volume, or gamepad keys under any scenario.
-        int src = ev.getSource();
-        if ((src & android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD
-                || (src & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK
-                || KeyEvent.isGamepadButton(code)) {
+        // Never intercept standard gamepad controller buttons (A/B/X/Y/L1/R1/L2/R2/Start/Select/Thumb/Mode).
+        // Do NOT filter by SOURCE_GAMEPAD/SOURCE_JOYSTICK because many Bluetooth TV remotes advertise those flags.
+        if (code >= KeyEvent.KEYCODE_BUTTON_A && code <= KeyEvent.KEYCODE_BUTTON_MODE) {
             return false;
         }
         switch (code) {

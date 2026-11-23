@@ -246,10 +246,36 @@ public class MainActivity extends Activity {
         super.attachBaseContext(I18n.wrap(base));
     }
 
+    static volatile Boolean sLowRam1Gb;
+
+    static boolean isLowRam1Gb(Context c) {
+        if (sLowRam1Gb != null) return sLowRam1Gb;
+        boolean low = false;
+        try {
+            if (c != null) {
+                android.app.ActivityManager am =
+                        (android.app.ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+                if (am != null) {
+                    android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+                    am.getMemoryInfo(mi);
+                    low = mi.totalMem > 0 && mi.totalMem <= 1_100_000_000L;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        sLowRam1Gb = low;
+        return low;
+    }
+
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        MainActivity prev = activeInstance;
+        if (prev != null && prev != this && !prev.isFinishing()) {
+            prev.finish();
+        }
         activeInstance = this;
+        LiquidGlass.lowRamMode = isLowRam1Gb(this);
         // The wallpaper/artwork always covers the screen: skip the window's own full-screen fill
         // (this Mali-450 GPU is fill-rate bound, so every hidden full-screen layer costs frames).
         getWindow().setBackgroundDrawable(null);
@@ -301,8 +327,11 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             loadApps();
         }
-        buildGrid();
+        if (!Scenes.isScenesLook(this)) {
+            buildGrid();
+        }
         applyLookMode();
+        scenesSyncedOnCreate = Scenes.isScenesLook(this);
         registerPackageReceiver();
         // Presentation mode: run the admin server if enabled, and honour "Start on boot".
         com.techgenius.tvoslauncher.present.Presenter.ensureRunning(this);
@@ -363,6 +392,7 @@ public class MainActivity extends Activity {
         String panel = intent.getStringExtra("panel");
         if (panel != null) {
             closeMenu();
+            HomeDashboard.dismissActiveDialog();
             RecentAppsOverlay.dismiss();
             ControlPanelOverlay.dismiss();
             if (panel.equals("cc")) showControlCenter();
@@ -381,9 +411,11 @@ public class MainActivity extends Activity {
             }
             return;
         }
+        boolean wasAmbient = ambientShowcase;
         if (ambientShowcase) exitAmbientShowcase();
         if (idle) exitIdle();
         resetIdle();
+        HomeDashboard.dismissActiveDialog();
         RecentAppsOverlay.dismiss();
         ControlPanelOverlay.dismiss();
         // Home always lands on the first app in the dock: close any overlay first
@@ -412,6 +444,7 @@ public class MainActivity extends Activity {
             focusIndex(0);
         } else if (launchOverlay == null) {
             closeMenu();
+            fromHomeNewIntent = !wasAmbient;
             goTop();
         }
     }
@@ -424,6 +457,10 @@ public class MainActivity extends Activity {
         if (size.x != screenW || size.y != screenH || Ui.unit(this) != unit) recreate();
     }
 
+    private boolean scenesSyncedOnCreate;
+    private boolean wasStopped;
+    private boolean fromHomeNewIntent;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -434,7 +471,22 @@ public class MainActivity extends Activity {
         resumed = true;
         activeInstance = this;
         clearLaunchDim();
+        boolean resumedFromBackground = wasStopped;
+        wasStopped = false;
         boolean wasReturningFromSettings = returningFromSettings;
+        boolean quickHomePress = !resumedFromBackground && !wasReturningFromSettings && fromHomeNewIntent;
+        fromHomeNewIntent = false;
+        if (quickHomePress) {
+            scenesSyncedOnCreate = false;
+            if (Scenes.isScenesLook(this) && sceneHome != null) {
+                sceneHome.sceneView.start();
+            }
+            if (launchOverlay != null) finishLaunchReturn();
+            resetIdle();
+            handler.removeCallbacks(weatherTick);
+            handler.postDelayed(weatherTick, 60_000L);
+            return;
+        }
         if (!Scenes.isScenesLook(this)) {
             String ws = Profiles.homePrefs(this).getString("wallpaper", "photo:tessellated-pavement.jpg");
             if (!ws.equals(wallStyle) || wallView.getDrawable() == null || wasReturningFromSettings) {
@@ -458,20 +510,31 @@ public class MainActivity extends Activity {
         lastLaunchedPkg = null;
         if (sceneHome != null) sceneHome.onWatchPopupsResume(returnedFrom);
         if (Scenes.isScenesLook(this) && sceneHome != null) {
-            sceneHome.sceneView.setClassicClockOnlyMode(false);
-            sceneHome.sceneView.syncSettings();
-            sceneHome.sceneView.start();
-            sceneHome.refreshWhoBar();
-            sceneHome.refreshMoonBtn();
-            sceneHome.refreshKeepWatching();
-            sceneHome.refreshDashboard();
-            if (wasReturningFromSettings || sceneHome.dockTiles.isEmpty()) {
-                sceneHome.rebuildDock();
-            }
-            if (pickerLayer == null && menuLayer == null && !sceneHome.isSheetOpen()) {
-                sceneHome.focusDock(sceneHome.focusedDockIdx);
+            boolean skipInitialSync = scenesSyncedOnCreate && !wasReturningFromSettings;
+            scenesSyncedOnCreate = false;
+            if (!skipInitialSync) {
+                sceneHome.sceneView.setClassicClockOnlyMode(false);
+                sceneHome.sceneView.syncSettings();
+                sceneHome.sceneView.start();
+                sceneHome.refreshWhoBar();
+                sceneHome.refreshWeatherBtn();
+                sceneHome.refreshSearchBtn();
+                sceneHome.refreshMoonBtn();
+                sceneHome.refreshKeepWatching();
+                if (wasReturningFromSettings) {
+                    sceneHome.refreshDashboard();
+                } else {
+                    sceneHome.refreshDashboardInPlace();
+                }
+                if (wasReturningFromSettings || sceneHome.dockTiles.isEmpty()) {
+                    sceneHome.rebuildDock();
+                }
+                if (pickerLayer == null && menuLayer == null && !sceneHome.isSheetOpen()) {
+                    sceneHome.focusDock(sceneHome.focusedDockIdx);
+                }
             }
         } else {
+            scenesSyncedOnCreate = false;
             loadHero();
             if (wasReturningFromSettings) refreshClassicDashboard();
             if (pickerLayer == null && menuLayer == null && (sceneHome == null || !sceneHome.isSheetOpen())
@@ -512,7 +575,6 @@ public class MainActivity extends Activity {
         LocalAdb.ensureKeepAliveWatchdog(this);
         LocalAdb.scheduleKeepAliveRepair(this, 1000L);
         AppUpdater.checkAutoUpdateIfNeeded(this);
-        SettingsActivity.prewarmCache(getApplicationContext());
         if (ambientShowcase || (getIntent() != null && "ambient".equals(getIntent().getStringExtra("panel")))) {
             if (getIntent() != null) getIntent().removeExtra("panel");
             enterAmbientShowcase();
@@ -564,6 +626,12 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        wasStopped = true;
+    }
+
+    @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         if (level >= TRIM_MEMORY_UI_HIDDEN) {
@@ -573,9 +641,16 @@ public class MainActivity extends Activity {
                     wallView.setImageDrawable(null);
                     if (wb != null && !wb.isRecycled()) wb.recycle();
                 }
-            } else if (sceneHome != null) {
-                sceneHome.sceneView.releaseCache();
             }
+            if (sceneHome != null) {
+                sceneHome.sceneView.releaseCache();
+                sceneHome.clearTransientMemory();
+            }
+            HomeDashboard.clearImageCaches();
+            RecentAppsOverlay.clearCaches();
+            LiquidGlass.clearBakedCaches();
+            SettingsActivity.clearPrewarmCache();
+            CustomMedia.clearTransientCaches();
         }
         if (level >= TRIM_MEMORY_BACKGROUND && !resumed && sceneHome != null) {
             sceneHome.sceneView.releaseCache();
@@ -585,6 +660,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (activeInstance == this) activeInstance = null;
         if (pkgReceiver != null) unregisterReceiver(pkgReceiver);
         if (netCallback != null) {
             try {
@@ -595,6 +671,19 @@ public class MainActivity extends Activity {
         }
         if (wakeReceiver != null) unregisterReceiver(wakeReceiver);
         handler.removeCallbacksAndMessages(null);
+        stopSway(null);
+        io.shutdownNow();
+        if (sceneHome != null) {
+            sceneHome.sceneView.releaseCache();
+            sceneHome.release();
+        }
+        if (wallView != null) {
+            wallView.setImageDrawable(null);
+        }
+        if (root != null) {
+            root.removeAllViews();
+        }
+        LiquidGlass.clearBakedCaches();
     }
 
     // ---------------------------------------------------------------- layout
@@ -632,6 +721,7 @@ public class MainActivity extends Activity {
         heroScrim.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
                 new int[]{0xCC000000, 0x66000000, 0x00000000}));
         heroScrim.setAlpha(0f);
+        heroScrim.setVisibility(View.GONE);
         root.addView(heroScrim, new FrameLayout.LayoutParams(screenW * 3 / 4, ViewGroup.LayoutParams.MATCH_PARENT));
 
         scroll = new ShelfScrollView(this);
@@ -814,6 +904,7 @@ public class MainActivity extends Activity {
             if (has) onClassicNonAppFocused();
         });
         searchButton.setOnClickListener(v -> showSearch(null));
+        searchButton.setVisibility(SceneHome.isSearchShortcutEnabled(this) ? View.VISIBLE : View.GONE);
 
         ccButton = new ImageView(this);
         ccButton.setScaleType(ImageView.ScaleType.CENTER);
@@ -935,6 +1026,9 @@ public class MainActivity extends Activity {
         if (classicWeatherButton != null) {
             classicWeatherButton.setVisibility(showWxShortcut ? View.VISIBLE : View.GONE);
         }
+        if (searchButton != null) {
+            searchButton.setVisibility(SceneHome.isSearchShortcutEnabled(this) ? View.VISIBLE : View.GONE);
+        }
         if (weatherCard != null) {
             boolean showCard = !bigClock && Weather.enabled(this) && Weather.cached(this) != null;
             if (!showCard && weatherCard.isFocused()) focusTop();
@@ -984,8 +1078,13 @@ public class MainActivity extends Activity {
                 wallBlur.recycle();
                 wallBlur = null;
             }
-        } else if (wallView.getDrawable() == null) {
-            setWallpaper(wallStyle);
+        } else {
+            if (wallView.getDrawable() == null) {
+                setWallpaper(wallStyle);
+            }
+            if (tiles.isEmpty()) {
+                buildGrid();
+            }
         }
         wallView.setVisibility(scenes ? View.GONE : View.VISIBLE);
         heroBack.setVisibility(View.GONE);
@@ -997,8 +1096,6 @@ public class MainActivity extends Activity {
         clockBox.setVisibility(scenes ? View.GONE : View.VISIBLE);
         syncClassicClockAndWeatherUi();
         if (scenes && sceneHome != null) {
-            Bitmap bg = sceneHome.sceneView.getCurrentBgBitmap();
-            if (bg != null) glassBg = Ui.glassBackdrop(bg, 192, 108);
             sceneHome.focusDock(sceneHome.focusedDockIdx);
         } else {
             focusIndex(focusedIndex);
@@ -1572,6 +1669,8 @@ public class MainActivity extends Activity {
      * that is bright top-left and softer bottom-right. No grain.
      */
     static class LiquidGlass extends Drawable {
+        static boolean lowRamMode;
+
         interface Backdrop {
             Bitmap get();
         }
@@ -1618,6 +1717,34 @@ public class MainActivity extends Activity {
         int lumX = Integer.MIN_VALUE, lumY;
         int matLocX = Integer.MIN_VALUE, matLocY = Integer.MIN_VALUE;
         float matBoxW = -1f, matBoxH = -1f;
+
+        private static final java.util.Set<LiquidGlass> BAKED_INSTANCES =
+                java.util.Collections.newSetFromMap(new java.util.WeakHashMap<LiquidGlass, Boolean>());
+        private static long lastBakeNs;
+        private Bitmap bakedBmp;
+        private Bitmap bakedFor;
+        private int bakedLocX = Integer.MIN_VALUE, bakedLocY = Integer.MIN_VALUE;
+        private float bakedW = -1f, bakedH = -1f;
+        private boolean bakedLit;
+        private int bakedTint;
+        private int stableDraws;
+
+        static void clearBakedCaches() {
+            synchronized (BAKED_INSTANCES) {
+                for (LiquidGlass lg : BAKED_INSTANCES) {
+                    if (lg != null) lg.releaseBake();
+                }
+                BAKED_INSTANCES.clear();
+            }
+        }
+
+        void releaseBake() {
+            bakedBmp = null;
+            bakedFor = null;
+            bakedW = -1f;
+            bakedH = -1f;
+            stableDraws = 0;
+        }
 
         /** Never lighter than this much black: for text-heavy tiles (Control Center). */
         LiquidGlass darker(int alpha) {
@@ -1678,6 +1805,7 @@ public class MainActivity extends Activity {
         @Override protected void onBoundsChange(Rect b) {
             box.set(b);
             matBoxW = -1f;
+            releaseBake();
             float h = box.height();
             glow.setShader(new LinearGradient(0, box.top, 0, box.top + h * 0.5f,
                     0x1FFFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
@@ -1700,11 +1828,25 @@ public class MainActivity extends Activity {
         @Override public void draw(Canvas c) {
             Bitmap b = backdrop != null ? backdrop.get() : null;
             Object cb = getCallback();
-            if (cb instanceof View) ((View) cb).getLocationOnScreen(loc);
+            boolean animatingView = false;
+            if (cb instanceof View) {
+                View vw = (View) cb;
+                vw.getLocationOnScreen(loc);
+                animatingView = (vw.getScaleX() != 1f || vw.getScaleY() != 1f
+                        || vw.getTranslationX() != 0f || vw.getTranslationY() != 0f);
+            }
+            if (bakedBmp != null && !bakedBmp.isRecycled()
+                    && b == bakedFor
+                    && box.width() == bakedW && box.height() == bakedH
+                    && lit == bakedLit && fill.getColor() == bakedTint
+                    && Math.abs(loc[0] - bakedLocX) <= 32 && Math.abs(loc[1] - bakedLocY) <= 32) {
+                c.drawBitmap(bakedBmp, box.left, box.top, null);
+                return;
+            }
             if (b != null && !b.isRecycled()) {
                 if (b != shaderFor) {
                     shader1 = new android.graphics.BitmapShader(b, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                    if (!adaptive && lens > 0) {
+                    if (!adaptive && !lowRamMode && lens > 0) {
                         shader2 = new android.graphics.BitmapShader(b, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
                         lens1.setShader(shader2);
                     }
@@ -1734,18 +1876,71 @@ public class MainActivity extends Activity {
                     matBoxW = box.width();
                     matBoxH = box.height();
                     place(shader1, b, 1f);
-                    if (!adaptive && lens > 0 && shader2 != null) {
+                    if (!adaptive && !lowRamMode && lens > 0 && shader2 != null) {
                         place(shader2, b, 1.04f);
                     }
                 }
+            } else if (!lit && minBlack > 0) {
+                fill.setColor((minBlack << 24) | 0x161822);
+            }
+
+            int curTint = fill.getColor();
+            boolean sameState = (b == bakedFor
+                    && loc[0] == bakedLocX && loc[1] == bakedLocY
+                    && box.width() == bakedW && box.height() == bakedH
+                    && lit == bakedLit && curTint == bakedTint);
+            if (sameState) {
+                if (bakedBmp != null && !bakedBmp.isRecycled()) {
+                    c.drawBitmap(bakedBmp, box.left, box.top, null);
+                    return;
+                }
+                if (!lowRamMode && !animatingView && stableDraws >= 1) {
+                    long nowNs = System.nanoTime();
+                    if (nowNs - lastBakeNs >= 14_000_000L) {
+                        int bw = Math.round(box.width());
+                        int bh = Math.round(box.height());
+                        if (bw > 0 && bh > 0 && (long) bw * bh <= 600_000L) {
+                            try {
+                                Bitmap bmp = Bitmap.createBitmap(bw, bh, Bitmap.Config.ARGB_8888);
+                                Canvas bc = new Canvas(bmp);
+                                if (box.left != 0f || box.top != 0f) bc.translate(-box.left, -box.top);
+                                drawLayers(bc, b);
+                                bakedBmp = bmp;
+                                lastBakeNs = nowNs;
+                                synchronized (BAKED_INSTANCES) {
+                                    BAKED_INSTANCES.add(this);
+                                }
+                                c.drawBitmap(bakedBmp, box.left, box.top, null);
+                                return;
+                            } catch (Throwable ignored) {
+                                bakedBmp = null;
+                            }
+                        }
+                    }
+                }
+                stableDraws++;
+            } else {
+                bakedBmp = null;
+                bakedFor = b;
+                bakedLocX = loc[0];
+                bakedLocY = loc[1];
+                bakedW = box.width();
+                bakedH = box.height();
+                bakedLit = lit;
+                bakedTint = curTint;
+                stableDraws = animatingView ? 0 : 1;
+            }
+            drawLayers(c, b);
+        }
+
+        private void drawLayers(Canvas c, Bitmap b) {
+            if (b != null && !b.isRecycled()) {
                 c.drawRoundRect(box, r, r, body);
-                if (!adaptive && lens > 0 && shader2 != null) {
+                if (!adaptive && !lowRamMode && lens > 0 && shader2 != null) {
                     float w1 = lens1.getStrokeWidth();
                     tmp.set(box.left + w1 / 2, box.top + w1 / 2, box.right - w1 / 2, box.bottom - w1 / 2);
                     c.drawRoundRect(tmp, r - w1 / 2, r - w1 / 2, lens1);
                 }
-            } else if (!lit && minBlack > 0) {
-                fill.setColor((minBlack << 24) | 0x161822);
             }
             c.drawRoundRect(box, r, r, fill);
             c.drawRoundRect(box, r, r, glow);
@@ -2373,7 +2568,7 @@ public class MainActivity extends Activity {
             meta.add(appLabel(it.pkg));
             if (it.remainingMin > 0) meta.add(it.remainingMin >= 60
                     ? I18n.t(this, (it.remainingMin / 60) + " h " + (it.remainingMin % 60) + " min left") : I18n.t(this, it.remainingMin + " min left"));
-            heroMeta.setText(String.join("  \u00B7  ", meta));
+            heroMeta.setText(android.text.TextUtils.join("  \u00B7  ", meta));
             heroOverview.setText(it.overview);
             heroBtnText.setText("\u25B6  " + I18n.t(this, "Resume"));
             try {
@@ -2480,6 +2675,7 @@ public class MainActivity extends Activity {
     final List<View> classicDashboardCards = new ArrayList<>();
     String activeClassicCwPkg = null;
     int classicCwLoadGen = 0;
+    int pendingClassicCwFocusSlot = -1;
 
     void buildClassicShelfOverlays(FrameLayout shelf) {
         if (shelf == null) return;
@@ -2528,7 +2724,9 @@ public class MainActivity extends Activity {
         wlp.bottomMargin = dp(14);
         shelf.addView(classicCwBox, wlp);
 
-        rebuildClassicDashboardBox(shelf);
+        if (!Scenes.isScenesLook(this)) {
+            rebuildClassicDashboardBox(shelf);
+        }
     }
 
     void rebuildClassicDashboardBox(FrameLayout shelf) {
@@ -2603,15 +2801,14 @@ public class MainActivity extends Activity {
     }
 
     void showClassicDashboard() {
-        if (classicDashboardBox == null) return;
         if (!HomeDashboard.isAnyEnabled(this) || folderMode) {
             hideClassicDashboard();
             return;
         }
-        if (classicDashboardCards.isEmpty() && shelfView != null) {
+        if ((classicDashboardBox == null || classicDashboardCards.isEmpty()) && shelfView != null) {
             rebuildClassicDashboardBox(shelfView);
         }
-        if (classicDashboardCards.isEmpty()) return;
+        if (classicDashboardBox == null || classicDashboardCards.isEmpty()) return;
         classicDashboardBox.animate().cancel();
         if (classicDashboardBox.getVisibility() != View.VISIBLE) {
             classicDashboardBox.setVisibility(View.VISIBLE);
@@ -2665,9 +2862,13 @@ public class MainActivity extends Activity {
                 if (gen != classicCwLoadGen || !pkg.equals(activeClassicCwPkg) || folderMode || Scenes.isScenesLook(this)) {
                     return;
                 }
+                int restoreSlot = pendingClassicCwFocusSlot;
+                pendingClassicCwFocusSlot = -1;
+                classicCwRow.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                 classicCwRow.removeAllViews();
                 classicCwCards.clear();
                 if (list.isEmpty()) {
+                    classicCwRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
                     classicCwBox.animate().cancel();
                     classicCwBox.setAlpha(0f);
                     classicCwBox.setVisibility(View.GONE);
@@ -2675,6 +2876,9 @@ public class MainActivity extends Activity {
                         showClassicDashboard();
                     } else {
                         hideClassicDashboard();
+                    }
+                    if (restoreSlot >= 0) {
+                        focusIndex(focusedIndex);
                     }
                     return;
                 }
@@ -2700,6 +2904,10 @@ public class MainActivity extends Activity {
                     classicCwCards.add(card);
                 }
                 if (classicCwScroll != null) classicCwScroll.scrollTo(0, 0);
+                classicCwRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+                if (restoreSlot >= 0 && !classicCwCards.isEmpty()) {
+                    classicCwCards.get(Math.min(restoreSlot, classicCwCards.size() - 1)).requestFocus();
+                }
                 classicCwBox.animate().cancel();
                 if (classicCwBox.getVisibility() != View.VISIBLE) {
                     classicCwBox.setVisibility(View.VISIBLE);
@@ -2709,6 +2917,12 @@ public class MainActivity extends Activity {
                 classicCwBox.animate().alpha(1f).translationY(0f).setDuration(210).setInterpolator(EASE).start();
             });
         });
+    }
+
+    void refreshClassicCwAfterRemove(String pkg, int focusSlot) {
+        activeClassicCwPkg = null;
+        pendingClassicCwFocusSlot = Math.max(0, focusSlot);
+        syncClassicTopShelfForIndex(focusedIndex);
     }
 
     void updateStatusClockFormat() {
@@ -3496,7 +3710,7 @@ public class MainActivity extends Activity {
     void goTop() {
         if (Scenes.isScenesLook(this) && sceneHome != null) {
             if (sceneHome.isSheetOpen()) sceneHome.closeSheet();
-            sceneHome.focusDock(sceneHome.focusedDockIdx);
+            sceneHome.focusDockPreserveState(sceneHome.focusedDockIdx);
             return;
         }
         focusIndex(focusedIndex);
@@ -3746,10 +3960,11 @@ public class MainActivity extends Activity {
         apps.clear();
         otherApps.clear();
         hiddenApps.clear();
+        boolean scenesLook = Scenes.isScenesLook(this);
         PackageManager pm = getPackageManager();
         Set<String> pkgs = new HashSet<>();
-        addResolved(pm, Intent.CATEGORY_LEANBACK_LAUNCHER, pkgs, true);
-        addResolved(pm, Intent.CATEGORY_LAUNCHER, pkgs, false);
+        addResolved(pm, Intent.CATEGORY_LEANBACK_LAUNCHER, pkgs, true, scenesLook);
+        addResolved(pm, Intent.CATEGORY_LAUNCHER, pkgs, false, scenesLook);
         if (!pkgs.contains(TV_SETTINGS)) addSettingsEntry(pm);
         if (com.techgenius.tvoslauncher.present.Presenter.enabled(this)) addPresentEntry();
         inputs = Inputs.list(this);
@@ -3761,11 +3976,13 @@ public class MainActivity extends Activity {
                 Bitmap cIcon = CustomMedia.getCustomAppIcon(this, e.key, e.pkg);
                 if (cIcon != null && !cIcon.isRecycled()) {
                     e.icon = new BitmapDrawable(getResources(), cIcon);
-                    e.banner = new BitmapDrawable(getResources(), CustomMedia.buildClassicBannerFromCustomIcon(cIcon, e.color));
+                    if (!scenesLook) {
+                        e.banner = new BitmapDrawable(getResources(), CustomMedia.buildClassicBannerFromCustomIcon(cIcon, e.color));
+                    }
                     continue;
                 }
             }
-            if (e.banner == null || TVOS_CARD_PKGS.contains(e.pkg)) {
+            if (!scenesLook && (e.banner == null || TVOS_CARD_PKGS.contains(e.pkg))) {
                 e.banner = new BitmapDrawable(getResources(), tvosCard(e));
             }
         }
@@ -3878,7 +4095,7 @@ public class MainActivity extends Activity {
         all.put(e.key, e);
     }
 
-    void addResolved(PackageManager pm, String category, Set<String> pkgs, boolean leanback) {
+    void addResolved(PackageManager pm, String category, Set<String> pkgs, boolean leanback, boolean scenesLook) {
         Intent q = new Intent(Intent.ACTION_MAIN).addCategory(category);
         for (ResolveInfo ri : pm.queryIntentActivities(q, 0)) {
             ActivityInfo ai = ri.activityInfo;
@@ -3891,7 +4108,7 @@ public class MainActivity extends Activity {
                     ? I18n.s(this, "Settings", "Ayarlar")
                     : ri.loadLabel(pm).toString();
             e.label = getCustomAppName(this, e.key, e.pkg, e.defaultLabel);
-            e.banner = leanback ? ai.loadBanner(pm) : null;
+            e.banner = (leanback && !scenesLook) ? ai.loadBanner(pm) : null;
             e.icon = ri.loadIcon(pm);
             e.color = tintFrom(e.icon);
             e.system = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -3936,7 +4153,9 @@ public class MainActivity extends Activity {
     void reload(String focusKey) {
         loadApps();
         if (folderMode && otherApps.isEmpty()) folderMode = false;
-        buildGrid();
+        if (!Scenes.isScenesLook(this)) {
+            buildGrid();
+        }
         if (sceneHome != null) sceneHome.rebuildDock();
         shelfEntry = null;
         if (Scenes.isScenesLook(this) && sceneHome != null) {
@@ -4440,7 +4659,7 @@ public class MainActivity extends Activity {
         l.remove("");
         l.add(0, pkg);
         while (l.size() > 12) l.remove(l.size() - 1);
-        getSharedPreferences("clean", MODE_PRIVATE).edit().putString("recent", String.join(",", l)).apply();
+        getSharedPreferences("clean", MODE_PRIVATE).edit().putString("recent", android.text.TextUtils.join(",", l)).apply();
     }
 
     List<String> recentApps() {
@@ -4627,7 +4846,14 @@ public class MainActivity extends Activity {
             }
         };
         try {
-            getSystemService(android.net.ConnectivityManager.class).registerDefaultNetworkCallback(netCallback);
+            android.net.ConnectivityManager cm = getSystemService(android.net.ConnectivityManager.class);
+            if (cm != null) {
+                if (android.os.Build.VERSION.SDK_INT >= 24) {
+                    cm.registerDefaultNetworkCallback(netCallback);
+                } else {
+                    cm.registerNetworkCallback(new android.net.NetworkRequest.Builder().build(), netCallback);
+                }
+            }
         } catch (Exception e) {
             netCallback = null;
         }
@@ -5299,7 +5525,12 @@ public class MainActivity extends Activity {
         dropPicker();
         closeMenu();
         stopSway(null);
-        popoverReturn = searchButton;
+        if (Scenes.isScenesLook(this) && sceneHome != null && sceneHome.searchBtn != null
+                && sceneHome.searchBtn.getVisibility() == View.VISIBLE) {
+            popoverReturn = sceneHome.searchBtn;
+        } else {
+            popoverReturn = searchButton;
+        }
         search = new SearchPanel(this);
         pickerLayer = search.layer;
         pickerCells = new ArrayList<>();
@@ -5839,6 +6070,7 @@ public class MainActivity extends Activity {
         if (menuLayer == null) return;
         FrameLayout m = menuLayer;
         menuLayer = null;
+        m.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         m.animate().alpha(0f).setDuration(150).withEndAction(() -> root.removeView(m)).start();
         if (menuReturnFocus != null && menuReturnFocus.isAttachedToWindow()) menuReturnFocus.requestFocus();
         menuReturnFocus = null;

@@ -571,6 +571,10 @@ final class Weather {
         else e.putBoolean(K_MANUAL, true).putString(K_PLACE, pl.name)
                 .putFloat(K_LAT, (float) pl.lat).putFloat(K_LON, (float) pl.lon);
         e.remove(K_CACHE_AT).apply();
+        if (HomeDashboard.isPrayerLocationAuto(c)) {
+            HomeDashboard.invalidatePrayerCache(c);
+            HomeDashboard.fetchPrayerTimes(c, true, null);
+        }
     }
 
     /** WMO weather code -> short description, as Apple Weather words it. */

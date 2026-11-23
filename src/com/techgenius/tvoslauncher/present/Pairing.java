@@ -33,7 +33,7 @@ final class Pairing {
         java.util.List<String> list = tokens();
         list.add(token);
         while (list.size() > MAX_BROWSERS) list.remove(0);
-        prefs.edit().putString("admin_tokens", String.join(",", list)).remove("admin_token").apply();
+        prefs.edit().putString("admin_tokens", android.text.TextUtils.join(",", list)).remove("admin_token").apply();
         return token;
     }
 

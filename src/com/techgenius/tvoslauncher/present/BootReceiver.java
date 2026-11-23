@@ -74,6 +74,11 @@ public class BootReceiver extends BroadcastReceiver {
     public static void launchHomeImmediately(Context context) {
         if (context == null) return;
         try {
+            android.os.PowerManager pm = (android.os.PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            if (pm != null && !pm.isInteractive()) return;
+        } catch (Throwable ignored) {
+        }
+        try {
             Context launchCtx = com.techgenius.tvoslauncher.PowerService.getActiveContextOr(context);
             Intent i = new Intent(launchCtx, MainActivity.class);
             i.setAction(Intent.ACTION_MAIN);
@@ -116,19 +121,17 @@ public class BootReceiver extends BroadcastReceiver {
                 || Intent.ACTION_BOOT_COMPLETED.equals(a)
                 || "android.intent.action.QUICKBOOT_POWERON".equals(a)
                 || "com.htc.intent.action.QUICKBOOT_POWERON".equals(a)
+                || (Intent.ACTION_USER_UNLOCKED.equals(a) && SystemClock.elapsedRealtime() < 150_000L)
                 || (Intent.ACTION_USER_PRESENT.equals(a) && SystemClock.elapsedRealtime() < 150_000L);
 
         if (!isBootEvent && !Intent.ACTION_MY_PACKAGE_REPLACED.equals(a)) {
             return;
         }
-        try {
-            Presenter.ensureRunning(context);
-        } catch (Throwable ignored) {
-        }
         if (isBootEvent) {
             try {
                 if (Presenter.enabled(context) && Presenter.startOnBoot(context)) {
                     Presenter.open(context);
+                    Presenter.ensureRunning(context);
                     return;
                 }
             } catch (Throwable ignored) {
@@ -136,6 +139,10 @@ public class BootReceiver extends BroadcastReceiver {
             if (isLaunchOnBootEnabled(context)) {
                 triggerFastBootSequenceIfNeeded(context);
             }
+        }
+        try {
+            Presenter.ensureRunning(context);
+        } catch (Throwable ignored) {
         }
     }
 }

@@ -942,7 +942,9 @@ public final class Scenes {
                 opts.inSampleSize *= 2;
             }
             opts.inJustDecodeBounds = false;
-            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            String lower = assetPath.toLowerCase(Locale.US);
+            boolean isOpaqueJpeg = lower.endsWith(".jpg") || lower.endsWith(".jpeg");
+            opts.inPreferredConfig = isOpaqueJpeg ? Bitmap.Config.RGB_565 : Bitmap.Config.ARGB_8888;
             try (InputStream is = openAssetStream(c, assetPath)) {
                 return BitmapFactory.decodeStream(is, null, opts);
             }
@@ -961,6 +963,8 @@ public final class Scenes {
             void onSceneChanged(Bitmap currentBgBitmap);
         }
 
+        private static final java.util.concurrent.ExecutorService SCENE_IO =
+                java.util.concurrent.Executors.newSingleThreadExecutor();
         private final Handler handler = new Handler(Looper.getMainLooper());
         private final Map<String, LoadedScene> cache = new HashMap<>();
         private List<String> activeIds = new ArrayList<>();
@@ -970,6 +974,7 @@ public final class Scenes {
         private float crossfade = 1f;
         private ValueAnimator fadeAnim;
         private OnSceneChangedListener listener;
+        private int advanceGen = 0;
 
         private String weatherTemp;
         private String weatherDesc;
@@ -979,6 +984,7 @@ public final class Scenes {
         private int folderFlipCounter = 0;
 
         private final Paint bmpPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+        private final Paint crossfadePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
         private final Paint shadePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final TextPaint clockFillPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         private final TextPaint clockWetPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -988,6 +994,7 @@ public final class Scenes {
         private final TextPaint datePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         private final TextPaint greetPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         private final Rect srcRect = new Rect();
+        private final Rect fullDstRect = new Rect();
         private final Rect digitBounds = new Rect();
         private final RectF dstRect = new RectF();
         private final Matrix shaderMatrix = new Matrix();
@@ -995,6 +1002,8 @@ public final class Scenes {
         private Bitmap lastNotifiedBg;
         private Bitmap cachedFrameBmp;
         private String cachedFrameKey;
+        private Bitmap nextFrameBmp;
+        private String nextFrameKey;
         private String lastTickSignature;
 
         private final Runnable rotateTick = new Runnable() {
@@ -1022,7 +1031,9 @@ public final class Scenes {
         private static final class LoadedScene {
             final Spec spec;
             long customTs;
+            long customFgTs;
             boolean ownsBg = true;
+            boolean ownsFg = true;
             Bitmap bg;
             Bitmap fg;
             Bitmap glassBaked;
@@ -1040,7 +1051,7 @@ public final class Scenes {
 
             void recycle() {
                 if (ownsBg && bg != null && !bg.isRecycled()) bg.recycle();
-                if (fg != null && !fg.isRecycled()) fg.recycle();
+                if (ownsFg && fg != null && !fg.isRecycled()) fg.recycle();
                 if (glassBaked != null && !glassBaked.isRecycled()) glassBaked.recycle();
                 if (glassWetBaked != null && !glassWetBaked.isRecycled()) glassWetBaked.recycle();
                 bg = null;
@@ -1067,9 +1078,6 @@ public final class Scenes {
 
             datePaint.setTypeface(Ui.font(c, "semibold"));
             greetPaint.setTypeface(Ui.font(c, "semibold"));
-            if (isScenesLook(c)) {
-                syncSettings();
-            }
         }
 
         public void setOnSceneChangedListener(OnSceneChangedListener l) {
@@ -1139,6 +1147,7 @@ public final class Scenes {
         }
 
         public void syncSettings() {
+            advanceGen++;
             Context c = getContext();
             List<String> enabled = lockScreenMode ? getEnabledLockSceneIds(c) : getEnabledSceneIds(c);
             activeIds = enabled;
@@ -1198,6 +1207,11 @@ public final class Scenes {
             }
             cachedFrameBmp = null;
             cachedFrameKey = null;
+            if (nextFrameBmp != null && !nextFrameBmp.isRecycled()) {
+                nextFrameBmp.recycle();
+            }
+            nextFrameBmp = null;
+            nextFrameKey = null;
             lastNotifiedBg = null;
         }
 
@@ -1223,9 +1237,20 @@ public final class Scenes {
         }
 
         public void stop() {
+            advanceGen++;
             handler.removeCallbacks(clockTick);
             handler.removeCallbacks(rotateTick);
             if (fadeAnim != null) fadeAnim.cancel();
+            if (nextFrameBmp != null && !nextFrameBmp.isRecycled()) {
+                nextFrameBmp.recycle();
+            }
+            nextFrameBmp = null;
+            nextFrameKey = null;
+            if (prevId != null) {
+                prevId = null;
+                crossfade = 1f;
+                evictUnusedScenes();
+            }
         }
 
         private boolean canRotate() {
@@ -1254,48 +1279,185 @@ public final class Scenes {
 
         public void advanceScene() {
             if (!canRotate()) return;
-            prevId = currentId;
+            final int gen = ++advanceGen;
             activeIdx = (activeIdx + 1) % activeIds.size();
             String nextBase = activeIds.get(activeIdx);
             if (REDDIT_WALLPAPER_ID.equals(nextBase)) {
                 CustomMedia.fetchNextRedditWallpaperAsync(getContext(), CustomMedia.SCOPE_SCENE, () -> {
+                    if (gen != advanceGen || !isAttachedToWindow()) return;
                     folderFlipCounter = (folderFlipCounter + 1) % 2;
-                    currentId = REDDIT_WALLPAPER_ID + "#" + folderFlipCounter;
-                    LoadedScene stale = cache.remove(currentId);
-                    if (stale != null) stale.recycle();
-                    ensureLoaded(currentId);
-                    notifySceneBackdrop();
-                    cachedFrameKey = null;
-                    invalidate();
+                    prepareAndCrossfade(REDDIT_WALLPAPER_ID + "#" + folderFlipCounter, gen);
                 });
                 scheduleNextRotation();
                 return;
             }
+            final String nextId;
             if (FOLDER_SHUFFLE_ID.equals(nextBase) || LOCK_FOLDER_SHUFFLE_ID.equals(nextBase)) {
                 folderFlipCounter = (folderFlipCounter + 1) % 2;
-                currentId = nextBase + "#" + folderFlipCounter;
-                LoadedScene stale = cache.remove(currentId);
+                nextId = nextBase + "#" + folderFlipCounter;
+                LoadedScene stale = cache.remove(nextId);
                 if (stale != null) stale.recycle();
             } else {
-                currentId = nextBase;
+                nextId = nextBase;
             }
-            ensureLoaded(currentId);
-            notifySceneBackdrop();
-
-            if (fadeAnim != null) fadeAnim.cancel();
-            crossfade = 0f;
-            fadeAnim = ValueAnimator.ofFloat(0f, 1f);
-            fadeAnim.setDuration(1600L);
-            fadeAnim.addUpdateListener(a -> {
-                crossfade = (Float) a.getAnimatedValue();
-                if (crossfade >= 1f) {
-                    prevId = null;
-                    evictUnusedScenes();
-                }
-                invalidate();
-            });
-            fadeAnim.start();
+            prepareAndCrossfade(nextId, gen);
             scheduleNextRotation();
+        }
+
+        private void prepareAndCrossfade(final String targetId, final int gen) {
+            final int w = getWidth(), h = getHeight();
+            final int fw = Math.max(1, Math.min(w > 0 ? w : 1920, 1920));
+            final int fh = Math.max(1, Math.min(h > 0 ? h : 1080, 1080));
+            final Context ctx = getContext().getApplicationContext();
+            SCENE_IO.execute(() -> {
+                if (gen != advanceGen) return;
+                final LoadedScene nextLs = loadSceneForId(ctx, targetId);
+                if (gen != advanceGen || nextLs == null || nextLs.bg == null) return;
+                final String targetKey = buildFrameKey(ctx, targetId, fw, fh);
+                final Bitmap.Config cfg = frameBitmapConfig();
+                final Bitmap rendered = Bitmap.createBitmap(fw, fh, cfg);
+                drawScene(new Canvas(rendered), nextLs, fw, fh, 1f);
+                handler.post(() -> {
+                    if (gen != advanceGen || !isAttachedToWindow()) {
+                        if (!rendered.isRecycled()) rendered.recycle();
+                        if (!cache.containsValue(nextLs)) nextLs.recycle();
+                        return;
+                    }
+                    cache.put(targetId, nextLs);
+                    prevId = currentId;
+                    currentId = targetId;
+                    if (nextFrameBmp != null && !nextFrameBmp.isRecycled()) {
+                        nextFrameBmp.recycle();
+                    }
+                    nextFrameBmp = rendered;
+                    nextFrameKey = targetKey;
+                    notifySceneBackdrop();
+
+                    if (cachedFrameBmp == null || cachedFrameBmp.isRecycled()) {
+                        cachedFrameBmp = nextFrameBmp;
+                        cachedFrameKey = nextFrameKey;
+                        nextFrameBmp = null;
+                        nextFrameKey = null;
+                        prevId = null;
+                        crossfade = 1f;
+                        evictUnusedScenes();
+                        invalidate();
+                        return;
+                    }
+
+                    if (fadeAnim != null) fadeAnim.cancel();
+                    crossfade = 0f;
+                    fadeAnim = ValueAnimator.ofFloat(0f, 1f);
+                    fadeAnim.setDuration(1200L);
+                    fadeAnim.addUpdateListener(a -> {
+                        crossfade = (Float) a.getAnimatedValue();
+                        if (crossfade >= 1f) {
+                            if (cachedFrameBmp != null && !cachedFrameBmp.isRecycled()) {
+                                cachedFrameBmp.recycle();
+                            }
+                            cachedFrameBmp = nextFrameBmp;
+                            cachedFrameKey = nextFrameKey;
+                            nextFrameBmp = null;
+                            nextFrameKey = null;
+                            prevId = null;
+                            evictUnusedScenes();
+                        }
+                        invalidate();
+                    });
+                    fadeAnim.start();
+                });
+            });
+        }
+
+        private LoadedScene loadSceneForId(Context c, String id) {
+            String base = baseSceneId(id);
+            int cSlot = customSlotFromId(base);
+            if (cSlot > 0) {
+                long ts = CustomMedia.getCustomSceneTimestamp(c, cSlot);
+                long fgTs = CustomMedia.getCustomSceneForegroundTimestamp(c, cSlot);
+                LoadedScene ls = new LoadedScene(byId(base));
+                ls.customTs = ts;
+                ls.customFgTs = fgTs;
+                ls.ownsBg = false;
+                ls.ownsFg = false;
+                ls.bg = CustomMedia.getCustomSceneWallpaper(c, cSlot, 1920, 1080);
+                if (ls.bg == null) {
+                    ls.ownsBg = true;
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                ls.fg = CustomMedia.getCustomSceneForeground(c, cSlot, 1920, 1080);
+                bakeLoadedGlassFromBg(ls, false);
+                return ls;
+            }
+            if (REDDIT_WALLPAPER_ID.equals(base)) {
+                Bitmap rBmp = CustomMedia.getRedditWallpaperBitmap(c, CustomMedia.SCOPE_SCENE, 1920, 1080);
+                long rTs = CustomMedia.getRedditWallpaperTimestamp(c, CustomMedia.SCOPE_SCENE);
+                LoadedScene ls = new LoadedScene(REDDIT_WALLPAPER_SPEC);
+                if (rBmp != null && !rBmp.isRecycled()) {
+                    ls.customTs = rTs;
+                    ls.ownsBg = false;
+                    ls.bg = rBmp;
+                } else {
+                    ls.customTs = -1L;
+                    ls.ownsBg = true;
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                bakeLoadedGlassFromBg(ls, false);
+                return ls;
+            }
+            if (LOCK_CUSTOM_ID.equals(base)) {
+                long ts = CustomMedia.getCustomLockTimestamp(c);
+                LoadedScene ls = new LoadedScene(LOCK_CUSTOM_SPEC);
+                ls.customTs = ts;
+                ls.ownsBg = false;
+                ls.bg = CustomMedia.getCustomLockWallpaper(c, 1920, 1080);
+                if (ls.bg == null) {
+                    ls.ownsBg = true;
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                bakeLoadedGlassFromBg(ls, false);
+                return ls;
+            }
+            if (FOLDER_SHUFFLE_ID.equals(base) || LOCK_FOLDER_SHUFFLE_ID.equals(base)) {
+                String scope = LOCK_FOLDER_SHUFFLE_ID.equals(base)
+                        ? CustomMedia.SCOPE_LOCK
+                        : CustomMedia.SCOPE_SCENE;
+                Spec spec = LOCK_FOLDER_SHUFFLE_ID.equals(base) ? LOCK_FOLDER_SHUFFLE_SPEC : FOLDER_SHUFFLE_SPEC;
+                LoadedScene ls = new LoadedScene(spec);
+                ls.customTs = System.currentTimeMillis();
+                ls.ownsBg = true;
+                ls.bg = CustomMedia.getNextShuffledFolderBitmap(c, scope, 1920, 1080, true);
+                if (ls.bg == null) {
+                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
+                }
+                bakeLoadedGlassFromBg(ls, false);
+                return ls;
+            }
+            Spec spec = byId(base);
+            LoadedScene ls = new LoadedScene(spec);
+            if (base.startsWith("grad:")) {
+                ls.bg = createGradientBitmap(base, 1920, 1080);
+            } else {
+                ls.bg = loadAssetBitmap(c, spec.bgAsset, 1920, 1080);
+            }
+            if (spec.fgAsset != null) {
+                ls.fg = loadAssetBitmap(c, spec.fgAsset, 1920, 1080);
+            }
+            if (spec.glassAsset != null) {
+                Bitmap rawGlass = loadAssetBitmap(c, spec.glassAsset, 480, 270);
+                if (rawGlass != null) {
+                    ls.glassBaked = bakeGlassTexture(rawGlass, spec.darkClock, false);
+                    ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    if (spec.waterSplit) {
+                        ls.glassWetBaked = bakeGlassTexture(rawGlass, false, true);
+                        ls.glassWetShader = new BitmapShader(ls.glassWetBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    }
+                    rawGlass.recycle();
+                }
+            } else {
+                bakeLoadedGlassFromBg(ls, spec.darkClock);
+            }
+            return ls;
         }
 
         private LoadedScene ensureLoaded(String id) {
@@ -1320,19 +1482,14 @@ public final class Scenes {
             int cSlot = customSlotFromId(base);
             if (cSlot > 0) {
                 long ts = CustomMedia.getCustomSceneTimestamp(c, cSlot);
-                if (ls != null && ls.bg != null && !ls.bg.isRecycled() && ls.customTs == ts) {
+                long fgTs = CustomMedia.getCustomSceneForegroundTimestamp(c, cSlot);
+                if (ls != null && ls.bg != null && !ls.bg.isRecycled()
+                        && ls.customTs == ts && ls.customFgTs == fgTs
+                        && (ls.fg == null || !ls.fg.isRecycled())) {
                     return ls;
                 }
                 if (ls != null) ls.recycle();
-                ls = new LoadedScene(byId(base));
-                ls.customTs = ts;
-                ls.ownsBg = false;
-                ls.bg = CustomMedia.getCustomSceneWallpaper(c, cSlot, 1920, 1080);
-                if (ls.bg == null) {
-                    ls.ownsBg = true;
-                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
-                }
-                bakeLoadedGlassFromBg(ls, false);
+                ls = loadSceneForId(c, id);
                 cache.put(id, ls);
                 return ls;
             }
@@ -1371,15 +1528,7 @@ public final class Scenes {
                     return ls;
                 }
                 if (ls != null) ls.recycle();
-                ls = new LoadedScene(LOCK_CUSTOM_SPEC);
-                ls.customTs = ts;
-                ls.ownsBg = false;
-                ls.bg = CustomMedia.getCustomLockWallpaper(c, 1920, 1080);
-                if (ls.bg == null) {
-                    ls.ownsBg = true;
-                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
-                }
-                bakeLoadedGlassFromBg(ls, false);
+                ls = loadSceneForId(c, id);
                 cache.put(id, ls);
                 return ls;
             }
@@ -1387,46 +1536,12 @@ public final class Scenes {
                 if (ls != null && ls.bg != null && !ls.bg.isRecycled()) {
                     return ls;
                 }
-                String scope = LOCK_FOLDER_SHUFFLE_ID.equals(base)
-                        ? CustomMedia.SCOPE_LOCK
-                        : CustomMedia.SCOPE_SCENE;
-                Spec spec = LOCK_FOLDER_SHUFFLE_ID.equals(base) ? LOCK_FOLDER_SHUFFLE_SPEC : FOLDER_SHUFFLE_SPEC;
-                ls = new LoadedScene(spec);
-                ls.customTs = System.currentTimeMillis();
-                ls.ownsBg = true;
-                ls.bg = CustomMedia.getNextShuffledFolderBitmap(c, scope, 1920, 1080, true);
-                if (ls.bg == null) {
-                    ls.bg = loadAssetBitmap(c, ALL[0].bgAsset, 1920, 1080);
-                }
-                bakeLoadedGlassFromBg(ls, false);
+                ls = loadSceneForId(c, id);
                 cache.put(id, ls);
                 return ls;
             }
             if (ls != null && ls.bg != null && !ls.bg.isRecycled()) return ls;
-            Spec spec = byId(base);
-            ls = new LoadedScene(spec);
-            if (base.startsWith("grad:")) {
-                ls.bg = createGradientBitmap(base, 1920, 1080);
-            } else {
-                ls.bg = loadAssetBitmap(c, spec.bgAsset, 1920, 1080);
-            }
-            if (spec.fgAsset != null) {
-                ls.fg = loadAssetBitmap(c, spec.fgAsset, 1920, 1080);
-            }
-            if (spec.glassAsset != null) {
-                Bitmap rawGlass = loadAssetBitmap(c, spec.glassAsset, 480, 270);
-                if (rawGlass != null) {
-                    ls.glassBaked = bakeGlassTexture(rawGlass, spec.darkClock, false);
-                    ls.glassShader = new BitmapShader(ls.glassBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                    if (spec.waterSplit) {
-                        ls.glassWetBaked = bakeGlassTexture(rawGlass, false, true);
-                        ls.glassWetShader = new BitmapShader(ls.glassWetBaked, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                    }
-                    rawGlass.recycle();
-                }
-            } else {
-                bakeLoadedGlassFromBg(ls, spec.darkClock);
-            }
+            ls = loadSceneForId(c, id);
             cache.put(id, ls);
             return ls;
         }
@@ -1586,53 +1701,66 @@ public final class Scenes {
             return out;
         }
 
+        private Bitmap.Config frameBitmapConfig() {
+            return classicClockOnlyMode ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
+        }
+
+        private String buildFrameKey(Context ctx, String sceneId, int fw, int fh) {
+            int cSlot = Math.max(1, customSlotFromId(baseSceneId(sceneId)));
+            return sceneId + "|" + lockScreenMode + "|" + classicClockOnlyMode + "|"
+                    + isSmallClockEnabled(ctx) + "|"
+                    + formatTime(ctx) + "|"
+                    + I18n.formatSceneDate(ctx, new Date()) + "|"
+                    + (lockScreenMode ? "" : (weatherTemp != null ? weatherTemp : "")) + "|"
+                    + (lockScreenMode ? "" : (weatherDesc != null ? weatherDesc : "")) + "|"
+                    + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
+                    + getDefaultClockPos(ctx) + "|" + getCustomClockPos(ctx) + "|"
+                    + getClassicClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
+                    + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
+                    + CustomMedia.getCustomSceneForegroundTimestamp(ctx, cSlot) + "|"
+                    + CustomMedia.getRedditWallpaperTimestamp(ctx, CustomMedia.SCOPE_SCENE) + "|"
+                    + (classicWallBmp != null && !classicWallBmp.isRecycled() ? classicWallBmp.getGenerationId() : 0) + "|"
+                    + CustomMedia.getCustomLockTimestamp(ctx) + "|"
+                    + buildGreeting(ctx) + "|" + fw + "x" + fh;
+        }
+
         @Override
         protected void onDraw(Canvas canvas) {
             int w = getWidth(), h = getHeight();
             if (w <= 0 || h <= 0) return;
+            fullDstRect.set(0, 0, w, h);
 
-            if (prevId != null && crossfade < 1f && !classicClockOnlyMode) {
-                LoadedScene prev = ensureLoaded(prevId);
-                if (prev != null) {
-                    drawScene(canvas, prev, w, h, 1f);
-                }
-                LoadedScene cur = ensureLoaded(currentId);
-                if (cur != null) {
-                    drawScene(canvas, cur, w, h, crossfade);
-                }
-            } else {
-                LoadedScene cur = ensureLoaded(currentId);
-                if (cur != null) {
-                    Context ctx = getContext();
-                    int cSlot = Math.max(1, customSlotFromId(baseSceneId(currentId)));
-                    String frameKey = currentId + "|" + lockScreenMode + "|" + classicClockOnlyMode + "|"
-                            + isSmallClockEnabled(ctx) + "|"
-                            + formatTime(ctx) + "|"
-                            + I18n.formatSceneDate(ctx, new Date()) + "|"
-                            + (lockScreenMode ? "" : (weatherTemp != null ? weatherTemp : "")) + "|"
-                            + (lockScreenMode ? "" : (weatherDesc != null ? weatherDesc : "")) + "|"
-                            + (lockScreenMode ? -1 : weatherCode) + "|" + getClockStyle(ctx) + "|"
-                            + getDefaultClockPos(ctx) + "|" + getCustomClockPos(ctx) + "|"
-                            + getClassicClockPos(ctx) + "|" + getLockClockPos(ctx) + "|"
-                            + CustomMedia.getCustomSceneTimestamp(ctx, cSlot) + "|"
-                            + CustomMedia.getRedditWallpaperTimestamp(ctx, CustomMedia.SCOPE_SCENE) + "|"
-                            + (classicWallBmp != null && !classicWallBmp.isRecycled() ? classicWallBmp.getGenerationId() : 0) + "|"
-                            + CustomMedia.getCustomLockTimestamp(ctx) + "|"
-                            + buildGreeting(ctx) + "|" + w + "x" + h;
-                    if (!frameKey.equals(cachedFrameKey) || cachedFrameBmp == null
-                            || cachedFrameBmp.getWidth() != w || cachedFrameBmp.getHeight() != h) {
-                        if (cachedFrameBmp == null || cachedFrameBmp.getWidth() != w || cachedFrameBmp.getHeight() != h) {
-                            if (cachedFrameBmp != null) cachedFrameBmp.recycle();
-                            cachedFrameBmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                        } else {
-                            cachedFrameBmp.eraseColor(Color.TRANSPARENT);
-                        }
-                        Canvas off = new Canvas(cachedFrameBmp);
-                        drawScene(off, cur, w, h, 1f);
-                        cachedFrameKey = frameKey;
+            if (prevId != null && crossfade < 1f && !classicClockOnlyMode
+                    && cachedFrameBmp != null && !cachedFrameBmp.isRecycled()
+                    && nextFrameBmp != null && !nextFrameBmp.isRecycled()) {
+                canvas.drawBitmap(cachedFrameBmp, null, fullDstRect, null);
+                crossfadePaint.setAlpha(Math.round(255 * crossfade));
+                canvas.drawBitmap(nextFrameBmp, null, fullDstRect, crossfadePaint);
+                return;
+            }
+
+            LoadedScene cur = ensureLoaded(currentId);
+            if (cur != null) {
+                int fw = Math.min(w, 1920), fh = Math.min(h, 1080);
+                Bitmap.Config cfg = frameBitmapConfig();
+                String frameKey = buildFrameKey(getContext(), currentId, fw, fh);
+                if (!frameKey.equals(cachedFrameKey) || cachedFrameBmp == null
+                        || cachedFrameBmp.isRecycled()
+                        || cachedFrameBmp.getWidth() != fw || cachedFrameBmp.getHeight() != fh
+                        || cachedFrameBmp.getConfig() != cfg) {
+                    if (cachedFrameBmp == null || cachedFrameBmp.isRecycled()
+                            || cachedFrameBmp.getWidth() != fw || cachedFrameBmp.getHeight() != fh
+                            || cachedFrameBmp.getConfig() != cfg) {
+                        if (cachedFrameBmp != null && !cachedFrameBmp.isRecycled()) cachedFrameBmp.recycle();
+                        cachedFrameBmp = Bitmap.createBitmap(fw, fh, cfg);
+                    } else if (cfg == Bitmap.Config.ARGB_8888) {
+                        cachedFrameBmp.eraseColor(Color.TRANSPARENT);
                     }
-                    canvas.drawBitmap(cachedFrameBmp, 0, 0, null);
+                    Canvas off = new Canvas(cachedFrameBmp);
+                    drawScene(off, cur, fw, fh, 1f);
+                    cachedFrameKey = frameKey;
                 }
+                canvas.drawBitmap(cachedFrameBmp, null, fullDstRect, null);
             }
         }
 

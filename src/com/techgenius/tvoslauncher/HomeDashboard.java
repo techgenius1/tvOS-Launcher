@@ -94,9 +94,37 @@ public final class HomeDashboard {
     private static volatile String sMovingWidgetId = null;
 
     private static final String KEY_PRAYER_METHOD = "prayer_method"; // Default 13 (Diyanet / Turkey & region)
+    private static final String KEY_PRAYER_LOC_AUTO = "prayer_loc_auto";
+    private static final String KEY_PRAYER_LOC_NAME = "prayer_loc_name";
+    private static final String KEY_PRAYER_LOC_LAT = "prayer_loc_lat";
+    private static final String KEY_PRAYER_LOC_LON = "prayer_loc_lon";
     private static final String KEY_PRAYER_CACHE_JSON = "prayer_cache_json";
     private static final String KEY_PRAYER_CACHE_DAY = "prayer_cache_day";
     private static final String KEY_PRAYER_CACHE_CITY = "prayer_cache_city";
+
+    /** Popular quick-pick cities for Prayer Times: { "City, Country", "lat", "lon" }. */
+    public static final String[][] PRAYER_POPULAR_CITIES = {
+        {"Istanbul, Turkey", "41.0082", "28.9784"},
+        {"Ankara, Turkey", "39.9334", "32.8597"},
+        {"Izmir, Turkey", "38.4237", "27.1428"},
+        {"Baku, Azerbaijan", "40.4093", "49.8671"},
+        {"Mecca, Saudi Arabia", "21.3891", "39.8579"},
+        {"Medina, Saudi Arabia", "24.5247", "39.5692"},
+        {"Riyadh, Saudi Arabia", "24.7136", "46.6753"},
+        {"Dubai, UAE", "25.2048", "55.2708"},
+        {"Cairo, Egypt", "30.0444", "31.2357"},
+        {"London, United Kingdom", "51.5074", "-0.1278"},
+        {"Berlin, Germany", "52.5200", "13.4050"},
+        {"Paris, France", "48.8566", "2.3522"},
+        {"New York, United States", "40.7128", "-74.0060"},
+        {"Toronto, Canada", "43.6532", "-79.3832"},
+        {"Jakarta, Indonesia", "-6.2088", "106.8456"},
+        {"Kuala Lumpur, Malaysia", "3.1390", "101.6869"},
+        {"Karachi, Pakistan", "24.8607", "67.0011"},
+        {"Dhaka, Bangladesh", "23.8103", "90.4125"},
+        {"Sarajevo, Bosnia", "43.8563", "18.4131"},
+        {"S\u00e3o Paulo, Brazil", "-23.5505", "-46.6333"}
+    };
 
     private static final String KEY_FAV_TEAMS = "football_fav_teams";
     private static final String KEY_FOOTBALL_LEAGUE = "football_league";
@@ -108,6 +136,7 @@ public final class HomeDashboard {
     private static final String KEY_RELEASES_CACHE_JSON = "releases_cache_json";
     private static final String KEY_RELEASES_CACHE_SIG = "releases_cache_sig";
     private static final String KEY_RELEASES_CACHE_TS = "releases_cache_ts";
+    private static final String KEY_NEWS_COUNTRY = "news_country";
 
     /**
      * Supported countries for Latest Releases widget: { ISO-3166 alpha-2 code, Display Name, UI language code }.
@@ -131,7 +160,37 @@ public final class HomeDashboard {
         {"JP", "Japan", "en"}
     };
 
-    private static final ExecutorService EXEC = Executors.newCachedThreadPool();
+    /**
+     * Supported countries/editions for Live News widget: { ISO code (gl), Display Name, Google News hl, ceid }.
+     */
+    public static final String[][] NEWS_COUNTRIES = {
+        {"US", "\uD83C\uDDFA\uD83C\uDDF8  United States", "en-US", "US:en"},
+        {"GB", "\uD83C\uDDEC\uD83C\uDDE7  United Kingdom", "en-GB", "GB:en"},
+        {"CA", "\uD83C\uDDE8\uD83C\uDDE6  Canada", "en-CA", "CA:en"},
+        {"AU", "\uD83C\uDDE6\uD83C\uDDFA  Australia", "en-AU", "AU:en"},
+        {"TR", "\uD83C\uDDF9\uD83C\uDDF7  Türkiye (Turkey)", "tr", "TR:tr"},
+        {"BR", "\uD83C\uDDE7\uD83C\uDDF7  Brasil (Brazil)", "pt-BR", "BR:pt-419"},
+        {"PT", "\uD83C\uDDF5\uD83C\uDDF9  Portugal", "pt-PT", "PT:pt-150"},
+        {"DE", "\uD83C\uDDE9\uD83C\uDDEA  Deutschland (Germany)", "de", "DE:de"},
+        {"FR", "\uD83C\uDDEB\uD83C\uDDF7  France", "fr", "FR:fr"},
+        {"ES", "\uD83C\uDDEA\uD83C\uDDF8  España (Spain)", "es", "ES:es"},
+        {"MX", "\uD83C\uDDF2\uD83C\uDDFD  México (Mexico)", "es-419", "MX:es-419"},
+        {"IT", "\uD83C\uDDEE\uD83C\uDDF9  Italia (Italy)", "it", "IT:it"},
+        {"RU", "\uD83C\uDDF7\uD83C\uDDFA  Россия (Russia)", "ru", "RU:ru"},
+        {"PL", "\uD83C\uDDF5\uD83C\uDDF1  Polska (Poland)", "pl", "PL:pl"},
+        {"SE", "\uD83C\uDDF8\uD83C\uDDEA  Sverige (Sweden)", "sv", "SE:sv"},
+        {"IN", "\uD83C\uDDEE\uD83C\uDDF3  India", "en-IN", "IN:en"},
+        {"AZ", "\uD83C\uDDE6\uD83C\uDDFF  Azərbaycan (Azerbaijan)", "az", "AZ:az"},
+        {"SA", "\uD83C\uDDF8\uD83C\uDDE6  السعودية (Saudi Arabia)", "ar", "SA:ar"},
+        {"EG", "\uD83C\uDDEA\uD83C\uDDEC  مصر (Egypt)", "ar", "EG:ar"},
+        {"IL", "\uD83C\uDDEE\uD83C\uDDF1  ישראל (Israel)", "he", "IL:he"},
+        {"JP", "\uD83C\uDDEF\uD83C\uDDF5  日本 (Japan)", "ja", "JP:ja"},
+        {"KR", "\uD83C\uDDF0\uD83C\uDDF7  대한민국 (South Korea)", "ko", "KR:ko"},
+        {"TW", "\uD83C\uDDF9\uD83C\uDDFC  台灣 (Taiwan)", "zh-TW", "TW:zh-Hant"},
+        {"CN", "\uD83C\uDDE8\uD83C\uDDF3  中国 (China)", "zh-CN", "CN:zh-Hans"}
+    };
+
+    private static final ExecutorService EXEC = Executors.newFixedThreadPool(3);
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     private HomeDashboard() {}
@@ -158,7 +217,7 @@ public final class HomeDashboard {
     }
 
     public static boolean isShowWhenNoCw(Context c) {
-        return prefs(c).getBoolean(KEY_SHOW_WHEN_NO_CW, false);
+        return prefs(c).getBoolean(KEY_SHOW_WHEN_NO_CW, true);
     }
 
     public static void setShowWhenNoCw(Context c, boolean en) {
@@ -393,9 +452,17 @@ public final class HomeDashboard {
         if ("fr".equals(lang)) return "FR";
         if ("es".equals(lang)) return "ES";
         if ("it".equals(lang)) return "IT";
+        if ("pt-BR".equals(lang)) return "BR";
         if ("pt".equals(lang)) return "PT";
         if ("ru".equals(lang)) return "RU";
+        if ("pl".equals(lang)) return "PL";
+        if ("sv".equals(lang)) return "SE";
+        if ("hi".equals(lang)) return "IN";
         if ("ar".equals(lang)) return "SA";
+        if ("he".equals(lang)) return "IL";
+        if ("ja".equals(lang)) return "JP";
+        if ("ko".equals(lang)) return "KR";
+        if ("zh".equals(lang)) return "CN";
         return "US";
     }
 
@@ -541,41 +608,28 @@ public final class HomeDashboard {
             }
         }
         final List<String> countries = getEffectiveReleasesCountries(c);
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final List<Suggestions.Item> fetched = Suggestions.fetchReleasesForCountries(c, countries);
-                    if (fetched != null && !fetched.isEmpty()) {
-                        JSONArray arr = new JSONArray();
-                        for (Suggestions.Item it : fetched) {
-                            arr.put(it.toJson());
-                        }
-                        sp.edit()
-                                .putString(KEY_RELEASES_CACHE_JSON, arr.toString())
-                                .putString(KEY_RELEASES_CACHE_SIG, sig)
-                                .putLong(KEY_RELEASES_CACHE_TS, System.currentTimeMillis())
-                                .apply();
-                        if (cb != null) {
-                            MAIN.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    cb.onResult(fetched);
-                                }
-                            });
-                        }
-                        return;
+        EXEC.execute(() -> {
+            try {
+                final List<Suggestions.Item> fetched = Suggestions.fetchReleasesForCountries(c, countries);
+                if (fetched != null && !fetched.isEmpty()) {
+                    JSONArray arr = new JSONArray();
+                    for (Suggestions.Item it : fetched) {
+                        arr.put(it.toJson());
                     }
-                } catch (Throwable ignored) {}
-                final List<Suggestions.Item> fallback = getCachedReleases(c);
-                if (cb != null) {
-                    MAIN.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            cb.onResult(fallback);
-                        }
-                    });
+                    sp.edit()
+                            .putString(KEY_RELEASES_CACHE_JSON, arr.toString())
+                            .putString(KEY_RELEASES_CACHE_SIG, sig)
+                            .putLong(KEY_RELEASES_CACHE_TS, System.currentTimeMillis())
+                            .apply();
+                    if (cb != null) {
+                        MAIN.post(() -> cb.onResult(fetched));
+                    }
+                    return;
                 }
+            } catch (Throwable ignored) {}
+            final List<Suggestions.Item> fallback = getCachedReleases(c);
+            if (cb != null) {
+                MAIN.post(() -> cb.onResult(fallback));
             }
         });
     }
@@ -625,6 +679,71 @@ public final class HomeDashboard {
         return PRAYER_METHOD_NAMES[0];
     }
 
+    public static boolean isPrayerLocationAuto(Context c) {
+        SharedPreferences sp = prefs(c);
+        if (!sp.getBoolean(KEY_PRAYER_LOC_AUTO, true)) {
+            return !sp.contains(KEY_PRAYER_LOC_LAT) || !sp.contains(KEY_PRAYER_LOC_LON);
+        }
+        return true;
+    }
+
+    public static void setPrayerLocationAuto(Context c) {
+        prefs(c).edit()
+                .putBoolean(KEY_PRAYER_LOC_AUTO, true)
+                .remove(KEY_PRAYER_LOC_NAME)
+                .remove(KEY_PRAYER_LOC_LAT)
+                .remove(KEY_PRAYER_LOC_LON)
+                .remove(KEY_PRAYER_CACHE_DAY)
+                .remove(KEY_PRAYER_CACHE_JSON)
+                .remove(KEY_PRAYER_CACHE_CITY)
+                .apply();
+    }
+
+    public static void setPrayerLocation(Context c, String label, double lat, double lon) {
+        prefs(c).edit()
+                .putBoolean(KEY_PRAYER_LOC_AUTO, false)
+                .putString(KEY_PRAYER_LOC_NAME, label != null ? label.trim() : "")
+                .putFloat(KEY_PRAYER_LOC_LAT, (float) lat)
+                .putFloat(KEY_PRAYER_LOC_LON, (float) lon)
+                .remove(KEY_PRAYER_CACHE_DAY)
+                .remove(KEY_PRAYER_CACHE_JSON)
+                .remove(KEY_PRAYER_CACHE_CITY)
+                .apply();
+    }
+
+    public static void invalidatePrayerCache(Context c) {
+        prefs(c).edit()
+                .remove(KEY_PRAYER_CACHE_DAY)
+                .remove(KEY_PRAYER_CACHE_CITY)
+                .apply();
+    }
+
+    public static String getEffectivePrayerCity(Context c) {
+        if (!isPrayerLocationAuto(c)) {
+            String custom = prefs(c).getString(KEY_PRAYER_LOC_NAME, "");
+            if (custom != null && !custom.isEmpty()) return custom;
+        }
+        String wx = Weather.place(c);
+        if (wx != null && !wx.isEmpty()) return wx;
+        Weather.Data wd = Weather.cached(c);
+        if (wd != null && wd.place != null && !wd.place.isEmpty()) return wd.place;
+        return "";
+    }
+
+    public static String getPrayerLocationSummary(Context c) {
+        if (isPrayerLocationAuto(c)) {
+            String wx = Weather.place(c);
+            if (wx == null || wx.isEmpty()) {
+                Weather.Data wd = Weather.cached(c);
+                if (wd != null && wd.place != null) wx = wd.place;
+            }
+            String base = I18n.s(c, "Sync with Weather", "Hava Durumu ile e\u015fitle");
+            return (wx != null && !wx.isEmpty()) ? (base + " (" + wx + ")") : base;
+        }
+        String custom = prefs(c).getString(KEY_PRAYER_LOC_NAME, "");
+        return (custom != null && !custom.isEmpty()) ? custom : I18n.s(c, "Custom", "\u00d6zel");
+    }
+
     public interface PrayerCallback {
         void onResult(PrayerData data);
     }
@@ -637,9 +756,8 @@ public final class HomeDashboard {
             PrayerData parsed = parsePrayerJson(json, city);
             if (parsed != null) return parsed;
         }
-        Weather.Data w = Weather.cached(c);
         PrayerData fb = new PrayerData();
-        fb.city = (w != null && w.place != null && !w.place.isEmpty()) ? w.place : "";
+        fb.city = getEffectivePrayerCity(c);
         return fb;
     }
 
@@ -647,8 +765,7 @@ public final class HomeDashboard {
         final SharedPreferences sp = prefs(c);
         final int todayKey = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
                 + Calendar.getInstance().get(Calendar.YEAR) * 1000;
-        Weather.Data w = Weather.cached(c);
-        final String curCity = (w != null && w.place != null) ? w.place : "";
+        final String curCity = getEffectivePrayerCity(c);
         if (!force && sp.getInt(KEY_PRAYER_CACHE_DAY, -1) == todayKey) {
             String cachedJson = sp.getString(KEY_PRAYER_CACHE_JSON, null);
             String cachedCity = sp.getString(KEY_PRAYER_CACHE_CITY, "");
@@ -661,62 +778,64 @@ public final class HomeDashboard {
             }
         }
 
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SharedPreferences wp = c.getSharedPreferences("weather_store", Context.MODE_PRIVATE);
-                    float lat = wp.getFloat("lat", Float.NaN);
-                    float lon = wp.getFloat("lon", Float.NaN);
-                    String city = wp.getString("city", "");
-                    if (Float.isNaN(lat) || Float.isNaN(lon)) {
-                        try {
-                            String geoRaw = httpGet("https://ipwho.is/");
-                            JSONObject g = new JSONObject(geoRaw);
-                            if (g.optBoolean("success", true)) {
-                                lat = (float) g.optDouble("latitude", 40.4093);
-                                lon = (float) g.optDouble("longitude", 49.8671);
-                                city = g.optString("city", "Baku");
-                            }
-                        } catch (Throwable ignored) {
-                            lat = 40.4093f;
-                            lon = 49.8671f;
-                            city = "Baku";
-                        }
-                    }
-                    int method = getPrayerMethod(c);
-                    long ts = System.currentTimeMillis() / 1000L;
-                    String url = String.format(Locale.US,
-                            "https://api.aladhan.com/v1/timings/%d?latitude=%.4f&longitude=%.4f&method=%d",
-                            ts, lat, lon, method);
-                    String resp = httpGet(url);
-                    final PrayerData parsed = parsePrayerJson(resp, city);
-                    if (parsed != null) {
-                        sp.edit()
-                                .putString(KEY_PRAYER_CACHE_JSON, resp)
-                                .putInt(KEY_PRAYER_CACHE_DAY, todayKey)
-                                .putString(KEY_PRAYER_CACHE_CITY, city)
-                                .apply();
-                        if (cb != null) {
-                            MAIN.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    cb.onResult(parsed);
-                                }
-                            });
-                        }
-                        return;
-                    }
-                } catch (Throwable ignored) {}
-                final PrayerData fallback = getCachedOrFallbackPrayer(c);
-                if (cb != null) {
-                    MAIN.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            cb.onResult(fallback);
-                        }
-                    });
+        EXEC.execute(() -> {
+            try {
+                float lat = Float.NaN;
+                float lon = Float.NaN;
+                String city = "";
+
+                if (!isPrayerLocationAuto(c)) {
+                    lat = sp.getFloat(KEY_PRAYER_LOC_LAT, Float.NaN);
+                    lon = sp.getFloat(KEY_PRAYER_LOC_LON, Float.NaN);
+                    city = sp.getString(KEY_PRAYER_LOC_NAME, "");
                 }
+
+                if (Float.isNaN(lat) || Float.isNaN(lon)) {
+                    SharedPreferences wp = Weather.prefs(c);
+                    if (wp.contains(Weather.K_LAT) && wp.contains(Weather.K_LON)) {
+                        lat = wp.getFloat(Weather.K_LAT, Float.NaN);
+                        lon = wp.getFloat(Weather.K_LON, Float.NaN);
+                        city = wp.getString(Weather.K_PLACE, "");
+                    }
+                }
+
+                if (Float.isNaN(lat) || Float.isNaN(lon)) {
+                    try {
+                        String geoRaw = httpGet("https://ipwho.is/");
+                        JSONObject g = new JSONObject(geoRaw);
+                        if (g.optBoolean("success", true)) {
+                            lat = (float) g.optDouble("latitude", 40.4093);
+                            lon = (float) g.optDouble("longitude", 49.8671);
+                            city = g.optString("city", "Baku");
+                        }
+                    } catch (Throwable ignored) {
+                        lat = 40.4093f;
+                        lon = 49.8671f;
+                        city = "Baku";
+                    }
+                }
+                int method = getPrayerMethod(c);
+                long ts = System.currentTimeMillis() / 1000L;
+                String url = String.format(Locale.US,
+                        "https://api.aladhan.com/v1/timings/%d?latitude=%.4f&longitude=%.4f&method=%d",
+                        ts, lat, lon, method);
+                String resp = httpGet(url);
+                final PrayerData parsed = parsePrayerJson(resp, city);
+                if (parsed != null) {
+                    sp.edit()
+                            .putString(KEY_PRAYER_CACHE_JSON, resp)
+                            .putInt(KEY_PRAYER_CACHE_DAY, todayKey)
+                            .putString(KEY_PRAYER_CACHE_CITY, city)
+                            .apply();
+                    if (cb != null) {
+                        MAIN.post(() -> cb.onResult(parsed));
+                    }
+                    return;
+                }
+            } catch (Throwable ignored) {}
+            final PrayerData fallback = getCachedOrFallbackPrayer(c);
+            if (cb != null) {
+                MAIN.post(() -> cb.onResult(fallback));
             }
         });
     }
@@ -811,6 +930,21 @@ public final class HomeDashboard {
     }
 
     private static final android.util.LruCache<String, Bitmap> sLogoCache = new android.util.LruCache<String, Bitmap>(96);
+    private static final java.util.WeakHashMap<View, Runnable> sCardRefreshers = new java.util.WeakHashMap<View, Runnable>();
+
+    public static void refreshCardsInPlace(List<View> cards) {
+        if (cards == null) return;
+        for (int i = 0; i < cards.size(); i++) {
+            View card = cards.get(i);
+            if (card == null) continue;
+            Runnable r = sCardRefreshers.get(card);
+            if (r != null) r.run();
+        }
+    }
+
+    public static void clearImageCaches() {
+        sLogoCache.evictAll();
+    }
 
     public static void loadLogoAsync(final String url, final int sizePx, final ImageView target) {
         if (target == null) return;
@@ -826,39 +960,34 @@ public final class HomeDashboard {
             return;
         }
         target.setVisibility(View.INVISIBLE);
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                HttpURLConnection conn = null;
-                try {
-                    String fetchUrl = url;
-                    if (fetchUrl.contains("espncdn.com") && !fetchUrl.contains("scale=")) {
-                        fetchUrl = fetchUrl + (fetchUrl.contains("?") ? "&" : "?") + "w=80&h=80&scale=crop";
-                    }
-                    conn = (HttpURLConnection) new URL(fetchUrl).openConnection();
-                    conn.setConnectTimeout(5000);
-                    conn.setReadTimeout(5000);
-                    conn.setRequestProperty("User-Agent", "tvOSLauncher/2.2");
-                    InputStream in = conn.getInputStream();
-                    Bitmap raw = BitmapFactory.decodeStream(in);
-                    in.close();
-                    if (raw != null) {
-                        final Bitmap scaled = Bitmap.createScaledBitmap(raw, sizePx, sizePx, true);
-                        sLogoCache.put(url, scaled);
-                        MAIN.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (url.equals(target.getTag())) {
-                                    target.setVisibility(View.VISIBLE);
-                                    target.setImageBitmap(scaled);
-                                }
-                            }
-                        });
-                    }
-                } catch (Throwable ignored) {
-                } finally {
-                    if (conn != null) conn.disconnect();
+        EXEC.execute(() -> {
+            HttpURLConnection conn = null;
+            try {
+                String fetchUrl = url;
+                if (fetchUrl.contains("espncdn.com") && !fetchUrl.contains("scale=")) {
+                    fetchUrl = fetchUrl + (fetchUrl.contains("?") ? "&" : "?") + "w=80&h=80&scale=crop";
                 }
+                conn = (HttpURLConnection) new URL(fetchUrl).openConnection();
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setRequestProperty("User-Agent", "tvOSLauncher/2.2");
+                InputStream in = conn.getInputStream();
+                Bitmap raw = BitmapFactory.decodeStream(in);
+                in.close();
+                if (raw != null) {
+                    final Bitmap scaled = Bitmap.createScaledBitmap(raw, sizePx, sizePx, true);
+                    if (scaled != raw && !raw.isRecycled()) raw.recycle();
+                    sLogoCache.put(url, scaled);
+                    MAIN.post(() -> {
+                        if (url.equals(target.getTag())) {
+                            target.setVisibility(View.VISIBLE);
+                            target.setImageBitmap(scaled);
+                        }
+                    });
+                }
+            } catch (Throwable ignored) {
+            } finally {
+                if (conn != null) conn.disconnect();
             }
         });
     }
@@ -974,76 +1103,81 @@ public final class HomeDashboard {
         final SharedPreferences sp = prefs(c);
         long now = System.currentTimeMillis();
         long lastTs = sp.getLong(KEY_FOOTBALL_CACHE_TS, 0L);
-        if (!force && !sMemMatches.isEmpty() && (now - lastTs < 120_000L)) {
+        boolean hasLive = false;
+        for (MatchItem m : sMemMatches) {
+            if (m.isLive) {
+                hasLive = true;
+                break;
+            }
+        }
+        long ttlMs = hasLive ? 120_000L : (10 * 60_000L);
+        if (!force && !sMemMatches.isEmpty() && (now - lastTs < ttlMs)) {
             if (cb != null) cb.onResult(new ArrayList<MatchItem>(sMemMatches));
             return;
         }
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                List<MatchItem> all = new ArrayList<MatchItem>();
-                Set<String> seenIds = new HashSet<String>();
-                String league = getSelectedLeague(c);
-                String dateRange = getScoreboardDateRangeParam();
-                try {
-                    if ("all".equals(league)) {
-                        String[] codes = {
-                            "all",
-                            "uefa.champions", "uefa.europa", "uefa.europa.conf", "uefa.nations",
-                            "fifa.world", "eng.1", "eng.fa", "esp.1", "esp.copa_del_rey",
-                            "tur.1", "tur.cup", "ita.1", "ger.1", "fra.1",
-                            "aze.1", "ned.1", "por.1", "ksa.1"
-                        };
-                        String firstRaw = null;
-                        for (String code : codes) {
-                            try {
-                                String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
-                                        + code + "/scoreboard?" + dateRange;
-                                String json = httpGet(url);
-                                if (firstRaw == null && json != null && json.contains("\"events\"")) {
-                                    firstRaw = json;
+        EXEC.execute(() -> {
+            List<MatchItem> all = new ArrayList<MatchItem>();
+            Set<String> seenIds = new HashSet<String>();
+            String league = getSelectedLeague(c);
+            String dateRange = getScoreboardDateRangeParam();
+            try {
+                if ("all".equals(league)) {
+                    String[] codes = {
+                        "all",
+                        "uefa.champions", "uefa.europa", "uefa.europa.conf", "uefa.nations",
+                        "fifa.world", "eng.1", "eng.fa", "esp.1", "esp.copa_del_rey",
+                        "tur.1", "tur.cup", "ita.1", "ger.1", "fra.1",
+                        "aze.1", "ned.1", "por.1", "ksa.1"
+                    };
+                    String firstRaw = null;
+                    for (String code : codes) {
+                        try {
+                            String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
+                                    + code + "/scoreboard?" + dateRange;
+                            String json = httpGet(url);
+                            if (firstRaw == null && json != null && json.contains("\"events\"")) {
+                                firstRaw = json;
+                            }
+                            List<MatchItem> sub = parseEspnEvents(c, json, "all".equals(code) ? "" : code);
+                            for (MatchItem m : sub) {
+                                String key = (m.id != null && !m.id.isEmpty())
+                                        ? m.id : (m.homeTeam + "|" + m.awayTeam + "|" + m.startEpochMs);
+                                if (seenIds.add(key)) {
+                                    all.add(m);
                                 }
-                                List<MatchItem> sub = parseEspnEvents(c, json, "all".equals(code) ? "" : code);
-                                for (MatchItem m : sub) {
-                                    String key = (m.id != null && !m.id.isEmpty())
-                                            ? m.id : (m.homeTeam + "|" + m.awayTeam + "|" + m.startEpochMs);
-                                    if (seenIds.add(key)) {
-                                        all.add(m);
-                                    }
-                                }
-                            } catch (Throwable ignored) {}
-                        }
-                        if (firstRaw != null) {
-                            sp.edit()
-                                    .putString(KEY_FOOTBALL_CACHE_JSON, firstRaw)
-                                    .putLong(KEY_FOOTBALL_CACHE_TS, System.currentTimeMillis())
-                                    .apply();
-                        }
-                    } else {
-                        String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
-                                + league + "/scoreboard?" + dateRange;
-                        String json = httpGet(url);
-                        all.addAll(parseEspnEvents(c, json, league));
+                            }
+                            if ("all".equals(code) && !all.isEmpty() && cb != null) {
+                                final List<MatchItem> initial = new ArrayList<MatchItem>(all);
+                                sortMatches(c, initial);
+                                MAIN.post(() -> cb.onResult(initial));
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                    if (firstRaw != null) {
                         sp.edit()
-                                .putString(KEY_FOOTBALL_CACHE_JSON, json)
+                                .putString(KEY_FOOTBALL_CACHE_JSON, firstRaw)
                                 .putLong(KEY_FOOTBALL_CACHE_TS, System.currentTimeMillis())
                                 .apply();
                     }
-                } catch (Throwable ignored) {}
+                } else {
+                    String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
+                            + league + "/scoreboard?" + dateRange;
+                    String json = httpGet(url);
+                    all.addAll(parseEspnEvents(c, json, league));
+                    sp.edit()
+                            .putString(KEY_FOOTBALL_CACHE_JSON, json)
+                            .putLong(KEY_FOOTBALL_CACHE_TS, System.currentTimeMillis())
+                            .apply();
+                }
+            } catch (Throwable ignored) {}
 
-                sortMatches(c, all);
-                if (!all.isEmpty()) {
-                    sMemMatches = all;
-                }
-                final List<MatchItem> result = !all.isEmpty() ? all : getCachedMatches(c);
-                if (cb != null) {
-                    MAIN.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            cb.onResult(result);
-                        }
-                    });
-                }
+            sortMatches(c, all);
+            if (!all.isEmpty()) {
+                sMemMatches = all;
+            }
+            final List<MatchItem> result = !all.isEmpty() ? all : getCachedMatches(c);
+            if (cb != null) {
+                MAIN.post(() -> cb.onResult(result));
             }
         });
     }
@@ -1441,6 +1575,7 @@ public final class HomeDashboard {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 card.setForeground(hasFocus ? focusRing : null);
+                v.animate().cancel();
                 v.animate()
                         .scaleX(hasFocus ? 1.035f : 1.0f)
                         .scaleY(hasFocus ? 1.035f : 1.0f)
@@ -1449,7 +1584,6 @@ public final class HomeDashboard {
                         .setDuration(150)
                         .setInterpolator(MainActivity.EASE)
                         .start();
-                v.invalidate();
             }
         });
         return card;
@@ -1466,15 +1600,6 @@ public final class HomeDashboard {
         headerTitle.setLetterSpacing(0.06f);
         headerTitle.setSingleLine(true);
         headerTitle.setEllipsize(TextUtils.TruncateAt.END);
-        headerTitle.post(() -> {
-            if (headerTitle.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) headerTitle.getLayoutParams();
-                if (mlp.leftMargin != 0) {
-                    mlp.leftMargin = 0;
-                    headerTitle.setLayoutParams(mlp);
-                }
-            }
-        });
     }
 
     // -------------------------------------------------------------------------
@@ -1496,7 +1621,7 @@ public final class HomeDashboard {
         TextView headerTitle = new TextView(host);
         styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_prayer_times"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        htlp.leftMargin = dp(host, 5);
+        htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
 
         final TextView cityTv = new TextView(host);
@@ -1539,6 +1664,7 @@ public final class HomeDashboard {
         card.addView(col, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+        final String[] lastStripSig = { "" };
         final Runnable bindUi = new Runnable() {
             @Override
             public void run() {
@@ -1556,6 +1682,12 @@ public final class HomeDashboard {
                         ? (hrs + "h " + mins + "m " + I18n.t(host, "prayer_remaining"))
                         : (mins + "m " + I18n.t(host, "prayer_remaining"));
                 countdownTv.setText(remStr);
+
+                String stripSig = nextIdx + "|" + d.fajr + "|" + d.dhuhr + "|" + d.asr + "|" + d.maghrib + "|" + d.isha;
+                if (stripSig.equals(lastStripSig[0]) && strip.getChildCount() == 5) {
+                    return;
+                }
+                lastStripSig[0] = stripSig;
 
                 strip.removeAllViews();
                 for (int i = 0; i < 5; i++) {
@@ -1591,6 +1723,10 @@ public final class HomeDashboard {
                 bindUi.run();
             }
         });
+        sCardRefreshers.put(card, () -> {
+            bindUi.run();
+            fetchPrayerTimes(host, false, data -> bindUi.run());
+        });
 
         card.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1619,7 +1755,7 @@ public final class HomeDashboard {
         TextView headerTitle = new TextView(host);
         styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_football"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        htlp.leftMargin = dp(host, 5);
+        htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
 
         final TextView badgeTv = new TextView(host);
@@ -1641,12 +1777,15 @@ public final class HomeDashboard {
         card.addView(col, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+        final String[] lastMatchSig = { "" };
         final Runnable bindMatches = new Runnable() {
             @Override
             public void run() {
                 List<MatchItem> list = getCachedMatches(host);
-                matchRows.removeAllViews();
                 if (list.isEmpty()) {
+                    if ("EMPTY".equals(lastMatchSig[0]) && matchRows.getChildCount() > 0) return;
+                    lastMatchSig[0] = "EMPTY";
+                    matchRows.removeAllViews();
                     badgeTv.setText("");
                     TextView empty = new TextView(host);
                     empty.setText(I18n.t(host, "football_loading"));
@@ -1657,11 +1796,24 @@ public final class HomeDashboard {
                 }
                 int liveCount = 0;
                 for (MatchItem m : list) if (m.isLive) liveCount++;
+                int showCount = Math.min(3, list.size());
+                StringBuilder sigSb = new StringBuilder().append(liveCount).append('|').append(list.get(0).leagueName);
+                for (int i = 0; i < showCount; i++) {
+                    MatchItem m = list.get(i);
+                    sigSb.append(';').append(m.isFav).append('|').append(m.homeTeam).append('|').append(m.awayTeam)
+                            .append('|').append(m.homeScore).append(':').append(m.awayScore)
+                            .append('|').append(m.isLive).append('|').append(m.isFinished).append('|').append(m.statusText);
+                }
+                String sig = sigSb.toString();
+                if (sig.equals(lastMatchSig[0]) && matchRows.getChildCount() == showCount) {
+                    return;
+                }
+                lastMatchSig[0] = sig;
+                matchRows.removeAllViews();
                 badgeTv.setText(liveCount > 0 ? ("● " + liveCount + " LIVE") : list.get(0).leagueName);
                 badgeTv.setTextColor(liveCount > 0 ? 0xFF4ADE80 : 0x88FFFFFF);
 
                 int logoPx = dp(host, 14);
-                int showCount = Math.min(3, list.size());
                 for (int i = 0; i < showCount; i++) {
                     MatchItem m = list.get(i);
                     LinearLayout r = new LinearLayout(host);
@@ -1729,6 +1881,7 @@ public final class HomeDashboard {
                 bindMatches.run();
             }
         });
+        sCardRefreshers.put(card, () -> fetchFootballMatches(host, false, matches -> bindMatches.run()));
 
         card.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1776,7 +1929,7 @@ public final class HomeDashboard {
         TextView headerTitle = new TextView(host);
         styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_latest_releases"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        htlp.leftMargin = dp(host, 5);
+        htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
 
         final TextView countryBadgeTv = new TextView(host);
@@ -1838,20 +1991,28 @@ public final class HomeDashboard {
 
                 final String imgUrl = it.backdrop;
                 if (imgUrl != null && !imgUrl.isEmpty()) {
-                    EXEC.execute(new Runnable() {
-                        @Override
-                        public void run() {
+                    if (imgUrl.equals(posterView.getTag())) {
+                        return;
+                    }
+                    final String cacheKey = "poster:" + imgUrl;
+                    Bitmap cachedBmp = sLogoCache.get(cacheKey);
+                    if (cachedBmp != null && !cachedBmp.isRecycled()) {
+                        posterView.setTag(imgUrl);
+                        posterView.setImageBitmap(cachedBmp);
+                    } else {
+                        posterView.setTag(imgUrl);
+                        EXEC.execute(() -> {
                             final Bitmap bmp = Suggestions.image(host, imgUrl, "w342", dp(host, 140));
                             if (bmp != null) {
-                                MAIN.post(new Runnable() {
-                                    @Override
-                                    public void run() {
+                                sLogoCache.put(cacheKey, bmp);
+                                MAIN.post(() -> {
+                                    if (imgUrl.equals(posterView.getTag())) {
                                         posterView.setImageBitmap(bmp);
                                     }
                                 });
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         };
@@ -1861,29 +2022,25 @@ public final class HomeDashboard {
             itemsRef.addAll(cached);
         }
         bindItem.run();
-        fetchLatestReleases(host, false, new ReleasesCallback() {
-            @Override
-            public void onResult(List<Suggestions.Item> fresh) {
-                if (fresh != null && !fresh.isEmpty()) {
-                    itemsRef.clear();
-                    itemsRef.addAll(fresh);
-                    bindItem.run();
-                }
+        fetchLatestReleases(host, false, fresh -> {
+            if (fresh != null && !fresh.isEmpty()) {
+                itemsRef.clear();
+                itemsRef.addAll(fresh);
+                bindItem.run();
             }
         });
+        sCardRefreshers.put(card, () -> fetchLatestReleases(host, false, fresh -> {
+            if (fresh != null && !fresh.isEmpty()) {
+                itemsRef.clear();
+                itemsRef.addAll(fresh);
+                bindItem.run();
+            }
+        }));
 
-        card.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showReleasesDialog(host, itemsRef, new Runnable() {
-                    @Override
-                    public void run() {
-                        sReleaseIdx++;
-                        bindItem.run();
-                    }
-                });
-            }
-        });
+        card.setOnClickListener(v -> showReleasesDialog(host, itemsRef, () -> {
+            sReleaseIdx++;
+            bindItem.run();
+        }));
         return card;
     }
 
@@ -1906,7 +2063,7 @@ public final class HomeDashboard {
         TextView headerTitle = new TextView(host);
         styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "weather"));
         LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        htlp.leftMargin = dp(host, 5);
+        htlp.leftMargin = 0;
         head.addView(headerTitle, htlp);
 
         final TextView cityTv = new TextView(host);
@@ -1923,42 +2080,106 @@ public final class HomeDashboard {
         mid.setOrientation(LinearLayout.HORIZONTAL);
         mid.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        mlp.topMargin = dp(host, 4);
+
+        // Left column: Today
+        LinearLayout todayCol = new LinearLayout(host);
+        todayCol.setOrientation(LinearLayout.VERTICAL);
+
+        TextView todayLabelTv = new TextView(host);
+        todayLabelTv.setText(I18n.s(host, "Today", "Bugün"));
+        todayLabelTv.setTextColor(0x99FFFFFF);
+        todayLabelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
+        todayLabelTv.setSingleLine(true);
+        todayCol.addView(todayLabelTv);
+
+        LinearLayout todayRow = new LinearLayout(host);
+        todayRow.setOrientation(LinearLayout.HORIZONTAL);
+        todayRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams trlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mlp.topMargin = dp(host, 3);
+        trlp.topMargin = dp(host, 2);
 
         final Weather.WeatherIconView iconView = new Weather.WeatherIconView(host);
-        mid.addView(iconView, new LinearLayout.LayoutParams(dp(host, 34), dp(host, 34)));
+        todayRow.addView(iconView, new LinearLayout.LayoutParams(dp(host, 28), dp(host, 28)));
 
         LinearLayout tCol = new LinearLayout(host);
         tCol.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams tclp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        tclp.leftMargin = dp(host, 8);
+        tclp.leftMargin = dp(host, 6);
 
         final TextView tempTv = new TextView(host);
         tempTv.setTextColor(Color.WHITE);
-        tempTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17.5f);
+        tempTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.5f);
         tempTv.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
+        tempTv.setSingleLine(true);
         tCol.addView(tempTv);
 
         final TextView condTv = new TextView(host);
         condTv.setTextColor(0xCCFFFFFF);
-        condTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f);
+        condTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
         condTv.setSingleLine(true);
         condTv.setEllipsize(TextUtils.TruncateAt.END);
         tCol.addView(condTv);
 
-        mid.addView(tCol, tclp);
-        col.addView(mid, mlp);
+        todayRow.addView(tCol, tclp);
+        todayCol.addView(todayRow, trlp);
+        mid.addView(todayCol, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        final TextView forecastSummaryTv = new TextView(host);
-        forecastSummaryTv.setTextColor(0x99FFFFFF);
-        forecastSummaryTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
-        forecastSummaryTv.setSingleLine(true);
-        forecastSummaryTv.setEllipsize(TextUtils.TruncateAt.END);
-        LinearLayout.LayoutParams fslp = new LinearLayout.LayoutParams(
+        // Vertical divider
+        final View weatherDiv = new View(host);
+        weatherDiv.setBackgroundColor(0x24FFFFFF);
+        LinearLayout.LayoutParams wdlp = new LinearLayout.LayoutParams(Math.max(1, dp(host, 1)), dp(host, 42));
+        wdlp.leftMargin = dp(host, 6);
+        wdlp.rightMargin = dp(host, 6);
+        mid.addView(weatherDiv, wdlp);
+
+        // Right column: Tomorrow
+        final LinearLayout tomCol = new LinearLayout(host);
+        tomCol.setOrientation(LinearLayout.VERTICAL);
+
+        TextView tomLabelTv = new TextView(host);
+        tomLabelTv.setText(I18n.t(host, "tomorrow_short"));
+        tomLabelTv.setTextColor(0x99FFFFFF);
+        tomLabelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
+        tomLabelTv.setSingleLine(true);
+        tomCol.addView(tomLabelTv);
+
+        LinearLayout tomRow = new LinearLayout(host);
+        tomRow.setOrientation(LinearLayout.HORIZONTAL);
+        tomRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams tmrlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        fslp.topMargin = dp(host, 3);
-        col.addView(forecastSummaryTv, fslp);
+        tmrlp.topMargin = dp(host, 2);
+
+        final Weather.WeatherIconView tomIconView = new Weather.WeatherIconView(host);
+        tomRow.addView(tomIconView, new LinearLayout.LayoutParams(dp(host, 28), dp(host, 28)));
+
+        LinearLayout tomTCol = new LinearLayout(host);
+        tomTCol.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams ttclp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        ttclp.leftMargin = dp(host, 6);
+
+        final TextView tomTempTv = new TextView(host);
+        tomTempTv.setTextColor(Color.WHITE);
+        tomTempTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.5f);
+        tomTempTv.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
+        tomTempTv.setSingleLine(true);
+        tomTCol.addView(tomTempTv);
+
+        final TextView tomCondTv = new TextView(host);
+        tomCondTv.setTextColor(0xCCFFFFFF);
+        tomCondTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        tomCondTv.setSingleLine(true);
+        tomCondTv.setEllipsize(TextUtils.TruncateAt.END);
+        tomTCol.addView(tomCondTv);
+
+        tomRow.addView(tomTCol, ttclp);
+        tomCol.addView(tomRow, tmrlp);
+        mid.addView(tomCol, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        col.addView(mid, mlp);
 
         card.addView(col, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1971,7 +2192,8 @@ public final class HomeDashboard {
                     tempTv.setText("--°");
                     condTv.setText(I18n.t(host, "weather_updating"));
                     cityTv.setText("");
-                    forecastSummaryTv.setText("");
+                    weatherDiv.setVisibility(View.GONE);
+                    tomCol.setVisibility(View.GONE);
                     return;
                 }
                 cityTv.setText(w.place != null ? w.place : "");
@@ -1980,18 +2202,20 @@ public final class HomeDashboard {
                 condTv.setText(Weather.codeText(host, w.code));
                 if (w.days != null && w.days.size() > 1 && w.days.get(1) != null) {
                     Weather.Day tm = w.days.get(1);
-                    forecastSummaryTv.setText(I18n.t(host, "tomorrow_short") + ": "
-                            + Weather.codeText(host, tm.code) + "  "
-                            + Weather.formatTemp(host, tm.max) + " / " + Weather.formatTemp(host, tm.min));
-                } else if (w.days != null && !w.days.isEmpty() && w.days.get(0) != null) {
-                    Weather.Day td = w.days.get(0);
-                    forecastSummaryTv.setText("H: " + Weather.formatTemp(host, td.max)
-                            + "  L: " + Weather.formatTemp(host, td.min));
+                    weatherDiv.setVisibility(View.VISIBLE);
+                    tomCol.setVisibility(View.VISIBLE);
+                    tomIconView.setType(Weather.iconType(tm.code));
+                    tomTempTv.setText(Weather.formatTemp(host, tm.max));
+                    tomCondTv.setText(Weather.codeText(host, tm.code) + " · " + Weather.formatTemp(host, tm.min));
+                } else {
+                    weatherDiv.setVisibility(View.GONE);
+                    tomCol.setVisibility(View.GONE);
                 }
             }
         };
 
         bindWeather.run();
+        sCardRefreshers.put(card, bindWeather);
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2024,90 +2248,87 @@ public final class HomeDashboard {
             if (onDone != null) onDone.run();
             return;
         }
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                List<CricketMatch> out = new ArrayList<CricketMatch>();
-                try {
-                    String[] urls = {
-                        "https://site.api.espn.com/apis/site/v2/sports/cricket/8676/scoreboard",
-                        "https://site.api.espn.com/apis/site/v2/sports/cricket/8048/scoreboard",
-                        "https://site.api.espn.com/apis/site/v2/sports/cricket/all/scoreboard"
-                    };
-                    for (String u : urls) {
-                        try {
-                            String raw = httpGet(u);
-                            JSONObject root = new JSONObject(raw);
-                            JSONArray events = root.optJSONArray("events");
-                            if (events == null) continue;
-                            for (int i = 0; i < events.length(); i++) {
-                                JSONObject ev = events.optJSONObject(i);
-                                if (ev == null) continue;
-                                JSONArray comps = ev.optJSONArray("competitions");
-                                if (comps == null || comps.length() == 0) continue;
-                                JSONObject comp = comps.optJSONObject(0);
-                                JSONArray competitors = comp.optJSONArray("competitors");
-                                if (competitors == null || competitors.length() < 2) continue;
+        EXEC.execute(() -> {
+            List<CricketMatch> out = new ArrayList<CricketMatch>();
+            try {
+                String[] urls = {
+                    "https://site.api.espn.com/apis/site/v2/sports/cricket/8676/scoreboard",
+                    "https://site.api.espn.com/apis/site/v2/sports/cricket/8048/scoreboard",
+                    "https://site.api.espn.com/apis/site/v2/sports/cricket/all/scoreboard"
+                };
+                for (String u : urls) {
+                    try {
+                        String raw = httpGet(u);
+                        JSONObject root = new JSONObject(raw);
+                        JSONArray events = root.optJSONArray("events");
+                        if (events == null) continue;
+                        for (int i = 0; i < events.length(); i++) {
+                            JSONObject ev = events.optJSONObject(i);
+                            if (ev == null) continue;
+                            JSONArray comps = ev.optJSONArray("competitions");
+                            if (comps == null || comps.length() == 0) continue;
+                            JSONObject comp = comps.optJSONObject(0);
+                            JSONArray competitors = comp.optJSONArray("competitors");
+                            if (competitors == null || competitors.length() < 2) continue;
 
-                                CricketMatch cm = new CricketMatch();
-                                JSONObject lg = ev.optJSONObject("league");
-                                cm.series = lg != null ? lg.optString("abbreviation", lg.optString("name", "ICC")) : "ICC";
-                                JSONObject c0 = competitors.optJSONObject(0);
-                                JSONObject c1 = competitors.optJSONObject(1);
-                                if (c0 != null) {
-                                    JSONObject t0 = c0.optJSONObject("team");
-                                    cm.team1 = t0 != null ? t0.optString("abbreviation", t0.optString("shortDisplayName", "T1")) : "T1";
-                                    cm.score1 = c0.optString("score", "");
-                                }
-                                if (c1 != null) {
-                                    JSONObject t1 = c1.optJSONObject("team");
-                                    cm.team2 = t1 != null ? t1.optString("abbreviation", t1.optString("shortDisplayName", "T2")) : "T2";
-                                    cm.score2 = c1.optString("score", "");
-                                }
-                                JSONObject st = comp.optJSONObject("status");
-                                if (st == null) st = ev.optJSONObject("status");
-                                if (st != null) {
-                                    JSONObject tp = st.optJSONObject("type");
-                                    if (tp != null) {
-                                        cm.isLive = "in".equalsIgnoreCase(tp.optString("state", ""));
-                                        cm.status = tp.optString("shortDetail", tp.optString("description", ""));
-                                    }
-                                }
-                                out.add(cm);
+                            CricketMatch cm = new CricketMatch();
+                            JSONObject lg = ev.optJSONObject("league");
+                            cm.series = lg != null ? lg.optString("abbreviation", lg.optString("name", "ICC")) : "ICC";
+                            JSONObject c0 = competitors.optJSONObject(0);
+                            JSONObject c1 = competitors.optJSONObject(1);
+                            if (c0 != null) {
+                                JSONObject t0 = c0.optJSONObject("team");
+                                cm.team1 = t0 != null ? t0.optString("abbreviation", t0.optString("shortDisplayName", "T1")) : "T1";
+                                cm.score1 = c0.optString("score", "");
                             }
-                            if (!out.isEmpty()) break;
-                        } catch (Throwable ignored) {}
-                    }
-                } catch (Throwable ignored) {}
-
-                if (out.isEmpty()) {
-                    // Fallback international fixtures if no live endpoint events returned
-                    CricketMatch m1 = new CricketMatch();
-                    m1.series = "ICC T20I";
-                    m1.team1 = "IND"; m1.score1 = "194/5 (20.0)";
-                    m1.team2 = "AUS"; m1.score2 = "182/7 (20.0)";
-                    m1.status = "IND won by 12 runs";
-                    out.add(m1);
-
-                    CricketMatch m2 = new CricketMatch();
-                    m2.series = "ODI Series";
-                    m2.team1 = "ENG"; m2.score1 = "278/6";
-                    m2.team2 = "PAK"; m2.score2 = "245/8";
-                    m2.status = "ENG won by 33 runs";
-                    out.add(m2);
-
-                    CricketMatch m3 = new CricketMatch();
-                    m3.series = "Test Championship";
-                    m3.team1 = "RSA"; m3.score1 = "312 & 188/4";
-                    m3.team2 = "NZL"; m3.score2 = "275";
-                    m3.status = "Day 3: Stumps";
-                    out.add(m3);
+                            if (c1 != null) {
+                                JSONObject t1 = c1.optJSONObject("team");
+                                cm.team2 = t1 != null ? t1.optString("abbreviation", t1.optString("shortDisplayName", "T2")) : "T2";
+                                cm.score2 = c1.optString("score", "");
+                            }
+                            JSONObject st = comp.optJSONObject("status");
+                            if (st == null) st = ev.optJSONObject("status");
+                            if (st != null) {
+                                JSONObject tp = st.optJSONObject("type");
+                                if (tp != null) {
+                                    cm.isLive = "in".equalsIgnoreCase(tp.optString("state", ""));
+                                    cm.status = tp.optString("shortDetail", tp.optString("description", ""));
+                                }
+                            }
+                            out.add(cm);
+                        }
+                        if (!out.isEmpty()) break;
+                    } catch (Throwable ignored) {}
                 }
-                sMemCricket = out;
-                sCricketLastTs = System.currentTimeMillis();
-                if (onDone != null) {
-                    MAIN.post(onDone);
-                }
+            } catch (Throwable ignored) {}
+
+            if (out.isEmpty()) {
+                // Fallback international fixtures if no live endpoint events returned
+                CricketMatch m1 = new CricketMatch();
+                m1.series = "ICC T20I";
+                m1.team1 = "IND"; m1.score1 = "194/5 (20.0)";
+                m1.team2 = "AUS"; m1.score2 = "182/7 (20.0)";
+                m1.status = "IND won by 12 runs";
+                out.add(m1);
+
+                CricketMatch m2 = new CricketMatch();
+                m2.series = "ODI Series";
+                m2.team1 = "ENG"; m2.score1 = "278/6";
+                m2.team2 = "PAK"; m2.score2 = "245/8";
+                m2.status = "ENG won by 33 runs";
+                out.add(m2);
+
+                CricketMatch m3 = new CricketMatch();
+                m3.series = "Test Championship";
+                m3.team1 = "RSA"; m3.score1 = "312 & 188/4";
+                m3.team2 = "NZL"; m3.score2 = "275";
+                m3.status = "Day 3: Stumps";
+                out.add(m3);
+            }
+            sMemCricket = out;
+            sCricketLastTs = System.currentTimeMillis();
+            if (onDone != null) {
+                MAIN.post(onDone);
             }
         });
     }
@@ -2149,11 +2370,14 @@ public final class HomeDashboard {
         card.addView(col, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+        final String[] lastCricketSig = { "" };
         final Runnable bindUi = new Runnable() {
             @Override
             public void run() {
-                rowsBox.removeAllViews();
                 if (sMemCricket.isEmpty()) {
+                    if ("EMPTY".equals(lastCricketSig[0]) && rowsBox.getChildCount() > 0) return;
+                    lastCricketSig[0] = "EMPTY";
+                    rowsBox.removeAllViews();
                     TextView tv = new TextView(host);
                     tv.setText(I18n.s(host, "Loading cricket scores…", "Kriket skorları yükleniyor…"));
                     tv.setTextColor(0x99FFFFFF);
@@ -2162,6 +2386,13 @@ public final class HomeDashboard {
                     return;
                 }
                 CricketMatch m = sMemCricket.get(0);
+                String sig = m.series + "|" + m.isLive + "|" + m.team1 + "|" + m.score1 + "|" + m.team2 + "|" + m.score2 + "|" + m.status
+                        + (sMemCricket.size() > 1 ? ("|" + sMemCricket.get(1).team1 + "|" + sMemCricket.get(1).status) : "");
+                if (sig.equals(lastCricketSig[0]) && rowsBox.getChildCount() > 0) {
+                    return;
+                }
+                lastCricketSig[0] = sig;
+                rowsBox.removeAllViews();
                 badgeTv.setText(m.isLive ? "● LIVE" : m.series);
 
                 TextView t1 = new TextView(host);
@@ -2200,6 +2431,7 @@ public final class HomeDashboard {
 
         bindUi.run();
         fetchCricketMatches(host, false, bindUi);
+        sCardRefreshers.put(card, () -> fetchCricketMatches(host, false, bindUi));
         card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2220,69 +2452,110 @@ public final class HomeDashboard {
 
     private static List<NewsHeadline> sMemNews = new ArrayList<NewsHeadline>();
     private static long sNewsLastTs = 0L;
+    private static String sNewsSig = "";
     private static int sNewsIdx = 0;
 
+    public static boolean isNewsCountryAuto(Context c) {
+        String saved = prefs(c).getString(KEY_NEWS_COUNTRY, "auto");
+        return saved == null || saved.trim().isEmpty() || "auto".equalsIgnoreCase(saved.trim());
+    }
+
+    public static String getEffectiveNewsCountry(Context c) {
+        if (isNewsCountryAuto(c)) {
+            return defaultCountryForUiLang(c);
+        }
+        return prefs(c).getString(KEY_NEWS_COUNTRY, "US").trim().toUpperCase(Locale.US);
+    }
+
+    public static String getNewsCountryDisplayName(String code) {
+        if (code == null) return "";
+        for (int i = 0; i < NEWS_COUNTRIES.length; i++) {
+            if (NEWS_COUNTRIES[i][0].equalsIgnoreCase(code)) {
+                return NEWS_COUNTRIES[i][1];
+            }
+        }
+        return code.toUpperCase(Locale.US);
+    }
+
+    public static void setNewsCountry(Context c, String countryCode) {
+        String val = (countryCode == null || countryCode.trim().isEmpty() || "auto".equalsIgnoreCase(countryCode.trim()))
+                ? "auto"
+                : countryCode.trim().toUpperCase(Locale.US);
+        prefs(c).edit().putString(KEY_NEWS_COUNTRY, val).apply();
+        sMemNews = new ArrayList<NewsHeadline>();
+        sNewsLastTs = 0L;
+        sNewsSig = "";
+        sNewsIdx = 0;
+    }
+
+    public static String getNewsCountrySummary(Context c) {
+        if (isNewsCountryAuto(c)) {
+            String cc = getEffectiveNewsCountry(c);
+            return I18n.t(c, "news_country_auto") + " (" + cc + ")";
+        }
+        return getNewsCountryDisplayName(getEffectiveNewsCountry(c));
+    }
+
+    private static String buildNewsRssUrl(Context c) {
+        String cc = getEffectiveNewsCountry(c);
+        if (isNewsCountryAuto(c) && I18n.LANG_HI.equals(I18n.getLang(c))) {
+            return "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi";
+        }
+        for (int i = 0; i < NEWS_COUNTRIES.length; i++) {
+            if (NEWS_COUNTRIES[i][0].equalsIgnoreCase(cc)) {
+                return "https://news.google.com/rss?hl=" + NEWS_COUNTRIES[i][2]
+                        + "&gl=" + NEWS_COUNTRIES[i][0]
+                        + "&ceid=" + NEWS_COUNTRIES[i][3];
+            }
+        }
+        return "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en";
+    }
+
     public static void fetchLiveNews(final Context c, final boolean force, final Runnable onDone) {
-        long now = System.currentTimeMillis();
-        if (!force && !sMemNews.isEmpty() && (now - sNewsLastTs < 15 * 60_000L)) {
+        final long now = System.currentTimeMillis();
+        final String sig = I18n.getLang(c) + ":" + getEffectiveNewsCountry(c);
+        if (!force && !sMemNews.isEmpty() && sig.equals(sNewsSig) && (now - sNewsLastTs < 15 * 60_000L)) {
             if (onDone != null) onDone.run();
             return;
         }
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                List<NewsHeadline> list = new ArrayList<NewsHeadline>();
-                try {
-                    String lang = I18n.getLang(c);
-                    String rssUrl;
-                    if ("tr".equals(lang)) {
-                        rssUrl = "https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr";
-                    } else if ("az".equals(lang)) {
-                        rssUrl = "https://news.google.com/rss?hl=az&gl=AZ&ceid=AZ:az";
-                    } else if ("de".equals(lang)) {
-                        rssUrl = "https://news.google.com/rss?hl=de&gl=DE&ceid=DE:de";
-                    } else if ("fr".equals(lang)) {
-                        rssUrl = "https://news.google.com/rss?hl=fr&gl=FR&ceid=FR:fr";
-                    } else if ("es".equals(lang)) {
-                        rssUrl = "https://news.google.com/rss?hl=es&gl=ES&ceid=ES:es";
-                    } else if ("ru".equals(lang)) {
-                        rssUrl = "https://news.google.com/rss?hl=ru&gl=RU&ceid=RU:ru";
-                    } else {
-                        rssUrl = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en";
-                    }
-                    String xml = httpGet(rssUrl);
-                    int pos = 0;
-                    while (list.size() < 15) {
-                        int itemStart = xml.indexOf("<item>", pos);
-                        if (itemStart < 0) break;
-                        int itemEnd = xml.indexOf("</item>", itemStart);
-                        if (itemEnd < 0) break;
-                        String block = xml.substring(itemStart, itemEnd);
-                        pos = itemEnd + 7;
-                        String rawTitle = extractXmlTag(block, "title");
-                        String source = extractXmlTag(block, "source");
-                        if (rawTitle != null && !rawTitle.isEmpty()) {
-                            int dashIdx = rawTitle.lastIndexOf(" - ");
-                            if (dashIdx > 10) {
-                                if (source == null || source.isEmpty()) {
-                                    source = rawTitle.substring(dashIdx + 3).trim();
-                                }
-                                rawTitle = rawTitle.substring(0, dashIdx).trim();
+        EXEC.execute(() -> {
+            List<NewsHeadline> list = new ArrayList<NewsHeadline>();
+            try {
+                String rssUrl = buildNewsRssUrl(c);
+                String xml = httpGet(rssUrl);
+                int pos = 0;
+                while (list.size() < 15) {
+                    int itemStart = xml.indexOf("<item>", pos);
+                    if (itemStart < 0) break;
+                    int itemEnd = xml.indexOf("</item>", itemStart);
+                    if (itemEnd < 0) break;
+                    String block = xml.substring(itemStart, itemEnd);
+                    pos = itemEnd + 7;
+                    String rawTitle = extractXmlTag(block, "title");
+                    String source = extractXmlTag(block, "source");
+                    if (rawTitle != null && !rawTitle.isEmpty()) {
+                        int dashIdx = rawTitle.lastIndexOf(" - ");
+                        if (dashIdx > 10) {
+                            if (source == null || source.isEmpty()) {
+                                source = rawTitle.substring(dashIdx + 3).trim();
                             }
-                            NewsHeadline nh = new NewsHeadline();
-                            nh.title = decodeXmlEntities(rawTitle);
-                            nh.source = source != null && !source.isEmpty() ? decodeXmlEntities(source) : "LIVE";
-                            list.add(nh);
+                            rawTitle = rawTitle.substring(0, dashIdx).trim();
                         }
+                        NewsHeadline nh = new NewsHeadline();
+                        nh.title = decodeXmlEntities(rawTitle);
+                        nh.source = source != null && !source.isEmpty() ? decodeXmlEntities(source) : "LIVE";
+                        list.add(nh);
                     }
-                } catch (Throwable ignored) {}
-                if (!list.isEmpty()) {
-                    sMemNews = list;
-                    sNewsLastTs = System.currentTimeMillis();
                 }
-                if (onDone != null) {
-                    MAIN.post(onDone);
-                }
+            } catch (Throwable ignored) {}
+            if (!list.isEmpty()) {
+                sMemNews = list;
+                sNewsLastTs = System.currentTimeMillis();
+                sNewsSig = sig;
+                sNewsIdx = 0;
+            }
+            if (onDone != null) {
+                MAIN.post(onDone);
             }
         });
     }
@@ -2340,7 +2613,7 @@ public final class HomeDashboard {
 
         final TextView headlineTv = new TextView(host);
         headlineTv.setTextColor(Color.WHITE);
-        headlineTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.2f);
+        headlineTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
         headlineTv.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
         headlineTv.setMaxLines(2);
         headlineTv.setEllipsize(TextUtils.TruncateAt.END);
@@ -2349,15 +2622,21 @@ public final class HomeDashboard {
         hllp.topMargin = dp(host, 4);
         col.addView(headlineTv, hllp);
 
+        final View newsDivider = new View(host);
+        newsDivider.setBackgroundColor(0x26FFFFFF);
+        LinearLayout.LayoutParams ndlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, dp(host, 1)));
+        ndlp.topMargin = dp(host, 4);
+        ndlp.bottomMargin = dp(host, 3);
+        col.addView(newsDivider, ndlp);
+
         final TextView subTv = new TextView(host);
-        subTv.setTextColor(0x99FFFFFF);
-        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        subTv.setTextColor(0xAAFFFFFF);
+        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
         subTv.setSingleLine(true);
         subTv.setEllipsize(TextUtils.TruncateAt.END);
-        LinearLayout.LayoutParams sblp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        sblp.topMargin = dp(host, 2);
-        col.addView(subTv, sblp);
+        col.addView(subTv, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         card.addView(col, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -2368,6 +2647,7 @@ public final class HomeDashboard {
                 if (sMemNews.isEmpty()) {
                     headlineTv.setText(I18n.s(host, "Loading top headlines…", "Gündem haberleri yükleniyor…"));
                     srcBadge.setText("● LIVE");
+                    newsDivider.setVisibility(View.GONE);
                     subTv.setText("");
                     return;
                 }
@@ -2377,25 +2657,22 @@ public final class HomeDashboard {
                 headlineTv.setText(nh.title);
                 if (sMemNews.size() > 1) {
                     NewsHeadline next = sMemNews.get((sNewsIdx + 1) % sMemNews.size());
-                    subTv.setText("• " + next.title);
+                    newsDivider.setVisibility(View.VISIBLE);
+                    subTv.setText(I18n.s(host, "Next: ", "Sonraki: ") + next.title);
+                } else {
+                    newsDivider.setVisibility(View.GONE);
+                    subTv.setText("");
                 }
             }
         };
 
         bindNews.run();
         fetchLiveNews(host, false, bindNews);
-        card.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showNewsDialog(host, new Runnable() {
-                    @Override
-                    public void run() {
-                        sNewsIdx++;
-                        bindNews.run();
-                    }
-                });
-            }
-        });
+        sCardRefreshers.put(card, () -> fetchLiveNews(host, false, bindNews));
+        card.setOnClickListener(v -> showNewsDialog(host, () -> {
+            sNewsIdx++;
+            bindNews.run();
+        }));
         return card;
     }
 
@@ -2412,47 +2689,44 @@ public final class HomeDashboard {
             if (onDone != null) onDone.run();
             return;
         }
-        EXEC.execute(new Runnable() {
-            @Override
-            public void run() {
-                List<Suggestions.Item> out = new ArrayList<Suggestions.Item>();
-                try {
-                    String[] urls = {
-                        "https://v3-cinemeta.strem.io/catalog/series/top.json",
-                        "https://v3-cinemeta.strem.io/catalog/movie/top.json"
-                    };
-                    for (int uIdx = 0; uIdx < urls.length; uIdx++) {
-                        try {
-                            String raw = httpGet(urls[uIdx]);
-                            JSONObject root = new JSONObject(raw);
-                            JSONArray metas = root.optJSONArray("metas");
-                            if (metas == null) continue;
-                            for (int i = 0; i < Math.min(12, metas.length()); i++) {
-                                JSONObject m = metas.optJSONObject(i);
-                                if (m == null) continue;
-                                Suggestions.Item it = new Suggestions.Item();
-                                it.key = m.optString("id", "");
-                                it.title = m.optString("name", "");
-                                it.type = uIdx == 0 ? "series" : "movie";
-                                it.year = m.optString("releaseInfo", "");
-                                it.backdrop = m.optString("poster", m.optString("background", ""));
-                                try {
-                                    it.rating = Float.parseFloat(m.optString("imdbRating", "0"));
-                                } catch (Throwable ignored) {}
-                                if (it.title != null && !it.title.isEmpty()) {
-                                    out.add(it);
-                                }
+        EXEC.execute(() -> {
+            List<Suggestions.Item> out = new ArrayList<Suggestions.Item>();
+            try {
+                String[] urls = {
+                    "https://v3-cinemeta.strem.io/catalog/series/top.json",
+                    "https://v3-cinemeta.strem.io/catalog/movie/top.json"
+                };
+                for (int uIdx = 0; uIdx < urls.length; uIdx++) {
+                    try {
+                        String raw = httpGet(urls[uIdx]);
+                        JSONObject root = new JSONObject(raw);
+                        JSONArray metas = root.optJSONArray("metas");
+                        if (metas == null) continue;
+                        for (int i = 0; i < Math.min(12, metas.length()); i++) {
+                            JSONObject m = metas.optJSONObject(i);
+                            if (m == null) continue;
+                            Suggestions.Item it = new Suggestions.Item();
+                            it.key = m.optString("id", "");
+                            it.title = m.optString("name", "");
+                            it.type = uIdx == 0 ? "series" : "movie";
+                            it.year = m.optString("releaseInfo", "");
+                            it.backdrop = m.optString("poster", m.optString("background", ""));
+                            try {
+                                it.rating = Float.parseFloat(m.optString("imdbRating", "0"));
+                            } catch (Throwable ignored) {}
+                            if (it.title != null && !it.title.isEmpty()) {
+                                out.add(it);
                             }
-                        } catch (Throwable ignored) {}
-                    }
-                } catch (Throwable ignored) {}
-                if (!out.isEmpty()) {
-                    sMemTopMedia = out;
-                    sTopMediaLastTs = System.currentTimeMillis();
+                        }
+                    } catch (Throwable ignored) {}
                 }
-                if (onDone != null) {
-                    MAIN.post(onDone);
-                }
+            } catch (Throwable ignored) {}
+            if (!out.isEmpty()) {
+                sMemTopMedia = out;
+                sTopMediaLastTs = System.currentTimeMillis();
+            }
+            if (onDone != null) {
+                MAIN.post(onDone);
             }
         });
     }
@@ -2541,38 +2815,39 @@ public final class HomeDashboard {
 
                 final String imgUrl = it.backdrop;
                 if (imgUrl != null && !imgUrl.isEmpty()) {
-                    EXEC.execute(new Runnable() {
-                        @Override
-                        public void run() {
+                    if (imgUrl.equals(posterView.getTag())) {
+                        return;
+                    }
+                    final String cacheKey = "poster:" + imgUrl;
+                    Bitmap cachedBmp = sLogoCache.get(cacheKey);
+                    if (cachedBmp != null && !cachedBmp.isRecycled()) {
+                        posterView.setTag(imgUrl);
+                        posterView.setImageBitmap(cachedBmp);
+                    } else {
+                        posterView.setTag(imgUrl);
+                        EXEC.execute(() -> {
                             final Bitmap bmp = Suggestions.image(host, imgUrl, "w342", dp(host, 140));
                             if (bmp != null) {
-                                MAIN.post(new Runnable() {
-                                    @Override
-                                    public void run() {
+                                sLogoCache.put(cacheKey, bmp);
+                                MAIN.post(() -> {
+                                    if (imgUrl.equals(posterView.getTag())) {
                                         posterView.setImageBitmap(bmp);
                                     }
                                 });
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         };
 
         bindTop.run();
         fetchTopMedia(host, false, bindTop);
-        card.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTopMediaDialog(host, new Runnable() {
-                    @Override
-                    public void run() {
-                        sTopMediaIdx++;
-                        bindTop.run();
-                    }
-                });
-            }
-        });
+        sCardRefreshers.put(card, () -> fetchTopMedia(host, false, bindTop));
+        card.setOnClickListener(v -> showTopMediaDialog(host, () -> {
+            sTopMediaIdx++;
+            bindTop.run();
+        }));
         return card;
     }
 
@@ -2581,11 +2856,7 @@ public final class HomeDashboard {
     // =========================================================================
 
     private static void showPrayerDialog(final MainActivity host, final Runnable onUpdated) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 520));
         PrayerData pd = getCachedOrFallbackPrayer(host);
@@ -2646,12 +2917,27 @@ public final class HomeDashboard {
         }
         panel.addView(table, tlp);
 
+        // Location selector button (Country / City or Sync with Weather)
+        final TextView locBtn = createActionPill(host,
+                I18n.s(host, "Location", "Konum") + ": " + getPrayerLocationSummary(host));
+        LinearLayout.LayoutParams lblp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lblp.topMargin = dp(host, 14);
+        locBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+                showPrayerLocationDialog(host, onUpdated);
+            }
+        });
+        panel.addView(locBtn, lblp);
+
         // Calculation method cycle button
         final TextView methodBtn = createActionPill(host,
                 I18n.t(host, "prayer_method_label") + ": " + getPrayerMethodName(host));
         LinearLayout.LayoutParams mblp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mblp.topMargin = dp(host, 14);
+        mblp.topMargin = dp(host, 8);
         methodBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2677,17 +2963,179 @@ public final class HomeDashboard {
         });
         panel.addView(methodBtn, mblp);
 
-        d.setContentView(panel);
-        d.show();
-        methodBtn.requestFocus();
+        presentNativeGlassDialog(host, d, panel);
+        locBtn.requestFocus();
+    }
+
+    private static void showPrayerLocationDialog(final MainActivity host, final Runnable onUpdated) {
+        final Dialog d = createNativeGlassDialog(host);
+        LinearLayout panel = createModalContainer(host, dp(host, 560));
+
+        TextView title = new TextView(host);
+        title.setText(I18n.s(host, "Prayer Times Location", "Namaz Vakitleri Konumu"));
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        panel.addView(title);
+
+        final Runnable applyAndReopen = new Runnable() {
+            @Override
+            public void run() {
+                fetchPrayerTimes(host, true, new PrayerCallback() {
+                    @Override
+                    public void onResult(PrayerData data) {
+                        if (onUpdated != null) onUpdated.run();
+                        showPrayerDialog(host, onUpdated);
+                    }
+                });
+            }
+        };
+
+        // Search input row for any City / Country worldwide
+        LinearLayout searchRow = new LinearLayout(host);
+        searchRow.setOrientation(LinearLayout.HORIZONTAL);
+        searchRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams srlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        srlp.topMargin = dp(host, 12);
+
+        final EditText input = new EditText(host);
+        input.setHint(I18n.s(host, "Search city or country (e.g. Istanbul, London)…", "Şehir veya ülke ara (örn. İstanbul, Londra)…"));
+        input.setHintTextColor(0x88FFFFFF);
+        input.setTextColor(Color.WHITE);
+        input.setSingleLine(true);
+        input.setPadding(dp(host, 14), dp(host, 10), dp(host, 14), dp(host, 10));
+        GradientDrawable inBg = new GradientDrawable();
+        inBg.setCornerRadius(dp(host, 12));
+        inBg.setColor(0x22FFFFFF);
+        inBg.setStroke(dp(host, 1), 0x33FFFFFF);
+        input.setBackground(inBg);
+        searchRow.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        final TextView searchBtn = createActionPill(host, I18n.s(host, "Search", "Ara"));
+        LinearLayout.LayoutParams sblp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        sblp.leftMargin = dp(host, 10);
+        searchRow.addView(searchBtn, sblp);
+        panel.addView(searchRow, srlp);
+
+        final ScrollView sv = new ScrollView(host);
+        final LinearLayout listCol = new LinearLayout(host);
+        listCol.setOrientation(LinearLayout.VERTICAL);
+        sv.addView(listCol);
+        LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 270));
+        svlp.topMargin = dp(host, 12);
+        panel.addView(sv, svlp);
+
+        final Runnable populateDefaults = new Runnable() {
+            @Override
+            public void run() {
+                listCol.removeAllViews();
+                boolean isAuto = isPrayerLocationAuto(host);
+                String wxCity = Weather.place(host);
+                String autoLbl = (isAuto ? "✓ " : "")
+                        + I18n.s(host, "Sync with Weather location", "Hava Durumu konumu ile eşitle")
+                        + (wxCity != null && !wxCity.isEmpty() ? " (" + wxCity + ")" : "");
+                TextView autoRow = createActionPill(host, autoLbl);
+                autoRow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setPrayerLocationAuto(host);
+                        d.dismiss();
+                        applyAndReopen.run();
+                    }
+                });
+                listCol.addView(autoRow, new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                String curCustom = prefs(host).getString(KEY_PRAYER_LOC_NAME, "");
+                for (int i = 0; i < PRAYER_POPULAR_CITIES.length; i++) {
+                    final String cName = PRAYER_POPULAR_CITIES[i][0];
+                    final double cLat = Double.parseDouble(PRAYER_POPULAR_CITIES[i][1]);
+                    final double cLon = Double.parseDouble(PRAYER_POPULAR_CITIES[i][2]);
+                    boolean sel = !isAuto && cName.equalsIgnoreCase(curCustom);
+                    TextView row = createActionPill(host, (sel ? "✓ " : "") + cName);
+                    LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    rlp.topMargin = dp(host, 6);
+                    row.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            setPrayerLocation(host, cName, cLat, cLon);
+                            d.dismiss();
+                            applyAndReopen.run();
+                        }
+                    });
+                    listCol.addView(row, rlp);
+                }
+            }
+        };
+        populateDefaults.run();
+
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String q = input.getText().toString().trim();
+                if (q.isEmpty()) {
+                    populateDefaults.run();
+                    return;
+                }
+                listCol.removeAllViews();
+                TextView loading = new TextView(host);
+                loading.setText(I18n.s(host, "Searching…", "Aranıyor…"));
+                loading.setTextColor(0xB8FFFFFF);
+                loading.setPadding(dp(host, 8), dp(host, 12), dp(host, 8), dp(host, 12));
+                listCol.addView(loading);
+                EXEC.execute(() -> {
+                    List<Weather.Place> found = null;
+                    try {
+                        found = Weather.search(q);
+                    } catch (Throwable ignored) {}
+                    final List<Weather.Place> res = found;
+                    MAIN.post(() -> {
+                        if (!d.isShowing()) return;
+                        listCol.removeAllViews();
+                        if (res == null || res.isEmpty()) {
+                            TextView empty = new TextView(host);
+                            empty.setText(res == null
+                                    ? I18n.s(host, "Search failed. Check internet connection.", "Arama başarısız. İnternet bağlantısını kontrol edin.")
+                                    : I18n.s(host, "No matching city or country found.", "Eşleşen şehir veya ülke bulunamadı."));
+                            empty.setTextColor(0xB8FFFFFF);
+                            empty.setPadding(dp(host, 8), dp(host, 12), dp(host, 8), dp(host, 12));
+                            listCol.addView(empty);
+                            return;
+                        }
+                        for (int i = 0; i < res.size(); i++) {
+                            final Weather.Place pl = res.get(i);
+                            final String label = (pl.detail != null && !pl.detail.isEmpty())
+                                    ? (pl.name + ", " + pl.detail) : pl.name;
+                            TextView row = createActionPill(host, label);
+                            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            if (i > 0) rlp.topMargin = dp(host, 6);
+                            row.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v2) {
+                                    setPrayerLocation(host, label, pl.lat, pl.lon);
+                                    d.dismiss();
+                                    applyAndReopen.run();
+                                }
+                            });
+                            listCol.addView(row, rlp);
+                        }
+                        if (listCol.getChildCount() > 0) listCol.getChildAt(0).requestFocus();
+                    });
+                });
+            }
+        });
+
+        presentNativeGlassDialog(host, d, panel);
+        if (listCol.getChildCount() > 0) listCol.getChildAt(0).requestFocus();
     }
 
     private static void showFootballDialog(final MainActivity host, final Runnable onUpdated, final boolean favOnlyFilter) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 680));
 
@@ -2908,17 +3356,12 @@ public final class HomeDashboard {
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
-        d.setContentView(panel);
-        d.show();
+        presentNativeGlassDialog(host, d, panel);
         filterBtn.requestFocus();
     }
 
     private static void showFavoriteTeamsDialog(final MainActivity host, final Runnable onUpdated) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 560));
 
@@ -3019,16 +3462,11 @@ public final class HomeDashboard {
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
-        d.setContentView(panel);
-        d.show();
+        presentNativeGlassDialog(host, d, panel);
     }
 
     private static void showCricketDialog(final MainActivity host, final Runnable onUpdated) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 600));
         TextView title = new TextView(host);
@@ -3081,17 +3519,12 @@ public final class HomeDashboard {
         });
         panel.addView(refreshBtn, rblp);
 
-        d.setContentView(panel);
-        d.show();
+        presentNativeGlassDialog(host, d, panel);
         refreshBtn.requestFocus();
     }
 
     private static void showNewsDialog(final MainActivity host, final Runnable onCycle) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 620));
         TextView title = new TextView(host);
@@ -3129,16 +3562,11 @@ public final class HomeDashboard {
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
-        d.setContentView(panel);
-        d.show();
+        presentNativeGlassDialog(host, d, panel);
     }
 
     private static void showTopMediaDialog(final MainActivity host, final Runnable onCycle) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 580));
         TextView title = new TextView(host);
@@ -3182,16 +3610,11 @@ public final class HomeDashboard {
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
-        d.setContentView(panel);
-        d.show();
+        presentNativeGlassDialog(host, d, panel);
     }
 
     private static void showReleasesDialog(final MainActivity host, final List<Suggestions.Item> items, final Runnable onCycle) {
-        final Dialog d = new Dialog(host);
-        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (d.getWindow() != null) {
-            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        final Dialog d = createNativeGlassDialog(host);
 
         LinearLayout panel = createModalContainer(host, dp(host, 560));
 
@@ -3232,41 +3655,112 @@ public final class HomeDashboard {
         svlp.topMargin = dp(host, 12);
         panel.addView(sv, svlp);
 
-        d.setContentView(panel);
-        d.show();
+        presentNativeGlassDialog(host, d, panel);
     }
 
-    private static LinearLayout createModalContainer(Context c, int widthPx) {
-        LinearLayout panel = new LinearLayout(c);
+    private static LinearLayout createModalContainer(MainActivity host, int widthPx) {
+        LinearLayout panel = new LinearLayout(host);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(c, 24), dp(c, 22), dp(c, 24), dp(c, 22));
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xF2141824);
-        bg.setCornerRadius(dp(c, 22));
-        bg.setStroke(dp(c, 1), 0x33FFFFFF);
-        panel.setBackground(bg);
+        panel.setPadding(dp(host, 24), dp(host, 22), dp(host, 24), dp(host, 22));
+        panel.setClickable(true);
+        MainActivity.LiquidGlass glass = new MainActivity.LiquidGlass(
+                dp(host, 24), 0xB8181A22, host.glassSource, host.screenW, host.screenH, host.unit);
+        glass.lens = dp(host, 10);
+        glass.rimStrength = 0.45f;
+        panel.setBackground(glass);
+        panel.setOutlineProvider(host.roundedOutline(new float[]{dp(host, 24)}));
+        panel.setClipToOutline(true);
+        panel.setElevation(dp(host, 28));
+        panel.setTag(widthPx);
         panel.setLayoutParams(new FrameLayout.LayoutParams(widthPx, ViewGroup.LayoutParams.WRAP_CONTENT));
         return panel;
+    }
+
+    private static Dialog sActiveDialog;
+
+    public static void dismissActiveDialog() {
+        Dialog d = sActiveDialog;
+        sActiveDialog = null;
+        if (d != null) {
+            try {
+                if (d.isShowing()) d.dismiss();
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    private static Dialog createNativeGlassDialog(MainActivity host) {
+        Dialog d = new Dialog(host, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            d.getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            d.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+        return d;
+    }
+
+    private static void presentNativeGlassDialog(final MainActivity host, final Dialog d, final LinearLayout panel) {
+        dismissActiveDialog();
+        sActiveDialog = d;
+        d.setOnDismissListener(dialog -> {
+            if (sActiveDialog == dialog) sActiveDialog = null;
+        });
+        d.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_HOME) {
+                if (event.getAction() == KeyEvent.ACTION_UP) dialog.dismiss();
+                return true;
+            }
+            return false;
+        });
+
+        FrameLayout layer = new FrameLayout(host);
+        layer.setClickable(true);
+        host.addBlurredBackdrop(layer, 0x66000000);
+        layer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+
+        int widthPx = (panel.getTag() instanceof Integer) ? (Integer) panel.getTag() : dp(host, 560);
+        int maxW = Math.min(widthPx, Math.max(dp(host, 360), host.screenW - dp(host, 64)));
+        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(maxW, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        plp.topMargin = dp(host, 24);
+        plp.bottomMargin = dp(host, 24);
+        layer.addView(panel, plp);
+
+        d.setContentView(layer);
+        d.show();
+
+        layer.setAlpha(0f);
+        panel.setScaleX(0.94f);
+        panel.setScaleY(0.94f);
+        layer.animate().alpha(1f).setDuration(180).start();
+        panel.animate().scaleX(1f).scaleY(1f).setDuration(220).setInterpolator(MainActivity.LIFT).start();
     }
 
     private static TextView createActionPill(final Context c, String text) {
         final TextView tv = new TextView(c);
         tv.setText(text);
-        tv.setTextColor(Color.WHITE);
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.5f);
+        tv.setTextColor(0xFFF4F4F6);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         tv.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-        tv.setPadding(dp(c, 16), dp(c, 11), dp(c, 16), dp(c, 11));
+        tv.setPadding(dp(c, 16), dp(c, 10), dp(c, 16), dp(c, 10));
         tv.setFocusable(true);
+        tv.setClickable(true);
         final GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(dp(c, 12));
-        bg.setColor(0x22FFFFFF);
-        bg.setStroke(dp(c, 1), 0x33FFFFFF);
+        bg.setCornerRadius(dp(c, 13));
+        bg.setColor(0x1AFFFFFF);
+        bg.setStroke(dp(c, 1), 0x28FFFFFF);
         tv.setBackground(bg);
         tv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                bg.setColor(hasFocus ? 0x44FFFFFF : 0x22FFFFFF);
-                bg.setStroke(dp(c, hasFocus ? 2 : 1), hasFocus ? 0xEEFFFFFF : 0x33FFFFFF);
+                bg.setColor(hasFocus ? 0xF2FFFFFF : 0x1AFFFFFF);
+                bg.setStroke(dp(c, 1), hasFocus ? 0xFFFFFFFF : 0x28FFFFFF);
+                tv.setTextColor(hasFocus ? 0xFF111114 : 0xFFF4F4F6);
+                v.animate().scaleX(hasFocus ? 1.02f : 1f).scaleY(hasFocus ? 1.02f : 1f).setDuration(150).start();
             }
         });
         return tv;

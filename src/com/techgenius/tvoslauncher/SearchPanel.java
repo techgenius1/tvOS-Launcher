@@ -78,6 +78,11 @@ final class SearchPanel {
             return size() > 20;
         }
     };
+    final Map<String, List<Search.InAppResult>> inAppCache = new LinkedHashMap<String, List<Search.InAppResult>>(24, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, List<Search.InAppResult>> e) {
+            return size() > 20;
+        }
+    };
     /** Decoded posters and logos, capped at 1/12 of the heap (the 1 GB TV gets ~16 MB). */
     final LruCache<String, Bitmap> bitmaps = new LruCache<String, Bitmap>((int) (Runtime.getRuntime().maxMemory() / 12)) {
         @Override protected int sizeOf(String k, Bitmap b) {
@@ -87,6 +92,7 @@ final class SearchPanel {
     final Runnable fetch = this::fetchTitles;
     /** The TV has voice input (a prompt app); live dictates in place when it also has a speech service. */
     final boolean voice, live;
+    final List<Search.AppSearchEntry> searchableApps;
     ImageView mic;
     GradientDrawable micBg;
     SpeechRecognizer recognizer;
@@ -95,36 +101,92 @@ final class SearchPanel {
     String failed;
     FrameLayout sheet;
     View sheetReturn;
-    LinearLayout titleRow, stremioRow;
+    LinearLayout titleRow, stremioRow, inAppRow;
     TextView titleStatus;
     boolean closed;
 
     SearchPanel(MainActivity a) {
         this.a = a;
         apps = Search.apps(a, a.all);
+        searchableApps = Search.discoverSearchableApps(a);
         voice = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).resolveActivity(a.getPackageManager()) != null;
         live = SpeechRecognizer.isRecognitionAvailable(a);
 
         layer = new FrameLayout(a);
         layer.setClickable(true);
         layer.setClipChildren(false);
-        a.addBlurredBackdrop(layer, 0xD9000000);
+        layer.setClipToPadding(false);
+        a.addBlurredBackdrop(layer, 0x55000000);
+        layer.setOnClickListener(v -> {
+            if (sheet != null) closeSheet();
+            else a.closeSearch();
+        });
 
-        LinearLayout col = new LinearLayout(a);
-        col.setOrientation(LinearLayout.VERTICAL);
-        col.setClipChildren(false);
-        layer.addView(col, a.match());
+        int panelW = Math.min(a.dp(780), Math.max(a.dp(520), a.screenW - a.dp(72)));
+        int panelH = Math.min(a.dp(448), Math.max(a.dp(340), a.screenH - a.dp(60)));
+        LinearLayout card = new LinearLayout(a);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setClickable(true);
+        card.setClipChildren(true);
+        card.setClipToPadding(true);
+        MainActivity.LiquidGlass cardGlass = new MainActivity.LiquidGlass(
+                a.dp(24), 0xB8181A22, a.glassSource, a.screenW, a.screenH, a.unit);
+        cardGlass.lens = a.dp(10);
+        cardGlass.rimStrength = 0.45f;
+        card.setBackground(cardGlass);
+        card.setOutlineProvider(a.roundedOutline(new float[]{a.dp(24)}));
+        card.setClipToOutline(true);
+        card.setElevation(a.dp(28));
 
-        // Header: the dictation mic (as in tvOS's search field) and what you typed or said.
+        // Top Header Bar (matches Other Apps modal): [Search Icon] Search   [Frosted Query Pill]   [Mic]
         LinearLayout head = new LinearLayout(a);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
         head.setClipChildren(false);
-        head.setPadding(a.dockOuter, a.dp(30), a.dockOuter, 0);
+        head.setClipToPadding(false);
+        head.setPadding(a.dp(22), a.dp(14), a.dp(20), a.dp(13));
+
+        ImageView headerGlyph = new ImageView(a);
+        headerGlyph.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        headerGlyph.setImageBitmap(Glyphs.get("search", a.dp(17), 0xFFF4F4F6));
+        LinearLayout.LayoutParams hglp = new LinearLayout.LayoutParams(a.dp(17), a.dp(17));
+        hglp.setMarginEnd(a.dp(9));
+        head.addView(headerGlyph, hglp);
+
+        TextView headerTitle = a.text(15.5f, Ui.font(a, "semibold"), 1f);
+        headerTitle.setTextColor(0xFFF4F4F6);
+        headerTitle.setText(tr("Search", "Ara"));
+        headerTitle.setShadowLayer(0, 0, 0, 0);
+        LinearLayout.LayoutParams htlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        htlp.setMarginEnd(a.dp(16));
+        head.addView(headerTitle, htlp);
+
+        LinearLayout queryPill = new LinearLayout(a);
+        queryPill.setOrientation(LinearLayout.HORIZONTAL);
+        queryPill.setGravity(Gravity.CENTER_VERTICAL);
+        GradientDrawable pillBg = new GradientDrawable();
+        pillBg.setCornerRadius(a.dp(13));
+        pillBg.setColor(0x16FFFFFF);
+        pillBg.setStroke(Math.max(1, a.dp(0.8f)), 0x26FFFFFF);
+        queryPill.setBackground(pillBg);
+        queryPill.setPadding(a.dp(14), a.dp(7), a.dp(14), a.dp(7));
+
+        queryView = a.text(16f, Ui.font(a, "medium"), 1f);
+        queryView.setSingleLine(true);
+        queryView.setEllipsize(TextUtils.TruncateAt.START);
+        queryView.setShadowLayer(0, 0, 0, 0);
+        queryPill.addView(queryView, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        head.addView(queryPill, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
         if (voice || live) {
             mic = new ImageView(a);
             mic.setId(View.generateViewId());
-            mic.setScaleType(ImageView.ScaleType.CENTER);
+            mic.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            mic.setCropToPadding(false);
+            int pad = a.dp(8);
+            mic.setPadding(pad, pad, pad, pad);
             mic.setFocusable(true);
             mic.setClickable(true);
             micBg = new GradientDrawable();
@@ -132,45 +194,57 @@ final class SearchPanel {
             mic.setBackground(micBg);
             mic.setOnFocusChangeListener((v, has) -> {
                 paintMic();
-                v.animate().scaleX(has ? 1.12f : 1f).scaleY(has ? 1.12f : 1f).setDuration(180).setInterpolator(MainActivity.LIFT).start();
+                v.animate().scaleX(has ? 1.1f : 1f).scaleY(has ? 1.1f : 1f).setDuration(150).setInterpolator(MainActivity.LIFT).start();
             });
             mic.setOnClickListener(v -> listen());
             paintMic();
-            LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(a.dp(34), a.dp(34));
-            mlp.rightMargin = a.dp(14);
+            LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(a.dp(36), a.dp(36));
+            mlp.gravity = Gravity.CENTER_VERTICAL;
+            mlp.setMarginStart(a.dp(12));
             head.addView(mic, mlp);
         }
-        queryView = a.text(26, Ui.font(a, "display"), 1f);
-        queryView.setSingleLine(true);
-        queryView.setEllipsize(TextUtils.TruncateAt.START);
-        head.addView(queryView, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        col.addView(head, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        card.addView(head, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        // Subtle 1dp horizontal divider (matches Other Apps)
+        View div1 = new View(a);
+        div1.setBackgroundColor(0x1FFFFFFF);
+        card.addView(div1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, a.dp(0.8f))));
 
         keyScroll = new HorizontalScrollView(a);
         keyScroll.setHorizontalScrollBarEnabled(false);
         keyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         keyScroll.setClipToPadding(false);
         keyScroll.setClipChildren(false);
-        keyScroll.setPadding(a.dockOuter - a.dp(6), a.dp(8), a.dockOuter, a.dp(8));
+        keyScroll.setBackgroundColor(0x0BFFFFFF);
+        keyScroll.setPadding(a.dp(18), a.dp(6), a.dp(18), a.dp(6));
         keys = new LinearLayout(a);
         keys.setOrientation(LinearLayout.HORIZONTAL);
         keys.setClipChildren(false);
         keyScroll.addView(keys);
-        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, a.dp(50));
-        klp.topMargin = a.dp(10);
-        col.addView(keyScroll, klp);
+        card.addView(keyScroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, a.dp(46)));
+
+        View div2 = new View(a);
+        div2.setBackgroundColor(0x14FFFFFF);
+        card.addView(div2, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, a.dp(0.8f))));
 
         results = new ScrollView(a);
         results.setVerticalScrollBarEnabled(false);
         results.setOverScrollMode(View.OVER_SCROLL_NEVER);
         results.setClipChildren(false);
         results.setClipToPadding(false);
-        results.setPadding(0, a.dp(4), 0, a.dp(40));
+        results.setPadding(0, a.dp(4), 0, a.dp(18));
         list = new LinearLayout(a);
         list.setOrientation(LinearLayout.VERTICAL);
         list.setClipChildren(false);
+        list.setClipToPadding(false);
         results.addView(list, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        col.addView(results, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        card.addView(results, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        FrameLayout.LayoutParams clp = new FrameLayout.LayoutParams(panelW, panelH, Gravity.CENTER);
+        layer.addView(card, clp);
+        card.setScaleX(0.95f);
+        card.setScaleY(0.95f);
+        card.animate().scaleX(1f).scaleY(1f).setDuration(210).setInterpolator(MainActivity.LIFT).start();
 
         buildKeys(null);
         showQuery();
@@ -207,9 +281,11 @@ final class SearchPanel {
         made.add(key(tr("clear", "temizle"), a.dp(56), this::clear));
         View focus = made.get(0);
         for (View k : made) {
+            if (mic != null) k.setNextFocusUpId(mic.getId());
             keys.addView(k);
             if (focusLabel != null && focusLabel.equals(k.getTag())) focus = k;
         }
+        if (mic != null) mic.setNextFocusDownId(made.get(0).getId());
         // The ends of the row stop focus instead of wrapping into the results.
         made.get(0).setNextFocusLeftId(made.get(0).getId());
         made.get(made.size() - 1).setNextFocusRightId(made.get(made.size() - 1).getId());
@@ -280,8 +356,9 @@ final class SearchPanel {
     void paintMic() {
         if (mic == null) return;
         boolean f = mic.isFocused();
-        micBg.setColor(listening ? 0xFFFF3B30 : f ? Color.WHITE : 0x26FFFFFF);
-        mic.setImageBitmap(Glyphs.get("mic", a.dp(20), listening || !f ? Color.WHITE : 0xFF111114));
+        micBg.setColor(listening ? 0xFFFF3B30 : f ? 0xF2FFFFFF : 0x1EFFFFFF);
+        micBg.setStroke(Math.max(1, a.dp(0.8f)), listening ? 0xFFFF3B30 : f ? 0xFFFFFFFF : 0x2EFFFFFF);
+        mic.setImageBitmap(Glyphs.get("mic", a.dp(22), listening || !f ? 0xFFF4F4F6 : 0xFF111114));
     }
 
     /**
@@ -433,7 +510,7 @@ final class SearchPanel {
         Search.cancel();
         render();
         String q = q();
-        if (q.length() >= 2 && Search.titlesEnabled(a) && !cache.containsKey(q.toLowerCase())) {
+        if (q.length() >= 2 && ((Search.titlesEnabled(a) && !cache.containsKey(q.toLowerCase())) || !inAppCache.containsKey(q.toLowerCase()))) {
             a.handler.postDelayed(fetch, DEBOUNCE_MS);
         }
     }
@@ -448,16 +525,30 @@ final class SearchPanel {
         View focus = a.getCurrentFocus();
         boolean inResults = focus != null && isInside(focus, list);
         list.removeAllViews();
-        titleRow = stremioRow = null;
+        titleRow = stremioRow = inAppRow = null;
         titleStatus = null;
         String q = q();
         if (q.isEmpty()) {
             renderSuggestions();
         } else {
             List<View> local = localResults(q);
-            if (!local.isEmpty()) addRow(tr("Apps & Settings", "Uygulamalar ve Ayarlar"), local, a.dp(84));
+            if (!local.isEmpty()) addRow(tr("Apps & Settings", "Uygulamalar ve Ayarlar"), local, a.dp(92));
+            boolean hasAppTargets = false;
+            if (q.length() >= 2) {
+                List<Search.AppSearchTarget> targets = Search.appSearchTargets(searchableApps, q);
+                if (!targets.isEmpty()) {
+                    hasAppTargets = true;
+                    List<View> chips = new ArrayList<>();
+                    for (Search.AppSearchTarget t : targets) {
+                        chips.add(chip(t.label, () -> Search.openAppSearch(a, t)));
+                    }
+                    addRow(tr("Search in Apps", "Uygulamalarda Ara"), chips, a.dp(40));
+                }
+                List<Search.InAppResult> inAppHits = inAppCache.get(q.toLowerCase());
+                if (inAppHits != null && !inAppHits.isEmpty()) fillInApp(inAppHits);
+            }
             if (q.length() >= 2 && Search.titlesEnabled(a)) {
-                titleRow = addRow(tr("Movies & TV", "Filmler ve Diziler"), new ArrayList<>(), a.dp(176));
+                titleRow = addRow(tr("Movies & TV", "Filmler ve Diziler"), new ArrayList<>(), a.dp(162));
                 List<Search.Title> hit = cache.get(q.toLowerCase());
                 if (hit != null) fillTitles(hit);
                 else titleStatus(q.equals(failed) ? tr("Can\u2019t reach the internet", "\u0130nternete ula\u015f\u0131lam\u0131yor") : tr("Searching\u2026", "Aran\u0131yor\u2026"));
@@ -465,7 +556,7 @@ final class SearchPanel {
                     List<Search.Title> sh = stremioCache.get(q.toLowerCase());
                     if (sh != null) fillStremio(sh);
                 }
-            } else if (local.isEmpty()) {
+            } else if (local.isEmpty() && !hasAppTargets) {
                 addNote(q.length() < 2 ? tr("Keep typing to search movies and shows", "Film ve dizileri aramak i\u00e7in yazmaya devam edin") : tr("No results", "Sonu\u00e7 bulunamad\u0131"));
             }
         }
@@ -526,7 +617,7 @@ final class SearchPanel {
             int s = Search.score((String) act[0], (String) act[1], q);
             if (s >= 0) hits.add(new Object[]{s + 1, actionCard((String) act[0], (String) act[2], (Runnable) act[3])});
         }
-        hits.sort((x, y) -> Integer.compare((int) x[0], (int) y[0]));
+        java.util.Collections.sort(hits, (x, y) -> Integer.compare((int) x[0], (int) y[0]));
         List<View> out = new ArrayList<>();
         for (int i = 0; i < hits.size() && i < 14; i++) out.add((View) hits.get(i)[1]);
         return out;
@@ -564,22 +655,23 @@ final class SearchPanel {
 
     /** A section title and a horizontal row; items keep focus inside the row at its ends. */
     LinearLayout addRow(String title, List<View> items, int height) {
-        TextView h = a.text(13, Ui.font(a, "semibold"), 0.7f);
+        TextView h = a.text(12.5f, Ui.font(a, "semibold"), 0.72f);
         h.setText(title);
         h.setShadowLayer(0, 0, 0, 0);
-        h.setPadding(a.dockOuter, a.dp(14), 0, a.dp(2));
+        h.setPadding(a.dp(22), a.dp(12), a.dp(22), a.dp(2));
         list.addView(h);
         HorizontalScrollView hs = new HorizontalScrollView(a);
         hs.setHorizontalScrollBarEnabled(false);
         hs.setOverScrollMode(View.OVER_SCROLL_NEVER);
         hs.setClipToPadding(false);
         hs.setClipChildren(false);
-        hs.setPadding(a.dockOuter, a.dp(10), a.dockOuter, a.dp(10));
+        hs.setPadding(a.dp(22), a.dp(8), a.dp(22), a.dp(8));
         LinearLayout row = new LinearLayout(a);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setClipChildren(false);
+        row.setClipToPadding(false);
         hs.addView(row);
-        list.addView(hs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height + a.dp(20)));
+        list.addView(hs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height + a.dp(16)));
         setItems(row, items);
         return row;
     }
@@ -592,7 +684,7 @@ final class SearchPanel {
             LinearLayout.LayoutParams lp = v.getLayoutParams() instanceof LinearLayout.LayoutParams
                     ? (LinearLayout.LayoutParams) v.getLayoutParams()
                     : new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = a.dp(16);
+            lp.rightMargin = a.dp(14);
             row.addView(v, lp);
         }
         if (!items.isEmpty()) {
@@ -603,10 +695,10 @@ final class SearchPanel {
     }
 
     void addNote(String s) {
-        TextView t = a.text(15, Ui.font(a, "regular"), 0.6f);
+        TextView t = a.text(14, Ui.font(a, "regular"), 0.6f);
         t.setText(s);
         t.setShadowLayer(0, 0, 0, 0);
-        t.setPadding(a.dockOuter, a.dp(24), a.dockOuter, 0);
+        t.setPadding(a.dp(22), a.dp(20), a.dp(22), 0);
         list.addView(t);
     }
 
@@ -627,24 +719,26 @@ final class SearchPanel {
         if (q.length() < 2 || closed) return;
         int g = gen;
         String key = q.toLowerCase();
-        net.execute(() -> {
-            List<Search.Title> r = null;
-            try {
-                r = Search.titles(a, q, apps);
-            } catch (Exception e) {
-                android.util.Log.w("TvHome", "search: " + e);
-            }
-            List<Search.Title> res = r;
-            a.handler.post(() -> {
-                if (closed) return;
-                if (res != null) cache.put(key, res);
-                else failed = q;
-                if (g != gen) return;
-                if (res != null) fillTitles(res);
-                else titleStatus(tr("Can\u2019t reach the internet", "\u0130nternete ula\u015f\u0131lam\u0131yor"));
+        if (Search.titlesEnabled(a) && !cache.containsKey(key)) {
+            net.execute(() -> {
+                List<Search.Title> r = null;
+                try {
+                    r = Search.titles(a, q, apps);
+                } catch (Exception e) {
+                    android.util.Log.w("TvHome", "search: " + e);
+                }
+                List<Search.Title> res = r;
+                a.handler.post(() -> {
+                    if (closed) return;
+                    if (res != null) cache.put(key, res);
+                    else failed = q;
+                    if (g != gen) return;
+                    if (res != null) fillTitles(res);
+                    else titleStatus(tr("Can\u2019t reach the internet", "\u0130nternete ula\u015f\u0131lam\u0131yor"));
+                });
             });
-        });
-        if (Search.hasStremioApp(a) && !stremioCache.containsKey(key)) {
+        }
+        if (Search.titlesEnabled(a) && Search.hasStremioApp(a) && !stremioCache.containsKey(key)) {
             net.execute(() -> {
                 List<Search.Title> r;
                 try {
@@ -656,6 +750,16 @@ final class SearchPanel {
                     if (closed) return;
                     stremioCache.put(key, r);
                     if (g == gen) fillStremio(r);
+                });
+            });
+        }
+        if (!inAppCache.containsKey(key)) {
+            net.execute(() -> {
+                List<Search.InAppResult> r = Search.queryAppSearchProviders(a, q, 12);
+                a.handler.post(() -> {
+                    if (closed) return;
+                    inAppCache.put(key, r);
+                    if (g == gen) fillInApp(r);
                 });
             });
         }
@@ -688,21 +792,58 @@ final class SearchPanel {
             List<String> names = new ArrayList<>();
             for (Suggestions.Provider p : Suggestions.stremioApps(a)) names.add(p.name);
             if (names.isEmpty()) names.add(Suggestions.stremioApp(a).name);
-            stremioRow = addRow(tr("On ", "") + String.join(" \u00b7 ", names) + tr("", " \u00fczerinde"), cards, a.dp(176));
+            stremioRow = addRow(tr("On ", "") + android.text.TextUtils.join(" \u00b7 ", names) + tr("", " \u00fczerinde"), cards, a.dp(162));
         }
         else setItems(stremioRow, cards);
     }
 
+    void fillInApp(List<Search.InAppResult> items) {
+        if (items == null || items.isEmpty()) return;
+        List<View> cards = new ArrayList<>();
+        for (Search.InAppResult r : items) cards.add(inAppCard(r));
+        if (inAppRow == null) {
+            inAppRow = addRow(tr("In-App Results", "Uygulama İçi Sonuçlar"), cards, a.dp(162));
+        } else {
+            setItems(inAppRow, cards);
+        }
+    }
+
+    View inAppCard(Search.InAppResult r) {
+        int w = a.dp(86), h = a.dp(129);
+        FrameLayout art = new FrameLayout(a);
+        art.setBackgroundColor(0x22FFFFFF);
+        ImageView poster = new ImageView(a);
+        poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        art.addView(poster, a.match());
+        TextView fallback = a.text(11.5f, Ui.font(a, "semibold"), 0.85f);
+        fallback.setText(r.title);
+        fallback.setGravity(Gravity.CENTER);
+        fallback.setPadding(a.dp(6), 0, a.dp(6), 0);
+        art.addView(fallback, a.match());
+        if (!r.art.isEmpty()) load(poster, r.art, w, fallback);
+        String label = r.title + (!r.appName.isEmpty() ? "  ·  " + r.appName : "");
+        View cell = cell(art, w, h, label, a.dp(10));
+        cell.setOnClickListener(v -> {
+            Search.remember(a, q());
+            Search.openInAppResult(a, r);
+        });
+        return cell;
+    }
+
     // ---------------------------------------------------------------- cards
 
-    /** An app's own banner in Apple's 5:3 card, name below; focus lifts it as on the Home Screen. */
+    /** Squircle app icon matching the Other Apps modal design, name centered below. */
     View appCard(MainActivity.AppEntry e) {
-        int w = a.dp(105), h = a.dp(63);
-        ImageView art = new ImageView(a);
-        art.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Drawable d = e.banner != null ? e.banner : e.icon;
-        art.setImageDrawable(d);
-        View cell = cell(art, w, h, e.label, a.dp(8));
+        int sz = a.dp(60);
+        int rad = a.dp(14);
+        FrameLayout art = new FrameLayout(a);
+        art.setBackgroundColor(e.color != 0 ? e.color : 0xFF1A1C22);
+        ImageView iv = new ImageView(a);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Drawable d = e.icon != null ? e.icon : e.banner;
+        iv.setImageDrawable(d);
+        art.addView(iv, a.match());
+        View cell = cell(art, sz, sz, e.label, rad, true);
         cell.setOnClickListener(v -> {
             Search.remember(a, q());
             a.launchAnimated(v, e);
@@ -711,12 +852,16 @@ final class SearchPanel {
     }
 
     View actionCard(String label, String glyph, Runnable run) {
-        int w = a.dp(105), h = a.dp(63);
+        int sz = a.dp(60);
+        int rad = a.dp(14);
         ImageView art = new ImageView(a);
         art.setScaleType(ImageView.ScaleType.CENTER);
-        art.setImageBitmap(Glyphs.get(glyph, a.dp(26), Color.WHITE));
-        art.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFF5A5A60, 0xFF2C2C30}));
-        View cell = cell(art, w, h, label, a.dp(8));
+        art.setImageBitmap(Glyphs.get(glyph, a.dp(24), 0xFFF4F4F6));
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0x38FFFFFF, 0x18FFFFFF});
+        bg.setCornerRadius(rad);
+        bg.setStroke(Math.max(1, a.dp(0.8f)), 0x26FFFFFF);
+        art.setBackground(bg);
+        View cell = cell(art, sz, sz, label, rad, true);
         cell.setOnClickListener(v -> {
             Search.remember(a, q());
             run.run();
@@ -726,13 +871,13 @@ final class SearchPanel {
 
     /** A movie or series poster (2:3) with the logos of up to three services that have it. */
     View titleCard(Search.Title t) {
-        int w = a.dp(96), h = a.dp(144);
+        int w = a.dp(86), h = a.dp(129);
         FrameLayout art = new FrameLayout(a);
-        art.setBackgroundColor(0x26FFFFFF);
+        art.setBackgroundColor(0x22FFFFFF);
         ImageView poster = new ImageView(a);
         poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
         art.addView(poster, a.match());
-        TextView fallback = a.text(12, Ui.font(a, "semibold"), 0.85f);
+        TextView fallback = a.text(11.5f, Ui.font(a, "semibold"), 0.85f);
         fallback.setText(t.title);
         fallback.setGravity(Gravity.CENTER);
         fallback.setPadding(a.dp(6), 0, a.dp(6), 0);
@@ -746,68 +891,80 @@ final class SearchPanel {
             ImageView li = new ImageView(a);
             li.setScaleType(ImageView.ScaleType.FIT_CENTER);
             round(li, a.dp(4));
-            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(a.dp(20), a.dp(20));
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(a.dp(18), a.dp(18));
             llp.rightMargin = a.dp(3);
             logos.addView(li, llp);
-            load(li, o.icon, a.dp(20), null);
+            load(li, o.icon, a.dp(18), null);
             n++;
         }
         art.addView(logos, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM | Gravity.START));
         if (!t.poster.isEmpty()) load(poster, t.poster, w, fallback);
-        View cell = cell(art, w, h, t.title + (t.year.isEmpty() ? "" : "  ·  " + t.year), a.dp(8));
+        View cell = cell(art, w, h, t.title + (t.year.isEmpty() ? "" : "  ·  " + t.year), a.dp(10), false);
         cell.setOnClickListener(v -> showSheet(t, v));
         return cell;
     }
 
-    /** Card art with a label below; the art lifts 1.1x on focus and the label brightens. */
     View cell(View art, int w, int h, String label, int radius) {
+        return cell(art, w, h, label, radius, false);
+    }
+
+    /** Card art with a label below; focus adds crisp white ring and smooth lift matching Other Apps. */
+    View cell(View art, int w, int h, String label, int radius, boolean centerLabel) {
         LinearLayout cell = new LinearLayout(a);
         cell.setOrientation(LinearLayout.VERTICAL);
+        cell.setGravity(centerLabel ? Gravity.CENTER_HORIZONTAL : Gravity.START);
         cell.setFocusable(true);
         cell.setClickable(true);
         cell.setClipChildren(false);
+        cell.setClipToPadding(false);
         round(art, radius);
+        Drawable ring = SceneHome.createIconFocusRingDrawable(radius, a.dp(2f), false);
         cell.addView(art, new LinearLayout.LayoutParams(w, h));
-        TextView l = a.text(11.5f, Ui.font(a, "medium"), 0.6f);
+        TextView l = a.text(11f, Ui.font(a, "medium"), 0.72f);
         l.setText(label);
+        l.setGravity(centerLabel ? Gravity.CENTER_HORIZONTAL : Gravity.START);
         l.setSingleLine(true);
         l.setEllipsize(TextUtils.TruncateAt.END);
         l.setShadowLayer(0, 0, 0, 0);
-        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
+                centerLabel ? Math.max(w, a.dp(74)) : w, ViewGroup.LayoutParams.WRAP_CONTENT);
         llp.topMargin = a.dp(6);
         cell.addView(l, llp);
         cell.setOnFocusChangeListener((v, has) -> {
-            art.animate().scaleX(has ? 1.1f : 1f).scaleY(has ? 1.1f : 1f).translationZ(has ? a.dp(10) : 0)
-                    .setDuration(200).setInterpolator(MainActivity.LIFT).start();
-            l.setAlpha(has ? 1f : 0.6f);
-            l.animate().translationY(has ? a.dp(5) : 0).setDuration(200).start();
+            art.setForeground(has ? ring : null);
+            art.animate().scaleX(has ? 1.09f : 1f).scaleY(has ? 1.09f : 1f)
+                    .setDuration(170).setInterpolator(MainActivity.LIFT).start();
+            l.setAlpha(has ? 1f : 0.72f);
+            l.animate().translationY(has ? a.dp(3) : 0).setDuration(170).start();
         });
-        art.setPivotY(h);
+        art.setPivotY(h / 2f);
         art.setPivotX(w / 2f);
         return cell;
     }
 
     View chip(String label, Runnable click) {
-        TextView t = a.text(13, Ui.font(a, "medium"), 1f);
+        TextView t = a.text(12.5f, Ui.font(a, "medium"), 1f);
         t.setText(label);
         t.setSingleLine(true);
         t.setGravity(Gravity.CENTER);
         t.setShadowLayer(0, 0, 0, 0);
-        t.setPadding(a.dp(16), 0, a.dp(16), 0);
+        t.setPadding(a.dp(15), 0, a.dp(15), 0);
         t.setFocusable(true);
         t.setClickable(true);
         GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(a.dp(15));
-        bg.setColor(0x26FFFFFF);
+        bg.setCornerRadius(a.dp(14));
+        bg.setColor(0x1AFFFFFF);
+        bg.setStroke(Math.max(1, a.dp(0.8f)), 0x28FFFFFF);
         t.setBackground(bg);
         t.setOnFocusChangeListener((v, has) -> {
-            bg.setColor(has ? Color.WHITE : 0x26FFFFFF);
-            t.setTextColor(has ? 0xFF111114 : Color.WHITE);
-            v.animate().scaleX(has ? 1.08f : 1f).scaleY(has ? 1.08f : 1f).setDuration(180).start();
+            bg.setColor(has ? 0xF2FFFFFF : 0x1AFFFFFF);
+            bg.setStroke(Math.max(1, a.dp(0.8f)), has ? 0xFFFFFFFF : 0x28FFFFFF);
+            t.setTextColor(has ? 0xFF111114 : 0xFFF4F4F6);
+            v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f).setDuration(160).start();
         });
         t.setOnClickListener(v -> click.run());
-        t.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, a.dp(30)));
+        t.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, a.dp(28)));
         return t;
     }
 
@@ -871,58 +1028,69 @@ final class SearchPanel {
         sheetReturn = from;
         FrameLayout s = new FrameLayout(a);
         s.setClickable(true);
-        s.setBackgroundColor(0xFF0B0B0F);
+        s.setBackgroundColor(0x66000000);
+        s.setOnClickListener(v -> closeSheet());
+
+        int panelW = Math.min(a.dp(780), Math.max(a.dp(520), a.screenW - a.dp(72)));
+        int panelH = Math.min(a.dp(448), Math.max(a.dp(340), a.screenH - a.dp(60)));
+        FrameLayout card = new FrameLayout(a);
+        card.setClickable(true);
+        card.setBackgroundColor(0xFF14161E);
+        card.setOutlineProvider(a.roundedOutline(new float[]{a.dp(24)}));
+        card.setClipToOutline(true);
+        card.setElevation(a.dp(30));
+
         ImageView back = new ImageView(a);
         back.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        s.addView(back, a.match());
+        card.addView(back, a.match());
         View scrim = new View(a);
         scrim.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[]{0xF20B0B0F, 0xCC0B0B0F, 0x330B0B0F}));
-        s.addView(scrim, a.match());
+                new int[]{0xF012141C, 0xCC12141C, 0x4412141C}));
+        card.addView(scrim, a.match());
         String art = !t.backdrop.isEmpty() ? t.backdrop : t.poster;
-        if (!art.isEmpty()) load(back, art, Math.min(1280, a.screenW), null);
+        if (!art.isEmpty()) load(back, art, Math.min(1280, panelW), null);
 
         LinearLayout col = new LinearLayout(a);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setClipChildren(false);
-        col.setPadding(a.dockOuter, a.dp(60), 0, a.dp(30));
-        TextView title = a.text(34, Ui.font(a, "display"), 1f);
+        col.setPadding(a.dp(30), a.dp(28), a.dp(30), a.dp(24));
+        TextView title = a.text(28, Ui.font(a, "display"), 1f);
         title.setText(t.title);
         title.setMaxLines(2);
         title.setEllipsize(TextUtils.TruncateAt.END);
-        col.addView(title, new LinearLayout.LayoutParams(a.dp(520), ViewGroup.LayoutParams.WRAP_CONTENT));
+        col.addView(title, new LinearLayout.LayoutParams(a.dp(480), ViewGroup.LayoutParams.WRAP_CONTENT));
         List<String> meta = new ArrayList<>();
         if (!t.year.isEmpty()) meta.add(t.year);
         meta.add(t.type.equals("tv") ? tr("Series", "Dizi") : tr("Movie", "Film"));
         if (!t.genres.isEmpty()) meta.add(t.genres);
         if (t.rating > 0) meta.add(String.format(java.util.Locale.US, "IMDb %.1f", t.rating));
-        TextView m = a.text(13, Ui.font(a, "medium"), 0.75f);
-        m.setText(String.join("  \u00b7  ", meta));
+        TextView m = a.text(13, Ui.font(a, "medium"), 0.78f);
+        m.setText(android.text.TextUtils.join("  \u00b7  ", meta));
         LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mlp.topMargin = a.dp(6);
         col.addView(m, mlp);
         if (!t.overview.isEmpty()) {
-            TextView o = a.text(14, Ui.font(a, "regular"), 0.85f);
+            TextView o = a.text(13.5f, Ui.font(a, "regular"), 0.85f);
             o.setText(t.overview);
-            o.setMaxLines(4);
+            o.setMaxLines(3);
             o.setEllipsize(TextUtils.TruncateAt.END);
             o.setLineSpacing(0, 1.15f);
-            LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(a.dp(440), ViewGroup.LayoutParams.WRAP_CONTENT);
-            olp.topMargin = a.dp(12);
+            LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(a.dp(430), ViewGroup.LayoutParams.WRAP_CONTENT);
+            olp.topMargin = a.dp(10);
             col.addView(o, olp);
         }
-        TextView how = a.text(13, Ui.font(a, "semibold"), 0.7f);
+        TextView how = a.text(12, Ui.font(a, "semibold"), 0.72f);
         how.setText(tr("HOW TO WATCH", "NASIL \u0130ZLEN\u0130R"));
         how.setLetterSpacing(0.06f);
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        hlp.topMargin = a.dp(22);
+        hlp.topMargin = a.dp(18);
         hlp.bottomMargin = a.dp(8);
         col.addView(how, hlp);
         List<View> buttons = new ArrayList<>();
         for (Search.Offer o : t.offers) {
-            if (buttons.size() >= 5) break;
+            if (buttons.size() >= 4) break;
             View b = offerButton(t, o);
-            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(a.dp(380), a.dp(40));
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(a.dp(360), a.dp(38));
             blp.bottomMargin = a.dp(8);
             col.addView(b, blp);
             buttons.add(b);
@@ -932,11 +1100,24 @@ final class SearchPanel {
             none.setText(tr("Not streaming right now.", "\u015eu anda yay\u0131nda de\u011fil."));
             col.addView(none);
         }
-        s.addView(col, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        card.addView(col, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View border = new View(a);
+        GradientDrawable bdr = new GradientDrawable();
+        bdr.setCornerRadius(a.dp(24));
+        bdr.setColor(Color.TRANSPARENT);
+        bdr.setStroke(Math.max(1, a.dp(1f)), 0x33FFFFFF);
+        border.setBackground(bdr);
+        card.addView(border, a.match());
+
+        s.addView(card, new FrameLayout.LayoutParams(panelW, panelH, Gravity.CENTER));
         layer.addView(s, a.match());
         sheet = s;
         s.setAlpha(0f);
-        s.animate().alpha(1f).setDuration(220).start();
+        card.setScaleX(0.95f);
+        card.setScaleY(0.95f);
+        s.animate().alpha(1f).setDuration(200).start();
+        card.animate().scaleX(1f).scaleY(1f).setDuration(210).setInterpolator(MainActivity.LIFT).start();
         if (!buttons.isEmpty()) buttons.get(0).requestFocus();
         else s.setFocusable(true);
         if (buttons.isEmpty()) s.requestFocus();

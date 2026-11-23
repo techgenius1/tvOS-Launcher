@@ -375,7 +375,18 @@ public class PowerService extends AccessibilityService {
     protected void onServiceConnected() {
         instance = this;
         serviceConnectedElapsedMs = SystemClock.elapsedRealtime();
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        // If "Launch Automatically on System Boot" is enabled and the system just booted,
+        // AccessibilityService connects much earlier than BOOT_COMPLETED on many TVs: launch Home immediately!
+        if (SystemClock.elapsedRealtime() < 150_000L) {
+            try {
+                if (BootReceiver.isLaunchOnBootEnabled(this)) {
+                    BootReceiver.triggerFastBootSequenceIfNeeded(this);
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
         try {
             AccessibilityServiceInfo info = getServiceInfo();
             if (info != null) {
@@ -385,16 +396,17 @@ public class PowerService extends AccessibilityService {
             }
         } catch (Throwable ignored) {
         }
-        syncVolumeHoldFix();
-        syncCaffeine(this);
-        LocalAdb.ensureKeepAliveWatchdog(this);
-        MediaWatchService.ensureSessionTracking(this);
 
-        // If "Launch Automatically on System Boot" is enabled and the system just booted,
-        // AccessibilityService connects much earlier than BOOT_COMPLETED on many TVs: launch Home immediately!
-        if (SystemClock.elapsedRealtime() < 150_000L && BootReceiver.isLaunchOnBootEnabled(this)) {
-            BootReceiver.triggerFastBootSequenceIfNeeded(this);
-        }
+        handler.post(() -> {
+            try {
+                audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                syncVolumeHoldFix();
+                syncCaffeine(this);
+                LocalAdb.ensureKeepAliveWatchdog(this);
+                MediaWatchService.ensureSessionTracking(this);
+            } catch (Throwable ignored) {
+            }
+        });
     }
 
     @Override
@@ -1023,11 +1035,10 @@ public class PowerService extends AccessibilityService {
             lastDpadEventUptimeMs = SystemClock.uptimeMillis();
             return false;
         }
-        // Fast-bypass all Gamepad & Joystick controller buttons so emulators (like PPSSPP) and games receive raw events untouched
-        int src = event.getSource();
-        if ((src & android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD
-                || (src & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK
-                || KeyEvent.isGamepadButton(code)) {
+        // Fast-bypass standard gamepad controller buttons (A/B/X/Y/L1/R1/L2/R2/Start/Select/Thumb/Mode)
+        // without checking SOURCE_GAMEPAD/SOURCE_JOYSTICK, because many Bluetooth TV remotes (Xiaomi, TCL, etc.)
+        // advertise SOURCE_GAMEPAD in their HID descriptor. Games/emulators also disable key filtering via foregroundIsGame.
+        if (code >= KeyEvent.KEYCODE_BUTTON_A && code <= KeyEvent.KEYCODE_BUTTON_MODE) {
             return false;
         }
         if (event.getAction() == KeyEvent.ACTION_DOWN
@@ -1073,6 +1084,11 @@ public class PowerService extends AccessibilityService {
     static boolean sleep() {
         PowerService s = instance;
         return s != null && Build.VERSION.SDK_INT >= 28 && s.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN);
+    }
+
+    static boolean showPowerDialog() {
+        PowerService s = instance;
+        return s != null && Build.VERSION.SDK_INT >= 21 && s.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG);
     }
 
     static boolean sendGlobalAction(int action) {
@@ -1148,21 +1164,15 @@ public class PowerService extends AccessibilityService {
             // On Google TV & Fire OS, the OS intercepts KEYCODE_HOME before onKeyEvent and launches the stock launcher.
             // When Home Button Fix is enabled, intercept its window immediately!
             if (ButtonMapper.isHomeFixEnabled(this)) {
-                boolean isStockHome = "com.amazon.tv.launcher".equals(fgPkg)
-                        || "com.amazon.firehomestarter".equals(fgPkg)
-                        || "com.google.android.tvlauncher".equals(fgPkg)
-                        || "com.google.android.leanbacklauncher".equals(fgPkg);
-                if (!isStockHome && "com.google.android.apps.tv.launcherx".equals(fgPkg)) {
+                if (Perms.isAnySystemLauncherPackage(this, fgPkg)) {
                     CharSequence cls = e.getClassName();
-                    // Intercept Google TV HomeActivity only.
-                    // Allow Dashboard / Quick Settings and ReauthActivity (e.g. Google Photos identity verification) through!
-                    if (cls != null && cls.toString().contains("HomeActivity")) {
-                        isStockHome = true;
+                    if ("com.google.android.apps.tv.launcherx".equals(fgPkg)
+                            && (cls == null || !cls.toString().contains("HomeActivity"))) {
+                        // Allow Google TV Dashboard / Quick Settings and ReauthActivity through
+                    } else {
+                        BootReceiver.launchHomeImmediately(this);
+                        return;
                     }
-                }
-                if (isStockHome) {
-                    BootReceiver.launchHomeImmediately(this);
-                    return;
                 }
             }
 

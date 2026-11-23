@@ -32,8 +32,8 @@ New-Item -ItemType Directory -Force -Path "build\gen", "build\classes", "build\d
 if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
 
 & "$BT\aapt2.exe" link -o build\unsigned.apk -I "$JAR" --manifest AndroidManifest.xml `
-    --java build\gen --min-sdk-version 24 --target-sdk-version 34 `
-    --version-code 16 --version-name "2.2.0" build\res.zip
+    --java build\gen --min-sdk-version 23 --target-sdk-version 34 `
+    --version-code 17 --version-name "2.2.5" build\res.zip
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed" }
 
 $javaFiles = Get-ChildItem -Recurse -Path src, build\gen -Filter "*.java" | Select-Object -ExpandProperty FullName
@@ -44,7 +44,7 @@ if ($LASTEXITCODE -ne 0) { throw "javac failed" }
 & jar cf build\classes.jar -C build\classes .
 if ($LASTEXITCODE -ne 0) { throw "jar failed" }
 
-& "$BT\d8.bat" --release --min-api 24 --lib "$JAR" --output build\dex build\classes.jar
+& "$BT\d8.bat" --release --min-api 23 --lib "$JAR" --output build\dex build\classes.jar
 if ($LASTEXITCODE -ne 0) { throw "d8 failed" }
 
 Add-Type -AssemblyName System.IO.Compression
