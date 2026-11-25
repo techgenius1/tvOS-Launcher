@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power_service_desc">Cho phép tvOS Launcher của techgenius gán lại nút remote, mở Bảng điều khiển nổi trên ứng dụng khác, đưa TV vào chế độ ngủ (Tắt nguồn, Hẹn giờ ngủ) và đóng ứng dụng chạy nền.</string>
+</resources>
