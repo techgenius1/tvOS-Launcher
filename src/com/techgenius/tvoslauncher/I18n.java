@@ -15,7 +15,7 @@ import java.util.Set;
  * Multi-language localization support for tvOS Launcher:
  * English (en), Turkish (tr), Swedish (sv), Hindi/Indian (hi), Spanish (es), French (fr),
  * German (de), Italian (it), Russian (ru), Portuguese (pt), Arabic (ar),
- * Japanese (ja), Chinese (zh), Korean (ko) and Hebrew (he).
+ * Japanese (ja), Chinese (zh), Korean (ko), Hebrew (he) and Vietnamese (vi).
  */
 public final class I18n {
     public static final String LANG_EN = "en";
@@ -36,9 +36,11 @@ public final class I18n {
     public static final String LANG_ZH = "zh";
     public static final String LANG_KO = "ko";
     public static final String LANG_HE = "he";
+    public static final String LANG_VI = "vi";
 
     public static final String[][] LANGUAGES = {
         {LANG_EN, "English", "Use tvOS Launcher in English"},
+        {LANG_VI, "Ti\u1ebfng Vi\u1ec7t", "S\u1eed d\u1ee5ng tvOS Launcher b\u1eb1ng ti\u1ebfng Vi\u1ec7t"},
         {LANG_TR, "Türkçe", "tvOS Launcher'ı Türkçe kullanın"},
         {LANG_AZ, "Azərbaycan dili", "tvOS Launcher-i Azərbaycan dilində istifadə edin"},
         {LANG_SV, "Svenska", "Använd tvOS Launcher på svenska"},
@@ -60,7 +62,7 @@ public final class I18n {
 
     private static final Set<String> SUPPORTED = new HashSet<>(Arrays.asList(
             LANG_EN, LANG_TR, LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE,
-            LANG_IT, LANG_RU, LANG_PT, LANG_PT_BR, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE
+            LANG_IT, LANG_RU, LANG_PT, LANG_PT_BR, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE, LANG_VI
     ));
 
     private static String cachedLang;
@@ -225,7 +227,7 @@ public final class I18n {
         TR_MAP.put("news_country_setting", "Canlı Haberler ülkesi");
         TR_MAP.put("news_country_auto", "Otomatik (Arayüz diliyle eşitle)");
 
-        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_PT_BR, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE};
+        String[] langs = {LANG_AZ, LANG_SV, LANG_HI, LANG_ES, LANG_FR, LANG_DE, LANG_IT, LANG_RU, LANG_PT, LANG_PT_BR, LANG_PL, LANG_AR, LANG_JA, LANG_ZH, LANG_KO, LANG_HE, LANG_VI};
         for (String l : langs) {
             LANG_MAPS.put(l, new HashMap<String, String>());
         }
@@ -238,6 +240,7 @@ public final class I18n {
         initAzerbaijani();
         initPolish();
         I18nHe.init(LANG_MAPS.get(LANG_HE));
+        I18nVi.init(LANG_MAPS.get(LANG_VI));
         LANG_MAPS.get(LANG_HE).put("dash_cricket", "תוצאות קריקט בשידור חי");
         LANG_MAPS.get(LANG_HE).put("dash_news", "חדשות בשידור חי");
         LANG_MAPS.get(LANG_HE).put("dash_top_media", "סרטים וסדרות מובילים");
@@ -2446,6 +2449,7 @@ public final class I18n {
             case LANG_ZH: return Locale.forLanguageTag("zh-CN");
             case LANG_KO: return Locale.forLanguageTag("ko-KR");
             case LANG_HE: return Locale.forLanguageTag("he-IL");
+            case LANG_VI: return Locale.forLanguageTag("vi-VN");
             default: return Locale.US;
         }
     }
@@ -2506,6 +2510,10 @@ public final class I18n {
             String dyn = I18nHe.dynamic(en);
             if (dyn != null) return dyn;
         }
+        if (LANG_VI.equals(lang)) {
+            String dyn = I18nVi.dynamic(en);
+            if (dyn != null) return dyn;
+        }
         // Dynamic pattern translations
         if (en.endsWith("% used · Recent Apps") && map != null) {
             String num = en.substring(0, en.length() - "% used · Recent Apps".length());
@@ -2550,6 +2558,8 @@ public final class I18n {
         String lang = getLang(c);
         Locale loc = locale(c);
         switch (lang) {
+            case LANG_VI:
+                return new SimpleDateFormat("EEEE, 'ng\u00e0y' d 'th\u00e1ng' M 'n\u0103m' yyyy", loc).format(date);
             case LANG_TR:
             case LANG_AZ:
                 return new SimpleDateFormat("d MMMM EEEE", loc).format(date);
@@ -2640,6 +2650,7 @@ public final class I18n {
     /** Translates default profile names ("Person 1", "Default", "Kids") while preserving custom names. */
     public static String profileName(Context c, String name) {
         if (name == null) return "";
+        if (LANG_VI.equals(getLang(c))) return I18nVi.profileName(name);
         if (LANG_HE.equals(getLang(c))) {
             if (name.equals("Default") || name.equals("Varsay\u0131lan")) return "\u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc";
             if (name.startsWith("Person ")) return "\u05e4\u05e8\u05d5\u05e4\u05d9\u05dc " + name.substring("Person ".length());

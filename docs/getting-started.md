@@ -81,6 +81,14 @@ adb shell am start -n com.techgenius.tvoslauncher/.MainActivity
 
 More on installing and permissions: [install.md](install.md).
 
+### Tiếng Việt
+
+Chọn **Settings → Language → Tiếng Việt** (hoặc chọn ngôn ngữ trong bước thiết lập).
+Khi cài mới trên thiết bị dùng tiếng Việt, launcher tự chọn ngôn ngữ này; lựa chọn đã lưu
+không thay đổi. Bản dịch bao gồm giao diện thiết lập, cài đặt, thông báo có dữ liệu động,
+tên hồ sơ mặc định và ngày tháng theo locale `vi-VN`. Tên hồ sơ tùy chỉnh và nội dung
+không có bản dịch giữ nguyên. Gói ứng dụng, quyền và kênh cập nhật không thay đổi.
+
 ## 5. Or use the Android TV emulator
 
 ```sh
