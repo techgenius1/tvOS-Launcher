@@ -386,7 +386,7 @@ final class LocalAdb {
 
     static String buildCleanAccessibilityServicesList(Context c, String existingAcc) {
         String pkg = c.getPackageName();
-        String ourAcc = pkg + "/" + pkg + ".PowerService";
+        String ourAcc = pkg + "/" + PowerService.class.getName();
         String ourShort = pkg + "/.PowerService";
         StringBuilder sb = new StringBuilder();
         if (existingAcc != null && !existingAcc.trim().isEmpty() && !"null".equalsIgnoreCase(existingAcc.trim())) {
@@ -432,7 +432,7 @@ final class LocalAdb {
             try {
                 if (!MediaWatchService.granted(c)) {
                     String pkg = c.getPackageName();
-                    String ourNotif = pkg + "/" + pkg + ".MediaWatchService";
+                    String ourNotif = pkg + "/" + MediaWatchService.class.getName();
                     String curNotif = Settings.Secure.getString(cr, "enabled_notification_listeners");
                     if (curNotif == null || curNotif.trim().isEmpty() || "null".equalsIgnoreCase(curNotif.trim())) {
                         Settings.Secure.putString(cr, "enabled_notification_listeners", ourNotif);
@@ -978,8 +978,8 @@ final class LocalAdb {
                 // enabled_notification_listeners setting, so low-RAM Android TVs also allow MediaSessionManager!)
                 cmds.add("pm grant " + pkg + " android.permission.MEDIA_CONTENT_CONTROL 2>/dev/null");
                 if (!MediaWatchService.granted(c)) {
-                    cmds.add("cmd notification allow_listener " + pkg + "/" + pkg + ".MediaWatchService 2>/dev/null");
-                    String ourNotif = pkg + "/" + pkg + ".MediaWatchService";
+                    cmds.add("cmd notification allow_listener " + pkg + "/" + MediaWatchService.class.getName() + " 2>/dev/null");
+                    String ourNotif = pkg + "/" + MediaWatchService.class.getName();
                     String curNotif = "";
                     try {
                         curNotif = Settings.Secure.getString(c.getContentResolver(), "enabled_notification_listeners");
@@ -1004,10 +1004,10 @@ final class LocalAdb {
                 // 5. Default Home Role + Preferred Home Activity (compatible with Android 9, 10, 11, 12, 14)
                 cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME " + pkg + " 1 2>/dev/null");
                 cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME " + pkg + " 2>/dev/null");
-                cmds.add("cmd package set-home-activity --user 0 " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
+                cmds.add("cmd package set-home-activity --user 0 " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
                 cmds.add("cmd package set-home-activity --user 0 " + pkg + "/.MainActivity 2>/dev/null");
-                cmds.add("cmd package set-home-activity " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
-                cmds.add("pm set-home-activity --user 0 " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
+                cmds.add("cmd package set-home-activity " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
+                cmds.add("pm set-home-activity --user 0 " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
 
                 // 6. If Secure Mode (closeAdbAfter) was requested, close ADB right at the end of setup
                 if (closeAdbAfter) {
@@ -1083,11 +1083,11 @@ final class LocalAdb {
             }
             cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME " + pkg + " 1 2>/dev/null");
             cmds.add("cmd role add-role-holder --user 0 android.app.role.HOME " + pkg + " 2>/dev/null");
-            cmds.add("cmd package set-home-activity --user 0 " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
+            cmds.add("cmd package set-home-activity --user 0 " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
             cmds.add("cmd package set-home-activity --user 0 " + pkg + "/.MainActivity 2>/dev/null");
-            cmds.add("cmd package set-home-activity " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
-            cmds.add("pm set-home-activity --user 0 " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
-            cmds.add("pm set-home-activity " + pkg + "/" + pkg + ".MainActivity 2>/dev/null");
+            cmds.add("cmd package set-home-activity " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
+            cmds.add("pm set-home-activity --user 0 " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
+            cmds.add("pm set-home-activity " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null");
 
             String[] hosts = {"127.0.0.1", localLanIp()};
             Exception lastErr = null;
@@ -1151,7 +1151,7 @@ final class LocalAdb {
         try {
             existingAcc = Settings.Secure.getString(appCtx.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         } catch (Exception ignored) { }
-        String ourAcc = pkg + "/" + pkg + ".PowerService";
+        String ourAcc = pkg + "/" + PowerService.class.getName();
         String ourShort = pkg + "/.PowerService";
         StringBuilder cleanAcc = new StringBuilder();
         if (existingAcc != null && !existingAcc.trim().isEmpty() && !"null".equalsIgnoreCase(existingAcc.trim())) {
@@ -1176,7 +1176,7 @@ final class LocalAdb {
                 if (cleanAccStr.isEmpty()) {
                     Settings.Secure.putInt(cr, Settings.Secure.ACCESSIBILITY_ENABLED, 0);
                 }
-                String ourNotif = pkg + "/" + pkg + ".MediaWatchService";
+                String ourNotif = pkg + "/" + MediaWatchService.class.getName();
                 String curNotif = Settings.Secure.getString(cr, "enabled_notification_listeners");
                 if (curNotif != null && curNotif.contains(ourNotif)) {
                     StringBuilder cleanNotif = new StringBuilder();
@@ -1200,7 +1200,7 @@ final class LocalAdb {
             if (cleanAccStr.isEmpty()) {
                 cmds.add("settings put secure accessibility_enabled 0");
             }
-            cmds.add("cmd notification disallow_listener " + pkg + "/" + pkg + ".MediaWatchService 2>/dev/null");
+            cmds.add("cmd notification disallow_listener " + pkg + "/" + MediaWatchService.class.getName() + " 2>/dev/null");
             cmds.add("cmd role remove-role-holder --user 0 android.app.role.HOME " + pkg + " 2>/dev/null");
             cmds.add("cmd package clear-package-preferred-activities " + pkg + " 2>/dev/null");
 
@@ -1421,7 +1421,7 @@ final class LocalAdb {
                         + "settings put secure enabled_accessibility_services \"" + newAcc + "\" 2>/dev/null; "
                         + "settings put secure accessibility_enabled 1 2>/dev/null; "
                         + "am start -n " + pkg + "/.MainActivity -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null "
-                        + "|| am start -n " + pkg + "/" + pkg + ".MainActivity 2>/dev/null";
+                        + "|| am start -n " + pkg + "/" + MainActivity.class.getName() + " 2>/dev/null";
 
                 portReachable = true;
                 setPaired(c, true);
