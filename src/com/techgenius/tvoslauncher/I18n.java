@@ -180,6 +180,13 @@ public final class I18n {
         EN_MAP.put("releases_country_auto", "Automatic (Sync with UI language)");
         EN_MAP.put("news_country_setting", "Live News country");
         EN_MAP.put("news_country_auto", "Automatic (Sync with UI language)");
+        EN_MAP.put("dash_now_in_cinemas", "Now in Cinemas");
+        EN_MAP.put("cinema_loading", "Loading films\u2026");
+        EN_MAP.put("cinema_unavailable", "Cinema listings unavailable right now");
+        EN_MAP.put("cinema_unavailable_detail", "No cinema listings could be found for this country.");
+        EN_MAP.put("cinema_failed_detail", "Couldn't connect. Check the network and try again.");
+        EN_MAP.put("cinema_trailer_error", "This trailer can't be played right now.");
+        EN_MAP.put("cinema_trailer", "Trailer");
 
         TR_MAP.put("dash_prayer_times", "Namaz Vakitleri");
         TR_MAP.put("dash_football", "Futbol Maçları");
@@ -221,6 +228,13 @@ public final class I18n {
         TR_MAP.put("sleep_timer", "Uyku Zamanlayıcısı");
         TR_MAP.put("keep_watching", "İzlemeye devam et");
         TR_MAP.put("releases_country_setting", "Çok İzlenenler ülkeleri");
+        TR_MAP.put("dash_now_in_cinemas", "Vizyondaki Filmler");
+        TR_MAP.put("cinema_loading", "Filmler y\u00FCkleniyor\u2026");
+        TR_MAP.put("cinema_unavailable", "\u015Eu an vizyon listesi al\u0131namad\u0131");
+        TR_MAP.put("cinema_unavailable_detail", "Bu \u00FClke i\u00E7in vizyon listesi bulunamad\u0131.");
+        TR_MAP.put("cinema_failed_detail", "Ba\u011Flan\u0131lamad\u0131. A\u011F\u0131 kontrol edip tekrar deneyin.");
+        TR_MAP.put("cinema_trailer_error", "Bu fragman \u015Fu an oynat\u0131lam\u0131yor.");
+        TR_MAP.put("cinema_trailer", "Fragman");
         TR_MAP.put("releases_country_auto", "Otomatik (Arayüz diliyle eşitle)");
         TR_MAP.put("news_country_setting", "Canlı Haberler ülkesi");
         TR_MAP.put("news_country_auto", "Otomatik (Arayüz diliyle eşitle)");
@@ -288,6 +302,7 @@ public final class I18n {
         add("Live News", "लाइव समाचार", "Noticias en Vivo", "Actualités en Direct", "Live-Nachrichten", "Notizie in Diretta", "Новости в прямом эфире", "Notícias em Direto", "الأخبار المباشرة", "ライブニュース", "实时新闻");
         add("Top Movies & Series", "शीर्ष फ़िल्में और सीरीज़", "Mejores Películas y Series", "Meilleurs Films et Séries", "Top-Filme & Serien", "Migliori Film e Serie", "Лучшие фильмы и сериалы", "Melhores Filmes e Séries", "أفضل الأفلام والمسلسلات", "トップ映画＆シリーズ", "高分电影与剧集");
         add("Most Watched", "सबसे ज़्यादा देखे गए", "Más vistos", "Les plus regardés", "Meistgesehen", "Più visti", "Самое популярное", "Mais vistos", "الأكثر مشاهدة", "人気コンテンツ", "热门观看");
+        add("dash_now_in_cinemas", "\u0938\u093F\u0928\u0947\u092E\u093E\u0918\u0930\u094B\u0902 \u092E\u0947\u0902", "En cines", "Au cin\u00E9ma", "Jetzt im Kino", "Al cinema", "\u0421\u0435\u0439\u0447\u0430\u0441 \u0432 \u043A\u0438\u043D\u043E", "Nos cinemas", "\u0641\u064A \u062F\u0648\u0631 \u0627\u0644\u0633\u064A\u0646\u0645\u0627", "\u4E0A\u6620\u4E2D", "\u6B63\u5728\u70ED\u6620");
         add("Loading titles…", "शीर्षक लोड हो रहे हैं…", "Cargando títulos…", "Chargement des titres…", "Titel werden geladen…", "Caricamento titoli…", "Загрузка контента…", "A carregar títulos…", "جارٍ تحميل العناوين…", "タイトルを読み込み中…", "正在加载内容…");
         add("Most Watched countries", "सबसे ज़्यादा देखे गए देश", "Países de Más vistos", "Pays des plus regardés", "Meistgesehen-Länder", "Paesi Più visti", "Страны популярного", "Países de Mais vistos", "بلدان الأكثر مشاهدة", "人気コンテンツの国", "热门观看国家/地区");
         add("Live News country", "लाइव समाचार देश", "País de Noticias en Vivo", "Pays des Actualités en Direct", "Land der Live-Nachrichten", "Paese Notizie in Diretta", "Страна новостей в прямом эфире", "País de Notícias em Direto", "بلد الأخبار المباشرة", "ライブニュースの国", "实时新闻国家/地区");
@@ -1498,6 +1513,13 @@ public final class I18n {
         az("football_no_matches", "Hazırda planlaşdırılmış oyun yoxdur");
         az("releases_loading", "Məzmunlar yüklənir…");
         az("weather_updating", "Yenilənir…");
+        az("dash_now_in_cinemas", "Kinoteatrlarda");
+        az("cinema_loading", "Filml\u0259r y\u00FCkl\u0259nir\u2026");
+        az("cinema_unavailable", "Haz\u0131rda kinoteatr siyah\u0131s\u0131 al\u0131nmad\u0131");
+        az("cinema_unavailable_detail", "Bu \u00F6lk\u0259 \u00FC\u00E7\u00FCn kinoteatr siyah\u0131s\u0131 tap\u0131lmad\u0131.");
+        az("cinema_failed_detail", "Qo\u015Fulmaq olmad\u0131. \u015E\u0259b\u0259k\u0259ni yoxlay\u0131n v\u0259 yenid\u0259n c\u0259hd edin.");
+        az("cinema_trailer_error", "Bu treyler haz\u0131rda oynad\u0131la bilmir.");
+        az("cinema_trailer", "Treyler");
         az("tomorrow_short", "Sabah");
         az("tomorrow", "Sabah");
         az("now", "İndi");

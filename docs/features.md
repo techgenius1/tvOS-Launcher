@@ -45,6 +45,19 @@ Settings → Home → **Run setup again** repeats it. If Home is pressed mid-way
 - **More Apps**: hidden apps live in a folder card at the end of the grid.
 - **System apps** (Settings, Play Store…) get tvOS-style cards: a gradient with a white glyph.
 - **Background**: Aurora, Midnight, Sunset, Ocean or Graphite (per profile).
+- **Now in Cinemas** widget (Home dashboard): films playing in cinemas in the *Most Watched*
+  country, with poster, release date and rating. OK opens the full list; OK on a film plays its
+  trailer. No keys or accounts. Listings come from the AlloCiné network's "now showing" pages
+  for Türkiye (Beyazperde), France (AlloCiné), Spain (SensaCine) and Brazil (AdoroCinema), and
+  from JustWatch's cinema titles elsewhere; refreshed at most once an hour. Neither is an official
+  API, so a site change can empty the list (the card then says the listings are unavailable).
+  - Trailers from those four sites are their own MP4s (up to 1280 px wide), played in a built-in
+    full-screen player (OK pauses/resumes, Back closes). They are downloaded in the background, one
+    at a time and only on Wi-Fi/Ethernet, into the app's cache (at most 400 MB, never with less
+    than 1 GB free; films released earliest make room first) and deleted when the film leaves the
+    list, so they start instantly. Until a trailer is downloaded it streams.
+  - Other films open their YouTube trailer in the YouTube app (or SmartTube); nothing from YouTube
+    is downloaded.
 
 ### Remote controls
 

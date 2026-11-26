@@ -16,6 +16,7 @@ source (Nayuki, MIT) under `src/io/nayuki/qrcodegen`.
 | `SetupActivity.java` | First-time setup pages (Apple-style, one question per page) |
 | `SettingsActivity.java` | All settings, tvOS list layout |
 | `Suggestions.java` | JustWatch / TMDB / Stremio (Cinemeta) recommendations: fetch, cache, artwork, deep links |
+| `NowInCinemas.java`, `TrailerActivity.java` | Now in Cinemas widget: AlloCiné-network / JustWatch listings, hourly cache, trailer MP4 download cache, YouTube fallback; full-screen trailer player |
 | `Search.java` | Search data: JustWatch title search (every service in India) and Cinemeta, matching each service to its installed app, Open / Get, recent searches |
 | `SearchPanel.java` | The search screen: one-row keyboard (English, digits, Hindi or Hebrew, voice), Apps & Settings and Movies & TV rows, the How to Watch sheet |
 | `MediaWatchService.java` | Notification listener → media sessions → Continue Watching store; DND access |
