@@ -15,6 +15,7 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -36,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -62,6 +64,7 @@ import java.util.concurrent.Executors;
  *  2. Football Matches: Upcoming matches, live scores, and favorite teams.
  *  3. Latest Releases: Recently released movies and TV series from streaming platforms.
  *  4. Weather: Current conditions and forecast.
+ * Further optional cards: cricket, news, top media and Now in Cinemas (films in cinemas, with trailers).
  */
 public final class HomeDashboard {
 
@@ -75,6 +78,7 @@ public final class HomeDashboard {
     private static final String KEY_W_CRICKET = "widget_cricket";
     private static final String KEY_W_NEWS = "widget_news";
     private static final String KEY_W_TOP_MEDIA = "widget_top_media";
+    private static final String KEY_W_CINEMAS = "widget_now_in_cinemas";
     private static final String KEY_WIDGET_ORDER = "widget_order";
     private static final String KEY_ALL_DEFAULT_V2 = "widgets_all_default_v2";
 
@@ -85,10 +89,11 @@ public final class HomeDashboard {
     public static final String WIDGET_CRICKET = "cricket";
     public static final String WIDGET_NEWS = "news";
     public static final String WIDGET_TOP_MEDIA = "top_media";
+    public static final String WIDGET_CINEMAS = "now_in_cinemas";
 
     public static final String[] DEFAULT_WIDGET_IDS = {
         WIDGET_PRAYER, WIDGET_FOOTBALL, WIDGET_RELEASES, WIDGET_WEATHER,
-        WIDGET_CRICKET, WIDGET_NEWS, WIDGET_TOP_MEDIA
+        WIDGET_CRICKET, WIDGET_NEWS, WIDGET_TOP_MEDIA, WIDGET_CINEMAS
     };
 
     private static volatile String sMovingWidgetId = null;
@@ -280,6 +285,14 @@ public final class HomeDashboard {
         prefs(c).edit().putBoolean(KEY_W_TOP_MEDIA, en).apply();
     }
 
+    public static boolean isWidgetCinemasEnabled(Context c) {
+        return prefs(c).getBoolean(KEY_W_CINEMAS, true);
+    }
+
+    public static void setWidgetCinemasEnabled(Context c, boolean en) {
+        prefs(c).edit().putBoolean(KEY_W_CINEMAS, en).apply();
+    }
+
     public static List<String> getWidgetOrder(Context c) {
         String raw = prefs(c).getString(KEY_WIDGET_ORDER, "");
         List<String> out = new ArrayList<String>();
@@ -327,6 +340,7 @@ public final class HomeDashboard {
         if (WIDGET_CRICKET.equals(id)) return isWidgetCricketEnabled(c);
         if (WIDGET_NEWS.equals(id)) return isWidgetNewsEnabled(c);
         if (WIDGET_TOP_MEDIA.equals(id)) return isWidgetTopMediaEnabled(c);
+        if (WIDGET_CINEMAS.equals(id)) return isWidgetCinemasEnabled(c);
         return false;
     }
 
@@ -338,6 +352,7 @@ public final class HomeDashboard {
         else if (WIDGET_CRICKET.equals(id)) setWidgetCricketEnabled(c, en);
         else if (WIDGET_NEWS.equals(id)) setWidgetNewsEnabled(c, en);
         else if (WIDGET_TOP_MEDIA.equals(id)) setWidgetTopMediaEnabled(c, en);
+        else if (WIDGET_CINEMAS.equals(id)) setWidgetCinemasEnabled(c, en);
     }
 
     public static String getWidgetTitleById(Context c, String id) {
@@ -348,6 +363,7 @@ public final class HomeDashboard {
         if (WIDGET_CRICKET.equals(id)) return I18n.t(c, "dash_cricket");
         if (WIDGET_NEWS.equals(id)) return I18n.t(c, "dash_news");
         if (WIDGET_TOP_MEDIA.equals(id)) return I18n.t(c, "dash_top_media");
+        if (WIDGET_CINEMAS.equals(id)) return I18n.t(c, "dash_now_in_cinemas");
         return id;
     }
 
@@ -359,6 +375,7 @@ public final class HomeDashboard {
         if (WIDGET_CRICKET.equals(id)) return "🏏  ";
         if (WIDGET_NEWS.equals(id)) return "📰  ";
         if (WIDGET_TOP_MEDIA.equals(id)) return "🎥  ";
+        if (WIDGET_CINEMAS.equals(id)) return "\uD83C\uDF9F\uFE0F  ";
         return "";
     }
 
@@ -433,7 +450,8 @@ public final class HomeDashboard {
                 || isWidgetWeatherEnabled(c)
                 || isWidgetCricketEnabled(c)
                 || isWidgetNewsEnabled(c)
-                || isWidgetTopMediaEnabled(c));
+                || isWidgetTopMediaEnabled(c)
+                || isWidgetCinemasEnabled(c));
     }
 
     public static boolean isAnyEnabled(Context c) {
@@ -1511,6 +1529,7 @@ public final class HomeDashboard {
         else if (WIDGET_CRICKET.equals(id)) card = createCricketWidgetCard(host);
         else if (WIDGET_NEWS.equals(id)) card = createNewsWidgetCard(host);
         else if (WIDGET_TOP_MEDIA.equals(id)) card = createTopMediaWidgetCard(host);
+        else if (WIDGET_CINEMAS.equals(id)) card = createCinemasWidgetCard(host);
         return card;
     }
 
@@ -3656,6 +3675,378 @@ public final class HomeDashboard {
         panel.addView(sv, svlp);
 
         presentNativeGlassDialog(host, d, panel);
+    }
+
+    // -------------------------------------------------------------------------
+    // WIDGET: NOW IN CINEMAS (data in NowInCinemas.java)
+    // -------------------------------------------------------------------------
+
+    /** Empty results are not asked again for this long (per country/language/source). */
+    private static volatile String sCinemaEmptySig = null;
+    private static volatile long sCinemaEmptyTs = 0L;
+    private static volatile boolean sCinemaEmptyFailed = false;
+
+    /** Delivers the films (possibly empty, never "still loading") on the main thread. */
+    interface CinemasCallback {
+        void onResult(List<NowInCinemas.Film> films, boolean failed);
+    }
+
+    static void fetchNowInCinemas(final Context c, final boolean force, final CinemasCallback cb) {
+        final String sig = NowInCinemas.signature(c);
+        if (!force && NowInCinemas.isFresh(c)) {
+            List<NowInCinemas.Film> cached = NowInCinemas.cached(c);
+            NowInCinemas.syncTrailers(c, cached, false);
+            if (cb != null) cb.onResult(cached, false);
+            return;
+        }
+        if (!force && sig.equals(sCinemaEmptySig)
+                && System.currentTimeMillis() - sCinemaEmptyTs < NowInCinemas.EMPTY_RETRY_MS) {
+            List<NowInCinemas.Film> stale = NowInCinemas.cached(c);
+            if (cb != null) cb.onResult(stale, stale.isEmpty() && sCinemaEmptyFailed);
+            return;
+        }
+        final Context app = c.getApplicationContext();
+        EXEC.execute(() -> {
+            NowInCinemas.Result r = NowInCinemas.fetch(app);
+            List<NowInCinemas.Film> films = r.films;
+            boolean failed = r.failed;
+            if (!films.isEmpty()) {
+                NowInCinemas.store(app, sig, films);
+                sCinemaEmptySig = null;
+                NowInCinemas.syncTrailers(app, films, true);
+            } else {
+                sCinemaEmptySig = sig;
+                sCinemaEmptyTs = System.currentTimeMillis();
+                sCinemaEmptyFailed = failed;
+                films = NowInCinemas.cached(app);  // keep showing the last good list, if any
+                if (!films.isEmpty()) failed = false;
+            }
+            final List<NowInCinemas.Film> out = films;
+            final boolean outFailed = failed;
+            if (cb != null) MAIN.post(() -> cb.onResult(out, outFailed));
+        });
+    }
+
+    /** Short meta line: "15 Jul 2026 \u2022 \u2605 8.4". */
+    private static String cinemaMeta(Context c, NowInCinemas.Film f) {
+        StringBuilder sb = new StringBuilder(NowInCinemas.displayDate(c, f));
+        if (f.rating > 0) {
+            if (sb.length() > 0) sb.append(" \u2022 ");
+            sb.append(String.format(Locale.US, "\u2605 %.1f", f.rating));
+            if (f.ratingMax != 10) sb.append('/').append(f.ratingMax);
+        }
+        return sb.toString();
+    }
+
+    /** Text for an empty list: { title, detail for the dialog, short detail for the card }. */
+    private static String[] cinemaEmptyText(Context c, boolean failed) {
+        String detail = I18n.t(c, failed ? "cinema_failed_detail" : "cinema_unavailable_detail");
+        return new String[]{I18n.t(c, "cinema_unavailable"), detail, detail};
+    }
+
+    /** Loads a poster URL into the view, memory- and disk-cached. */
+    private static void bindCinemaPoster(final MainActivity host, final ImageView view, final String poster, final int maxW) {
+        if (poster == null || poster.isEmpty()) {
+            view.setTag(null);
+            view.setImageDrawable(null);
+            return;
+        }
+        if (poster.equals(view.getTag())) return;
+        view.setTag(poster);
+        view.setImageDrawable(null);
+        final String key = "cinema:" + maxW + ":" + poster;
+        Bitmap cachedBmp = sLogoCache.get(key);
+        if (cachedBmp != null && !cachedBmp.isRecycled()) {
+            view.setImageBitmap(cachedBmp);
+            return;
+        }
+        EXEC.execute(() -> {
+            final Bitmap bmp = Suggestions.image(host, poster, "w185", maxW);
+            if (bmp == null) return;
+            sLogoCache.put(key, bmp);
+            MAIN.post(() -> {
+                if (poster.equals(view.getTag())) view.setImageBitmap(bmp);
+            });
+        });
+    }
+
+    private static View createCinemasWidgetCard(final MainActivity host) {
+        final FrameLayout card = createBaseGlassCard(host, 0xFFF43F5E);
+
+        LinearLayout rootRow = new LinearLayout(host);
+        rootRow.setOrientation(LinearLayout.HORIZONTAL);
+        rootRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        final ImageView posterView = new ImageView(host);
+        posterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        GradientDrawable posterBg = new GradientDrawable();
+        posterBg.setColor(0x33FFFFFF);
+        posterBg.setCornerRadius(dp(host, 8));
+        posterView.setBackground(posterBg);
+        posterView.setOutlineProvider(host.roundedOutline(new float[]{dp(host, 8)}));
+        posterView.setClipToOutline(true);
+        rootRow.addView(posterView, new LinearLayout.LayoutParams(dp(host, 50), dp(host, 74)));
+
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams colp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        colp.leftMargin = dp(host, 10);
+
+        LinearLayout head = new LinearLayout(host);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        View dot = new View(host);
+        head.addView(dot, new LinearLayout.LayoutParams(dp(host, 6), dp(host, 6)));
+        TextView headerTitle = new TextView(host);
+        styleUnifiedWidgetHeader(host, dot, headerTitle, I18n.t(host, "dash_now_in_cinemas"));
+        head.addView(headerTitle, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        final TextView countryTv = new TextView(host);
+        countryTv.setTextColor(0x88FFFFFF);
+        countryTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8.5f);
+        countryTv.setSingleLine(true);
+        head.addView(countryTv);
+        col.addView(head, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final TextView titleTv = new TextView(host);
+        titleTv.setTextColor(Color.WHITE);
+        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        titleTv.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        titleTv.setMaxLines(2);
+        titleTv.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams ttlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ttlp.topMargin = dp(host, 3);
+        col.addView(titleTv, ttlp);
+
+        final TextView metaTv = new TextView(host);
+        metaTv.setTextColor(0xB8FFFFFF);
+        metaTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.8f);
+        metaTv.setSingleLine(true);
+        metaTv.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams mtlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mtlp.topMargin = dp(host, 2);
+        col.addView(metaTv, mtlp);
+
+        final TextView nextTv = new TextView(host);
+        nextTv.setTextColor(0x88FFFFFF);
+        nextTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f);
+        nextTv.setSingleLine(true);
+        nextTv.setEllipsize(TextUtils.TruncateAt.END);
+        col.addView(nextTv, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        rootRow.addView(col, colp);
+        card.addView(rootRow, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        final List<NowInCinemas.Film> films = new ArrayList<NowInCinemas.Film>();
+        // [0] = a fetch has answered, [1] = it failed: an empty list only shows "Loading" before the first answer.
+        final boolean[] state = new boolean[2];
+        final Runnable bind = new Runnable() {
+            @Override
+            public void run() {
+                countryTv.setText(NowInCinemas.country(host));
+                if (films.isEmpty()) {
+                    bindCinemaPoster(host, posterView, null, 0);
+                    if (!state[0]) {
+                        titleTv.setText(I18n.t(host, "cinema_loading"));
+                        metaTv.setText("");
+                    } else {
+                        String[] msg = cinemaEmptyText(host, state[1]);
+                        titleTv.setText(msg[0]);
+                        metaTv.setText(msg[2]);
+                    }
+                    nextTv.setText("");
+                    return;
+                }
+                NowInCinemas.Film f = films.get(0);
+                titleTv.setText(f.title);
+                metaTv.setText(cinemaMeta(host, f));
+                StringBuilder next = new StringBuilder();
+                for (int i = 1; i < films.size() && i < 4; i++) {
+                    if (next.length() > 0) next.append(", ");
+                    next.append(films.get(i).title);
+                }
+                nextTv.setText(next.length() > 0 ? "+ " + next : "");
+                bindCinemaPoster(host, posterView, f.poster, dp(host, 100));
+            }
+        };
+        final CinemasCallback onFilms = (fresh, failed) -> {
+            state[0] = true;
+            state[1] = failed;
+            films.clear();
+            films.addAll(fresh);
+            bind.run();
+        };
+
+        films.addAll(NowInCinemas.cached(host));
+        if (!films.isEmpty()) state[0] = true;
+        bind.run();
+        fetchNowInCinemas(host, false, onFilms);
+        sCardRefreshers.put(card, () -> fetchNowInCinemas(host, false, onFilms));
+
+        card.setOnClickListener(v -> showCinemasDialog(host, films, state[0], state[1], onFilms));
+        return card;
+    }
+
+    /** One focusable film row: poster, title, date/rating and what OK does (trailer or YouTube search). */
+    private static LinearLayout createCinemaRow(final MainActivity host, NowInCinemas.Film f) {
+        final LinearLayout row = new LinearLayout(host);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(host, 10), dp(host, 7), dp(host, 14), dp(host, 7));
+        row.setFocusable(true);
+        row.setClickable(true);
+        final GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(host, 13));
+        bg.setColor(0x1AFFFFFF);
+        bg.setStroke(dp(host, 1), 0x28FFFFFF);
+        row.setBackground(bg);
+
+        ImageView poster = new ImageView(host);
+        poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        GradientDrawable pbg = new GradientDrawable();
+        pbg.setColor(0x33FFFFFF);
+        pbg.setCornerRadius(dp(host, 5));
+        poster.setBackground(pbg);
+        poster.setOutlineProvider(host.roundedOutline(new float[]{dp(host, 5)}));
+        poster.setClipToOutline(true);
+        row.addView(poster, new LinearLayout.LayoutParams(dp(host, 32), dp(host, 48)));
+        bindCinemaPoster(host, poster, f.poster, dp(host, 64));
+
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        clp.leftMargin = dp(host, 12);
+        final TextView title = new TextView(host);
+        title.setText(f.title);
+        title.setTextColor(0xFFF4F4F6);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        title.setSingleLine(true);
+        title.setEllipsize(TextUtils.TruncateAt.END);
+        col.addView(title);
+        final TextView meta = new TextView(host);
+        meta.setText(cinemaMeta(host, f));
+        meta.setTextColor(0xB8FFFFFF);
+        meta.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        meta.setSingleLine(true);
+        col.addView(meta);
+        row.addView(col, clp);
+
+        final TextView action = new TextView(host);
+        action.setText("\u25B6  " + I18n.t(host, "cinema_trailer"));
+        action.setTextColor(0xB8FFFFFF);
+        action.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        action.setSingleLine(true);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        alp.leftMargin = dp(host, 10);
+        row.addView(action, alp);
+
+        row.setOnFocusChangeListener((v, hasFocus) -> {
+            bg.setColor(hasFocus ? 0xF2FFFFFF : 0x1AFFFFFF);
+            bg.setStroke(dp(host, 1), hasFocus ? 0xFFFFFFFF : 0x28FFFFFF);
+            title.setTextColor(hasFocus ? 0xFF111114 : 0xFFF4F4F6);
+            meta.setTextColor(hasFocus ? 0xB8111114 : 0xB8FFFFFF);
+            action.setTextColor(hasFocus ? 0xFF111114 : 0xB8FFFFFF);
+            v.animate().scaleX(hasFocus ? 1.02f : 1f).scaleY(hasFocus ? 1.02f : 1f).setDuration(150).start();
+        });
+        return row;
+    }
+
+    private static void showCinemasDialog(final MainActivity host, final List<NowInCinemas.Film> films,
+                                          boolean answered, boolean failed, final CinemasCallback onFilms) {
+        final Dialog d = createNativeGlassDialog(host);
+        LinearLayout panel = createModalContainer(host, dp(host, 580));
+
+        TextView title = new TextView(host);
+        title.setText(I18n.t(host, "dash_now_in_cinemas"));
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        panel.addView(title);
+
+        String src = films.isEmpty() ? "" : (NowInCinemas.SRC_ALLOCINE.equals(films.get(0).source)
+                ? Uri.parse(films.get(0).page).getHost().replace("www.", "") : "JustWatch");
+        TextView sub = new TextView(host);
+        sub.setText(NowInCinemas.country(host) + (src.isEmpty() ? "" : "  \u2022  " + src));
+        sub.setTextColor(0x99FFFFFF);
+        sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f);
+        panel.addView(sub);
+
+        if (films.isEmpty()) {
+            String[] msg = answered ? cinemaEmptyText(host, failed)
+                    : new String[]{I18n.t(host, "cinema_loading"), ""};
+            TextView body = new TextView(host);
+            body.setText(msg[0] + (msg[1].isEmpty() ? "" : "\n" + msg[1]));
+            body.setTextColor(0xE6FFFFFF);
+            body.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            blp.topMargin = dp(host, 12);
+            panel.addView(body, blp);
+            final TextView refresh = createActionPill(host, I18n.s(host, "Refresh", "Yenile"));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.topMargin = dp(host, 14);
+            refresh.setOnClickListener(v -> {
+                d.dismiss();
+                fetchNowInCinemas(host, true, onFilms);
+            });
+            panel.addView(refresh, rlp);
+            presentNativeGlassDialog(host, d, panel);
+            refresh.post(refresh::requestFocus);
+            return;
+        }
+
+        ScrollView sv = new ScrollView(host);
+        LinearLayout col = new LinearLayout(host);
+        col.setOrientation(LinearLayout.VERTICAL);
+        col.setPadding(dp(host, 4), 0, dp(host, 4), dp(host, 4));
+        View first = null;
+        for (int i = 0; i < films.size(); i++) {
+            final NowInCinemas.Film f = films.get(i);
+            LinearLayout row = createCinemaRow(host, f);
+            row.setOnClickListener(v -> openCinemaTrailer(host, f));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.topMargin = dp(host, 6);
+            col.addView(row, rlp);
+            if (first == null) first = row;
+        }
+        sv.addView(col);
+        LinearLayout.LayoutParams svlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(host, 310));
+        svlp.topMargin = dp(host, 10);
+        panel.addView(sv, svlp);
+
+        presentNativeGlassDialog(host, d, panel);
+        final View focusFirst = first;
+        if (focusFirst != null) focusFirst.post(focusFirst::requestFocus);
+    }
+
+    /**
+     * Plays the film's trailer: the downloaded file in the in-app player, else the site's MP4
+     * streamed (and downloaded in the background), else its YouTube trailer in the YouTube app.
+     */
+    private static void openCinemaTrailer(final MainActivity host, final NowInCinemas.Film f) {
+        File local = NowInCinemas.localTrailer(host, f);
+        if (local != null) {
+            NowInCinemas.playInApp(host, f, local, null);
+            return;
+        }
+        final Context app = host.getApplicationContext();
+        EXEC.execute(() -> {
+            final String mp4 = NowInCinemas.trailerMp4(app, f);
+            final String yt = mp4.isEmpty() ? NowInCinemas.youtubeId(app, f) : "";
+            MAIN.post(() -> {
+                if (!mp4.isEmpty() && NowInCinemas.playInApp(host, f, null, mp4)) return;
+                NowInCinemas.openYoutube(host, f, yt);
+            });
+        });
     }
 
     private static LinearLayout createModalContainer(MainActivity host, int widthPx) {
