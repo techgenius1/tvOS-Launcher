@@ -1090,13 +1090,27 @@ public final class HomeDashboard {
         return Collections.emptyList();
     }
 
-    private static String getScoreboardDateRangeParam() {
+    // ESPN's site API stopped accepting a date *range* ("dates=YYYYMMDD-YYYYMMDD"): every league now
+    // answers HTTP 400 "Failed to get events endpoint." for it, so the widget never received matches.
+    // A single day ("dates=YYYYMMDD") and no dates param (the league's current window) still work.
+    private static final int FOOTBALL_DAYS_AHEAD = 7;
+
+    private static String scoreboardUrl(String code, String yyyymmdd) {
+        String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + code + "/scoreboard?limit=100";
+        return yyyymmdd == null ? url : url + "&dates=" + yyyymmdd;
+    }
+
+    /** No-dates URL (current matchday / window) first, then one URL per day for the coming week. */
+    private static List<String> scoreboardUrlsForLeague(String code) {
+        List<String> urls = new ArrayList<String>();
+        urls.add(scoreboardUrl(code, null));
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd", Locale.US);
         Calendar cal = Calendar.getInstance();
-        String start = fmt.format(cal.getTime());
-        cal.add(Calendar.DAY_OF_YEAR, 7);
-        String end = fmt.format(cal.getTime());
-        return "dates=" + start + "-" + end + "&limit=100";
+        for (int i = 0; i < FOOTBALL_DAYS_AHEAD; i++) {
+            urls.add(scoreboardUrl(code, fmt.format(cal.getTime())));
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return urls;
     }
 
     public static void fetchFootballMatches(final Context c, final boolean force, final FootballCallback cb) {
@@ -1119,7 +1133,6 @@ public final class HomeDashboard {
             List<MatchItem> all = new ArrayList<MatchItem>();
             Set<String> seenIds = new HashSet<String>();
             String league = getSelectedLeague(c);
-            String dateRange = getScoreboardDateRangeParam();
             try {
                 if ("all".equals(league)) {
                     String[] codes = {
@@ -1132,9 +1145,7 @@ public final class HomeDashboard {
                     String firstRaw = null;
                     for (String code : codes) {
                         try {
-                            String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
-                                    + code + "/scoreboard?" + dateRange;
-                            String json = httpGet(url);
+                            String json = httpGet(scoreboardUrl(code, null));
                             if (firstRaw == null && json != null && json.contains("\"events\"")) {
                                 firstRaw = json;
                             }
@@ -1160,14 +1171,25 @@ public final class HomeDashboard {
                                 .apply();
                     }
                 } else {
-                    String url = "https://site.api.espn.com/apis/site/v2/sports/soccer/"
-                            + league + "/scoreboard?" + dateRange;
-                    String json = httpGet(url);
-                    all.addAll(parseEspnEvents(c, json, league));
-                    sp.edit()
-                            .putString(KEY_FOOTBALL_CACHE_JSON, json)
-                            .putLong(KEY_FOOTBALL_CACHE_TS, System.currentTimeMillis())
-                            .apply();
+                    String firstRaw = null;
+                    for (String url : scoreboardUrlsForLeague(league)) {
+                        try {
+                            String json = httpGet(url);
+                            List<MatchItem> sub = parseEspnEvents(c, json, league);
+                            if (firstRaw == null && !sub.isEmpty()) firstRaw = json;
+                            for (MatchItem m : sub) {
+                                String key = (m.id != null && !m.id.isEmpty())
+                                        ? m.id : (m.homeTeam + "|" + m.awayTeam + "|" + m.startEpochMs);
+                                if (seenIds.add(key)) all.add(m);
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                    if (firstRaw != null) {
+                        sp.edit()
+                                .putString(KEY_FOOTBALL_CACHE_JSON, firstRaw)
+                                .putLong(KEY_FOOTBALL_CACHE_TS, System.currentTimeMillis())
+                                .apply();
+                    }
                 }
             } catch (Throwable ignored) {}
 
@@ -1778,17 +1800,19 @@ public final class HomeDashboard {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         final String[] lastMatchSig = { "" };
+        final boolean[] fetchedOnce = { false };
         final Runnable bindMatches = new Runnable() {
             @Override
             public void run() {
                 List<MatchItem> list = getCachedMatches(host);
                 if (list.isEmpty()) {
-                    if ("EMPTY".equals(lastMatchSig[0]) && matchRows.getChildCount() > 0) return;
-                    lastMatchSig[0] = "EMPTY";
+                    String emptySig = fetchedOnce[0] ? "EMPTY_DONE" : "EMPTY";
+                    if (emptySig.equals(lastMatchSig[0]) && matchRows.getChildCount() > 0) return;
+                    lastMatchSig[0] = emptySig;
                     matchRows.removeAllViews();
                     badgeTv.setText("");
                     TextView empty = new TextView(host);
-                    empty.setText(I18n.t(host, "football_loading"));
+                    empty.setText(I18n.t(host, fetchedOnce[0] ? "football_no_matches" : "football_loading"));
                     empty.setTextColor(0x99FFFFFF);
                     empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
                     matchRows.addView(empty);
@@ -1878,10 +1902,14 @@ public final class HomeDashboard {
         fetchFootballMatches(host, false, new FootballCallback() {
             @Override
             public void onResult(List<MatchItem> matches) {
+                fetchedOnce[0] = true;
                 bindMatches.run();
             }
         });
-        sCardRefreshers.put(card, () -> fetchFootballMatches(host, false, matches -> bindMatches.run()));
+        sCardRefreshers.put(card, () -> fetchFootballMatches(host, false, matches -> {
+            fetchedOnce[0] = true;
+            bindMatches.run();
+        }));
 
         card.setOnClickListener(new View.OnClickListener() {
             @Override
